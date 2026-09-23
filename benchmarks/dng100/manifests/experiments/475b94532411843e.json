@@ -1,0 +1,256 @@
+{
+ "name": "sel_mech_b1000_part1",
+ "config": {
+  "methods": [
+   "greedy_reference",
+   "greedy_plus",
+   "group_probe",
+   "surrogate_search"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "networks": [
+   "main",
+   "order1"
+  ],
+  "configs": {},
+  "instances": [
+   "h05d19a2775e2",
+   "h08cf70ca61d5",
+   "h0917890668b3",
+   "h0c02a4b6d066",
+   "h155f16e50568",
+   "h16c726db0232",
+   "h19c5316c0779",
+   "h1c36d673ac06",
+   "h2471b8fd0135",
+   "h264f754cd30e",
+   "h3cba012989f5",
+   "h3fdad918827e",
+   "h41aa4c5a3318",
+   "h4295cf292883",
+   "h45573a4375a5",
+   "h496601d3407f",
+   "h4c1f023117b5",
+   "h4e2d5323ed0a",
+   "h4ecc100c0018",
+   "h5231e2579fe6",
+   "h54a266135619",
+   "h5554eb0e92b8",
+   "h5a092d1ee53e",
+   "h5a3633e0e3c4",
+   "h5c096c200eee",
+   "h6323caa5fe6e",
+   "h66a4fb84cf9c",
+   "h6ab7d00f7871",
+   "h722e4c720982",
+   "h7746558494a0",
+   "h835b3841bf30",
+   "h853b896b231f",
+   "h8885f53d9c24",
+   "h8dc8496fc90b",
+   "h902b54116e87",
+   "h9297aba17982",
+   "h92f3d32d67d8",
+   "h9aaba8b9cec3",
+   "h9acf7a1bc2f4",
+   "h9b867bd5abd5",
+   "ha610594ea140",
+   "hac81906e12d1",
+   "hacb17f220959",
+   "had9ecf24d29d",
+   "hb04d5d9894ba",
+   "hb237455fd9c7",
+   "hb373ec40f084",
+   "hb9a017ba5436",
+   "hbadc0bb431f7",
+   "hc32e8cd0a48c",
+   "hc6c0a7f0c2f6",
+   "hdb202db6b34f",
+   "he9cff3ca0289",
+   "hea247d65e787",
+   "hedc7f7933643",
+   "hee42a9855afe",
+   "hffe35092e434"
+  ]
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "suite": "mechanisms_v1_heldout",
+  "n_instances": 57,
+  "jobs_hash": "3dc421b23a354541628998bcaa58cae36164e0cfbb0431e479dff88f27dd0b71"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 1368,
+  "wall_time_s": 1200.7,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "7982695622633300866a916caa1e6ad2",
+   "shared_payload_bytes": 2171803,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 8.8054
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/sel_mech_b1000_part1.json",
+   "sha256": "bf46b8f592b5f68a59aaec4b84b000d9000819acff3fc89997d78cb2a40e99cd",
+   "size_bytes": 10732649
+  }
+ },
+ "summary": {
+  "greedy_plus": {
+   "n_runs": 342,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9883040935672515,
+   "functional_success_rate": 0.9093567251461988,
+   "functional_success_ci95": [
+    0.8771929824561403,
+    0.9385964912280702
+   ],
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9948830409356725,
+   "functional_robust_mean": 0.9327485380116959,
+   "calls_median": 88.0,
+   "calls_mean": 108.44736842105263,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9526627218934911,
+   "brier_mean": 0.0009482570249360621,
+   "essential_accuracy_mean": 0.9992603550295858,
+   "removable_fraction": 0.09064327485380116,
+   "simulated_seconds_median": 94.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.8822612085769981,
+    "identical_fraction": 0.7543859649122807
+   }
+  },
+  "greedy_reference": {
+   "n_runs": 342,
+   "success_rate": 0.7426900584795322,
+   "success_ci95": [
+    0.6988304093567251,
+    0.7894736842105263
+   ],
+   "success_planted_rate": 0.6198830409356725,
+   "functional_success_rate": 0.195906432748538,
+   "functional_success_ci95": [
+    0.15497076023391812,
+    0.23691520467836216
+   ],
+   "success_or_functional_rate": 0.7602339181286549,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.3333333333333333,
+   "functional_nominal_mean": 0.77046783625731,
+   "functional_robust_mean": 0.7054093567251462,
+   "calls_median": 246.0,
+   "calls_mean": 303.7105263157895,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.2077718713095333,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.6378205128205128,
+   "simulated_seconds_median": 244.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.8339552932174673,
+    "identical_fraction": 0.631578947368421
+   }
+  },
+  "group_probe": {
+   "n_runs": 342,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.956140350877193,
+   "functional_success_rate": 0.8830409356725146,
+   "functional_success_ci95": [
+    0.847953216374269,
+    0.9152046783625731
+   ],
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9956140350877193,
+   "functional_robust_mean": 0.9232456140350878,
+   "calls_median": 92.0,
+   "calls_mean": 141.859649122807,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.8762626262626262,
+   "brier_mean": 0.002842703516703049,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.11695906432748537,
+   "simulated_seconds_median": 97.5,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.9469785575048734,
+    "identical_fraction": 0.8596491228070176
+   }
+  },
+  "surrogate_search": {
+   "n_runs": 342,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9415204678362573,
+   "functional_success_rate": 0.9122807017543859,
+   "functional_success_ci95": [
+    0.8830409356725146,
+    0.9415204678362573
+   ],
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9941520467836257,
+   "functional_robust_mean": 0.918859649122807,
+   "calls_median": 82.0,
+   "calls_mean": 96.03801169590643,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9209726443768997,
+   "brier_mean": 0.005530935551945016,
+   "essential_accuracy_mean": 0.9984802431610942,
+   "removable_fraction": 0.08771929824561403,
+   "simulated_seconds_median": 84.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.8458089668615983,
+    "identical_fraction": 0.631578947368421
+   }
+  }
+ },
+ "notes": "",
+ "run_id": "475b94532411843e",
+ "created_utc": "2026-09-23T22:59:55Z",
+ "code": {
+  "commit": "053870227ec10e54bef0d16fcae0b5b39825c66c",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

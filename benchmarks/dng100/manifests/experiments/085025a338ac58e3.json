@@ -1,0 +1,249 @@
+{
+ "name": "sel_curve_part1_b2000",
+ "config": {
+  "methods": [
+   "greedy_reference",
+   "greedy_plus",
+   "group_probe",
+   "surrogate_search"
+  ],
+  "budget": 2000,
+  "seeds": [
+   0
+  ],
+  "networks": [
+   "main",
+   "order1"
+  ],
+  "configs": {},
+  "instances": [
+   "h05d19a2775e2",
+   "h08cf70ca61d5",
+   "h0917890668b3",
+   "h0c02a4b6d066",
+   "h155f16e50568",
+   "h16c726db0232",
+   "h19c5316c0779",
+   "h1c36d673ac06",
+   "h2471b8fd0135",
+   "h264f754cd30e",
+   "h3fdad918827e",
+   "h41aa4c5a3318",
+   "h4295cf292883",
+   "h45573a4375a5",
+   "h496601d3407f",
+   "h4c1f023117b5",
+   "h4e2d5323ed0a",
+   "h4ecc100c0018",
+   "h5231e2579fe6",
+   "h54a266135619",
+   "h5554eb0e92b8",
+   "h5a092d1ee53e",
+   "h5a3633e0e3c4",
+   "h5c096c200eee",
+   "h66a4fb84cf9c",
+   "h6ab7d00f7871",
+   "h722e4c720982",
+   "h835b3841bf30",
+   "h853b896b231f",
+   "h8885f53d9c24",
+   "h8dc8496fc90b",
+   "h902b54116e87",
+   "h9297aba17982",
+   "h92f3d32d67d8",
+   "h9aaba8b9cec3",
+   "h9acf7a1bc2f4",
+   "h9b867bd5abd5",
+   "ha610594ea140",
+   "hac81906e12d1",
+   "hacb17f220959",
+   "had9ecf24d29d",
+   "hb04d5d9894ba",
+   "hb237455fd9c7",
+   "hb373ec40f084",
+   "hb9a017ba5436",
+   "hbadc0bb431f7",
+   "hc32e8cd0a48c",
+   "hc6c0a7f0c2f6",
+   "hdb202db6b34f",
+   "he9cff3ca0289",
+   "hea247d65e787",
+   "hedc7f7933643",
+   "hee42a9855afe",
+   "hffe35092e434"
+  ]
+ },
+ "seeds": [
+  0
+ ],
+ "inputs": {
+  "suite": "mechanisms_v1_heldout",
+  "n_instances": 54,
+  "jobs_hash": "73a4e49e8f7fbc3442d44a8ec74fa3afe65030235458f705ff2fd12308903d76"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 432,
+  "wall_time_s": 478.2,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "25348ce0f222691cedbc1c075896de07",
+   "shared_payload_bytes": 742291,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 3.5071
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/sel_curve_part1_b2000.json",
+   "sha256": "d3bf8d716c6bcb8060f8d71d80257f721633db0ed7a47f91042c93adb41cc043",
+   "size_bytes": 3263337
+  }
+ },
+ "summary": {
+  "greedy_plus": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9814814814814815,
+   "functional_success_rate": 0.9074074074074074,
+   "functional_success_ci95": [
+    0.8518518518518519,
+    0.9629629629629629
+   ],
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 76.0,
+   "calls_mean": 99.9074074074074,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9811320754716981,
+   "brier_mean": 0.0009094068082652012,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.09259259259259259,
+   "simulated_seconds_median": 79.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.9259259259259259,
+    "identical_fraction": 0.9259259259259259
+   }
+  },
+  "greedy_reference": {
+   "n_runs": 108,
+   "success_rate": 0.7962962962962963,
+   "success_ci95": [
+    0.7222222222222222,
+    0.8703703703703703
+   ],
+   "success_planted_rate": 0.6666666666666666,
+   "functional_success_rate": 0.2037037037037037,
+   "functional_success_ci95": [
+    0.12962962962962962,
+    0.28703703703703703
+   ],
+   "success_or_functional_rate": 0.8148148148148148,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.5833333333333333,
+   "functional_nominal_mean": 0.8263888888888888,
+   "functional_robust_mean": null,
+   "calls_median": 244.0,
+   "calls_mean": 269.8796296296296,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.21244046103854042,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.6538461538461539,
+   "simulated_seconds_median": 233.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.8066747432791047,
+    "identical_fraction": 0.6851851851851852
+   }
+  },
+  "group_probe": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9537037037037037,
+   "functional_success_rate": 0.8796296296296297,
+   "functional_success_ci95": [
+    0.8148148148148148,
+    0.9351851851851852
+   ],
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9953703703703703,
+   "functional_robust_mean": null,
+   "calls_median": 91.5,
+   "calls_mean": 165.00925925925927,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.8669871794871794,
+   "brier_mean": 0.0031531830970691096,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.12037037037037036,
+   "simulated_seconds_median": 94.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.9259259259259259,
+    "identical_fraction": 0.9074074074074074
+   }
+  },
+  "surrogate_search": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9444444444444444,
+   "functional_success_rate": 0.9166666666666666,
+   "functional_success_ci95": [
+    0.8611111111111112,
+    0.9629629629629629
+   ],
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 78.5,
+   "calls_mean": 90.95370370370371,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9326923076923077,
+   "brier_mean": 0.005711105313020996,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.08333333333333333,
+   "simulated_seconds_median": 81.3,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.8549382716049382,
+    "identical_fraction": 0.8333333333333334
+   }
+  }
+ },
+ "notes": "",
+ "run_id": "085025a338ac58e3",
+ "created_utc": "2026-09-23T23:08:25Z",
+ "code": {
+  "commit": "ab1992d5d0e5b5162aa0ec3249213498f6991417",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}
