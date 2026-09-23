@@ -1,6 +1,6 @@
 # LEAKAGE AUDIT — dng100-benchmark-v1
 
-Checked 2026-09-23T09:29:22Z by `benchmarks/dng100/cleanroom/leakage_check.py`. Overall: **PASS**.
+Checked 2026-09-23T10:14:23Z by `benchmarks/dng100/cleanroom/leakage_check.py`. Overall: **PASS**.
 
 ## What counts as leakage
 
