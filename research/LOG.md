@@ -350,3 +350,29 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     Modal workers are Linux, so Windows paths lose their basename (`path_basename`); the greedy-reference smoke
     tournament (`research/phase2/tournament/greedy_reference_small_smoke.md`) showed the fixed-k weakness
     (delayed_inhibitory_oscillator, 5-node mechanism: 0 % success).
+- **2026-09-23 15:30 – 16:20 (session 3, continued; model switched to Opus 5.5 after the Fable credit limit).**
+  - All six clean-room developers delivered (greedy_plus, cem_search, group_probe, surrogate_search, evo_pareto, joint);
+    each was code-reviewed (no path/manifest/label/dataset access; criterion type used only for role naming), imported
+    with its tests and documentation. Three developers and the joint developer disclosed a one-time glance at a
+    truth-bearing development-suite build report that had been copied into the clean room by mistake (deleted, all
+    agents notified); none used it. Consequence: selection and confirmation use NEW anonymised suites built with fresh
+    salts that never entered the clean room (`mechanisms_v1_heldout`: 57 instances; `pairs_v1_heldout`: 26 pairs;
+    `mechanisms_v1_final`: 57; `pairs_v1_final`: 27).
+  - Truth-completeness audit (`suite_audit.py`): complications create unplanted sufficient sets (hub-driven activity
+    bands, keep-only winner-take-all, backup substitutions); they are now part of the truth (35 in the held-out mechanism
+    suite). Clarified metric `functional_success_causal` added next to the pre-registered keep-only 1-minimality (which
+    marks every correct winner-take-all core as non-minimal because its lateral inhibitor is a context member).
+  - Pre-registered selection tournament (`research/phase2/SELECTION_PROTOCOL.md`), held-out suite, 1,000 calls,
+    2 node orders x 3 seeds (342 runs per method, 0 errors): structural success 1.00 for all five tournament candidates
+    vs 0.74 for greedy_reference; causal functional success greedy_plus 0.997, cem_search 0.997, surrogate_search 0.991,
+    evo_pareto 0.962, group_probe 0.953, greedy_reference 0.215; identity consistency (pairwise Jaccard / identical)
+    group_probe 0.95/0.86, cem_search 0.91/0.81, greedy_plus 0.88/0.75, surrogate_search 0.85/0.63, evo_pareto
+    0.86/0.68, greedy_reference 0.83/0.63; mean calls ~96-142 for the leaders, 745 evo_pareto, 304 greedy_reference.
+    Budget curve: the leaders saturate at 250 calls; a labelled 50/100-call extension separates them (at 50 calls
+    group_probe keeps 0.95 causal functional success and 0.91 identical cores; surrogate_search collapses to 0.32).
+  - Frozen greedy_prune_sim reliability sweeps completed on all three blind networks (24 runs each, oracle-free):
+    Jaccard 0.63 / 0.87 / 0.65 and keep-only pass rate 0.67 / 0.92 / 0.67 (manc_v1.2.1 / male-cns_v1.0 / manc_v1.2.3).
+  - Composer of BrainIR v1 started in the clean room with aggregate-only selection results; reviews E (cross-connectome,
+    clean room) and F (computational, main repo without answer-bearing files) started.
+  - Pitfalls: job functions defined in a script's `__main__` cannot run on Modal (first pair tournament failed 1,040/1,040;
+    jobs now live in the library); numpy 2 removed `np.trapz`; bulk results are committed gzipped (`archive_results.py`).
