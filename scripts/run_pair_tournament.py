@@ -78,8 +78,8 @@ def pair_job(args) -> dict:
     truth = json.loads(truth_path.read_text(encoding="utf-8"))
     rec = {"method": method, "mode": mode, "instance": name, "seed": seed, "budget_a": budget_a, "budget_b": budget_b,
            "wall_s": round(time.time() - t0, 1), "family": truth["spec"]["family"], "shift": bool(truth["spec"].get("implementation_shift")),
-           "decoy": bool(truth["spec"].get("anchor_decoy")), "result_a": res.result_a.to_dict(), "result_b": res.result_b.to_dict(), "correspondence": res.correspondence,
-           "role_alignment": res.role_alignment, "diagnostics": res.diagnostics}
+           "decoy": bool(truth["spec"].get("anchor_decoy")), "result_a": res.result_a.to_dict(), "result_b": res.result_b.to_dict(),
+           "correspondence": res.correspondence, "role_alignment": res.role_alignment, "diagnostics": res.diagnostics}
     rec["score"] = _score_pair(truth, a, b, res)
     return rec
 

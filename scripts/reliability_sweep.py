@@ -90,7 +90,7 @@ def main(argv=None) -> int:
     frozen_src = FROZEN_GREEDY.read_text(encoding="utf-8") if args.method == FROZEN_NAME else None
     jobs = [{"method": args.method, "variant_dir": str(v), "network": args.network, "seed": s, "budget": args.budget, "config": config,
              "perm": perm, "positional": positional, "frozen_args": args.frozen_args.split(), "frozen_script": frozen_src,
-             "frozen_script_path": str(FROZEN_GREEDY)} for v, perm, positional in variants for s in args.seeds]
+             "frozen_script_path": str(FROZEN_GREEDY), "fidelity_seeds": args.fidelity_seeds} for v, perm, positional in variants for s in args.seeds]
     t0 = time.time()
     backend = get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=7200, max_containers=args.containers) if args.backend == "modal" else None
     if backend is not None:
@@ -115,8 +115,9 @@ def main(argv=None) -> int:
         r["common_frame_path"] = str(p_common)
     cons = consistency([r["core_common"] for r in ok])
     problem = DiscoveryProblem.from_bundle(args.bundle, args.network)
-    for r in ok:  # functional fidelity in the common frame (oracle-free)
-        r["functional_fidelity"] = functional_fidelity(problem, r["core_common"], args.fidelity_seeds, workers=args.workers)
+    for r in ok:  # functional fidelity (oracle-free); computed inside the job unless an older record lacks it
+        if "functional_fidelity" not in r:
+            r["functional_fidelity"] = functional_fidelity(problem, r["core_common"], args.fidelity_seeds, workers=args.workers)
     calls = [r["calls"] for r in ok if r.get("calls") is not None]
     manifest = json.loads((args.bundle / "manifest.json").read_text(encoding="utf-8"))
     summary = {"method": args.method, "network": args.network, "bundle_sha256": manifest.get("bundle_sha256"), "n_runs": len(runs),

@@ -173,6 +173,12 @@ def sweep_job(args) -> dict:
            "n_core": len(pred.core_ids()), "calls": calls, "wall_s": round(time.time() - t0, 1), "prediction_sha256": pred.digest(),
            "compute": pred.method.compute, "result_budget": (result.budget if result is not None else None), "prediction": json.loads(pred.to_json()),
            "prediction_common_frame": common}
+    fidelity_seeds = args.get("fidelity_seeds")
+    if fidelity_seeds:  # oracle-free functional fidelity, computed where the run happened (keep-only in the variant's own frame)
+        problem = DiscoveryProblem.from_bundle(variant_dir, network)
+        pos_of = {int(i): p for p, i in enumerate(problem.public_ids)}
+        core_pos = [pos_of[int(i)] for i in pred.core_ids() if int(i) in pos_of]
+        rec["functional_fidelity"] = functional_fidelity(problem, core_pos, list(fidelity_seeds), workers=1)
     if remote:
         shutil.rmtree(variant_dir.parent, ignore_errors=True)
     return rec
