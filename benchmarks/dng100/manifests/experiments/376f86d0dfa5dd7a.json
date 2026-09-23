@@ -1,0 +1,321 @@
+{
+ "name": "sel_curve_ext_b50",
+ "config": {
+  "methods": [
+   "greedy_reference",
+   "greedy_plus",
+   "group_probe",
+   "surrogate_search",
+   "evo_pareto",
+   "cem_search"
+  ],
+  "budget": 50,
+  "seeds": [
+   0
+  ],
+  "networks": [
+   "main",
+   "order1"
+  ],
+  "configs": {},
+  "instances": [
+   "h05d19a2775e2",
+   "h08cf70ca61d5",
+   "h0917890668b3",
+   "h0c02a4b6d066",
+   "h155f16e50568",
+   "h16c726db0232",
+   "h19c5316c0779",
+   "h1c36d673ac06",
+   "h2471b8fd0135",
+   "h264f754cd30e",
+   "h3fdad918827e",
+   "h41aa4c5a3318",
+   "h4295cf292883",
+   "h45573a4375a5",
+   "h496601d3407f",
+   "h4c1f023117b5",
+   "h4e2d5323ed0a",
+   "h4ecc100c0018",
+   "h5231e2579fe6",
+   "h54a266135619",
+   "h5554eb0e92b8",
+   "h5a092d1ee53e",
+   "h5a3633e0e3c4",
+   "h5c096c200eee",
+   "h66a4fb84cf9c",
+   "h6ab7d00f7871",
+   "h722e4c720982",
+   "h835b3841bf30",
+   "h853b896b231f",
+   "h8885f53d9c24",
+   "h8dc8496fc90b",
+   "h902b54116e87",
+   "h9297aba17982",
+   "h92f3d32d67d8",
+   "h9aaba8b9cec3",
+   "h9acf7a1bc2f4",
+   "h9b867bd5abd5",
+   "ha610594ea140",
+   "hac81906e12d1",
+   "hacb17f220959",
+   "had9ecf24d29d",
+   "hb04d5d9894ba",
+   "hb237455fd9c7",
+   "hb373ec40f084",
+   "hb9a017ba5436",
+   "hbadc0bb431f7",
+   "hc32e8cd0a48c",
+   "hc6c0a7f0c2f6",
+   "hdb202db6b34f",
+   "he9cff3ca0289",
+   "hea247d65e787",
+   "hedc7f7933643",
+   "hee42a9855afe",
+   "hffe35092e434"
+  ]
+ },
+ "seeds": [
+  0
+ ],
+ "inputs": {
+  "suite": "mechanisms_v1_heldout",
+  "n_instances": 54,
+  "jobs_hash": "b08fa92445aa4c67b302da903136292d62f1110d16b6252ce2bf450f5897120e"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 648,
+  "wall_time_s": 236.6,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "25348ce0f222691cedbc1c075896de07",
+   "shared_payload_bytes": 742291,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 1.7349
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/sel_curve_ext_b50.json",
+   "sha256": "f11972433432d2986ad21b9bebb0007052f4a4ab6bc7d6906fef506ec94262b1",
+   "size_bytes": 5475198
+  }
+ },
+ "summary": {
+  "cem_search": {
+   "n_runs": 108,
+   "success_rate": 0.9907407407407407,
+   "success_ci95": [
+    0.9722222222222222,
+    1.0
+   ],
+   "success_planted_rate": 0.9351851851851852,
+   "functional_success_rate": 0.6388888888888888,
+   "functional_success_ci95": [
+    0.5462962962962963,
+    0.7314814814814815
+   ],
+   "functional_success_causal_rate": 0.7745098039215687,
+   "success_or_functional_rate": 0.9907407407407407,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9953703703703703,
+   "functional_robust_mean": null,
+   "calls_median": 49.0,
+   "calls_mean": 43.97222222222222,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9183006535947713,
+   "brier_mean": 0.030606233756860335,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.3235294117647059,
+   "simulated_seconds_median": 49.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.7461650088415214,
+    "identical_fraction": 0.6481481481481481
+   }
+  },
+  "evo_pareto": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9537037037037037,
+   "functional_success_rate": 0.1574074074074074,
+   "functional_success_ci95": [
+    0.09259259259259259,
+    0.2222222222222222
+   ],
+   "functional_success_causal_rate": 0.16346153846153846,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.6666666666666666,
+   "functional_nominal_mean": 0.9953703703703703,
+   "functional_robust_mean": null,
+   "calls_median": 47.0,
+   "calls_mean": 46.48148148148148,
+   "size_median": 3.0,
+   "role_accuracy_mean": 0.8378930817610063,
+   "brier_mean": 0.07686103808362112,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.8365384615384616,
+   "simulated_seconds_median": 47.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.8285470552943671,
+    "identical_fraction": 0.6296296296296297
+   }
+  },
+  "greedy_plus": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9259259259259259,
+   "functional_success_rate": 0.8240740740740741,
+   "functional_success_ci95": [
+    0.7407407407407407,
+    0.8888888888888888
+   ],
+   "functional_success_causal_rate": 0.9611650485436893,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 44.0,
+   "calls_mean": 42.05555555555556,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9320388349514563,
+   "brier_mean": 0.007753556461405213,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.13592233009708737,
+   "simulated_seconds_median": 42.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.7347263230596562,
+    "identical_fraction": 0.6851851851851852
+   }
+  },
+  "greedy_reference": {
+   "n_runs": 108,
+   "success_rate": 0.5185185185185185,
+   "success_ci95": [
+    0.42592592592592593,
+    0.6111111111111112
+   ],
+   "success_planted_rate": 0.4166666666666667,
+   "functional_success_rate": 0.0,
+   "functional_success_ci95": [
+    0.0,
+    0.0
+   ],
+   "functional_success_causal_rate": 0.0,
+   "success_or_functional_rate": 0.5185185185185185,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.3333333333333333,
+   "functional_nominal_mean": 0.4837962962962963,
+   "functional_robust_mean": null,
+   "calls_median": 50.0,
+   "calls_mean": 46.888888888888886,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.19090764998391807,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.49074074074074076,
+   "simulated_seconds_median": 50.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.8407407407407407,
+    "identical_fraction": 0.7222222222222222
+   }
+  },
+  "group_probe": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9444444444444444,
+   "functional_success_rate": 0.8796296296296297,
+   "functional_success_ci95": [
+    0.8148148148148148,
+    0.9351851851851852
+   ],
+   "functional_success_causal_rate": 0.9537037037037037,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9953703703703703,
+   "functional_robust_mean": null,
+   "calls_median": 48.0,
+   "calls_mean": 46.592592592592595,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.875,
+   "brier_mean": 0.0015197699419611402,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.12037037037037036,
+   "simulated_seconds_median": 48.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.9197530864197531,
+    "identical_fraction": 0.9074074074074074
+   }
+  },
+  "surrogate_search": {
+   "n_runs": 108,
+   "success_rate": 0.9814814814814815,
+   "success_ci95": [
+    0.9537037037037037,
+    1.0
+   ],
+   "success_planted_rate": 0.8611111111111112,
+   "functional_success_rate": 0.26851851851851855,
+   "functional_success_ci95": [
+    0.18518518518518517,
+    0.35185185185185186
+   ],
+   "functional_success_causal_rate": 0.3191489361702128,
+   "success_or_functional_rate": 0.9814814814814815,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.3333333333333333,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 50.0,
+   "calls_mean": 48.5462962962963,
+   "size_median": 7.5,
+   "role_accuracy_mean": 0.9342948717948717,
+   "brier_mean": 0.06081699977359508,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.6914893617021277,
+   "simulated_seconds_median": 50.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.4908542959708225,
+    "identical_fraction": 0.16666666666666666
+   }
+  }
+ },
+ "notes": "",
+ "run_id": "376f86d0dfa5dd7a",
+ "created_utc": "2026-09-23T23:13:16Z",
+ "code": {
+  "commit": "8f44eeb72074ed851c479f1613fa3f88294873ca",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}
