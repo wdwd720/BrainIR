@@ -19,7 +19,7 @@ from pathlib import Path
 
 import numpy as np
 
-from brainir.compute import get_backend
+from brainir.compute import ExperimentRecord, artifact_record, content_hash, get_backend, register_run
 from brainir.sim import Intervention, ModelConfig
 from brainir.sim.experiments import stimulation_experiment
 
@@ -28,6 +28,7 @@ from reproduce_dynamics import STIM_CURRENT, paper_network  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
+REGISTRY = HERE.parent / "dng100" / "manifests" / "experiments"
 ORACLE = json.loads((HERE.parent / "dng100" / "oracle" / "oracle.json").read_text(encoding="utf-8"))
 
 
@@ -95,6 +96,13 @@ def main(argv=None) -> None:
                      f"{fmed} | {s['active_readout_median']} | {pref} |")
     (RESULTS / f"{name}.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print("\n".join(lines))
+    stats = backend.last_stats.to_dict() if backend is not None and backend.last_stats else {"backend": "local", "n_workers": args.workers}
+    rec = ExperimentRecord(name=name, config={"model": cfg.to_dict(), "network": net.meta, "current": cur, "conditions": list(conditions),
+                                              "core_positions": pos}, seeds=seeds, inputs={"network_hash": content_hash(net.meta)},
+                           backend={**stats, "note": "backend stats are those of the last condition's map; each condition was one map call"},
+                           artifacts={"results": artifact_record(RESULTS / f"{name}.json")},
+                           summary={k: round(v["summary"]["score_mean"], 4) for k, v in out["conditions"].items()})
+    print("registered", register_run(rec, REGISTRY).name)
 
 
 if __name__ == "__main__":

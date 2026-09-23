@@ -29,7 +29,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from brainir.compute import get_backend
+from brainir.compute import ExperimentRecord, artifact_record, get_backend, register_run
 from brainir.mapping import forward_lookup, load_mapping, load_summary, reverse_lookup
 from brainir.sim import Intervention, ModelConfig
 from brainir.sim.experiments import stimulation_experiment
@@ -39,6 +39,7 @@ from reproduce_dynamics import STIM_CURRENT, paper_network  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
 RESULTS = HERE / "results"
+REGISTRY = HERE.parent / "dng100" / "manifests" / "experiments"
 ORACLE = json.loads((HERE.parent / "dng100" / "oracle" / "oracle.json").read_text(encoding="utf-8"))
 A = ("male-cns", "v1.0")
 B = ("manc", "v1.2.1")
@@ -207,6 +208,15 @@ def main(argv=None) -> None:
             lines.append("")
     (RESULTS / f"{name}.md").write_text("\n".join(lines), encoding="utf-8", newline="\n")
     print("\n".join(lines))
+    if "functional_transfer" in res:
+        ft = res["functional_transfer"]
+        stats = backend.last_stats.to_dict() if backend is not None and backend.last_stats else {"backend": "local", "n_workers": args.workers}
+        rec = ExperimentRecord(name=name, config={"model": res["model_config"], "directions": list(ft), "n": args.n},
+                               seeds=list(range(args.n)), inputs={"mapping_table_sha256": res["mapping"]["table_sha256"]},
+                               backend={**stats, "note": "backend stats are those of the last condition's map; each condition was one map call"},
+                               artifacts={"results": artifact_record(RESULTS / f"{name}.json")},
+                               summary={k: {c: round(v["results"][c]["mean_score"], 4) for c in v["results"]} for k, v in ft.items()})
+        print("registered", register_run(rec, REGISTRY).name)
 
 
 if __name__ == "__main__":

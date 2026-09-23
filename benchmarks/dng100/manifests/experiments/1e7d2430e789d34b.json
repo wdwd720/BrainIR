@@ -1,0 +1,144 @@
+{
+ "name": "cross_connectome_eval_n64",
+ "config": {
+  "model": {
+   "b_exc": 0.03,
+   "b_inh": 0.03,
+   "tau_mean": 0.02,
+   "tau_sd": 0.002,
+   "a_mean": 1.0,
+   "a_sd": 0.1,
+   "theta_mean": 7.5,
+   "theta_sd": 0.6,
+   "r_max_mean": 200.0,
+   "r_max_sd": 10.0,
+   "size_scaling": true,
+   "t_end": 1.0,
+   "dt_out": 0.001,
+   "pulse_start": 0.02,
+   "pulse_end": null,
+   "method": "RK45",
+   "rtol": 2e-06,
+   "atol": 5e-09,
+   "integration": "segments",
+   "dt": null,
+   "max_step": null,
+   "clip_max_rate": 1000.0
+  },
+  "directions": [
+   "manc_to_male-cns",
+   "male-cns_to_manc"
+  ]
+ },
+ "seeds": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  26,
+  27,
+  28,
+  29,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39,
+  40,
+  41,
+  42,
+  43,
+  44,
+  45,
+  46,
+  47,
+  48,
+  49,
+  50,
+  51,
+  52,
+  53,
+  54,
+  55,
+  56,
+  57,
+  58,
+  59,
+  60,
+  61,
+  62,
+  63
+ ],
+ "inputs": {},
+ "backend": {
+  "backend": "modal",
+  "n_items": 512,
+  "estimated_cost_usd": 0.23,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "max_containers": 64
+  },
+  "estimate_note": "cost estimated after the run from replicate counts (~6 s each); the driver did not record backend stats at the time"
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/benchmarks/dng100_walking_cpg/results/cross_connectome_eval_n64.json",
+   "sha256": "dcc975e30304eeba983b56cc31972307e9ee02c48b6f26a64af533d8d6d2f21c",
+   "size_bytes": 133568
+  }
+ },
+ "summary": {
+  "manc_to_male-cns": {
+   "intact_network": 0.9825,
+   "own_modal_circuit_keep_only": 0.7952,
+   "mapped_modal_circuit_keep_only": 0.7648,
+   "null_sign_matched_random_triple_keep_only": 0.0
+  },
+  "male-cns_to_manc": {
+   "intact_network": 0.9694,
+   "own_modal_circuit_keep_only": 0.9778,
+   "mapped_modal_circuit_keep_only": 0.8571,
+   "null_sign_matched_random_triple_keep_only": 0.0
+  }
+ },
+ "notes": "registry record created retroactively from the result file (Review F); 8 conditions x 64 replicates on Modal (64 containers)",
+ "run_id": "1e7d2430e789d34b",
+ "created_utc": "2026-09-23T09:32:44Z",
+ "code": {
+  "commit": "558e958daa94f58cb8809b17742768f61a954843",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}
