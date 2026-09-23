@@ -22,8 +22,11 @@ data/manifests/*.tmp
 *.swc
 *.partial
 *.parts.json
-# small, reviewed test fixtures are the only exception
+# small, reviewed test fixtures are the only exception ...
 !tests/fixtures/**
+# ... and the frozen public benchmark bundles (a few MB; their hashes are in benchmarks/dng100/BENCHMARK_LOCK.json)
+!benchmarks/dng100/public/**/*.parquet
+!benchmarks/dng100/public_blind/**/*.parquet
 
 # ---- Secrets / credentials / sessions ----
 .env

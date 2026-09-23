@@ -139,9 +139,11 @@ def export_network(spec: NetworkSpec, out_dir: Path, *, tier: str, salt: str | N
     out_dir.mkdir(parents=True, exist_ok=True)
     ntab = pa.Table.from_pandas(tab[cols].rename(columns={"nt_used": "nt_label", "size": "size_voxels"}), preserve_index=False)
     pq.write_table(ntab, out_dir / "neurons.parquet", compression="zstd")
-    W = net.W.tocoo()
-    edges = pd.DataFrame({"pre_id": public_ids[W.col], "post_id": public_ids[W.row], "pre_position": W.col, "post_position": W.row,
-                          "synapse_count": np.abs(W.data).astype(np.int32), "signed_weight": W.data.astype(np.int32)})
+    # edges = every observed pair (>= floor synapses, no autapses), including pairs whose presynaptic neuron has sign 0:
+    # synapse_count is anatomy, signed_weight = synapse_count x sign(pre) is the model's hypothesis (0 for unknown NT)
+    C = net.C.tocoo()
+    edges = pd.DataFrame({"pre_id": public_ids[C.col], "post_id": public_ids[C.row], "pre_position": C.col, "post_position": C.row,
+                          "synapse_count": C.data.astype(np.int32), "signed_weight": (C.data * net.signs[C.col]).astype(np.int32)})
     edges = edges.sort_values(["pre_position", "post_position"], ignore_index=True)
     pq.write_table(pa.Table.from_pandas(edges, preserve_index=False), out_dir / "edges.parquet", compression="zstd")
     stim_pos = [int(np.flatnonzero(net.ids == s)[0]) for s in stim]
@@ -156,7 +158,8 @@ def export_network(spec: NetworkSpec, out_dir: Path, *, tier: str, salt: str | N
     manifest_path = paths.manifests_dir() / f"{spec.dataset}_{spec.version}.manifest.json"
     info = {
         "name": spec.name, "dataset": spec.dataset, "version": spec.version, "tier": tier,
-        "node_rule": node_rule, "n_neurons": net.n, "n_edges": int(net.W.nnz), "total_synapses": net.meta["total_synapses"],
+        "node_rule": node_rule, "n_neurons": net.n, "n_edges": int(net.C.nnz), "total_synapses": net.meta["total_synapses_observed"],
+        "n_edges_with_nonzero_signed_weight": int(net.W.nnz),
         "floor": 5, "remove_autapses": True, "sign_rule": net.meta["sign_rule"], "sign_basis": net.meta["sign_basis"],
         "nt_label_source": {"manc": "body-level predictedNt (v1.0 predictions carried by body ID)", "male-cns": "consensusNt"}.get(spec.dataset),
         "roi_restrict": net.meta["roi_restrict"], "size_source": net.meta["size_source"],
@@ -215,7 +218,8 @@ def write_readme(root: Path, tier: str, networks: list[dict]) -> None:
              "| `model_config.json` | the rate model, its parameter distributions, integration settings and the rhythm metric |",
              "| `networks/<name>/neurons.parquet` | one row per neuron: position, source_id, labels, role class, NT label used for "
              "the sign, sign, size, stimulus/readout flags |",
-             "| `networks/<name>/edges.parquet` | pre -> post pairs with synapse_count and signed_weight (>= 5 synapses, autapses removed) |",
+             "| `networks/<name>/edges.parquet` | every observed pre -> post pair with >= 5 synapses (autapses removed): synapse_count (anatomy) "
+             "and signed_weight = synapse_count x sign(pre) (model hypothesis; 0 when the presynaptic NT is unknown) |",
              "| `networks/<name>/network.json` | how the network was derived from the connectome release (provenance hashes) |",
              "| `networks/<name>/stimulus.json`, `readout.json` | stimulated neuron(s) and current; readout neurons |", ""]
     if tier == "A":

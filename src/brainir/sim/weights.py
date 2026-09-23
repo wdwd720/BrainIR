@@ -51,6 +51,9 @@ class Network:
     table: pd.DataFrame
     """One row per neuron: source_id, cell_type, super_class, role_class, nt_used, sign, size, plus source columns."""
     meta: dict = field(default_factory=dict)
+    C: sp.csr_matrix | None = None
+    """Observed (unsigned) synapse counts, post x pre, same floor/autapse handling as W but INCLUDING the pairs whose
+    presynaptic neuron has sign 0 (they vanish from W). Anatomy; W is anatomy x sign hypothesis."""
 
     @property
     def n(self) -> int:
@@ -135,6 +138,7 @@ def signed_matrix(cx: Connectome, ids: Iterable[int], *, floor: int = 5, sign_ba
     vals = e["synapse_count"].to_numpy().astype(np.float64) * signs[pi]
     W = sp.csr_matrix((vals, (qi, pi)), shape=(n, n))
     W.eliminate_zeros()
+    C = sp.csr_matrix((e["synapse_count"].to_numpy().astype(np.float64), (qi, pi)), shape=(n, n))
     if sizes is not None:
         size_arr = np.array([float(sizes.get(int(i), np.nan)) if hasattr(sizes, "get") else float(sizes[int(i)]) for i in ids])
         src = size_source or "external"
@@ -154,9 +158,10 @@ def signed_matrix(cx: Connectome, ids: Iterable[int], *, floor: int = 5, sign_ba
             "sign_basis": sign_basis, "sign_rule": PAPER_SIGN_RULE_ID if sign_rule == "paper" else SIGN_RULE_ID,
             "nt_overrides": n_override, "roi_restrict": sorted(roi) if roi is not None else None,
             "n_pairs": int(W.nnz), "total_synapses": int(np.abs(W.data).sum()),
+            "n_pairs_observed": int(C.nnz), "total_synapses_observed": int(C.data.sum()),
             "n_positive_rows": int((signs > 0).sum()), "n_negative_rows": int((signs < 0).sum()),
             "n_zero_rows": int((signs == 0).sum()), "size_source": src}
-    return Network(ids=ids, W=W, signs=signs, nt=nt_used.to_numpy(), sizes=size_arr, table=table, meta=meta)
+    return Network(ids=ids, W=W, signs=signs, nt=nt_used.to_numpy(), sizes=size_arr, table=table, meta=meta, C=C)
 
 
 def build_network(cx: Connectome, ids: Iterable[int], **kw) -> Network:

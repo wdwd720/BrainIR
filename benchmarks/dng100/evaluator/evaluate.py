@@ -74,6 +74,7 @@ class BundleNetwork:
         n = len(self.ids)
         self.W = sp.csr_matrix((self.edges["signed_weight"].to_numpy(dtype=np.float64),
                                 (self.edges["post_position"].to_numpy(), self.edges["pre_position"].to_numpy())), shape=(n, n))
+        self.W.eliminate_zeros()  # observed pairs from unknown-NT presynaptic neurons carry signed_weight 0
         self.sizes = self.neurons["size_voxels"].to_numpy(dtype=np.float64)
         self.readout_mask = self.neurons["is_readout"].to_numpy(dtype=bool)
         self.stim_positions = [int(p) for p in self.stimulus["positions"]]

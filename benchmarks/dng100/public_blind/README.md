@@ -23,7 +23,7 @@ the networks — which neurons correspond to each other. Submit one `BrainIRMech
 | `manifest.json` | bundle id, format version, creation time, code commit, SHA-256 of every file |
 | `model_config.json` | the rate model, its parameter distributions, integration settings and the rhythm metric |
 | `networks/<name>/neurons.parquet` | one row per neuron: position, source_id, labels, role class, NT label used for the sign, sign, size, stimulus/readout flags |
-| `networks/<name>/edges.parquet` | pre -> post pairs with synapse_count and signed_weight (>= 5 synapses, autapses removed) |
+| `networks/<name>/edges.parquet` | every observed pre -> post pair with >= 5 synapses (autapses removed): synapse_count (anatomy) and signed_weight = synapse_count x sign(pre) (model hypothesis; 0 when the presynaptic NT is unknown) |
 | `networks/<name>/network.json` | how the network was derived from the connectome release (provenance hashes) |
 | `networks/<name>/stimulus.json`, `readout.json` | stimulated neuron(s) and current; readout neurons |
 
@@ -38,9 +38,9 @@ network, not dataset body IDs; predictions must use these positional ids.
 
 | name | dataset | neurons | edges | Σ synapses | stimulus | readout |
 |---|---|---|---|---|---|---|
-| manc_v1.2.1 | manc:v1.2.1 | 4604 | 196359 | 3815864 | [31] @ 250.0 | 144 MNs |
-| manc_v1.2.3 | manc:v1.2.3 | 4604 | 196359 | 3815864 | [31] @ 250.0 | 142 MNs |
-| male-cns_v1.0 | male-cns:v1.0 | 4309 | 118745 | 2185576 | [9] @ 400.0 | 130 MNs |
+| manc_v1.2.1 | manc:v1.2.1 | 4604 | 196536 | 3817784 | [31] @ 250.0 | 144 MNs |
+| manc_v1.2.3 | manc:v1.2.3 | 4604 | 196536 | 3817784 | [31] @ 250.0 | 142 MNs |
+| male-cns_v1.0 | male-cns:v1.0 | 4309 | 119977 | 2196924 | [9] @ 400.0 | 130 MNs |
 
 ## Anatomy is not physiology
 

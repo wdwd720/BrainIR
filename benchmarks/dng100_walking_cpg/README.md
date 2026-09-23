@@ -17,10 +17,13 @@
    package) and run *after* the discovery artefact is frozen (hash it first; record the hash in the result).
 4. **Answer-bearing files.** These must be excluded from any context, retrieval corpus or prompt given to a
    discovery system:
-   - everything in `benchmarks/`;
+   - everything in `benchmarks/` except the two public bundles `benchmarks/dng100/public/` and
+     `benchmarks/dng100/public_blind/` (which are the ONLY inputs a method receives; `benchmarks/dng100/PROTOCOL.md`);
+     in particular `benchmarks/dng100/oracle/`, `benchmarks/dng100/baselines/results/eval/` and
+     `benchmarks/dng100/baselines/results/null_distributions.*`;
    - `research/literature/` (Pugliese notes);
-   - `goal1.md` (the Phase 0 spec names the published cell types);
-   - the "DNg100 benchmark" section of `PHASE0_REPORT.md`.
+   - `goal1.md` and `goal2.md` (the phase specs name the published cell types);
+   - the "DNg100 benchmark" section of `PHASE0_REPORT.md`, and `PHASE1_REPORT.md` (§7–§8).
 
    `README.md`, `CLAUDE.md`, `docs/`, `src/` and `research/data_ecosystem.md` are kept free of answer-key IDs and
    type names. `tests/test_leakage_guard.py` checks `src/`.

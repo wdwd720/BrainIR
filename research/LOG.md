@@ -138,6 +138,27 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
     the raw partner table than neuPrint `upstream`; 1 of ~70k sampled edges has a PSD in `GF(R)` per neuPrint but
     `<unspecified>` in the partner table. Recorded as WARN, not resolved.
 
+### 3.17 Pruning-screen reproduction (2026-09-23)
+1,024 stochastic sufficiency screens of the DNg100-driven front-leg network (`manc:v1.2.1`, authors' NT labels, T = 1 s,
+BrainIR's generic `brainir.sim.prune`) on Modal (200 containers, 17.6 min, ≈ $15.5; 0 failed, 1,018 converged; median
+101 simulations per screen). Circuit prevalence (activity-based kept set, stimulus excluded): the published modal
+three-neuron circuit 68.1 % (paper 62.1 %), the published four-neuron alternative 16.5 % (paper 15.2 % incl. a variant
+with one motor neuron), the published alternative with the other inhibitory partner 8.1 % (paper 10.0 %); both
+excitatory core neurons kept in 99.5 % of screens. The isolated three-neuron circuit runs faster (median 16.7 Hz) than
+the intact network (10.75 Hz). Files: `benchmarks/dng100_walking_cpg/results/pruning_manc_v1.2.1_nt-paper_n1024_seed0.*`,
+registry run `5abf1fd8732d5ebb`.
+
+### 3.18 Two defects found and fixed before the freeze (2026-09-23)
+- `reproduce_dynamics.paper_network` selected the readout by MANC's `super_class == 'motor_neuron'`; MaleCNS spells it
+  `vnc_motor`, so the MaleCNS front-leg network had an EMPTY readout and scored 0 everywhere. Fixed by selecting on the
+  cross-dataset `role_class == 'vnc_motor'` (144 MNs in MANC, 135 in MaleCNS) and raising when the readout is empty.
+  The bundle exporter had handled both spellings all along.
+- The public bundles' `edges.parquet` was derived from the signed matrix, so the 177 (MANC) / 1,232 (MaleCNS) observed
+  pairs whose presynaptic neuron has sign 0 (unknown NT) were missing — anatomy filtered by a hypothesis. `Network`
+  now carries the observed count matrix `C` next to the signed `W`; the bundles list every observed pair with
+  `synapse_count` and `signed_weight` (0 for unknown-NT presynaptic neurons); the evaluator drops zero weights when it
+  builds W. Bundle hashes changed (tier B `2653245c…`, tier A `4880e986…`); the leakage audit was re-run (PASS).
+
 ## 4. Biological caveats (carry into every analysis)
 - **`synapse_count` is not strength.**
   - It counts T-bar→PSD pairs. Fly synapses are polyadic: one T-bar gives several pairs.

@@ -24,8 +24,8 @@ Networks: `manc_v1.2.1` (primary; MANC neuPrint v1.2.1, rebuilt from public syna
 | **B (labelled)** | `public/`: the same with the release's cell types, instances and body ids | anything outside the bundle |
 
 Forbidden in both tiers: the paper (text, figures, tables, code, data), `benchmarks/dng100/oracle/`,
-`benchmarks/dng100_walking_cpg/`, `research/literature/`, `goal1.md`, `goal2.md`, `PHASE0_REPORT.md` §13, any evaluation
-output, any human hint about the answer. Generic prior knowledge that is not about this circuit (e.g. "insect walking
+`benchmarks/dng100_walking_cpg/`, `benchmarks/dng100/baselines/results/`, `research/literature/`, `goal1.md`, `goal2.md`,
+`PHASE0_REPORT.md` §13, `PHASE1_REPORT.md`, any evaluation output, any human hint about the answer. Generic prior knowledge that is not about this circuit (e.g. "insect walking
 steps at 7–15 Hz", "GABA is inhibitory") is allowed and must be declared in `MethodInfo.description`.
 
 Tier A is the scientifically meaningful setting: type names and body ids appear in the paper's tables, so a

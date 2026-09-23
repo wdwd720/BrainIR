@@ -71,9 +71,12 @@ def paper_network(dataset: str, version: str, nt: str):
     net.meta["authors_ids_not_in_build"] = dropped
     if dropped:
         wt = wt[~wt["bodyId"].isin(dropped)].reset_index(drop=True)
-    # readout = front-leg motor neurons (class motor neuron, subclass fl); identical to the authors' 144 MNs for manc:v1.2.1
+    # readout = front-leg motor neurons (role vnc_motor = MANC super_class 'motor_neuron' / MaleCNS 'vnc_motor', subclass fl);
+    # identical to the authors' 144 MNs for manc:v1.2.1; 135 in the MaleCNS front-leg network
     tab = net.table
-    readout = (tab["super_class"].to_numpy() == "motor_neuron") & (tab["sub_class"].to_numpy() == "fl")
+    readout = (tab["role_class"].to_numpy() == "vnc_motor") & (tab["sub_class"].to_numpy() == "fl")
+    if not readout.any():
+        raise RuntimeError(f"no front-leg motor neurons found in {dataset}:{version} network")
     return wt, net, readout
 
 
