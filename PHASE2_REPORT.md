@@ -81,7 +81,22 @@ orders × 3 seeds at a hard budget of 1,000 calls (342 runs per method, 0 errors
 
 Budget curve (seed 0, both orders, n ≤ 600): the leaders are saturated from 250 calls; at 50 calls group_probe keeps
 0.95 causal functional success with 0.91 identical cores, greedy_plus 0.96 / 0.69, cem_search 0.77 / 0.65,
-surrogate_search 0.32 / 0.17, evo_pareto 0.16 / 0.63, greedy_reference 0.00. Pair tournament: *pending*.
+surrogate_search 0.32 / 0.17, evo_pareto 0.16 / 0.63, greedy_reference 0.00.
+
+Held-out pair tournament (`pairs_v1_heldout`: 26 anonymised pairs incl. implementation shifts and anchor decoys; 6 base
+methods × 4 modes × 2 seeds; budgets 1,000 per network): both-network success and mean total calls
+
+| base method | independent | transfer (≈2 + 15 calls on b) | prior | joint |
+|---|---|---|---|---|
+| greedy_plus | 0.98 / 174 | 0.69 / 103 | 0.98 / 157 | 1.00 / 104 |
+| cem_search | 1.00 / 184 | 0.73 / 106 | 0.98 / 174 | 1.00 / 115 |
+| group_probe | 1.00 / 246 | 0.69 / 143 | 1.00 / 237 | 1.00 / 143 |
+| surrogate_search | 0.98 / 194 | 0.69 / 113 | 0.98 / 192 | 0.98 / 127 |
+| evo_pareto | 1.00 / 1,518 | 0.71 / 769 | 1.00 / 1,485 | 1.00 / 848 |
+| greedy_reference | 0.71 / 569 | 0.60 / 373 | 0.71 / 570 | 0.96 / 388 |
+
+Joint discovery never lost to independent discovery, cut total calls by about 40 %, and raised claimed-correspondence
+precision to 1.00 and role-graph similarity a↔b to 1.00.
 
 ## 7. BrainIR v1 (*pending*: composed from the selection evidence; `research/phase2/BRAINIR_V1_METHOD.md`)
 
