@@ -135,3 +135,37 @@ class DiscoveryProblem:
         return {"name": self.name, "dataset": self.dataset, "version": self.version, "benchmark_id": self.benchmark_id, "n": self.n,
                 "n_edges": int(self.C.nnz), "n_stimulus": len(self.stim_positions), "n_readout": int(self.readout_mask.sum()),
                 "criterion": self.criterion_spec.get("type"), "network_hash": self.network_hash()[:16]}
+
+
+# ---------------------------------------------------------------------------- shipping bundles to remote workers
+def pack_bundle(root: Path | str, network: str, extra: dict[str, bytes] | None = None) -> dict[str, bytes]:
+    """The files of one bundle network as {relative path: bytes}, for remote workers that have no access to the filesystem.
+
+    Includes ``model_config.json`` / ``manifest.json`` at the root and every file of ``networks/<network>/``."""
+    root = Path(root)
+    pack: dict[str, bytes] = {}
+    for f in ("model_config.json", "manifest.json"):
+        if (root / f).exists():
+            pack[f] = (root / f).read_bytes()
+    for f in sorted((root / "networks" / network).iterdir()):
+        if f.is_file():
+            pack[f"networks/{network}/{f.name}"] = f.read_bytes()
+    if extra:
+        pack.update(extra)
+    return pack
+
+
+def unpack_bundle(pack: dict[str, bytes], dest: Path | str) -> Path:
+    """Write a :func:`pack_bundle` dict under ``dest`` and return ``dest``."""
+    dest = Path(dest)
+    for rel, data in pack.items():
+        p = dest / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(data)
+    return dest
+
+
+def path_basename(p: Path | str) -> str:
+    """Last path component whatever the separator (a Windows path shipped to a Linux worker keeps its backslashes)."""
+    s = str(p).rstrip("\\").rstrip("/")
+    return s.replace("\\", "/").rsplit("/", 1)[-1]

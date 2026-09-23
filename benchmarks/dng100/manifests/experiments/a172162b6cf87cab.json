@@ -1,0 +1,117 @@
+{
+ "name": "greedy_reference_small_smoke",
+ "config": {
+  "methods": [
+   "greedy_reference"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0
+  ],
+  "networks": [
+   "main",
+   "order1"
+  ],
+  "configs": {},
+  "instances": [
+   "delayed_inhibitory_oscillator__n50__plain__s522555",
+   "delayed_inhibitory_oscillator__n60__autonomous_module__s522584",
+   "delayed_inhibitory_oscillator__n60__backup_copy__s522582",
+   "delayed_inhibitory_oscillator__n60__hub_distractor+misleading_centrality__s522556",
+   "delayed_inhibitory_oscillator__n60__weak_critical_edge+low_degree_critical__s522583",
+   "delayed_inhibitory_oscillator__n60__weight_jitter+unknown_signs__s522657",
+   "ei_pair_oscillator__n50__plain__s522549",
+   "ei_pair_oscillator__n60__autonomous_module__s522581",
+   "ei_pair_oscillator__n60__backup_copy__s522579",
+   "ei_pair_oscillator__n60__hub_distractor+misleading_centrality__s522550",
+   "ei_pair_oscillator__n60__weak_critical_edge+low_degree_critical__s522580",
+   "ei_pair_oscillator__n60__weight_jitter+unknown_signs__s522551",
+   "feedforward_driver__n50__plain__s522564",
+   "feedforward_driver__n60__hub_distractor+misleading_centrality__s522565",
+   "feedforward_driver__n60__weight_jitter+unknown_signs__s522566",
+   "integrator__n50__plain__s522570",
+   "integrator__n60__hub_distractor+misleading_centrality__s522771",
+   "integrator__n60__weight_jitter+unknown_signs__s522572",
+   "memory_switch__n50__plain__s522573",
+   "memory_switch__n60__autonomous_module__s522596",
+   "memory_switch__n60__backup_copy__s522594",
+   "memory_switch__n60__hub_distractor+misleading_centrality__s522574",
+   "memory_switch__n60__weak_critical_edge+low_degree_critical__s522595",
+   "memory_switch__n60__weight_jitter+unknown_signs__s522575",
+   "negative_feedback_controller__n50__plain__s522567",
+   "negative_feedback_controller__n60__autonomous_module__s522593",
+   "negative_feedback_controller__n60__backup_copy__s522591",
+   "negative_feedback_controller__n60__weight_jitter+unknown_signs__s522569",
+   "redundant_oscillator__n50__plain__s522558",
+   "redundant_oscillator__n60__autonomous_module__s522587",
+   "redundant_oscillator__n60__backup_copy__s522585",
+   "redundant_oscillator__n60__hub_distractor+misleading_centrality__s522559",
+   "redundant_oscillator__n60__weak_critical_edge+low_degree_critical__s522586",
+   "redundant_oscillator__n60__weight_jitter+unknown_signs__s522660",
+   "ring_oscillator__n50__plain__s522552",
+   "ring_oscillator__n60__hub_distractor+misleading_centrality__s522553",
+   "ring_oscillator__n60__weight_jitter+unknown_signs__s522554",
+   "two_implementations__n50__plain__s522561",
+   "two_implementations__n60__autonomous_module__s522590",
+   "two_implementations__n60__backup_copy__s522588",
+   "two_implementations__n60__hub_distractor+misleading_centrality__s522562",
+   "two_implementations__n60__weak_critical_edge+low_degree_critical__s522589",
+   "two_implementations__n60__weight_jitter+unknown_signs__s522563",
+   "winner_take_all__n50__plain__s522576",
+   "winner_take_all__n60__autonomous_module__s522599",
+   "winner_take_all__n60__backup_copy__s522597",
+   "winner_take_all__n60__weak_critical_edge+low_degree_critical__s522698",
+   "winner_take_all__n60__weight_jitter+unknown_signs__s522578"
+  ]
+ },
+ "seeds": [
+  0
+ ],
+ "inputs": {
+  "suite": "mechanisms_v1",
+  "n_instances": 48,
+  "jobs_hash": "1a97647dfbda589d09cdca21e5f452d7ac098724a26ffe5dd69cd7f87c5bc4ad"
+ },
+ "backend": {
+  "backend": "local",
+  "n_workers": 8
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/greedy_reference_small_smoke.json",
+   "sha256": "a19f6515f9443dcf77cb3cb9aa3fffa33b1c415c7a9bc63ceedc3b0043b28e8a",
+   "size_bytes": 281398
+  }
+ },
+ "summary": {
+  "greedy_reference": {
+   "n_runs": 96,
+   "success_rate": 0.7083333333333334,
+   "success_ci95": [
+    0.6145833333333334,
+    0.8020833333333334
+   ],
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.6666666666666666,
+   "functional_nominal_mean": 0.8229166666666666,
+   "functional_robust_mean": null,
+   "calls_median": 206.0,
+   "calls_mean": 202.60416666666666,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.2289834240438422
+  }
+ },
+ "notes": "",
+ "run_id": "a172162b6cf87cab",
+ "created_utc": "2026-09-23T17:55:01Z",
+ "code": {
+  "commit": "e65c648670021f0de3bf3081ae367906c8dff871",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

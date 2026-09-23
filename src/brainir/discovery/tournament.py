@@ -28,7 +28,7 @@ import numpy as np
 from ..compute.registry import ExperimentRecord, artifact_record, content_hash, register_run
 from .interface import DiscoveryResult, MethodRegistry
 from .interventions import keep_only
-from .problem import DiscoveryProblem
+from .problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
 from .simulator import BudgetedSimulator, BudgetExhausted
 
 
@@ -117,7 +117,7 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         result = DiscoveryResult(core=[], diagnostics={"error": "budget exhausted before a result"})
     wall = time.time() - t0
     result.budget = {**sim.report(), "wall_s": round(wall, 2)}
-    rec = {"method": method_name, "version": method.version, "instance": instance_dir.name, "network": network, "seed": seed, "budget": budget,
+    rec = {"method": method_name, "version": method.version, "instance": path_basename(instance_dir), "network": network, "seed": seed, "budget": budget,
            "config": cfg, "result": result.to_dict(), "wall_s": round(wall, 2), "budget_exhausted": exhausted, "problem": problem.public_summary()}
     if truth_path is not None and truth_path.exists():
         truth = json.loads(truth_path.read_text(encoding="utf-8"))
@@ -131,10 +131,44 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
 
 
 def run_one_job(args) -> dict:
-    """Module-level wrapper for backends (one discovery run = one job)."""
-    method_name, instance_dir, network, budget, seed, config, truth_path, score_seeds, robust = args
-    return run_one(method_name, Path(instance_dir), network, budget=budget, seed=seed, config=config,
-                   truth_path=None if truth_path is None else Path(truth_path), score_seeds=list(score_seeds), workers=1, robust=robust)
+    """Module-level wrapper for backends (one discovery run = one job).
+
+    ``args`` = (method, instance_dir, network, budget, seed, config, truth_path, score_seeds, robust[, packs]). On a remote worker
+    the instance directory does not exist; ``packs`` (a dict {instance name: pack_bundle dict, "truth/<name>.json": bytes}, usually a
+    :class:`brainir.compute.Shared` payload) is then unpacked into a temporary directory first."""
+    method_name, instance_dir, network, budget, seed, config, truth_path, score_seeds, robust = args[:9]
+    packs = args[9] if len(args) > 9 else None
+    instance_dir = Path(instance_dir)
+    truth_path = None if truth_path is None else Path(truth_path)
+    if not instance_dir.exists() and packs is not None:
+        import tempfile
+        name = path_basename(instance_dir)
+        tmp = Path(tempfile.mkdtemp(prefix="brainir_job_"))
+        unpack_bundle(packs[name], tmp / name)
+        instance_dir = tmp / name
+        if truth_path is not None:
+            tname = path_basename(truth_path)
+            if f"truth/{tname}" in packs:
+                (tmp / "truth").mkdir(exist_ok=True)
+                (tmp / "truth" / tname).write_bytes(packs[f"truth/{tname}"])
+                truth_path = tmp / "truth" / tname
+    return run_one(method_name, instance_dir, network, budget=budget, seed=seed, config=config, truth_path=truth_path,
+                   score_seeds=list(score_seeds), workers=1, robust=robust)
+
+
+def pack_suite(suite_root: Path, inst_dirs: list[Path], networks: tuple[str, ...]) -> dict:
+    """Everything remote tournament workers need: each instance's public files (all requested networks) and its truth file."""
+    packs: dict = {}
+    for d in inst_dirs:
+        pack: dict[str, bytes] = {}
+        for net in networks:
+            if (d / "networks" / net).exists():
+                pack.update(pack_bundle(d, net))
+        packs[d.name] = pack
+        t = Path(suite_root) / "truth" / f"{d.name}.json"
+        if t.exists():
+            packs[f"truth/{t.name}"] = t.read_bytes()
+    return packs
 
 
 def summarize(records: list[dict]) -> dict:
@@ -201,8 +235,10 @@ def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str]
                     jobs.append((m, str(d), net, budget, int(s), (configs or {}).get(m, {}), truth, list(score_seeds), robust))
     t0 = time.time()
     if backend is not None:
-        from ..compute.backend import split_failures
-        records, failed = split_failures(backend.map(run_one_job, jobs))
+        from ..compute.backend import Shared, split_failures
+        packs = pack_suite(suite_root, inst_dirs, networks)
+        remote_jobs = [(*j, Shared("packs")) for j in jobs]
+        records, failed = split_failures(backend.map(run_one_job, remote_jobs, shared={"packs": packs}))
         for f in failed:
             records.append({"method": jobs[f["index"]][0], "instance": Path(jobs[f["index"]][1]).name, "error": f["error"]})
     elif workers > 1 and len(jobs) > 1:

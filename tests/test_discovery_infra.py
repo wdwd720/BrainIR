@@ -187,3 +187,37 @@ def test_cleanroom_copy_excludes_truth(tmp_path, tiny_suite):
     assert any(r.startswith(f"instances/{label}/") for r in rel)
     assert not any("truth" in r for r in rel)
     shutil.rmtree(tmp_path / "copy")
+
+
+def test_permuted_variant_preserves_graph_and_maps_back(tiny_suite, tmp_path):
+    """Reliability sweeps permute node positions; the variant is the same graph and predictions map back to the source frame."""
+    from brainir.discovery.reliability import consistency, make_permuted_bundle, to_common_frame
+
+    root, label, _ = tiny_suite
+    src = root / "instances" / label
+    info = make_permuted_bundle(src, "main", seed=5, dest_root=tmp_path / "v")
+    perm = info["perm"]
+    p0 = DiscoveryProblem.from_bundle(src, "main")
+    p1 = DiscoveryProblem.from_bundle(tmp_path / "v", "main")
+    assert np.array_equal(p0.W.toarray()[np.ix_(perm, perm)], p1.W.toarray())
+    assert sorted(int(perm[s]) for s in p1.stim_positions) == sorted(int(s) for s in p0.stim_positions)
+    assert sorted(int(perm[r]) for r in p1.readout_positions) == sorted(int(r) for r in p0.readout_positions)
+    assert p0.network_hash() != p1.network_hash()  # a different presentation of the same graph
+    core_v = [int(x) for x in p1.candidate_positions()[:3]]
+    from brainir.benchmark.prediction import MethodInfo
+    pred = DiscoveryResult(core=core_v).to_prediction(p1, MethodInfo(name="t", version="0"))
+    back = to_common_frame(pred, perm, info["positional"])
+    assert back == sorted(int(perm[c]) for c in core_v)
+    c = consistency([[1, 2, 3], [1, 2, 3], [1, 2, 4]])
+    assert c["modal_core"] == [1, 2, 3] and c["modal_core_frequency"] == pytest.approx(2 / 3) and 0 < c["pairwise_jaccard_mean"] < 1
+
+
+def test_pack_unpack_bundle_roundtrip(tiny_suite, tmp_path):
+    from brainir.discovery.problem import pack_bundle, unpack_bundle
+
+    root, label, _ = tiny_suite
+    src = root / "instances" / label
+    pack = pack_bundle(src, "main")
+    assert "networks/main/neurons.parquet" in pack and "model_config.json" in pack
+    unpack_bundle(pack, tmp_path / "u")
+    assert DiscoveryProblem.from_bundle(tmp_path / "u", "main").network_hash() == DiscoveryProblem.from_bundle(src, "main").network_hash()
