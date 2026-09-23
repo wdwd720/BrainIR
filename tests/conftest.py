@@ -27,3 +27,4 @@ def cx(synthetic_out):
 
 def pytest_configure(config):
     config.addinivalue_line("markers", "real_data: needs the processed MaleCNS v1.0 build under data/processed")
+    config.addinivalue_line("markers", "modal: launches Modal containers (opt-in: set BRAINIR_TEST_MODAL=1; costs cents)")
