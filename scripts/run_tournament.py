@@ -35,6 +35,8 @@ def main(argv=None) -> int:
     ap.add_argument("--backend", choices=["local", "modal"], default="local")
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--containers", type=int, default=100)
+    ap.add_argument("--timeout", type=int, default=7200, help="Modal per-run timeout (s)")
+    ap.add_argument("--memory-mb", type=int, default=3072)
     ap.add_argument("--no-robust", action="store_true", help="skip the robust/weight-noise/minimality functional checks (faster)")
     ap.add_argument("--label", default="tournament")
     ap.add_argument("--out", type=Path, default=ROOT / "research" / "phase2" / "tournament")
@@ -46,7 +48,8 @@ def main(argv=None) -> int:
     inst = args.instances
     if inst is None and (args.max_n or args.min_n or args.families):
         inst = select_instances(args.suite, max_n=args.max_n, min_n=args.min_n, families=args.families)
-    backend = get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=3600, max_containers=args.containers) if args.backend == "modal" else None
+    backend = (get_backend("modal", cpu=1.0, memory_mb=args.memory_mb, timeout_s=args.timeout, max_containers=args.containers)
+               if args.backend == "modal" else None)
     run_tournament(args.methods, args.suite, instances=inst, networks=tuple(args.networks), seeds=tuple(args.seeds), budget=args.budget,
                    configs=configs, backend=backend, workers=args.workers, robust=not args.no_robust, out_dir=args.out,
                    registry_dir=ROOT / "benchmarks" / "dng100" / "manifests" / "experiments", label=args.label)

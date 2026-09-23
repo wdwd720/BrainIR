@@ -143,7 +143,25 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         rec["truth_n"] = len(perm)
         # the core in the generator's canonical node frame: comparable across node-order variants of the same instance
         rec["core_canonical"] = sorted(int(perm[int(p)]) for p in result.core if 0 <= int(p) < len(perm))
+    rec["result"] = compact_result(rec["result"])
     return rec
+
+
+def compact_result(res: dict, *, top_inclusion: int = 100, max_diag_bytes: int = 4000) -> dict:
+    """Storage form of a result dict (scores are computed from the full result before this): the inclusion probabilities of the
+    top-``top_inclusion`` candidates (plus their count) and only the small diagnostic entries (large ones are replaced by their size)."""
+    out = dict(res)
+    inc = res.get("inclusion_probability") or {}
+    if len(inc) > top_inclusion:
+        top = sorted(inc.items(), key=lambda kv: -kv[1])[:top_inclusion]
+        out["inclusion_probability"] = {int(k): float(v) for k, v in top}
+        out["n_inclusion_assessed"] = len(inc)
+    diag = {}
+    for k, v in (res.get("diagnostics") or {}).items():
+        s = json.dumps(v, default=str)
+        diag[k] = v if len(s) <= max_diag_bytes else {"omitted_bytes": len(s)}
+    out["diagnostics"] = diag
+    return out
 
 
 def run_one_job(args) -> dict:
