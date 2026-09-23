@@ -13,6 +13,8 @@ Examples::
     brainir khop 10056 -k 2 --direction out --min 10                # k-hop neighbourhood
     brainir paths 10056 12686 --max-hops 3 --min 5                  # shortest directed paths
     brainir synapses --pre 10056 --name dng100_out                  # extract individual synapses (Parquet)
+    brainir mapping build --a male-cns:v1.0 --b manc:v1.2.1         # cross-connectome candidate table + summary
+    brainir mapping lookup --a-id 10056                             # candidates of one A neuron (--b-id: reverse)
 """
 
 from __future__ import annotations
@@ -153,6 +155,41 @@ def cmd_synapses(args):
     return 0
 
 
+# ----------------------------------------------------------------------------- cross-connectome mapping
+def cmd_mapping_build(args):
+    import shutil
+
+    from . import paths
+    from .graph import Connectome
+    from .mapping import MappingSpec, build_mapping, write_mapping
+
+    spec = MappingSpec.parse(args.a, args.b)
+    cx_a = Connectome.open(spec.a_dataset, spec.a_version)
+    cx_b = Connectome.open(spec.b_dataset, spec.b_version)
+    table, summary = build_mapping(cx_a, cx_b, spec=spec)
+    rec = write_mapping(table, summary, out_dir=args.out_dir)
+    if not args.no_manifest and args.out_dir is None:  # small committed copy next to the dataset manifests
+        dst = paths.manifests_dir() / f"mapping_{spec.dir_name}.summary.json"
+        shutil.copyfile(rec["out_dir"] / "summary.json", dst)
+        print(f"summary copy: {dst}")
+    print(f"table: {rec['table']['path']} ({rec['table']['rows']} rows, sha256 {rec['table']['sha256'][:12]}...)")
+    print(json.dumps({k: v for k, v in summary.items() if k not in ("a", "b")}, indent=1, default=str))
+    return 0
+
+
+def cmd_mapping_lookup(args):
+    from .mapping import MappingSpec, forward_lookup, load_mapping, reverse_lookup
+
+    spec = MappingSpec.parse(args.a, args.b)
+    table = load_mapping((spec.a_dataset, spec.a_version), (spec.b_dataset, spec.b_version), out_dir=args.out_dir)
+    if (args.a_id is None) == (args.b_id is None):
+        raise SystemExit("give exactly one of --a-id / --b-id")
+    df = forward_lookup(table, args.a_id) if args.a_id is not None else reverse_lookup(table, args.b_id)
+    _emit(df, args, ["a_source_id", "b_source_id", "mapping_kind", "confidence", "ambiguity", "a_cell_type", "b_cell_type",
+                     "side_consistent", "role_consistent", "nt_consistent", "notes"])
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(prog="brainir", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("-v", "--verbose", action="store_true")
@@ -222,6 +259,24 @@ def build_parser() -> argparse.ArgumentParser:
     sy.add_argument("--mode", choices=["and", "or"], default="and")
     sy.add_argument("--name", required=True, help="subset name (file stem)")
     sy.set_defaults(func=cmd_synapses)
+
+    m = sub.add_parser("mapping", help="cross-connectome neuron mapping (A neurons -> B candidates with evidence labels)")
+    msub = m.add_subparsers(dest="mapping_command", required=True)
+    mb = msub.add_parser("build", help="write data/processed/mappings/<a>__<b>/neuron_mapping.parquet + summary.json")
+    mb.add_argument("--a", default="male-cns:v1.0", help="A build as dataset:version (the neurons being mapped)")
+    mb.add_argument("--b", default="manc:v1.2.1", help="B build as dataset:version (where candidates are searched)")
+    mb.add_argument("--out-dir", default=None, help="write elsewhere (implies --no-manifest)")
+    mb.add_argument("--no-manifest", action="store_true", help="do not copy summary.json to data/manifests/")
+    mb.set_defaults(func=cmd_mapping_build)
+    ml = msub.add_parser("lookup", help="rows of one A neuron (--a-id) or all rows naming one B neuron (--b-id)")
+    ml.add_argument("--a", default="male-cns:v1.0")
+    ml.add_argument("--b", default="manc:v1.2.1")
+    ml.add_argument("--out-dir", default=None)
+    ml.add_argument("--a-id", type=int, default=None)
+    ml.add_argument("--b-id", type=int, default=None)
+    ml.add_argument("--json", action="store_true", help="JSON output")
+    ml.add_argument("--limit", type=int, default=0, help="max rows (0 = all)")
+    ml.set_defaults(func=cmd_mapping_lookup)
     return p
 
 

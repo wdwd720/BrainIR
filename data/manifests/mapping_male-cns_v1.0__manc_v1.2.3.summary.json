@@ -1,0 +1,197 @@
+{
+  "mapping_schema_version": "1.0.0",
+  "rules": {
+    "role_class": "brainir.role.v1",
+    "priority": [
+      "curated_body_match",
+      "curated_type_match",
+      "same_type_name",
+      "same_role_only",
+      "unmatched"
+    ],
+    "a_nt_field": "nt_consensus",
+    "b_nt_field": "nt_body_prediction",
+    "caveat": "Two animals: no row asserts identity. curated_* rows restate the A release's cross-dataset annotations; same_type_name rows compare curated names only."
+  },
+  "a": {
+    "dataset": "male-cns",
+    "version": "v1.0",
+    "n_neurons": 166700,
+    "n_in_scope": 24136,
+    "n_out_of_scope": 142564,
+    "manifest": {
+      "path": "$DATA/manifests/male-cns_v1.0.manifest.json",
+      "sha256": "84ccb2413bda05bd59b92043a7cddfb68dd7524c910ebd7c5f298b0434d7370a",
+      "matches_build": true,
+      "neurons_parquet_sha256": "b12ad0028356880d5946daa99008678d748783182b2857d2930f518552ea267f"
+    }
+  },
+  "b": {
+    "dataset": "manc",
+    "version": "v1.2.3",
+    "n_neurons": 23665,
+    "n_cell_types": 4081,
+    "manifest": {
+      "path": "$DATA/manifests/manc_v1.2.3.manifest.json",
+      "sha256": "ca8962d5ed1153ff0916ddb8813c4bc8fe828c9b75fd6365617b7bea0a1466f4",
+      "matches_build": true,
+      "neurons_parquet_sha256": "f4e75c879e3757adb4db3b2f41ebdb166c73be4bc8478e7ed7ded2826b1553a4"
+    }
+  },
+  "scope": {
+    "rule": "role_class in vnc_roles OR manc_body_id/manc_type annotated",
+    "vnc_roles": [
+      "ascending",
+      "descending",
+      "efferent",
+      "sensory_ascending",
+      "sensory_descending",
+      "vnc_intrinsic",
+      "vnc_motor",
+      "vnc_sensory"
+    ],
+    "in_scope_by_role_class": {
+      "vnc_intrinsic": 13161,
+      "vnc_sensory": 6406,
+      "ascending": 1846,
+      "descending": 1316,
+      "vnc_motor": 708,
+      "sensory_ascending": 539,
+      "efferent": 110,
+      "endocrine": 22,
+      "sensory_descending": 12,
+      "unknown": 12,
+      "cb_intrinsic": 4
+    },
+    "in_scope_via_annotation_only": {
+      "n": 38,
+      "by_role_class": {
+        "endocrine": 22,
+        "unknown": 12,
+        "cb_intrinsic": 4
+      }
+    },
+    "out_of_scope": {
+      "n": 142564,
+      "by_role_class": {
+        "ol_intrinsic": 89403,
+        "cb_intrinsic": 32160,
+        "visual_projection": 9203,
+        "ol_sensory": 6098,
+        "cb_sensory": 4882,
+        "visual_centrifugal": 563,
+        "endocrine": 122,
+        "cb_motor": 107,
+        "unknown": 26
+      },
+      "note": "outside MANC volume (brain-only role class, or no VNC role and no curated MANC annotation); counted here, not enumerated as rows"
+    }
+  },
+  "rows": 243378,
+  "a_neurons_by_mapping_kind": {
+    "curated_body_match": 18542,
+    "curated_type_match": 4425,
+    "same_type_name": 0,
+    "same_role_only": 1167,
+    "unmatched": 2
+  },
+  "rows_by_mapping_kind": {
+    "curated_body_match": 18542,
+    "curated_type_match": 223667,
+    "same_type_name": 0,
+    "same_role_only": 1167,
+    "unmatched": 2
+  },
+  "a_neurons_by_confidence": {
+    "high": 18542,
+    "medium": 95,
+    "low": 4330,
+    "none": 1169
+  },
+  "ambiguity_by_mapping_kind": {
+    "curated_type_match": {
+      "1": 100,
+      "2": 125,
+      "3-5": 371,
+      ">5": 3829
+    },
+    "same_type_name": {
+      "1": 0,
+      "2": 0,
+      "3-5": 0,
+      ">5": 0
+    }
+  },
+  "curated_annotations": {
+    "a_in_scope_with_manc_body_id": 18572,
+    "manc_body_id_is_b_neuron": 18542,
+    "manc_body_id_not_in_b": 30,
+    "b_bodies_referenced_by_several_a_neurons": 412,
+    "a_in_scope_with_manc_type": 22744,
+    "a_in_scope_whose_manc_type_is_b_type": 21757
+  },
+  "body_match_consistency": {
+    "n": 18542,
+    "side": {
+      "consistent": 17437,
+      "inconsistent": 1089,
+      "unknown": 16,
+      "rate": 0.9412
+    },
+    "role": {
+      "consistent": 17825,
+      "inconsistent": 717,
+      "unknown": 0,
+      "rate": 0.9613
+    },
+    "nt": {
+      "consistent": 16138,
+      "inconsistent": 1494,
+      "unknown": 910,
+      "rate": 0.9153
+    },
+    "manc_type_equals_b_cell_type": {
+      "consistent": 13957,
+      "inconsistent": 4009,
+      "unknown": 576,
+      "rate": 0.7769
+    },
+    "a_cell_type_equals_b_cell_type": {
+      "consistent": 12304,
+      "inconsistent": 5922,
+      "unknown": 316,
+      "rate": 0.6751
+    }
+  },
+  "type_name_coverage": {
+    "a_in_scope_cell_types": 4202,
+    "a_cell_types_present_in_b": 3404,
+    "a_in_scope_neurons_with_cell_type_present_in_b": 19051,
+    "a_in_scope_neurons_without_cell_type": 1053,
+    "b_cell_types": 4081,
+    "b_cell_types_present_in_a_in_scope": 3404
+  },
+  "b_coverage": {
+    "b_neurons": 23665,
+    "b_neurons_in_any_row": 22867,
+    "b_neurons_with_body_match": 18130,
+    "b_neurons_with_several_body_matches": 412,
+    "b_neurons_without_any_row_by_role_class": {
+      "vnc_intrinsic": 280,
+      "vnc_sensory": 268,
+      "unknown": 92,
+      "descending": 53,
+      "ascending": 50,
+      "vnc_motor": 36,
+      "glia": 11,
+      "sensory_ascending": 6,
+      "efferent": 2
+    }
+  },
+  "table": {
+    "path": "$DATA/processed/mappings/male-cns_v1.0__manc_v1.2.3/neuron_mapping.parquet",
+    "size_bytes": 1369491,
+    "sha256": "67d513525581631132441c48d12605db562cef4e551d05c4d650ea341811846b",
+    "rows": 243378
+  }
+}

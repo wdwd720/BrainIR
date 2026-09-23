@@ -33,7 +33,8 @@ uv run python scripts/gen_schema_docs.py   # docs/schema.md is generated; a test
 uv run python benchmarks/dng100_walking_cpg/investigate_malecns.py            # answer-key analysis (benchmark only)
 uv run python benchmarks/dng100_walking_cpg/reproduce_manc_connectivity.py    # paper matrices vs BrainIR builds
 uv run python benchmarks/dng100_walking_cpg/reproduce_dynamics.py stim --dataset manc --version v1.2.1 --n 128
-uv run brainir --help                      # neuron/type/search/up/down/edge/khop/paths/synapses queries
+uv run brainir mapping build --a male-cns:v1.0 --b manc:v1.2.1   # cross-connectome candidate table + summary
+uv run brainir --help                      # neuron/type/search/up/down/edge/khop/paths/synapses/mapping queries
 ```
 
 ## Layout
@@ -44,8 +45,12 @@ uv run brainir --help                      # neuron/type/search/up/down/edge/kho
   - `schema/`: evidence kinds, vocab (sign rule, role-class rule), Arrow tables, pydantic models
   - `ingest/common.py` (generic steps/validation/writing), `ingest/malecns.py`, `ingest/manc.py` (adapters)
   - `graph.py`: `Connectome` API (`role_class` derived on load; `sign_hypothesis(basis="auto")`)
-  - `sim/`: rate-model simulator (`model.py`), signed-matrix builder (`weights.py`), experiments
+  - `sim/`: rate-model simulator (`model.py`), signed-matrix builder (`weights.py`), experiments, pruning search
+    (`prune.py`), activation screen (`screen.py`)
   - `metrics/rhythm.py`: published rhythmicity score + independent measures
+  - `mapping.py`: MaleCNS↔MANC candidate table (never identity; see `research/cross_connectome_mapping.md`)
+  - `benchmark/`: prediction schema + public-bundle exporter (safe for discovery code); `compute/`: local/Modal
+    backends + experiment registry
   - `synapses.py`, `manifest.py`, `cli.py`
   - `testing/`: `synthetic.py` (MaleCNS fixture), `synthetic_manc.py` (same truth in MANC formats),
     `signals.py` / `circuits.py` (labelled test signals and model circuits)
@@ -55,7 +60,15 @@ uv run brainir --help                      # neuron/type/search/up/down/edge/kho
 - `research/`: `LOG.md`, `data_ecosystem.md`, `connectome_ecosystem_survey.md`, `manc_release_notes.md`,
   `literature/`, `audit/`.
 - `benchmarks/dng100_walking_cpg/`: **ANSWER KEY. Never feed it to discovery code.** See its `README.md` for the
-  list of answer-bearing files (includes `goal1.md`, `goal2.md` and `research/literature/`).
+  list of answer-bearing files (includes `goal1.md`, `goal2.md` and `research/literature/`). Also holds the
+  reproduction scripts (`reproduce_manc_connectivity.py`, `reproduce_dynamics.py`, `reproduce_interventions.py`,
+  `robustness_experiments.py`) and their `results/`.
+- `benchmarks/dng100/`: the frozen benchmark package. `public/` (tier B) and `public_blind/` (tier A: tokenised
+  interneuron types, positional ids) are the ONLY things a discovery method may see; `oracle/` (answer + tier-A id
+  maps + salt), `evaluator/evaluate.py` (metric families, reads the oracle), `cleanroom/` (runner, example method,
+  `leakage_check.py` → `LEAKAGE_AUDIT.md`), `baselines/`, `nodes/`, `manifests/`. Rebuild bundles with
+  `uv run python benchmarks/dng100/build_public_bundle.py`; run a method with `cleanroom/run_method.py`; evaluate
+  with `evaluator/evaluate.py`.
 
 ## MANC facts you must not re-derive (details: LOG D21–D28, §3.11–3.16)
 - The paper's MANC front-leg network is neuPrint `manc:v1.2.1`; its full-VNC network is `manc:v1.2.3`. Both are
