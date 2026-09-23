@@ -27,12 +27,12 @@ cloud usage ≈ $38 of ~$1,000. Phase 2 not started.
 | Oracle with evidence levels; prediction schema 1.0.0 | `benchmarks/dng100/oracle/`, `brainir.benchmark.prediction` | done |
 | Frozen evaluator (metric families, no magic number) | `benchmarks/dng100/evaluator/evaluate.py` | done |
 | Clean room, automated leakage checks, `LEAKAGE_AUDIT.md` | `benchmarks/dng100/cleanroom/` | done: PASS |
-| Baselines + null distributions | `benchmarks/dng100/baselines/` | [PENDING] |
-| Reproductions (connectivity, dynamics, interventions, pruning, DN screen, sweeps, negative controls) | `benchmarks/dng100_walking_cpg/` | [PENDING: pruning/DN screen/interventions/mCNS] |
-| Cross-connectome evaluation both directions | `cross_connectome_eval.py` | [PENDING: final n] |
+| Baselines + null distributions | `benchmarks/dng100/baselines/` (+ `results/`, hash-locked) | done: nine methods, 500-draw nulls (§8) |
+| Reproductions (connectivity, dynamics, interventions, pruning, DN screen, sweeps, negative controls) | `benchmarks/dng100_walking_cpg/` | done (§7): every published claim reproduced; two open discrepancies (§12) |
+| Cross-connectome evaluation both directions | `cross_connectome_eval.py`, evaluator transfer sub-family | done: n = 64 both directions + null (§7.6) |
 | Compute layer (local + Modal), experiment registry | `brainir.compute`, `benchmarks/dng100/manifests/experiments/` | done |
-| Protocol, freeze, lock, tag | `PROTOCOL.md`, `freeze.py`, `BENCHMARK_LOCK.json`, tag `dng100-benchmark-v1` | [PENDING: freeze] |
-| Independent reviews A–F | `research/audit/phase1_reviews/` | [PENDING] |
+| Protocol, freeze, lock, tag | `PROTOCOL.md`, `freeze.py`, `BENCHMARK_LOCK.json`, tag `dng100-benchmark-v1` | done (§8, §1) |
+| Independent reviews A–F | `research/audit/phase1_reviews/` | done: six reviews, every blocker closed before the freeze (§10) |
 
 Not started, by design: Phase 2 (synthesizer, DSL, UI).
 
