@@ -211,6 +211,7 @@ Comparison with the paper's MaleCNS numbers (their matrix: VNC ROIs only, >=5 fl
 * `10056` has 669 targets with >= 5 synapses; 435 are VNC intrinsic/ascending/motor.
 * Among those VNC targets there are 3790 edges with >= 5 synapses and 334 reciprocally connected pairs (density 0.020).
 * E1 (800173) ranks #11 among `10056`'s targets by synapse count; DNg100 provides 1.7% of E1's input synapses from neurons.
+* Greedy-walk ranks (1 = strongest): {'E2_rank_among_E1_outputs': 1, 'I1_rank_among_E1_inputs': 1, 'I2_rank_among_E1_inputs': 2, 'I1_rank_among_E1_inhibitory_inputs': 1, 'I2_rank_among_E1_inhibitory_inputs': 2, 'E1_rank_among_E2_inputs': 1}
 
 ## F. DNg100 -> E1 (IN17A001) across all six legs
 
@@ -231,3 +232,4 @@ Comparison with the paper's MaleCNS numbers (their matrix: VNC ROIs only, >=5 fl
 |       12075 | DNb08(VES083)_R | R           | acetylcholine  |          14680 |        nan |
 |       12189 | DNb08(VES083)_L | L           | acetylcholine  |          13892 |        nan |
 |       12550 | DNb08(VES082)_L | L           | acetylcholine  |          14061 |        nan |
+

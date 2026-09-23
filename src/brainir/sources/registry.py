@@ -210,11 +210,12 @@ MALECNS_V1_0 = DatasetSource(
     citation={
         "dataset": "MaleCNS v1.0 connectome (neuPrint dataset male-cns:v1.0), HHMI Janelia FlyEM, "
                    "University of Cambridge, MRC LMB and Google Research. https://male-cns.janelia.org/",
-        "paper": "Berg S, Beckett IR, Costa M, Schlegel P, Januszewski M, et al. Sexual dimorphism in the "
-                 "complete connectome of the Drosophila male central nervous system. "
-                 "Cell (2026), published 2026-09-03, https://www.cell.com/cell/fulltext/S0092-8674(26)00942-6 ; "
-                 "preprint bioRxiv 10.1101/2025.10.09.680999 (v2, 2025-10-30).",
-        "note": "Verify the final author list/DOI against the Cell article before formal citation.",
+        "paper": "Berg S, Beckett IR, Costa M, Schlegel P, Januszewski M, et al. (incl. Rubin GM, Jefferis GSXE). "
+                 "Sexual dimorphism in the complete Drosophila male central nervous system connectome. Cell (2026). "
+                 "doi:10.1016/j.cell.2026.08.015 (PMID 42691995; first published 2026-09-01). Preprint: 'Sexual "
+                 "dimorphism in the complete connectome of the Drosophila male central nervous system', bioRxiv "
+                 "doi:10.1101/2025.10.09.680999 (v2, 2025-10-30), CC-BY 4.0.",
+        "note": "Title/DOI verified via Europe PMC and bioRxiv on 2026-09-22; full Cell author list not re-checked.",
     },
     license={
         "name": "CC-BY-4.0",

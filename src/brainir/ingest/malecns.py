@@ -43,10 +43,9 @@ import scipy.sparse as sp
 from scipy.sparse.csgraph import connected_components
 
 from .. import __version__, paths
-from ..io import file_record, write_canonical, write_parquet
+from ..io import write_canonical, write_parquet
 from ..schema import tables as T
 from ..schema.vocab import (
-    MIN_SIGNIFICANT_STATUS_LABEL,
     NT_VALUES,
     STATUS_LABEL_ORDER,
     STATUS_LABEL_TO_NEUPRINT_STATUS,
@@ -54,7 +53,7 @@ from ..schema.vocab import (
     normalize_side,
 )
 from ..sources.registry import MALECNS_V1_0, DatasetSource
-from ..validation import FAIL, INFO, PASS, WARN, ValidationReport
+from ..validation import INFO, PASS, WARN, ValidationReport
 
 log = logging.getLogger(__name__)
 
@@ -96,6 +95,7 @@ class IngestAborted(RuntimeError):
 
 
 CRITICAL_CHECKS = ("duplicates.annotations.bodyId", "duplicates.nt.body", "ids.annotations.non_null_positive",
+                   "types.annotation_float_ids_integral",
                    "provenance.meta_dataset_tag", "provenance.acquisition_dataset", "provenance.raw_inputs_verified")
 
 
@@ -110,7 +110,6 @@ class IngestConfig:
     seed: int = 20260922
     duckdb_memory_limit: str = "8GB"
     threads: int = 8
-    write_manifest: bool = True
 
     def raw(self) -> Path:
         return Path(self.raw_dir) if self.raw_dir else paths.raw_dir(self.source.dataset, self.source.version)
@@ -190,6 +189,9 @@ def check_acquisition(cfg: IngestConfig, report: ValidationReport, needed: list[
     if not cfg.verify_acquisition:
         report.add("provenance.acquisition_log", "provenance", "Acquisition log verification skipped (fixture/test mode).", INFO)
         return {}
+    if not log_path.exists():
+        raise FileNotFoundError(f"{log_path} not found: acquire the raw data first (`uv run brainir acquire "
+                                f"--tier metadata --tier core --tier synapses`)")
     acq = json.loads(log_path.read_text())
     report.expect_equal("provenance.acquisition_dataset", "provenance", "Acquisition log dataset/version match the registry.",
                         [acq["dataset"], acq["version"]], [cfg.source.dataset, cfg.source.version])
@@ -307,14 +309,19 @@ def load_annotations(cfg: IngestConfig, report: ValidationReport) -> tuple[pd.Da
     raw = feather.read_table(path)
     df = raw.to_pandas()
     report.add("rows.raw.body_annotations", "ingestion", "Rows in the raw body annotation table.", INFO, observed=len(df))
+    lossy = {}
     for c in FLOAT_INT_COLS:
         if c in df.columns:
-            df[c] = _float_to_int64(df[c], c)
+            try:
+                df[c] = _float_to_int64(df[c], c)
+            except ValueError as exc:
+                lossy[c] = str(exc)
     if "statusLabel" in df.columns:
         df["statusLabel"] = df["statusLabel"].astype("string")
     report.expect_true("types.annotation_float_ids_integral", "types",
-                       "Float-encoded ID columns (group, mancBodyid, ...) are integral and < 2^53; cast to int64 without loss.",
-                       True, observed=list(FLOAT_INT_COLS))
+                       "Float-encoded ID columns (group, mancBodyid, ...) are integral and < 2^53, so the cast to int64 "
+                       "is lossless (a violation aborts the build).",
+                       not lossy, observed=lossy or [c for c in FLOAT_INT_COLS if c in df.columns])
     ids = df["bodyId"]
     report.expect_true("ids.annotations.non_null_positive", "ids", "bodyId non-null and positive.",
                        bool(ids.notna().all() and (ids > 0).all()))
@@ -556,7 +563,7 @@ def scan_connections(con, cfg: IngestConfig, neuron_ids: np.ndarray, primary: li
         WITH x AS (SELECT pre_id, post_id, unnest(map_entries(json_transform(ri, '"MAP(VARCHAR, STRUCT(post BIGINT))"'))) AS kv FROM e)
         SELECT pre_id, post_id, kv.key AS neuropil, coalesce(kv.value.post, 0) AS synapse_count
         FROM x SEMI JOIN prim ON kv.key = prim.roi WHERE coalesce(kv.value.post, 0) > 0""")
-    con.execute(f"""
+    con.execute("""
         CREATE OR REPLACE TEMP TABLE rem AS
         SELECT e.pre_id, e.post_id, e.w - coalesce(s.tot, 0) AS r
         FROM e LEFT JOIN (SELECT pre_id, post_id, sum(synapse_count) AS tot FROM cn GROUP BY 1, 2) s
@@ -628,10 +635,13 @@ def synapse_checks(con, cfg: IngestConfig, report: ValidationReport, neuron_ids:
     log.info("synapses: recomputing connectivity for %d random neurons", k)
     con.execute("""CREATE OR REPLACE TEMP TABLE ss AS
                    SELECT * FROM syn WHERE body_pre IN (SELECT id FROM samp) OR body_post IN (SELECT id FROM samp)""")
-    # outgoing edges of sampled neurons to neurons: weight, weightHP, per-neuropil
-    re = con.execute("""
+    # outgoing edges of sampled neurons to neurons: weight, weightHP, per-neuropil.
+    # HP semantics reproduce neuPrint: the float32 confidence is compared in float64, so a PSD stored as
+    # float32(0.7) = 0.699999988 is NOT high-precision (DuckDB's default FLOAT comparison would count it).
+    hp = float(meta.get("postHPThreshold", 0.7))
+    re = con.execute(f"""
         WITH r AS (SELECT body_pre AS pre_id, body_post AS post_id, count(*) AS w,
-                          count(*) FILTER (WHERE conf_post >= 0.7) AS whp
+                          count(*) FILTER (WHERE CAST(conf_post AS DOUBLE) >= CAST({hp!r} AS DOUBLE)) AS whp
                    FROM ss WHERE body_pre IN (SELECT id FROM samp) AND body_post IN (SELECT id FROM nid) GROUP BY 1, 2)
         SELECT count(*) FILTER (WHERE e.pre_id IS NULL) AS only_synapses,
                count(*) FILTER (WHERE r.pre_id IS NULL) AS only_edges,
@@ -800,10 +810,10 @@ def assemble_neurons(cfg: IngestConfig, ann: pd.DataFrame, nt: pd.DataFrame, npn
         "n_upstream_from_neurons": ids.map(in_n).fillna(0).astype("int64").to_numpy(),
         "size_voxels": _float_to_int64(a["size"], "size") if a["size"].dtype.kind == "f" else a["size"].astype("Int64"),
         "nt_consensus": a["consensus_nt"], "nt_body_prediction": a["predicted_nt"],
-        "nt_body_confidence": a["predicted_nt_confidence"].astype("float32"),
+        "nt_body_confidence": a["predicted_nt_confidence"].astype("float64"),
         "nt_body_n_tbars": a["total_nt_predictions"].astype("Int32"),
         "nt_type_prediction": a["celltype_predicted_nt"],
-        "nt_type_confidence": a["celltype_predicted_nt_confidence"].astype("float32"),
+        "nt_type_confidence": a["celltype_predicted_nt_confidence"].astype("float64"),
         "nt_type_n_tbars": a["celltype_total_nt_predictions"].astype("Int32"),
         "nt_literature_label": a["ground_truth"],
         "group_id": a["group"], "synonyms": a["synonyms"], "flywire_type": a["flywireType"],
@@ -961,7 +971,8 @@ def build(cfg: IngestConfig) -> dict:
     report.context = {"dataset": cfg.source.dataset, "version": cfg.source.version, "pipeline": f"{PIPELINE_ID}@{PIPELINE_VERSION}",
                       "git": build_info["git"]}
     report.write(out / "validation_report.json", out / "validation_report.md")
-    (out / "build_info.json").write_text(json.dumps(build_info, indent=2, default=str), encoding="utf-8")
+    (out / "build_info.json").write_text(json.dumps(build_info, indent=2, default=str) + "\n", encoding="utf-8",
+                                         newline="\n")
     con.close()
     import shutil
     shutil.rmtree(paths.cache_dir() / "duckdb_tmp" / f"pid{os.getpid()}", ignore_errors=True)

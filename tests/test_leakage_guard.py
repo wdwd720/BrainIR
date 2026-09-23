@@ -39,6 +39,25 @@ def test_library_contains_no_answer_key_tokens():
     assert not offenders, f"answer-key tokens found in library code: {offenders}"
 
 
+CLEAN_DOCS = ["README.md", "CLAUDE.md", "docs", "research/data_ecosystem.md", "research/connectome_ecosystem_survey.md",
+              "research/LOG.md", "data/README.md"]
+
+
+def test_non_answer_docs_are_clean():
+    """Docs that a future (LLM-based) component might read as context must not carry the answer."""
+    root = paths.repo_root()
+    offenders = []
+    for rel in CLEAN_DOCS:
+        p = root / rel
+        files = [p] if p.is_file() else sorted(p.rglob("*.md")) if p.is_dir() else []
+        for f in files:
+            text = f.read_text(encoding="utf-8")
+            for tok in ANSWER_KEY_TOKENS:
+                if re.search(rf"(?<![0-9A-Za-z]){re.escape(tok)}(?![0-9A-Za-z])", text):
+                    offenders.append((f.relative_to(root).as_posix(), tok))
+    assert not offenders, f"answer-key tokens in non-answer docs: {offenders}"
+
+
 def test_library_does_not_import_benchmarks_or_research():
     pat = re.compile(r"^\s*(from|import)\s+(benchmarks|research)\b", re.M)
     offenders = [p.relative_to(SRC).as_posix() for p in _library_files() if pat.search(p.read_text(encoding="utf-8"))]

@@ -58,3 +58,23 @@ class EvidenceKind(StrEnum):
 GROUND_TRUTH_KINDS = frozenset({EvidenceKind.EXPERIMENTAL_MEASUREMENT})
 """Kinds that may legitimately be used as ground truth for model evaluation.
 Anatomy is a structural observation, not ground truth for dynamics/causality."""
+
+
+EVIDENCE_DESCRIPTIONS: dict[EvidenceKind, str] = {
+    EvidenceKind.IDENTIFIER: "Keys and namespacing (dataset, version, IDs). Not a biological claim.",
+    EvidenceKind.EM_RECONSTRUCTION: "Derived from the EM volume (proofread segmentation + automated synapse detection "
+                                    "above a confidence threshold). Anatomical estimate, not physiological strength.",
+    EvidenceKind.DERIVED_ANATOMY: "Deterministic BrainIR function of EM-derived fields (e.g. is_autapse, dominant "
+                                  "neuropil, totals). Same caveats as em_reconstruction.",
+    EvidenceKind.CURATED_ANNOTATION: "Expert-assigned labels (type, class, side, hemilineage, status, cross-dataset "
+                                     "matches). Human judgements; may change between releases.",
+    EvidenceKind.ML_PREDICTION: "Machine-learning model output with a model-reported confidence (e.g. NT from EM).",
+    EvidenceKind.LITERATURE_LABEL: "Label transferred from published experiments (e.g. known NT of a cell type); "
+                                   "not measured in this animal.",
+    EvidenceKind.DERIVED_HYPOTHESIS: "Hypothesis from an explicit, versioned BrainIR rule (e.g. sign from predicted "
+                                     "NT). Never ground truth.",
+    EvidenceKind.MODEL_PARAMETER: "Assumed or fitted parameter of a computational model (effective weight, time "
+                                  "constant). Never stored in anatomy tables.",
+    EvidenceKind.EXPERIMENTAL_MEASUREMENT: "Physiological or behavioural measurement from a real experiment.",
+    EvidenceKind.PROVENANCE: "Metadata about where data came from and how it was transformed.",
+}

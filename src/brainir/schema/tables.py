@@ -109,12 +109,15 @@ NEURONS = TableSpec(
         Col("n_downstream_to_neurons", pa.int64(), E.DERIVED_ANATOMY, "Outgoing connections whose partner is in this neuron table.", unit="count"),
         Col("n_upstream_from_neurons", pa.int64(), E.DERIVED_ANATOMY, "Incoming connections whose partner is in this neuron table.", unit="count"),
         Col("size_voxels", pa.int64(), E.EM_RECONSTRUCTION, "Segment size.", unit="voxel(8nm)^3"),
-        Col("nt_consensus", DSTR, E.ML_PREDICTION, "Source 'consensus' neurotransmitter (combines body/type predictions and literature labels; see docs). Not physiology."),
+        Col("nt_consensus", DSTR, E.ML_PREDICTION,
+            "Source 'consensusNt' (recommended by the source): cell-type prediction (untyped bodies: body prediction), "
+            "overridden by literature/expert labels, with model octopamine/serotonin calls set to 'unclear'. "
+            "Mixes ML output with curation; not physiology."),
         Col("nt_body_prediction", DSTR, E.ML_PREDICTION, "Neurotransmitter predicted from this body's T-bars."),
-        Col("nt_body_confidence", pa.float32(), E.ML_PREDICTION, "Model confidence for nt_body_prediction.", unit="probability"),
+        Col("nt_body_confidence", pa.float64(), E.ML_PREDICTION, "Model confidence for nt_body_prediction.", unit="probability"),
         Col("nt_body_n_tbars", pa.int32(), E.ML_PREDICTION, "Number of T-bar predictions aggregated for this body.", unit="count"),
         Col("nt_type_prediction", DSTR, E.ML_PREDICTION, "Neurotransmitter predicted by aggregating all bodies of the cell type."),
-        Col("nt_type_confidence", pa.float32(), E.ML_PREDICTION, "Model confidence for nt_type_prediction.", unit="probability"),
+        Col("nt_type_confidence", pa.float64(), E.ML_PREDICTION, "Model confidence for nt_type_prediction.", unit="probability"),
         Col("nt_type_n_tbars", pa.int32(), E.ML_PREDICTION, "Number of T-bar predictions aggregated for the cell type.", unit="count"),
         Col("nt_literature_label", DSTR, E.LITERATURE_LABEL, "Known neurotransmitter of the cell type from literature ('ground_truth' in source)."),
         Col("group_id", pa.int64(), E.CURATED_ANNOTATION, "Source homolog group ID (bilateral/serial partners share a group)."),
@@ -145,7 +148,9 @@ CONNECTIONS = TableSpec(
             "several pairs) with confidence >= threshold (neuPrint 'weight'). Anatomical, NOT a physiological strength.",
             False, unit="count"),
         Col("synapse_count_hp", pa.int32(), E.EM_RECONSTRUCTION,
-            "High-precision subset: pairs whose PSD confidence >= the HP threshold (neuPrint 'weightHP').", False, unit="count"),
+            "High-precision subset: pairs whose PSD confidence >= the HP threshold (0.7 for MaleCNS; neuPrint "
+            "'weightHP'). Boundary: confidences are stored as float32 and compared in float64, so a PSD stored as "
+            "float32(0.7)=0.69999999 is excluded.", False, unit="count"),
         Col("is_autapse", pa.bool_(), E.DERIVED_ANATOMY, "pre_id == post_id (self-connection kept intentionally).", False),
         Col("dominant_neuropil", DSTR, E.DERIVED_ANATOMY, "Primary neuropil holding the most PSDs of this connection (ties: lexicographic)."),
         Col("dominant_neuropil_fraction", pa.float32(), E.DERIVED_ANATOMY, "Fraction of synapse_count in dominant_neuropil.", unit="fraction"),

@@ -143,7 +143,7 @@ def write_manifest(source: DatasetSource, build_info: dict, report_dict: dict, o
     manifest = build_manifest(source, build_info, report_dict, out_dir)
     stem = f"{source.dataset}_{source.version}"
     path = mdir / f"{stem}.manifest.json"
-    path.write_text(json.dumps(manifest, indent=2, default=str), encoding="utf-8")
+    path.write_text(json.dumps(manifest, indent=2, default=str) + "\n", encoding="utf-8", newline="\n")
     for ext in ("json", "md"):
         src = out_dir / f"validation_report.{ext}"
         if src.exists():

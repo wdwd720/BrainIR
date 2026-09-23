@@ -5,7 +5,6 @@ from __future__ import annotations
 import pytest
 
 from brainir.ingest.malecns import IngestAborted
-
 from brainir.testing.synthetic import build_synthetic_dataset as build_synthetic
 
 CASES = {

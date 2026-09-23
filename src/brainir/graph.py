@@ -104,7 +104,7 @@ class Connectome:
 
     # ------------------------------------------------------------------ opening
     @classmethod
-    def open(cls, dataset: str = "male-cns", version: str = "v1.0", **kw) -> "Connectome":
+    def open(cls, dataset: str = "male-cns", version: str = "v1.0", **kw) -> Connectome:
         return cls(paths.processed_dir(dataset, version), **kw)
 
     def _index(self, ids: np.ndarray) -> np.ndarray:
@@ -217,7 +217,7 @@ class Connectome:
             where.append(f"pre_id IN ({','.join(str(int(x)) for x in _ids(pre_ids))})")
         if post_ids is not None:
             where.append(f"post_id IN ({','.join(str(int(x)) for x in _ids(post_ids))})")
-        q = f"SELECT pre_id, post_id, CAST(neuropil AS VARCHAR) AS neuropil, synapse_count FROM read_parquet(?)"
+        q = "SELECT pre_id, post_id, CAST(neuropil AS VARCHAR) AS neuropil, synapse_count FROM read_parquet(?)"
         if where:
             q += " WHERE " + " AND ".join(where)
         q += " ORDER BY pre_id, post_id, synapse_count DESC, neuropil"

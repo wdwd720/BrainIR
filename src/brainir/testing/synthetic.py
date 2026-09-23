@@ -25,6 +25,7 @@ import json
 from collections import Counter, defaultdict
 from pathlib import Path
 
+import numpy as np
 import pyarrow as pa
 import pyarrow.feather as feather
 
@@ -86,7 +87,8 @@ TBARS = [
     (105, "LegNp(T1)(L)", 0.90, [(102, "LegNp(T1)(L)", 0.9)] * 3),
     (106, "GNG", 0.90, [(101, "GNG", 0.9)] * 2),
     (106, "SMP(R)", 0.90, [(107, "SMP-sub(R)", 0.9)]),
-    (107, "SMP(R)", 0.90, [(101, "SMP(R)", 0.9)] * 4),
+    # one PSD exactly at the HP threshold: stored as float32(0.7)=0.69999999 -> NOT high-precision (neuPrint semantics)
+    (107, "SMP(R)", 0.90, [(101, "SMP(R)", 0.9)] * 3 + [(101, "SMP(R)", 0.7)]),
     (900, "LegNp(T1)(L)", 0.90, [(102, "LegNp(T1)(L)", 0.9)] * 6),
     (900, "LegNp(T1)(R)", 0.90, [(901, "LegNp(T1)(R)", 0.9)]),
 ]
@@ -116,7 +118,7 @@ EXPECTED_NEURONS = [101, 102, 103, 104, 105, 106, 107]
 EXPECTED_EDGES = {  # (pre, post): (synapse_count, synapse_count_hp)
     (101, 102): (6, 5), (101, 103): (3, 2), (101, 106): (1, 1), (102, 104): (4, 4), (102, 102): (1, 1),
     (102, 103): (1, 1), (103, 102): (2, 2), (105, 102): (3, 3), (106, 101): (2, 2), (106, 107): (1, 1),
-    (107, 101): (4, 4),
+    (107, 101): (4, 3),
 }
 EXPECTED_EDGE_NEUROPILS = {
     (101, 102): {"LegNp(T1)(L)": 4, "<unassigned>": 2}, (101, 103): {"LegNp(T1)(R)": 3}, (101, 106): {"GNG": 1},
@@ -157,7 +159,7 @@ def write_malecns_fixture(raw_dir: Path, mutate: str | None = None) -> Path:
 
     # ---- meta ----
     roi_pre, roi_post = Counter(), Counter()
-    for i, (pre, troi) in tbars.items():
+    for _tb, (_pre, troi) in tbars.items():
         for r in roi_path(troi):
             roi_pre[r] += 1
     for s in syn:
@@ -194,7 +196,7 @@ def write_malecns_fixture(raw_dir: Path, mutate: str | None = None) -> Path:
     for s in syn:
         k = (s["pre"], s["post"])
         pair_w[k] += 1
-        pair_hp[k] += s["cpost"] >= 0.7
+        pair_hp[k] += float(np.float32(s["cpost"])) >= 0.7  # float32 storage, float64 comparison (neuPrint)
         for r in roi_path(s["proi"]):
             pair_roi[k][r] += 1
     pairs = sorted(pair_w)

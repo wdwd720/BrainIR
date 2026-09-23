@@ -58,7 +58,7 @@ def _session() -> requests.Session:
 
 
 def utc_now() -> str:
-    return _dt.datetime.now(_dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    return _dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
 def fetch_remote_metadata(source: DatasetSource, f: RemoteFile, session: requests.Session | None = None) -> dict:
@@ -239,7 +239,7 @@ def snapshot_doc_pages(source: DatasetSource) -> list[dict]:
     for name, url in source.doc_pages.items():
         r = session.get(url, timeout=60)
         r.raise_for_status()
-        stamp = _dt.datetime.now(_dt.timezone.utc).strftime("%Y%m%d")
+        stamp = _dt.datetime.now(_dt.UTC).strftime("%Y%m%d")
         dest = out_dir / f"{name}_{stamp}.html"
         if dest.exists():
             os.chmod(dest, stat.S_IWRITE | stat.S_IREAD)
@@ -289,7 +289,7 @@ def _write_log(log_path: Path, source: DatasetSource, records: dict, doc_records
     if log_path.exists():
         os.chmod(log_path, stat.S_IWRITE | stat.S_IREAD)
     tmp = log_path.with_suffix(".tmp")
-    tmp.write_text(json.dumps(body, indent=2, sort_keys=False))
+    tmp.write_text(json.dumps(body, indent=2, sort_keys=False) + "\n", encoding="utf-8", newline="\n")
     os.replace(tmp, log_path)
 
 

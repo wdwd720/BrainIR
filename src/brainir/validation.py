@@ -90,9 +90,10 @@ class ValidationReport:
 
     def write(self, json_path: Path, md_path: Path | None = None) -> None:
         json_path.parent.mkdir(parents=True, exist_ok=True)
-        json_path.write_text(json.dumps(self.to_dict(), indent=2, sort_keys=False), encoding="utf-8")
+        # LF newlines on every OS so reports are byte-identical across platforms
+        json_path.write_text(json.dumps(self.to_dict(), indent=2, sort_keys=False) + "\n", encoding="utf-8", newline="\n")
         if md_path is not None:
-            md_path.write_text(self.to_markdown(), encoding="utf-8")
+            md_path.write_text(self.to_markdown() + "\n", encoding="utf-8", newline="\n")
 
     def to_markdown(self) -> str:
         s = self.summary()

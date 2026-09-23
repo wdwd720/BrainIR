@@ -160,7 +160,7 @@ class Neuron(_Model):
     provenance: Provenance
 
     @model_validator(mode="after")
-    def _uid_consistent(self) -> "Neuron":
+    def _uid_consistent(self) -> Neuron:
         expected = make_neuron_uid(self.dataset, self.dataset_version, self.source_id)
         if self.neuron_uid != expected:
             raise ValueError(f"neuron_uid {self.neuron_uid!r} != {expected!r}")
@@ -197,7 +197,7 @@ class DirectedConnection(_Model):
     provenance: Provenance
 
     @model_validator(mode="after")
-    def _check(self) -> "DirectedConnection":
+    def _check(self) -> DirectedConnection:
         if self.is_autapse != (self.pre_id == self.post_id):
             raise ValueError("is_autapse inconsistent with pre_id/post_id")
         if self.synapse_count_hp is not None and self.synapse_count_hp > self.synapse_count:
@@ -268,7 +268,7 @@ class TimeSeries(_Model):
     channel_labels: list[str] | None = None
 
     @model_validator(mode="after")
-    def _time_axis(self) -> "TimeSeries":
+    def _time_axis(self) -> TimeSeries:
         if (self.sampling_rate_hz is None) == (self.timestamps_s is None):
             raise ValueError("provide exactly one of sampling_rate_hz or timestamps_s")
         return self

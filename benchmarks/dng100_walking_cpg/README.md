@@ -15,8 +15,15 @@
    population (leg motor neurons), and a rhythmicity objective. See `SPEC.md` for the exact allowed inputs.
 3. Evaluation code that reads `answer_key.json` must live in this directory (or a future `evaluation/`
    package) and run *after* the discovery artefact is frozen (hash it first; record the hash in the result).
-4. `research/literature/pugliese_walking_cpg_detailed_notes.md` also contains the answer; treat it as
-   answer-key material too.
+4. **Answer-bearing files.** These must be excluded from any context, retrieval corpus or prompt given to a
+   discovery system:
+   - everything in `benchmarks/`;
+   - `research/literature/` (Pugliese notes);
+   - `goal1.md` (the Phase 0 spec names the published cell types);
+   - the "DNg100 benchmark" section of `PHASE0_REPORT.md`.
+
+   `README.md`, `CLAUDE.md`, `docs/`, `src/` and `research/data_ecosystem.md` are kept free of answer-key IDs and
+   type names. `tests/test_leakage_guard.py` checks `src/`.
 
 ## Files
 

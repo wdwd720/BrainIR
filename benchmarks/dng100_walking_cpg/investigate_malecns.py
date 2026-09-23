@@ -115,7 +115,7 @@ def main() -> None:
             "manc_body_id", "flywire_type", "group_id", "n_pre", "n_post", "n_downstream", "n_upstream",
             "n_downstream_to_neurons", "n_upstream_from_neurons"]
     ident = dn[cols].join(lp[["dominant_leg", "dominant_leg_fraction"]])
-    ident.to_csv(TABLES / "dng100_identity.csv")
+    ident.to_csv(TABLES / "dng100_identity.csv", lineterminator="\n")
     mapping["DNg100"] = {"ids": [int(i) for i in dn_ids], "innervates_left_legs": left_dn, "innervates_right_legs": right_dn,
                          "paper_left_vnc_id": KEY["ids_as_published"]["MaleCNS"]["DNg100_left_VNC"],
                          "paper_id_matches_v1.0": left_dn == KEY["ids_as_published"]["MaleCNS"]["DNg100_left_VNC"]}
@@ -139,8 +139,8 @@ def main() -> None:
     # partners of the left-VNC DNg100
     down = cx.downstream(left_dn)
     up = cx.upstream(left_dn)
-    down.to_csv(TABLES / f"dng100_{left_dn}_downstream.csv", index=False)
-    up.to_csv(TABLES / f"dng100_{left_dn}_upstream.csv", index=False)
+    down.to_csv(TABLES / f"dng100_{left_dn}_downstream.csv", index=False, lineterminator="\n")
+    up.to_csv(TABLES / f"dng100_{left_dn}_upstream.csv", index=False, lineterminator="\n")
     by_type_d = down.groupby("post_type", dropna=False).agg(n_neurons=("post_id", "size"), synapses=("synapse_count", "sum"))
     by_type_u = up.groupby("pre_type", dropna=False).agg(n_neurons=("pre_id", "size"), synapses=("synapse_count", "sum"))
     sc_d = cx.neurons.loc[down.post_id, "super_class"].value_counts()
@@ -186,7 +186,7 @@ def main() -> None:
                          "dominant_leg": prof.loc[i, "dominant_leg"] if i in prof.index else None,
                          "dominant_leg_fraction": prof.loc[i, "dominant_leg_fraction"] if i in prof.index else None})
     circ = pd.DataFrame(rows)
-    circ.to_csv(TABLES / "circuit_types_all_copies.csv", index=False)
+    circ.to_csv(TABLES / "circuit_types_all_copies.csv", index=False, lineterminator="\n")
     t1l = circ[circ.dominant_leg == "T1L"].groupby("label").source_id.apply(list).to_dict()
     t1r = circ[circ.dominant_leg == "T1R"].groupby("label").source_id.apply(list).to_dict()
     id_check = []
@@ -228,7 +228,7 @@ def main() -> None:
                      "paper_signed_(answer_key)": paper_vals[f"{a}->{b}"], "paper_matrix_value": w_paper_matrix})
     conn = pd.DataFrame(rows)
     conn["abs_diff_VNC_vs_paper"] = (conn["v1.0_signed_VNC"] - conn["paper_signed_(answer_key)"]).abs()
-    conn.to_csv(TABLES / "t1l_circuit_connectivity.csv", index=False)
+    conn.to_csv(TABLES / "t1l_circuit_connectivity.csv", index=False, lineterminator="\n")
     mapping["t1l_members_v1.0"] = {k: (int(v) if v else None) for k, v in members.items()}
     mapping["t1l_connectivity"] = conn.to_dict(orient="records")
     ids_all = [v for v in members.values() if v]
@@ -237,7 +237,7 @@ def main() -> None:
     mat = pd.DataFrame(0, index=list(lab_of.values()), columns=list(lab_of.values()))
     for r in sub.edges.itertuples():
         mat.loc[lab_of[r.pre_id], lab_of[r.post_id]] = r.synapse_count
-    mat.to_csv(TABLES / "t1l_circuit_matrix_all_rois.csv")
+    mat.to_csv(TABLES / "t1l_circuit_matrix_all_rois.csv", lineterminator="\n")
     md += ["## D. Connectivity of the front-left (T1L) circuit copies in v1.0", "",
            f"Members (v1.0 IDs): {mapping['t1l_members_v1.0']}", "",
            "Synapse counts pre (row) -> post (column), all ROIs, v1.0:", "", mat.to_markdown(), "",
@@ -256,15 +256,31 @@ def main() -> None:
     e1_rank = int(rank.index[rank.post_id == members["E1"]][0]) + 1 if members["E1"] in set(rank.post_id) else None
     in_e1 = cx.upstream(members["E1"]) if members["E1"] else pd.DataFrame()
     dn_share = (in_e1.loc[in_e1.pre_id == left_dn, "synapse_count"].sum() / in_e1.synapse_count.sum()) if len(in_e1) else None
+    # greedy-difficulty ranks (how easily a strongest-edge heuristic would walk the published circuit)
+    def rank_in(df: pd.DataFrame, col: str, target: int | None) -> int | None:
+        if target is None or target not in set(df[col]):
+            return None
+        return int(df.reset_index(drop=True).index[df.reset_index(drop=True)[col] == target][0]) + 1
+
+    e1_out = cx.downstream(members["E1"]) if members["E1"] else pd.DataFrame(columns=["post_id"])
+    e2_in = cx.upstream(members["E2"]) if members["E2"] else pd.DataFrame(columns=["pre_id"])
+    inh = in_e1[in_e1.pre_nt_consensus.isin(["gaba", "glutamate", "histamine"])] if len(in_e1) else in_e1
+    ranks = {"E2_rank_among_E1_outputs": rank_in(e1_out, "post_id", members["E2"]),
+             "I1_rank_among_E1_inputs": rank_in(in_e1, "pre_id", members["I1"]),
+             "I2_rank_among_E1_inputs": rank_in(in_e1, "pre_id", members["I2"]),
+             "I1_rank_among_E1_inhibitory_inputs": rank_in(inh, "pre_id", members["I1"]),
+             "I2_rank_among_E1_inhibitory_inputs": rank_in(inh, "pre_id", members["I2"]),
+             "E1_rank_among_E2_inputs": rank_in(e2_in, "pre_id", members["E1"])}
     mapping["recurrence"] = {"dng100_targets_ge5": int(len(ds5)), "vnc_targets_ge5": int(len(vnc_tgt)),
                              "edges_among_vnc_targets_ge5": int(len(e)), "reciprocal_pairs_among_targets": int(recip),
-                             "E1_rank_among_DNg100_targets": e1_rank, "DNg100_share_of_E1_input": dn_share}
+                             "E1_rank_among_DNg100_targets": e1_rank, "DNg100_share_of_E1_input": dn_share, **ranks}
     md += ["## E. Recurrent connectivity around the DNg100 pathway (v1.0)", "",
            f"* `{left_dn}` has {len(ds5)} targets with >= 5 synapses; {len(vnc_tgt)} are VNC intrinsic/ascending/motor.",
            f"* Among those VNC targets there are {len(e)} edges with >= 5 synapses and {recip} reciprocally connected pairs "
            f"(density {len(e) / max(1, len(vnc_tgt) * (len(vnc_tgt) - 1)):.3f}).",
            f"* E1 ({members['E1']}) ranks #{e1_rank} among `{left_dn}`'s targets by synapse count; DNg100 provides "
-           f"{dn_share:.1%} of E1's input synapses from neurons." if dn_share is not None else "", ""]
+           f"{dn_share:.1%} of E1's input synapses from neurons." if dn_share is not None else "",
+           f"* Greedy-walk ranks (1 = strongest): {ranks}", ""]
 
     # ---------------------------------------------------------------- F. DNg100 -> E1 copies across legs
     e1 = circ[circ.label == "E1"].set_index("source_id")
@@ -273,7 +289,7 @@ def main() -> None:
         rows.append({"E1_copy": i, "leg": r.dominant_leg, f"from_{left_dn}": cx.edge_count(left_dn, i),
                      f"from_{right_dn}": cx.edge_count(right_dn, i)})
     six = pd.DataFrame(rows).sort_values("leg")
-    six.to_csv(TABLES / "dng100_to_e1_all_legs.csv", index=False)
+    six.to_csv(TABLES / "dng100_to_e1_all_legs.csv", index=False, lineterminator="\n")
     md += ["## F. DNg100 -> E1 (IN17A001) across all six legs", "", six.to_markdown(index=False), ""]
 
     # ---------------------------------------------------------------- G. DNb08 (second pathway in the paper)
@@ -282,8 +298,8 @@ def main() -> None:
            dnb[["instance", "soma_side", "nt_consensus", "manc_body_id", "synonyms"]].to_markdown(), ""]
     mapping["DNb08"] = [int(i) for i in dnb.index]
 
-    (HERE / "malecns_v1.0_findings.md").write_text("\n".join(md), encoding="utf-8")
-    (HERE / "malecns_v1.0_mapping.json").write_text(json.dumps(mapping, indent=2, default=str), encoding="utf-8")
+    (HERE / "malecns_v1.0_findings.md").write_text("\n".join(md) + "\n", encoding="utf-8", newline="\n")
+    (HERE / "malecns_v1.0_mapping.json").write_text(json.dumps(mapping, indent=2, default=str) + "\n", encoding="utf-8", newline="\n")
     print("wrote", HERE / "malecns_v1.0_findings.md")
 
 
