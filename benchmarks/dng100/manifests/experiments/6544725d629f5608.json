@@ -1,0 +1,73 @@
+{
+ "name": "reliability_greedy_frozen_male-cns_v1.0",
+ "config": {
+  "method": "greedy_prune_sim_frozen",
+  "network": "male-cns_v1.0",
+  "orders": 8,
+  "budget": 1000,
+  "config": {},
+  "frozen_args": "--budget-s 1500 --workers 1"
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 24,
+  "wall_time_s": 521.1,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 48,
+   "app": "brainir-phase1",
+   "shared_payload_key": "20755a1d08126462a26058f7cf38bafe",
+   "shared_payload_bytes": 5837480,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 0.9171
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/reliability/greedy_frozen_male-cns_v1.0.json",
+   "sha256": "46d3ade2ec695ee23c6046b61ad766d5cece18b808013073796e5794c3235ed1",
+   "size_bytes": 21455
+  }
+ },
+ "summary": {
+  "method": "greedy_prune_sim_frozen",
+  "network": "male-cns_v1.0",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "n_runs": 24,
+  "n_failed": 0,
+  "orders": 8,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "budget": 1000,
+  "functional_fidelity_mean": 0.890625,
+  "functional_pass_rate": 0.9166666666666666,
+  "calls_mean": 550.0,
+  "wall_s_mean": 215.89583333333334,
+  "wall_total_s": 526.6
+ },
+ "notes": "",
+ "run_id": "6544725d629f5608",
+ "created_utc": "2026-09-23T22:48:49Z",
+ "code": {
+  "commit": "c2eef0533a9406c076a7d058c6b64684cff6ef71",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

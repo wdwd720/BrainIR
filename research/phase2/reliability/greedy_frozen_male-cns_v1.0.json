@@ -1,0 +1,1006 @@
+{
+ "summary": {
+  "method": "greedy_prune_sim_frozen",
+  "network": "male-cns_v1.0",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "n_runs": 24,
+  "n_failed": 0,
+  "orders": 8,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "budget": 1000,
+  "consistency": {
+   "n_runs": 24,
+   "pairwise_jaccard_mean": 0.8724637681159421,
+   "pairwise_jaccard_min": 0.2,
+   "modal_core": [
+    653,
+    1052,
+    2152
+   ],
+   "modal_core_frequency": 0.9166666666666666,
+   "selection_frequency": {
+    "1052": 1.0,
+    "2152": 0.9166666666666666,
+    "653": 0.9166666666666666,
+    "1732": 0.08333333333333333,
+    "2779": 0.08333333333333333
+   },
+   "size_mean": 3.0,
+   "size_min": 3,
+   "size_max": 3
+  },
+  "functional_fidelity_mean": 0.890625,
+  "functional_pass_rate": 0.9166666666666666,
+  "calls_mean": 550.0,
+  "wall_s_mean": 215.89583333333334,
+  "wall_total_s": 526.6
+ },
+ "runs": [
+  {
+   "seed": 0,
+   "variant": "order0",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    1052,
+    2152,
+    653
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 289.6,
+   "prediction_sha256": "ac7125025219d3b9bfdd52ca953fbf20657100c4722962e5a788ea75e4099ea0",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 286.7,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 286.8,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order0_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order0",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    1052,
+    2152,
+    653
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 262.6,
+   "prediction_sha256": "6e3e6a27b538d12f5c1a1cd26c964b59d83b3d600ab1795a8646692512daa74e",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 259.4,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 259.5,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order0_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order0",
+   "core_common": [
+    1052,
+    1732,
+    2779
+   ],
+   "core_public": [
+    1052,
+    2779,
+    1732
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 266.6,
+   "prediction_sha256": "9827a7c553b99bd4a36de668811d381862455004877865f027962c8796f3ef72",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 263.8,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 263.9,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order0_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order1",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    469,
+    3621,
+    2991
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 224.7,
+   "prediction_sha256": "097acfafc20117b0af99996520aab2ee5d96e6bf91a7065d276b4a1ff66bb4db",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 221.8,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 221.9,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.875,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order1_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order1",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    469,
+    3621,
+    2991
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 150.6,
+   "prediction_sha256": "51fc368cbfe9a00f3f46feed407050deac8ed550e3fa392817a680fbf09885cf",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 148.2,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 148.4,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.875,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order1_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order1",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    469,
+    3621,
+    2991
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 251.3,
+   "prediction_sha256": "348593ca4b83f033044a9172aa466e875cb0c6649437d22c41b941cc3b4013e7",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 247.7,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 247.9,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.875,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order1_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order2",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3849,
+    1826,
+    4221
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 311.4,
+   "prediction_sha256": "385847b5b77862b4bdbc32c7e32b6829b986c31df43ea877168382df38e2f56f",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 307.8,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 307.9,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order2_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order2",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3849,
+    1826,
+    4221
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 233.2,
+   "prediction_sha256": "77b581c1951ba80b96b7229c49910d99184c8de92540a0849445f1898a52974a",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 229.9,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 230.1,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order2_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order2",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3849,
+    1826,
+    4221
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 107.8,
+   "prediction_sha256": "4f2df8629eaa2ec89e3c4d236a602b885c3dcc487dd8470ca9dc57934e5760f8",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 105.6,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 105.7,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order2_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order3",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3830,
+    2201,
+    303
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 92.0,
+   "prediction_sha256": "ccf50f9013646dde9813f254b6d0ff5d560d6d0a8e21b44c6560f65f4fc32ebc",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 89.7,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 89.8,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order3_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order3",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3830,
+    2201,
+    303
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 220.4,
+   "prediction_sha256": "91daf1fce444aa5badc5e525a57efc57d8e88111b0557ed4deba518a6621b3a8",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 216.6,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 216.8,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order3_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order3",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3830,
+    2201,
+    303
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 257.4,
+   "prediction_sha256": "fb4eed2eef4cbdf07578d9d26d7a2677ebc8c914c9f6d38afdd651cc4b32f81d",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 254.2,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 254.4,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order3_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order4",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    2954,
+    360,
+    4037
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 225.6,
+   "prediction_sha256": "321fb29e6fa241915e0983526c2df2e49c79910d96f2590a4b99ec9737a7cc4a",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 223.0,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 223.1,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order4_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order4",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    2954,
+    360,
+    4037
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 322.1,
+   "prediction_sha256": "eff16a419e91441efb7ae6f6243010111133e588a6e17e98e1ad003977fd1ca4",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 319.2,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 319.4,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order4_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order4",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    2954,
+    360,
+    4037
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 259.6,
+   "prediction_sha256": "800a7c10abbeae58c0370f7fa45ec13dc1803e6d1c4744d1dd0b56095898d8d8",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 256.6,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 256.8,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order4_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order5",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3402,
+    1101,
+    2558
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 264.3,
+   "prediction_sha256": "5e41055f21cbb0fc8b85af9fb0246d93e51d349f4468b0eea774ec05a9cedbe2",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 261.0,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 261.1,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order5_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order5",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3402,
+    1101,
+    2558
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 114.9,
+   "prediction_sha256": "0f89e69837bcfa2d28acaf460a0940aa22cde4065ad16cae2b292b22680d69a8",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 112.7,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 112.8,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order5_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order5",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    3402,
+    1101,
+    2558
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 128.8,
+   "prediction_sha256": "4e5140ba06f0966ee9b5fff9d9d8dc60f95fd9ca0b0f54bfeb1a2fc9175ba4d5",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 126.8,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 126.9,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order5_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order6",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    1029,
+    2994,
+    139
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 123.2,
+   "prediction_sha256": "4f4622d4af14633430c5ec96023b62219be16b23fdc5c51ff83ea5f412429e6e",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 120.8,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 121.0,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order6_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order6",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    1029,
+    2994,
+    139
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 123.4,
+   "prediction_sha256": "79fe33aa691bcd5c91d46607a9353e62dbea8d6b68615027e151ff3d92057776",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 121.3,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 121.4,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order6_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order6",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    1029,
+    2994,
+    139
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 216.8,
+   "prediction_sha256": "c027ccdd0359effdc170bb10c98367f159520825f1b4e659107ff2edde6a11a9",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 213.9,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 214.0,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 1.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order6_s2_common.json"
+  },
+  {
+   "seed": 0,
+   "variant": "order7",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    2985,
+    1713,
+    1705
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 269.8,
+   "prediction_sha256": "248cf4f183920d94295005647ae9f11bf1d3e52dde32f31d6860eecd60f07577",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     7919,
+     7920
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 266.9,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 267.0,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.875,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order7_s0_common.json"
+  },
+  {
+   "seed": 1,
+   "variant": "order7",
+   "core_common": [
+    653,
+    1052,
+    2152
+   ],
+   "core_public": [
+    2985,
+    1713,
+    1705
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 203.3,
+   "prediction_sha256": "03fda030a8f9dd555ed5c44a93e2c8c921c70dae742ad8160713fbcab1b2a472",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     15838,
+     15839
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 200.5,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 200.7,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.875,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order7_s1_common.json"
+  },
+  {
+   "seed": 2,
+   "variant": "order7",
+   "core_common": [
+    1052,
+    1732,
+    2779
+   ],
+   "core_public": [
+    2985,
+    2252,
+    2104
+   ],
+   "n_core": 3,
+   "calls": 550,
+   "wall_s": 262.1,
+   "prediction_sha256": "97792c6872130c066c7be4e4359f97d98c60bc854b5efb6f90a9ba35eec39fc2",
+   "compute": {
+    "backend": "brainir.sim (RK45, float64)",
+    "budget_exhausted": false,
+    "budget_s": 1500.0,
+    "pool_sizes": [
+     40,
+     80
+    ],
+    "replicate_seeds": [
+     23757,
+     23758
+    ],
+    "replicates": 2,
+    "simulation_wall_s": 259.1,
+    "simulations": 550,
+    "t_end_s": 1.0,
+    "wall_time_s": 259.2,
+    "workers": 1
+   },
+   "result_budget": null,
+   "functional_fidelity": 0.0,
+   "common_frame_path": "C:\\Dev\\BrainIR\\data\\cache\\reliability\\greedy_frozen_male-cns_v1.0\\predictions\\order7_s2_common.json"
+  }
+ ],
+ "config": {},
+ "frozen_args": "--budget-s 1500 --workers 1"
+}
