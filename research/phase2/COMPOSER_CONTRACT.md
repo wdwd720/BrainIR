@@ -40,6 +40,20 @@ clean development directory.
 10. Produce an uncertainty-aware result: inclusion probabilities, alternatives, essential claims, predicted frequency /
     active readout, fidelity.
 
+Also required:
+
+- **Intervention predictions.** For every core member, state the predicted effect of silencing it in the intact network
+  (`essential`, backed by the silencing runs you did). Where defined, state the predicted effect of removing its
+  strongest in-core edge, in `diagnostics["intervention_predictions"]`. These are pre-registered: the evaluator
+  checks them.
+- **MDL-style trade-off.** Along your search path, record core size versus functional error (1 - pass fraction on fresh
+  seeds) in `diagnostics["size_error_curve"]`. Say which point you return and why. Compactness must never remove a
+  member whose removal breaks the function.
+- **Minimality with evidence.** Report members whose single removal keeps the function; the returned core should
+  have none.
+- **Roles.** Use the generic roles in `brainir.discovery.interface.GENERIC_ROLES`, each with a probability. Assign
+  them from interventions and signed connectivity, never from names.
+
 Take the best-supported parts of the candidates, justify every choice with the selection evidence, and drop what the
 evidence does not support. The result must be ONE algorithm with a stated objective and stopping rule, not a vote
 between five methods. It must never exceed the call budget it is given. It must be deterministic given `seed`. It
