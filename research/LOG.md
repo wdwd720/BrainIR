@@ -324,3 +324,29 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     state (hashes unchanged); `BENCHMARK_LOCK.json` written (lock `bcaa8ee46e23dc29…`, 131 benchmark files + 19 code
     files) and the tree tagged `dng100-benchmark-v1` at commit `29694f9`; PHASE1_REPORT.md finalised. Modal spend
     ≈ $38 (registry).
+- **2026-09-23 17:00 – 20:00 (session 3, Phase 2 kickoff — `goal3.md`).**
+  - Anti-leakage architecture: the orchestrator (this session, which has seen the oracle) builds only generic
+    infrastructure; method design happens in fresh agents inside the oracle-free clean directory
+    `C:\Dev\BrainIR_p2clean` (`scripts/make_phase2_cleanroom.py`: library, public bundles, clean-room runner,
+    baseline scripts without results, synthetic suites without truth, safe tests). Feedback to agents = aggregate
+    per-family metrics only.
+  - Infrastructure committed (399dfdd, e65c648, c0c7b0c): `brainir.discovery` (problem loader, budgeted cached
+    simulator with hard call budget, criteria, interventions, result→prediction, registry, `run.py`), synthetic
+    mechanism suite (10 families × complications × sizes; simulation-verified truth stored apart; 58 instances built,
+    8 dropped as unverifiable), tournament scorer with bootstrap CIs, reliability sweeps over salted node-order
+    variants (`scripts/reliability_sweep.py`), budget curves, remote bundle packing for Modal, synthetic
+    cross-connectome PAIR suite (26 pairs built, 6 dropped: hub-distractor variants of negative_feedback_controller,
+    winner_take_all, integrator), blind-tier correspondence (anchor fingerprints + annotation agreement), transfer
+    harness with separately accounted adaptation budget, role graphs. Methods-only literature review
+    (`research/phase2/methods_review.md`, 55 entries).
+  - Method development delegated to five clean-room agents (greedy_plus, cem_search, group_probe, surrogate_search,
+    evo_pareto) under `research/phase2/METHOD_DEV_CONTRACT.md`, plus a sixth for the cross-connectome component
+    (`CROSS_CONNECTOME_CONTRACT.md`: `joint.py`, modes independent/transfer/prior/joint).
+  - Frozen `greedy_prune_sim` reliability sweep launched on Modal (3 blind networks × 8 node orders × 3 seeds,
+    `--budget-s 1500 --workers 1`); oracle scoring of its predictions deferred until the method lock. A Modal probe
+    (2 runs) already showed order sensitivity without any oracle: the two cores shared 1 of 3 neurons and one failed
+    keep-only on fresh seeds.
+  - Pitfalls: a stray `re.py` in `%TEMP%` shadows the stdlib for scripts run from there (use the scratchpad);
+    Modal workers are Linux, so Windows paths lose their basename (`path_basename`); the greedy-reference smoke
+    tournament (`research/phase2/tournament/greedy_reference_small_smoke.md`) showed the fixed-k weakness
+    (delayed_inhibitory_oscillator, 5-node mechanism: 0 % success).
