@@ -79,10 +79,27 @@ def main(argv=None) -> int:
     ap.add_argument("--backend", choices=["local", "modal"], default="local")
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--containers", type=int, default=100)
-    ap.add_argument("--hidden-eval", action="store_true", help="score the predictions with the frozen evaluator (logged)")
+    ap.add_argument("--hidden-eval", action="store_true", help="score the predictions with the frozen evaluator (logged; only after the lock)")
+    ap.add_argument("--score-existing", action="store_true", help="do not run: add the (logged, post-lock) hidden evaluation to an existing sweep")
     ap.add_argument("--label", required=True)
     ap.add_argument("--out", type=Path, default=ROOT / "research" / "phase2" / "reliability")
     args = ap.parse_args(argv)
+    if (args.hidden_eval or args.score_existing) and not _lock_ok():
+        print("refusing: hidden evaluation requires a verified research/phase2/METHOD_LOCK.json and the tag brainir-v1-preblind")
+        return 1
+    if args.score_existing:
+        p = args.out / f"{args.label}.json"
+        payload = json.loads(p.read_text(encoding="utf-8"))
+        if payload["summary"].get("hidden_eval"):
+            print(f"refusing: {p.name} already carries a hidden evaluation")
+            return 1
+        ok = [r for r in payload["runs"] if "core_common" in r]
+        payload["summary"]["hidden_eval"] = _hidden_eval(args, ok)
+        p.write_text(json.dumps(payload, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
+        md = _summary_md(args, payload["summary"], payload["summary"].get("consistency") or {})
+        (args.out / f"{args.label}.md").write_text("\n".join(md), encoding="utf-8", newline="\n")
+        print("\n".join(md))
+        return 0
     work = paths.cache_dir() / "reliability" / args.label
     work.mkdir(parents=True, exist_ok=True)
     variants = _make_variants(args.bundle, args.network, args.orders, work)
@@ -146,6 +163,17 @@ def main(argv=None) -> int:
     register_run(rec, ROOT / "benchmarks" / "dng100" / "manifests" / "experiments")
     print("\n".join(md))
     return 0
+
+
+def _lock_ok() -> bool:
+    """Hidden-oracle scoring is only allowed once the Phase 2 method is locked and tagged (goal3 section 27)."""
+    sys.path.insert(0, str(ROOT / "scripts"))
+    import method_lock
+
+    if not method_lock.LOCK_PATH.exists() or method_lock.check(verbose=True):
+        return False
+    proc = subprocess.run(["git", "show", f"{method_lock.TAG}:research/phase2/METHOD_LOCK.json"], cwd=ROOT, capture_output=True)
+    return proc.returncode == 0 and proc.stdout.replace(b"\r\n", b"\n") == method_lock.LOCK_PATH.read_bytes().replace(b"\r\n", b"\n")
 
 
 def _hidden_eval(args, ok: list[dict]) -> dict:
