@@ -1,0 +1,432 @@
+{
+ "label": "sel_mech_b1000_part1",
+ "suite": "mechanisms_v1_heldout",
+ "methods": [
+  "greedy_reference",
+  "greedy_plus",
+  "group_probe",
+  "surrogate_search"
+ ],
+ "n_jobs": 1368,
+ "budget": 1000,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "wall_s": 1204.8,
+ "backend": {
+  "backend": "modal",
+  "n_items": 1368,
+  "wall_time_s": 1200.7,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "7982695622633300866a916caa1e6ad2",
+   "shared_payload_bytes": 2171803,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 8.8054
+ },
+ "summary": {
+  "greedy_plus": {
+   "n_runs": 342,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9883040935672515,
+   "functional_success_rate": 0.9093567251461988,
+   "functional_success_ci95": [
+    0.8771929824561403,
+    0.9385964912280702
+   ],
+   "functional_success_causal_rate": 0.9970760233918129,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9948830409356725,
+   "functional_robust_mean": 0.9327485380116959,
+   "calls_median": 88.0,
+   "calls_mean": 108.44736842105263,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9526627218934911,
+   "brier_mean": 0.0009482570249360621,
+   "essential_accuracy_mean": 0.9992603550295858,
+   "removable_fraction": 0.09064327485380116,
+   "simulated_seconds_median": 94.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.8822612085769981,
+    "identical_fraction": 0.7543859649122807
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 94.0
+    },
+    "ei_pair_oscillator": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 61.0
+    },
+    "feedforward_driver": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 102.0
+    },
+    "integrator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 36.0
+    },
+    "memory_switch": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 33.0
+    },
+    "negative_feedback_controller": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 68.5
+    },
+    "redundant_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 124.0
+    },
+    "ring_oscillator": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 111.0
+    },
+    "two_implementations": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.9791666666666666,
+     "calls_median": 185.0
+    },
+    "winner_take_all": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 57.0
+    }
+   }
+  },
+  "greedy_reference": {
+   "n_runs": 342,
+   "success_rate": 0.7426900584795322,
+   "success_ci95": [
+    0.6988304093567251,
+    0.7894736842105263
+   ],
+   "success_planted_rate": 0.6198830409356725,
+   "functional_success_rate": 0.195906432748538,
+   "functional_success_ci95": [
+    0.15497076023391812,
+    0.23691520467836216
+   ],
+   "functional_success_causal_rate": 0.21474358974358973,
+   "success_or_functional_rate": 0.7602339181286549,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.3333333333333333,
+   "functional_nominal_mean": 0.77046783625731,
+   "functional_robust_mean": 0.7054093567251462,
+   "calls_median": 246.0,
+   "calls_mean": 303.7105263157895,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.2077718713095333,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.6378205128205128,
+   "simulated_seconds_median": 244.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.8339552932174673,
+    "identical_fraction": 0.631578947368421
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 42,
+     "success_rate": 0.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 70.0
+    },
+    "ei_pair_oscillator": {
+     "n": 48,
+     "success_rate": 0.875,
+     "functional_success_rate": 0.0,
+     "calls_median": 320.0
+    },
+    "feedforward_driver": {
+     "n": 24,
+     "success_rate": 0.5,
+     "functional_success_rate": 0.0,
+     "calls_median": 273.0
+    },
+    "integrator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 66.0
+    },
+    "memory_switch": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 152.0
+    },
+    "negative_feedback_controller": {
+     "n": 24,
+     "success_rate": 0.75,
+     "functional_success_rate": 0.25,
+     "calls_median": 303.0
+    },
+    "redundant_oscillator": {
+     "n": 42,
+     "success_rate": 0.9047619047619048,
+     "functional_success_rate": 0.0,
+     "calls_median": 268.0
+    },
+    "ring_oscillator": {
+     "n": 30,
+     "success_rate": 0.8,
+     "functional_success_rate": 0.8,
+     "calls_median": 378.0
+    },
+    "two_implementations": {
+     "n": 48,
+     "success_rate": 0.875,
+     "functional_success_rate": 0.7708333333333334,
+     "calls_median": 378.0
+    },
+    "winner_take_all": {
+     "n": 30,
+     "success_rate": 0.8,
+     "functional_success_rate": 0.0,
+     "calls_median": 206.0
+    }
+   }
+  },
+  "group_probe": {
+   "n_runs": 342,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.956140350877193,
+   "functional_success_rate": 0.8830409356725146,
+   "functional_success_ci95": [
+    0.847953216374269,
+    0.9152046783625731
+   ],
+   "functional_success_causal_rate": 0.9532163742690059,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9956140350877193,
+   "functional_robust_mean": 0.9232456140350878,
+   "calls_median": 92.0,
+   "calls_mean": 141.859649122807,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.8762626262626262,
+   "brier_mean": 0.002842703516703049,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.11695906432748537,
+   "simulated_seconds_median": 97.5,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.9469785575048734,
+    "identical_fraction": 0.8596491228070176
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 94.0
+    },
+    "ei_pair_oscillator": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 88.0
+    },
+    "feedforward_driver": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 106.0
+    },
+    "integrator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 44.0
+    },
+    "memory_switch": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 56.0
+    },
+    "negative_feedback_controller": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.875,
+     "calls_median": 85.0
+    },
+    "redundant_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 104.0
+    },
+    "ring_oscillator": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 162.0
+    },
+    "two_implementations": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.8541666666666666,
+     "calls_median": 128.0
+    },
+    "winner_take_all": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 67.0
+    }
+   }
+  },
+  "surrogate_search": {
+   "n_runs": 342,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9415204678362573,
+   "functional_success_rate": 0.9122807017543859,
+   "functional_success_ci95": [
+    0.8830409356725146,
+    0.9415204678362573
+   ],
+   "functional_success_causal_rate": 0.9912280701754386,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9941520467836257,
+   "functional_robust_mean": 0.918859649122807,
+   "calls_median": 82.0,
+   "calls_mean": 96.03801169590643,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9209726443768997,
+   "brier_mean": 0.005530935551945016,
+   "essential_accuracy_mean": 0.9984802431610942,
+   "removable_fraction": 0.08771929824561403,
+   "simulated_seconds_median": 84.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.8458089668615983,
+    "identical_fraction": 0.631578947368421
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 117.0
+    },
+    "ei_pair_oscillator": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 73.0
+    },
+    "feedforward_driver": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 88.5
+    },
+    "integrator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 45.0
+    },
+    "memory_switch": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 66.5
+    },
+    "negative_feedback_controller": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.9583333333333334,
+     "calls_median": 75.5
+    },
+    "redundant_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 79.0
+    },
+    "ring_oscillator": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 115.5
+    },
+    "two_implementations": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 101.0
+    },
+    "winner_take_all": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.03333333333333333,
+     "calls_median": 68.0
+    }
+   }
+  }
+ },
+ "rescored": {
+  "causal_minimality": true,
+  "n_rechecked": 300
+ },
+ "n_records": 1368,
+ "full_records": "sel_mech_b1000_part1.json.gz"
+}

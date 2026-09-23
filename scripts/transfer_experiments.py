@@ -18,56 +18,16 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-import tempfile
 import time
 from pathlib import Path
 
 import numpy as np
 
 from brainir.compute import ExperimentRecord, artifact_record, get_backend, register_run
-from brainir.discovery.interventions import keep_only
-from brainir.discovery.problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
-from brainir.discovery.simulator import BudgetedSimulator
-from brainir.discovery.transfer import null_transfer
+from brainir.discovery.problem import pack_bundle
+from brainir.discovery.transfer import transfer_experiment_job
 
 ROOT = Path(__file__).resolve().parents[1]
-FRESH_SEEDS = (8100, 8101, 8102, 8103, 8104, 8105)
-
-
-def _check(problem: DiscoveryProblem, core: list[int], seeds) -> dict:
-    sim = BudgetedSimulator(problem, max_calls=10 ** 9)
-    if not core:
-        return {"pass_fraction": 0.0, "passed": False, "removable": None}
-    frac = sim.pass_fraction(keep_only(problem, core), list(seeds))
-    removable = None
-    if frac >= 0.5 and 1 < len(core) <= 20:
-        removable = [p for p in core if sim.pass_fraction(keep_only(problem, [q for q in core if q != p]), list(seeds[:3])) >= 0.5]
-    return {"pass_fraction": frac, "passed": bool(frac >= 0.5), "removable": removable, "check_calls": sim.calls}
-
-
-def xfer_job(args) -> dict:
-    from brainir.discovery.joint import discover_pair
-
-    bundle, net_src, net_dst, method, mode, seed, budget_src, budget_dst, config, n_null, packs = args
-    bundle = Path(bundle)
-    if not bundle.exists() and packs is not None:
-        tmp = Path(tempfile.mkdtemp(prefix="brainir_xfer_"))
-        bundle = unpack_bundle(packs["bundle"], tmp / path_basename(bundle))
-    src = DiscoveryProblem.from_bundle(bundle, net_src)
-    dst = DiscoveryProblem.from_bundle(bundle, net_dst)
-    t0 = time.time()
-    res = discover_pair(src, dst, method, budget_a=budget_src, budget_b=budget_dst, seed=seed, mode=mode, config=config, workers=1)
-    wall = time.time() - t0
-    core_src, core_dst = [int(p) for p in res.result_a.core], [int(p) for p in res.result_b.core]
-    out = {"direction": f"{net_src}->{net_dst}", "mode": mode, "seed": seed, "method": method, "wall_s": round(wall, 1), "budget": res.budget,
-           "core_src": core_src, "core_dst": core_dst, "n_src": len(core_src), "n_dst": len(core_dst),
-           "check_src": _check(src, core_src, FRESH_SEEDS), "check_dst": _check(dst, core_dst, FRESH_SEEDS),
-           "n_correspondence_claims": len(res.correspondence), "role_alignment": res.role_alignment,
-           "diagnostics_keys": sorted((res.diagnostics or {}).keys())}
-    if mode == "transfer" and core_src:
-        sim_null = BudgetedSimulator(dst, max_calls=10 ** 9)
-        out["null"] = null_transfer(src, dst, core_src, sim_null, seeds=list(FRESH_SEEDS[:3]), n_null=n_null, seed=seed)
-    return out
 
 
 def _summ(rows: list[dict]) -> dict:
@@ -114,14 +74,15 @@ def main(argv=None) -> int:
         from brainir.compute.backend import Shared, split_failures
         pack = pack_bundle(args.bundle, args.a)
         pack.update(pack_bundle(args.bundle, args.b))
-        rows, failed = split_failures(backend.map(xfer_job, [(*j[:-1], Shared("packs")) for j in jobs], shared={"packs": {"bundle": pack}}))
+        remote = [(*j[:-1], Shared("packs")) for j in jobs]
+        rows, failed = split_failures(backend.map(transfer_experiment_job, remote, shared={"packs": {"bundle": pack}}))
         rows += [{"error": f["error"], "job": list(jobs[f["index"]][1:6])} for f in failed]
     elif args.workers > 1:
         from concurrent.futures import ProcessPoolExecutor
         with ProcessPoolExecutor(max_workers=args.workers) as ex:
-            rows = list(ex.map(xfer_job, jobs))
+            rows = list(ex.map(transfer_experiment_job, jobs))
     else:
-        rows = [xfer_job(j) for j in jobs]
+        rows = [transfer_experiment_job(j) for j in jobs]
     ok = [r for r in rows if "check_src" in r]
     summary: dict = {}
     for s_, d_ in dirs:

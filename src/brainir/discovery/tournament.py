@@ -27,7 +27,7 @@ import numpy as np
 
 from ..compute.registry import ExperimentRecord, artifact_record, content_hash, register_run
 from .interface import DiscoveryResult, MethodRegistry
-from .interventions import keep_only
+from .interventions import keep_only, silence
 from .problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
 from .simulator import BudgetedSimulator, BudgetExhausted, SimQuery
 
@@ -82,6 +82,20 @@ def score_structure(result: DiscoveryResult, truth_net: dict) -> dict:
 MINIMALITY_MAX_CORE = 40
 
 
+def causal_minimality(problem: DiscoveryProblem, sim: BudgetedSimulator, removable: list[int], seeds: list[int], *, sufficient: bool) -> dict:
+    """Clarified minimality: a member that keep-only does not need is still causally justified when silencing it alone in the
+    INTACT network destroys the function (a context member such as a lateral inhibitor, whose partner keep-only removes anyway).
+
+    ``functional_success_causal`` = sufficient AND every member is keep-only-necessary or full-network-essential. Reported next to
+    the pre-registered ``functional_success`` (sufficient AND 1-minimal under keep-only), never instead of it."""
+    unjustified = []
+    for p in removable:
+        if sim.pass_fraction(silence([int(p)]), seeds) >= 0.5:
+            unjustified.append(int(p))
+    return {"context_members": [int(p) for p in removable if int(p) not in unjustified], "unjustified_members": unjustified,
+            "functional_success_causal": bool(sufficient and not unjustified)}
+
+
 def score_function(problem: DiscoveryProblem, result: DiscoveryResult, *, seeds: list[int], workers: int = 1, robust: bool = True) -> dict:
     """Keep-only of the predicted core on fresh seeds on the TRUE simulator: nominal pass fraction, 1-minimality (which members
     can be removed without losing the function) and, with ``robust``, widened-parameter and weight-noise ensembles.
@@ -104,6 +118,7 @@ def score_function(problem: DiscoveryProblem, result: DiscoveryResult, *, seeds:
                     removable.append(p)
         out["minimality"] = {"removable_members": removable, "n_removable": len(removable), "checked": bool(out["nominal"] >= 0.5)}
         out["functional_success"] = bool(out["nominal"] >= 0.5 and not removable)
+        out.update(causal_minimality(problem, sim, removable, seeds, sufficient=out["nominal"] >= 0.5))
     if robust:
         cfg = problem.model_cfg
         wide = {"tau_sd": cfg.tau_sd * 2, "a_sd": cfg.a_sd * 2, "theta_sd": cfg.theta_sd * 2, "r_max_sd": cfg.r_max_sd * 2}
@@ -223,6 +238,8 @@ def summarize(records: list[dict]) -> dict:
                   "success_planted_rate": _mean(rs, lambda r: float(r["structure"].get("success_planted", r["structure"]["success"]))),
                   "functional_success_rate": float(fsucc.mean()),
                   "functional_success_ci95": [float(np.percentile(fboot, 2.5)), float(np.percentile(fboot, 97.5))],
+                  "functional_success_causal_rate": _mean(rs, lambda r: None if "functional_success_causal" not in (r.get("function") or {})
+                                                          else float(r["function"]["functional_success_causal"])),
                   "success_or_functional_rate": float(either.mean()),
                   "recall_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["recall"]),
                   "precision_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["precision"]),
@@ -368,20 +385,24 @@ def to_markdown(t: dict) -> str:
     lines = [f"# Synthetic tournament — {t['label']}", "",
              f"suite `{t['suite']}`; {t['n_jobs']} runs; budget {t['budget']} calls; seeds {t['seeds']}; networks {t['networks']}; "
              f"wall {t['wall_s']} s on {t['backend'].get('backend')}", "",
-             "| method | runs | structural success [95% CI] | functional success [95% CI] | either | recall (best alt, median) | "
-             "precision (median) | functional nominal | functional robust | calls median | size median | role acc | Brier |",
-             "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| method | runs | structural success [95% CI] | functional success [95% CI] | causal functional | either | "
+             "recall (best alt, median) | precision (median) | functional nominal | functional robust | calls median | size median | role acc | "
+             "Brier | identity Jaccard / identical |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for m, s in t["summary"].items():
         ci = s["success_ci95"]
         fci = s.get("functional_success_ci95", [float("nan")] * 2)
+        ic = s.get("identity_consistency") or {}
         fmt = lambda v: "–" if v is None else f"{v:.2f}"  # noqa: E731
         lines.append(f"| {m} | {s['n_runs']} | {s['success_rate']:.2f} [{ci[0]:.2f}, {ci[1]:.2f}] | "
-                     f"{fmt(s.get('functional_success_rate'))} [{fci[0]:.2f}, {fci[1]:.2f}] | {fmt(s.get('success_or_functional_rate'))} | "
-                     f"{fmt(s['recall_best_alt_median'])} | "
+                     f"{fmt(s.get('functional_success_rate'))} [{fci[0]:.2f}, {fci[1]:.2f}] | {fmt(s.get('functional_success_causal_rate'))} | "
+                     f"{fmt(s.get('success_or_functional_rate'))} | {fmt(s['recall_best_alt_median'])} | "
                      f"{fmt(s['precision_best_alt_median'])} | {fmt(s['functional_nominal_mean'])} | {fmt(s['functional_robust_mean'])} | "
-                     f"{fmt(s['calls_median'])} | {fmt(s['size_median'])} | {fmt(s['role_accuracy_mean'])} | {fmt(s['brier_mean'])} |")
+                     f"{fmt(s['calls_median'])} | {fmt(s['size_median'])} | {fmt(s['role_accuracy_mean'])} | {fmt(s['brier_mean'])} | "
+                     f"{fmt(ic.get('pairwise_jaccard_mean'))} / {fmt(ic.get('identical_fraction'))} |")
     lines += ["", "structural success = the core contains a sufficient set listed in the truth (planted, or unplanted but found by the suite "
-              "audit); functional success = the core is sufficient on fresh seeds and 1-minimal (no member removable)."]
+              "audit); functional success (pre-registered) = the core is sufficient on fresh seeds and 1-minimal under keep-only; causal "
+              "functional (clarified) = sufficient and every member is keep-only-necessary or essential when silenced in the intact network."]
     lines += ["", "## By family (success rate / median calls)", ""]
     fams = sorted({f for s in t["summary"].values() for f in s["by_family"]})
     lines += ["| family | " + " | ".join(t["summary"]) + " |", "|---|" + "---|" * len(t["summary"])]

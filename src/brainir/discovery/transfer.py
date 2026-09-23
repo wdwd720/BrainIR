@@ -106,6 +106,55 @@ def null_transfer(a: DiscoveryProblem, b: DiscoveryProblem, core_a, sim_b: Budge
     return {"n_null": n_null, "pass_rate": float(np.mean(fr >= min_pass)), "pass_fraction_mean": float(fr.mean()), "pass_fractions": fracs}
 
 
+FRESH_SEEDS = (8100, 8101, 8102, 8103, 8104, 8105)
+
+
+def sufficiency_check(problem: DiscoveryProblem, core: list[int], seeds=FRESH_SEEDS) -> dict:
+    """Keep-only of ``core`` on fresh parameter seeds (oracle-free), plus the members removable one at a time (cores up to 20)."""
+    sim = BudgetedSimulator(problem, max_calls=10 ** 9)
+    seeds = list(seeds)
+    if not core:
+        return {"pass_fraction": 0.0, "passed": False, "removable": None, "check_calls": 0}
+    frac = sim.pass_fraction(keep_only(problem, core), seeds)
+    removable = None
+    if frac >= 0.5 and 1 < len(core) <= 20:
+        removable = [p for p in core if sim.pass_fraction(keep_only(problem, [q for q in core if q != p]), seeds[:3]) >= 0.5]
+    return {"pass_fraction": frac, "passed": bool(frac >= 0.5), "removable": removable, "check_calls": sim.calls}
+
+
+def transfer_experiment_job(args) -> dict:
+    """One real-network transfer experiment (module-level so remote backends can import it); see scripts/transfer_experiments.py.
+
+    ``args`` = (bundle, net_src, net_dst, method, mode, seed, budget_src, budget_dst, config, n_null, packs)."""
+    import tempfile
+    import time
+    from pathlib import Path
+
+    from .joint import discover_pair
+    from .problem import path_basename, unpack_bundle
+
+    bundle, net_src, net_dst, method, mode, seed, budget_src, budget_dst, config, n_null, packs = args
+    bundle = Path(bundle)
+    if not bundle.exists() and packs is not None:
+        tmp = Path(tempfile.mkdtemp(prefix="brainir_xfer_"))
+        bundle = unpack_bundle(packs["bundle"], tmp / path_basename(bundle))
+    src = DiscoveryProblem.from_bundle(bundle, net_src)
+    dst = DiscoveryProblem.from_bundle(bundle, net_dst)
+    t0 = time.time()
+    res = discover_pair(src, dst, method, budget_a=budget_src, budget_b=budget_dst, seed=seed, mode=mode, config=config, workers=1)
+    wall = time.time() - t0
+    core_src, core_dst = [int(p) for p in res.result_a.core], [int(p) for p in res.result_b.core]
+    out = {"direction": f"{net_src}->{net_dst}", "mode": mode, "seed": seed, "method": method, "wall_s": round(wall, 1), "budget": res.budget,
+           "core_src": core_src, "core_dst": core_dst, "n_src": len(core_src), "n_dst": len(core_dst),
+           "check_src": sufficiency_check(src, core_src), "check_dst": sufficiency_check(dst, core_dst),
+           "n_correspondence_claims": len(res.correspondence), "correspondence": res.correspondence, "role_alignment": res.role_alignment,
+           "diagnostics_keys": sorted((res.diagnostics or {}).keys())}
+    if mode == "transfer" and core_src:
+        sim_null = BudgetedSimulator(dst, max_calls=10 ** 9)
+        out["null"] = null_transfer(src, dst, core_src, sim_null, seeds=list(FRESH_SEEDS[:3]), n_null=n_null, seed=seed)
+    return out
+
+
 def role_graph(problem: DiscoveryProblem, core, roles: dict) -> dict:
     """The abstract mechanism: roles of the members and signed role->role interactions (from the public matrix), for cross-network
     comparison at the level of roles rather than identities."""
