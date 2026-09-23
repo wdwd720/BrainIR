@@ -138,8 +138,11 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         rec["structure"] = score_structure(result, tnet)
         rec["function"] = score_function(problem, result, seeds=score_seeds, workers=workers, robust=robust)
         rec["truth_family"] = truth["spec"]["family"]
-        rec["truth_complications"] = truth["spec"]["complications"]
-        rec["truth_n"] = truth["networks"][network]["perm"].__len__()
+        rec["truth_complications"] = truth["spec"].get("complications")
+        perm = truth["networks"][network]["perm"]
+        rec["truth_n"] = len(perm)
+        # the core in the generator's canonical node frame: comparable across node-order variants of the same instance
+        rec["core_canonical"] = sorted(int(perm[int(p)]) for p in result.core if 0 <= int(p) < len(perm))
     return rec
 
 
@@ -212,8 +215,31 @@ def summarize(records: list[dict]) -> dict:
                   "size_median": _median(rs, lambda r: len(r["result"]["core"])),
                   "role_accuracy_mean": _mean(rs, lambda r: r["structure"]["role_accuracy"]),
                   "brier_mean": _mean(rs, lambda r: r["structure"]["brier_inclusion"]),
+                  "essential_accuracy_mean": _mean(rs, lambda r: r["structure"].get("essential_accuracy")),
+                  "removable_fraction": _mean(rs, lambda r: None if not (r.get("function") or {}).get("minimality") else
+                                              float(r["function"]["minimality"]["n_removable"] > 0)),
+                  "simulated_seconds_median": _median(rs, lambda r: r["result"]["budget"].get("simulated_seconds")),
+                  "identity_consistency": identity_consistency(rs),
                   "by_family": _by_family(rs)}
     return out
+
+
+def identity_consistency(rs: list[dict]) -> dict:
+    """Reliability across node orders and seeds: for every instance with >= 2 runs, the mean pairwise Jaccard of the runs' cores in
+    the canonical frame, and whether all runs returned the identical set; averaged over instances."""
+    by_inst: dict[str, list[frozenset[int]]] = {}
+    for r in rs:
+        if "core_canonical" in r:
+            by_inst.setdefault(r["instance"], []).append(frozenset(r["core_canonical"]))
+    jac, same = [], []
+    for cores in by_inst.values():
+        if len(cores) < 2:
+            continue
+        pairs = [(a, b) for i, a in enumerate(cores) for b in cores[i + 1:]]
+        jac.append(float(np.mean([len(a & b) / len(a | b) if (a | b) else 1.0 for a, b in pairs])))
+        same.append(float(len(set(cores)) == 1))
+    return {"n_instances": len(jac), "pairwise_jaccard_mean": float(np.mean(jac)) if jac else None,
+            "identical_fraction": float(np.mean(same)) if same else None}
 
 
 def _median(rs: list[dict], key_fn) -> float | None:
