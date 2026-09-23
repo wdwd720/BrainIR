@@ -6,8 +6,8 @@ chronology in its §10. **This file names the published answer (§7–§8) and i
 discovery method** (see `benchmarks/dng100/PROTOCOL.md` §2).
 
 Status: **complete and frozen** — tag `dng100-benchmark-v1`, `BENCHMARK_LOCK.json` lock hash `bcaa8ee46e23dc29fb9f89f79a28e5ee6ea3d6ffdb8f2dafeb795716ce00f7e7`;
-361 fast tests + 18 real-data smoke tests pass; leakage audit PASS; six independent reviews closed (blockers fixed);
-cloud usage ≈ $38 of ~$1,000. Phase 2 not started.
+385 tests pass (367 synthetic-fixture tests + 18 real-data smoke tests); leakage audit PASS; six independent reviews
+closed (every blocker fixed before the freeze); cloud usage ≈ $38 of ~$1,000. Phase 2 not started.
 
 ---
 
@@ -333,10 +333,11 @@ baseline campaign (~1 h) and the robustness sweeps.
 
 ## 10. Tests, audits, reviews
 
-Fast suite (`uv run pytest -m "not real_data"`): 361 tests, synthetic fixtures with hand-derived truth (MaleCNS and
+Fast suite (`uv run pytest -m "not real_data"`): 367 tests, synthetic fixtures with hand-derived truth (MaleCNS and
 MANC ingestion fixtures, simulator vs closed forms and an independent reference integrator, labelled rhythm signals,
-mapping rules, prediction schema, bundle export/verification, clean-room contract of every baseline, leakage guard and
-the benchmark's automated leakage checks); 18 real-data smoke tests need `data/processed`. Audits: `LEAKAGE_AUDIT.md`
+mapping rules, prediction schema, bundle export/verification, clean-room contract of every baseline, the clean-room
+sandbox (escape attempts fail, legitimate methods run), the freeze lock (`tests/test_freeze.py`), the leakage guard and
+the benchmark's automated leakage checks); 18 real-data smoke tests need `data/processed`. All 385 pass at the tag. Audits: `LEAKAGE_AUDIT.md`
 (PASS, re-run after every bundle export), `research/audit/` (Phase 0 independent audit), the dataset validation reports.
 
 Six independent reviews ran as separate agents with written contracts (`research/audit/phase1_reviews/`):

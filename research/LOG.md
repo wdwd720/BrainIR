@@ -319,5 +319,8 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     stimulus (the "recruitment discrepancy" retracted). All four datasets rebuilt with the final code; mapping tables
     rebuilt; `oracle/cross_connectome_reference.json` frozen; bundles re-exported (audit PASS); baselines re-run on the
     final blind bundle at the published 2 s protocol; DOP853 integrator-sensitivity run of the pruning prevalence.
-  - Review F (reproducibility, report consistency) ran on the near-final tree; BENCHMARK_LOCK.json written and the tree
-    tagged `dng100-benchmark-v1`; PHASE1_REPORT.md finalised.
+  - Review F (reproducibility, report consistency) ran on the near-final tree and its blockers were closed (D42);
+    final baseline campaign (2 s protocol, calibrated amplitude gate) and nulls; bundles re-exported at the frozen code
+    state (hashes unchanged); `BENCHMARK_LOCK.json` written (lock `bcaa8ee46e23dc29…`, 131 benchmark files + 19 code
+    files) and the tree tagged `dng100-benchmark-v1` at commit `29694f9`; PHASE1_REPORT.md finalised. Modal spend
+    ≈ $38 (registry).
