@@ -216,6 +216,14 @@ registry run `5abf1fd8732d5ebb`.
 - The paper's `set_sizes` takes the median *before* replacing zero sizes; a test written from the description
   (median without zeros) was wrong, the code was right.
 
+- **Fixed-step integrators and the pulse edge (2026-09-23).** `brainir.sim.model._fixed_step` evaluated the pulse
+  indicator at every Runge–Kutta stage time, so the k4 stage of the step ending at `pulse_start` (and k1 at
+  `pulse_end`) saw the other side of the switch: an O(dt) error of ≈ (dt/6)·activation/τ (0.15 Hz at dt = 1 ms on the
+  stimulated neuron) that made RK4 look first-order in the standard protocol. Found by the robustness agent's
+  dt-convergence study. Fixed: sub-steps are split at the switch times and the indicator is evaluated once per
+  sub-step (regression test against the closed-form single-neuron response). The adaptive path was never affected
+  (it integrates segment-wise).
+
 ## 6. Failed / abandoned approaches
 - Remote column-projected reads over GCS (`IpcReadOptions(included_fields)`) work, but at ~1.5 s per batch they
   would take ~34 min for `Neuprint_Neurons.feather`. Downloading was faster.
@@ -249,7 +257,13 @@ registry run `5abf1fd8732d5ebb`.
 6. **MANC (Phase 1).** Which rule produced the changed `predictedNt` labels in neuPrint v1.2.x (§3.12)? Which
    confidence rule the live `manc:v1.2.x` Meta declares (login needed)? Whether v1.1 / v1.2.2 ever existed (no
    public trace). Origin of the one `GF(R)` / `<unspecified>` ROI disagreement and the two +1 PSD counts (§3.16).
-7. **Pugliese et al. procedures not determinable from their repository** (see
+8. **MaleCNS recruitment discrepancy (2026-09-23).** BrainIR's simulation of the authors' MaleCNS front-leg network
+   (v1.0 counts, authors' consensus NT, VNC synapses, I = 400, n = 128) reproduces the rhythm statistics (mean score
+   0.980 vs 0.985) but recruits a median of 4 (0–6) active front-leg motor neurons where the paper reports 8 (6–16).
+   The paper's mCNS experiment configuration (which DNg100 neuron(s) were stimulated, readout set) is not in its
+   repository; 30 bodies changed between the authors' extraction and v1.0. Unresolved; the benchmark's MaleCNS network
+   uses BrainIR's simulated statistics (`brainir_simulation`) as its reference, not the paper's.
+9. **Pugliese et al. procedures not determinable from their repository** (see
    `research/literature/pugliese_model_spec_from_code.md` §12): engine (sync vs streaming) and code revision per
    published run; how the 13 `unknown`/`unclear` rows kept zero outputs; the Dirichlet screen (no code); the
    "lower bound of 10 active neurons" for the type-level screen.
@@ -283,3 +297,14 @@ registry run `5abf1fd8732d5ebb`.
   - Implemented the simulator (`brainir.sim`) and rhythm metrics (`brainir.metrics`); 47 tests against the
     independent reference integrator and labelled signals. First 4 DNg100 replicates on the rebuilt MANC network:
     scores 0.89–1.00, 2–3 active front-leg MNs, 10–12 Hz (paper: mean 0.974, median 3 MNs, ~11 Hz).
+- **2026-09-23 01:30 – 03:00 (session 2, continued).**
+  - 1,024-replicate dynamics reproductions (authors' NT and BrainIR NT: identical statistics), MaleCNS n = 128
+    (rhythm reproduced, recruitment discrepancy §8.8); benchmark package (D31–D33), mapping layer (D35), pruning and
+    screen procedures (D36) committed.
+  - Compute: shared-payload backends (D37); Modal campaigns: 1,024 pruning screens (§3.17, $15.5), DN activation
+    screen 933 × 16, interventions (MANC, MaleCNS), cross-connectome functional transfer n = 64.
+  - Two defects found and fixed before the freeze (§3.18): MaleCNS readout selector, bundle edges filtered by sign.
+    A third from the robustness agent's dt study: fixed-step pulse-edge stage error (§5). Bundles re-exported, audit PASS.
+  - Delegated: robustness/dt/negative-control suite (`robustness_experiments.py`), nine baselines + null
+    distributions (`benchmarks/dng100/baselines/`), reviews A–F (`research/audit/phase1_reviews/`).
+  - PROTOCOL.md, freeze.py, cross-connectome evaluation (D38, D39); PHASE1_REPORT.md drafted.

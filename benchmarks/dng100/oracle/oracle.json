@@ -170,7 +170,8 @@
     "modal_circuit": "paper_simulation + brainir_simulation (68.1% of 1024 BrainIR screens; paper 62.1%)",
     "frequency_hz": "paper_simulation + brainir_simulation",
     "stimulation_statistics_brainir": "brainir_simulation",
-    "pruning_statistics_brainir": "brainir_simulation"
+    "pruning_statistics_brainir": "brainir_simulation",
+    "stimulation_statistics_brainir_nt_labels_brainir": "brainir_simulation (BrainIR nt_body_prediction labels instead of the authors' predictedNt)"
    },
    "pruning_statistics_brainir": {
     "n_screens": 1024,
@@ -233,6 +234,22 @@
     "fraction_with_both_excitatory_core": 0.9951,
     "fraction_excitatory_core_plus_inhibitory_slot": 0.7646,
     "source": "benchmarks/dng100_walking_cpg/results/pruning_manc_v1.2.1_nt-paper_n1024_seed0.json (registry run 5abf1fd8732d5ebb)"
+   },
+   "stimulation_statistics_brainir_nt_labels_brainir": {
+    "n": 1024,
+    "mean_score": 0.9733,
+    "median_score": 0.9991,
+    "fraction_ge_0_5": 0.9971,
+    "median_frequency_hz": 10.75,
+    "median_active_readout": 3.0,
+    "active_readout_range": [
+     0,
+     5
+    ],
+    "current": 250.0,
+    "t_end_s": 2.0,
+    "readout_n": 144,
+    "source": "benchmarks/dng100_walking_cpg/results/stim_dng100_manc_v1.2.1_nt-brainir_n1024.json"
    }
   },
   "manc_v1.2.3": {
@@ -398,9 +415,27 @@
     "roles": "expert_interpretation",
     "essential": "paper_simulation",
     "modal_circuit": "paper_simulation",
-    "frequency_hz": "paper_simulation"
+    "frequency_hz": "paper_simulation",
+    "stimulation_statistics_brainir": "brainir_simulation (authors' consensusNt labels; v1.0 counts; one authors' body absent from v1.0 dropped)"
    },
-   "caveat": "the paper's MaleCNS network was extracted from a pre-release neuPrint state (2026-02-10); 30 bodies changed before v1.0 (none of them core neurons: verified in Phase 0)"
+   "caveat": "the paper's MaleCNS network was extracted from a pre-release neuPrint state (2026-02-10); 30 bodies changed before v1.0 (none of them core neurons: verified in Phase 0)",
+   "stimulation_statistics_brainir": {
+    "n": 128,
+    "mean_score": 0.9804,
+    "median_score": 0.9992,
+    "fraction_ge_0_5": 0.9922,
+    "median_frequency_hz": 13.16,
+    "median_active_readout": 4.0,
+    "active_readout_range": [
+     0,
+     6
+    ],
+    "current": 400.0,
+    "t_end_s": 2.0,
+    "readout_n": 130,
+    "source": "benchmarks/dng100_walking_cpg/results/stim_dng100_male-cns_v1.0_nt-paper_n128.json"
+   },
+   "discrepancy_note": "BrainIR reproduces the rhythm statistics of the paper's MaleCNS network (mean 0.980 vs 0.985) but recruits a median of 4 (0-6) active front-leg MNs vs the paper's 8 (6-16); the paper's mCNS stimulation configuration is not in its repository (LOG 8.8). Functional evaluation on this network uses BrainIR's own simulated statistics as reference."
   }
  },
  "cross_connectome": {

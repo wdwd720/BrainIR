@@ -29,11 +29,11 @@ with several schemes and compared with RK45 at rtol 1e-8 / atol 1e-11 (the refer
   fixed-step RK4 at dt = 1e-3, 5e-4, 2.5e-4, 1.25e-4 s and forward Euler at 1e-3 and 1e-4 s, with the pulse on for the
   whole run (``pulse_start = 0``, ``pulse_end = t_end``). This is the standard replicate shifted by 20 ms: r = 0 is an
   exact fixed point of the unstimulated network, so the standard protocol's first 20 ms are identically zero and the
-  trajectory from the pulse onset is the same. Keeping the pulse edges out of the run matters for fixed-step schemes:
-  ``_fixed_step`` in ``brainir.sim.model`` evaluates the pulse indicator at the stage times, so the k4 stage of the step
-  that ends exactly at pulse_start (and the k1 stage of the step that starts at pulse_end) sees the other side of the
-  switch; that is an O(dt) error of about (dt / 6) x (activation / tau) ~ 0.13 Hz at dt = 1 ms on the stimulated neuron,
-  which propagates into the oscillation phase and hides the scheme's order. Reported per method: max |dr| and RMS dr
+  trajectory from the pulse onset is the same. Keeping the pulse edges out of the run isolates the schemes' order from
+  the edge handling (history: until 2026-09-23 ``_fixed_step`` in ``brainir.sim.model`` evaluated the pulse indicator
+  at the stage times, so the k4 stage of the step ending at pulse_start saw the other side of the switch, an O(dt)
+  error of about (dt / 6) x (activation / tau) ~ 0.13 Hz at dt = 1 ms; this study found it, and sub-steps are now
+  split at the switch times — LOG section 5). Reported per method: max |dr| and RMS dr
   over the whole run, over the analysis window (t >= 0.25 s) and over the first 0.3 s (before the accumulated phase
   drift of the oscillation dominates the difference), the published score, the mean MN frequency, RHS evaluations and
   wall time; plus the empirical convergence order from successive halvings of dt (RK4) and from the decade
@@ -717,10 +717,10 @@ def cmd_dt_convergence(args) -> None:
     md += ["", "Fixed-step RK4 in part B (orders from the two dts):", ""]
     md += orders_table(parts["protocol_edges"]["convergence_orders"])
     md += ["", "Notes: the rate equation's right-hand side has a C0 kink (max(., 0)) at every threshold crossing, which lowers the order any "
-           "fixed-step scheme can show; the reference's own error bounds what is measurable at the smallest dt. In part B the fixed-step "
-           "schemes evaluate the pulse indicator at the stage times, so the k4 stage of the step ending at pulse_start and the k1 stage of the "
-           "step starting at pulse_end see the other side of the switch: an O(dt) discrepancy of ~(dt/6) x activation/tau on the stimulated "
-           "neuron (0.13 Hz at dt = 1 ms) that propagates into the oscillation phase (see 'dr at onset sample' and 'dr at last sample')."]
+           "fixed-step scheme can show; the reference's own error bounds what is measurable at the smallest dt. Fixed-step schemes split "
+           "their sub-steps at the pulse edges (since 2026-09-23; before that the k4 stage of the step ending at pulse_start saw the other "
+           "side of the switch, an O(dt) error of ~(dt/6) x activation/tau on the stimulated neuron, 0.13 Hz at dt = 1 ms), so part B now "
+           "measures only the schemes; 'dr at onset sample' and 'dr at last sample' show what remains of any edge effect."]
     write_results(default_name(args, args.n), data, md)
 
 
