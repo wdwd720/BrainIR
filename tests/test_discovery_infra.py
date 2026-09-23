@@ -176,7 +176,10 @@ def test_cleanroom_copy_excludes_truth(tmp_path, tiny_suite):
     root, label, _ = tiny_suite
     from brainir import paths
 
-    spec = importlib.util.spec_from_file_location("mk", paths.repo_root() / "scripts" / "make_phase2_cleanroom.py")
+    script = paths.repo_root() / "scripts" / "make_phase2_cleanroom.py"
+    if not script.exists():
+        pytest.skip("clean-room builder not present in this checkout")
+    spec = importlib.util.spec_from_file_location("mk", script)
     mk = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mk)
     copied = mk._copy_tree(root, tmp_path / "copy")
