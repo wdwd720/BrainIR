@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:32:35Z",
+ "method_file": "pagerank.py",
+ "method_sha256": "ab4a3357c84558fd1531ee2bc85e3c500c59fe55db009fc31cc6fa8cd77b6232",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 2.5,
+   "stdout_tail": "baseline_pagerank: wrote prediction_manc_v1.2.1.json with 3 core neurons {'alpha': 0.85, 'pagerank': {2531: 0.0096606, 2973: 0.00898683, 2931: 0.00842748}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "df2795ebedfb5a219f18542831cbf02d859fb446903be29e01554e31a72d9af7",
+   "n_core": 3,
+   "method_name": "baseline_pagerank"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 2.2,
+   "stdout_tail": "baseline_pagerank: wrote prediction_manc_v1.2.3.json with 3 core neurons {'alpha': 0.85, 'pagerank': {2736: 0.0096606, 1351: 0.00898683, 1049: 0.00842748}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "4461e71d18aff9d29015c83f34af948181d981a23f3c20dd11b317a7d060727d",
+   "n_core": 3,
+   "method_name": "baseline_pagerank"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 2.0,
+   "stdout_tail": "baseline_pagerank: wrote prediction_male-cns_v1.0.json with 3 core neurons {'alpha': 0.85, 'pagerank': {909: 0.01164152, 1052: 0.0100347, 2664: 0.00994916}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "4c68722466ee7cc8167338fe053b43244b746031608e0be175999601744715a4",
+   "n_core": 3,
+   "method_name": "baseline_pagerank"
+  }
+ ]
+}

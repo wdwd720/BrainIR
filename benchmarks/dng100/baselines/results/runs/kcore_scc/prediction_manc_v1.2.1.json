@@ -1,0 +1,68 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "inhibitory",
+   "source_id": 639
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "excitatory",
+   "source_id": 471
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "inhibitory",
+   "source_id": 1005
+  }
+ ],
+ "created_utc": "2026-09-23T09:36:01Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.1",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "hubs of the densest recurrent block (max k-core of the reachable SCC)",
+  "notes": "{\"scc_size\": 3966, \"max_core_number\": 70, \"core_level_used\": 70, \"n_interneurons_at_level\": 813, \"weighted_degree\": {\"639\": 24261, \"471\": 24179, \"1005\": 23246}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "networkx",
+   "simulations": 0,
+   "wall_time_s": 1.16
+  },
+  "description": "largest strongly connected component reachable from the stimulus, its maximum k-core, interneurons ranked by weighted in+out degree (synapse counts); roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/manc_v1.2.1/neurons.parquet",
+   "networks/manc_v1.2.1/edges.parquet",
+   "networks/manc_v1.2.1/stimulus.json",
+   "networks/manc_v1.2.1/readout.json",
+   "networks/manc_v1.2.1/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_kcore_scc",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  3084
+ ]
+}

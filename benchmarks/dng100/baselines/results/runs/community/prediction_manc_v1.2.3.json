@@ -1,0 +1,68 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "inhibitory",
+   "source_id": 983
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "excitatory",
+   "source_id": 1321
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "inhibitory",
+   "source_id": 1467
+  }
+ ],
+ "created_utc": "2026-09-23T09:39:40Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.3",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "hubs of the modularity community around the heaviest direct stimulus target",
+  "notes": "{\"hub\": 2736, \"n_communities\": 11, \"community_size\": 1333, \"community_interneurons\": 960, \"resolution\": 1.0, \"within_community_weighted_degree\": {\"983\": 22428.0, \"1321\": 20121.0, \"1467\": 18231.0}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "networkx louvain",
+   "simulations": 0,
+   "wall_time_s": 3.17
+  },
+  "description": "Louvain communities of the undirected synapse-count-weighted graph; the community holding the interneuron receiving the most synapses from the stimulus; its interneurons ranked by within-community weighted degree; roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/manc_v1.2.3/neurons.parquet",
+   "networks/manc_v1.2.3/edges.parquet",
+   "networks/manc_v1.2.3/stimulus.json",
+   "networks/manc_v1.2.3/readout.json",
+   "networks/manc_v1.2.3/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_community",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  2702
+ ]
+}

@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:30:49Z",
+ "method_file": "degree_topk.py",
+ "method_sha256": "46d36ffdfd8ea282f6872cc45a87bc96c1234ac478c523b614d4905843d599d9",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 1.2,
+   "stdout_tail": "baseline_degree_topk: wrote prediction_manc_v1.2.1.json with 3 core neurons {'n_direct_targets': 132, 'stimulus_synapses': {2531: 235, 2931: 217, 2973: 187}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "262c8610f00dbd0aca8e355f90d9abd5336e74c4a9131d8e7e75c50782c6cda7",
+   "n_core": 3,
+   "method_name": "baseline_degree_topk"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 1.2,
+   "stdout_tail": "baseline_degree_topk: wrote prediction_manc_v1.2.3.json with 3 core neurons {'n_direct_targets': 133, 'stimulus_synapses': {2736: 235, 1049: 217, 1351: 187}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "44d26020cbba87050ce51f6b5daf3bb26886fd50b62fd5a44dc7492b669939a7",
+   "n_core": 3,
+   "method_name": "baseline_degree_topk"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 1.1,
+   "stdout_tail": "baseline_degree_topk: wrote prediction_male-cns_v1.0.json with 3 core neurons {'n_direct_targets': 102, 'stimulus_synapses': {909: 216, 2664: 170, 1052: 155}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "97bca8be372882e5236aeeff5419a16d71a06639a83ff8672e72315a6dacd96b",
+   "n_core": 3,
+   "method_name": "baseline_degree_topk"
+  }
+ ]
+}

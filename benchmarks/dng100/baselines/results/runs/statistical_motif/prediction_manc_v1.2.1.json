@@ -1,0 +1,69 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "inhibitory",
+   "source_id": 686
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "inhibitory",
+   "source_id": 3062
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "inhibitory",
+   "source_id": 2167
+  }
+ ],
+ "created_utc": "2026-09-23T09:41:25Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.1",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "stimulus-input and reciprocity enrichment vs degree-matched shuffles",
+  "notes": "{\"n_shuffles\": 100, \"n_bins\": 10, \"seed\": 0, \"z\": {\"686\": {\"S\": 0, \"R\": 41, \"z_S\": -0.06, \"z_R\": 41.0, \"combined\": 4.167}, \"3062\": {\"S\": 0, \"R\": 89, \"z_S\": -0.13, \"z_R\": 63.78, \"combined\": 4.028}, \"2167\": {\"S\": 0, \"R\": 68, \"z_S\": -0.13, \"z_R\": 55.28, \"combined\": 3.927}}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "numpy/scipy.sparse",
+   "shuffles": 100,
+   "simulations": 0,
+   "wall_time_s": 2.06
+  },
+  "description": "z-scores of stimulus input synapses and of mutual 2-cycle synapses against degree-matched endpoint shuffles (100 by default, in-degree deciles); top-k by the sum of the rank-normal scores of z_S and z_R across interneurons; roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/manc_v1.2.1/neurons.parquet",
+   "networks/manc_v1.2.1/edges.parquet",
+   "networks/manc_v1.2.1/stimulus.json",
+   "networks/manc_v1.2.1/readout.json",
+   "networks/manc_v1.2.1/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_statistical_motif",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  3084
+ ]
+}

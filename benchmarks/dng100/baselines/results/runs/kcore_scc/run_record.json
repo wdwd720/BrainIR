@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:36:06Z",
+ "method_file": "kcore_scc.py",
+ "method_sha256": "ea5593cde481ba22ce89c5ea6b852e008aebf23a61f66e22685935c6c5a7f69a",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 2.5,
+   "stdout_tail": "baseline_kcore_scc: wrote prediction_manc_v1.2.1.json with 3 core neurons {'scc_size': 3966, 'max_core_number': 70, 'core_level_used': 70, 'n_interneurons_at_level': 813, 'weighted_degree': {639: 24261, 471: 24179, 1005: 23246}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "5cf71b14dad00d0cd348726c123216fa2d9bb575ac7f9303a3b266d7c0a1dba3",
+   "n_core": 3,
+   "method_name": "baseline_kcore_scc"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 2.6,
+   "stdout_tail": "baseline_kcore_scc: wrote prediction_manc_v1.2.3.json with 3 core neurons {'scc_size': 3966, 'max_core_number': 70, 'core_level_used': 70, 'n_interneurons_at_level': 814, 'weighted_degree': {983: 24261, 1307: 24179, 904: 23246}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "406b90d149425f7bbc6bbfa15ab658eabb4c6af6414f0729eab297e30a96aaab",
+   "n_core": 3,
+   "method_name": "baseline_kcore_scc"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 2.0,
+   "stdout_tail": "baseline_kcore_scc: wrote prediction_male-cns_v1.0.json with 3 core neurons {'scc_size': 3507, 'max_core_number': 44, 'core_level_used': 44, 'n_interneurons_at_level': 783, 'weighted_degree': {4078: 17948, 2366: 16335, 1986: 16307}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "6f506cdcf64e261e9e2e03571d220b3393a14d4a81f74731591dfbbca0de06e5",
+   "n_core": 3,
+   "method_name": "baseline_kcore_scc"
+  }
+ ]
+}

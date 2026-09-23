@@ -1,0 +1,677 @@
+{
+ "evaluator_version": "1.1.0",
+ "evaluator_sha256": "059a4fe0c25b290bb9fceb8f1366c2067e19863da414e55e9ddfdd93ec308ab3",
+ "oracle_sha256": "269661940130566cd3edea918fd8e214f1f7976d55aaf0efcfb9e1ef6c734b6f",
+ "bundle": {
+  "root": "public_blind",
+  "benchmark_id": "dng100-benchmark-v1",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "tier": "A"
+ },
+ "evidence_levels": [
+  "paper_simulation",
+  "brainir_simulation",
+  "wet_lab",
+  "expert_interpretation"
+ ],
+ "networks": {
+  "male-cns_v1.0": {
+   "prediction_sha256": "4c68722466ee7cc8167338fe053b43244b746031608e0be175999601744715a4",
+   "method": {
+    "name": "baseline_pagerank",
+    "version": "1.0",
+    "description": "personalized PageRank (alpha 0.85) restarting at the stimulus on the directed synapse-count-weighted graph; top-k interneurons; roles from the network sign column; no essentiality claims.",
+    "code_commit": null,
+    "inputs_used": [
+     "networks/male-cns_v1.0/neurons.parquet",
+     "networks/male-cns_v1.0/edges.parquet",
+     "networks/male-cns_v1.0/stimulus.json",
+     "networks/male-cns_v1.0/readout.json",
+     "networks/male-cns_v1.0/network.json",
+     "manifest.json"
+    ],
+    "compute": {
+     "backend": "networkx",
+     "simulations": 0,
+     "wall_time_s": 0.62
+    },
+    "random_seed": 0
+   },
+   "structural": {
+    "n_predicted": 3,
+    "excitatory_core_recall": 0.5,
+    "inhibitory_slot_filled": false,
+    "inhibitory_slot_members_found": [],
+    "precision_vs_dng100_circuit_labels": 0.3333333333333333,
+    "precision_vs_all_published_labels": 0.3333333333333333,
+    "jaccard_vs_reference_core": 0.2,
+    "published_labels_found": [
+     "E1"
+    ],
+    "modal_circuit_recovered": false,
+    "compactness": {
+     "n_core": 3,
+     "within_10": true
+    },
+    "evidence_level_of_reference": "paper_simulation (IDs verified in male-cns:v1.0, Phase 0)"
+   },
+   "type_role": {
+    "type_level_excitatory_recall": 0.5,
+    "type_level_inhibitory_slot_filled": false,
+    "published_types_found": [
+     "E1"
+    ],
+    "n_predicted_with_type": 3,
+    "role_agreement_with_oracle": {
+     "n": 1,
+     "agree": 1,
+     "fraction": 1.0
+    },
+    "role_consistent_with_network_sign": {
+     "n": 3,
+     "agree": 3,
+     "fraction": 1.0
+    },
+    "note": "type-level credit counts any neuron of a published core type (e.g. a contralateral copy); tier A predictions still carry source_ids, so this layer is computed from the evaluator's own type table"
+   },
+   "mechanism": {
+    "n_core": 3,
+    "internal_edges": 3,
+    "internal_synapses": 155,
+    "loop_claimed": [],
+    "loop_is_strongly_connected": null,
+    "core_receives_stimulus_directly": true,
+    "core_projects_to_readout": true,
+    "motif_text": "random-walk reachability from the stimulus (personalized PageRank)"
+   },
+   "functional": {
+    "settings": {
+     "n_replicates": 8,
+     "seeds": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007
+     ],
+     "t_end": 2.0,
+     "rhythmic_threshold": 0.5,
+     "amplitude_min_hz": 0.25,
+     "pass_rule": "sustained (score >= 0.5 AND median readout peak-to-trough >= 0.25 Hz) in >= 50% of replicates",
+     "keep_only_always_keeps": "stimulus + readout motor neurons"
+    },
+    "intact_network": {
+     "n": 8,
+     "score_mean": 0.9856772197420635,
+     "score_median": 0.9989061736111111,
+     "fraction_rhythmic": 1.0,
+     "fraction_sustained": 1.0,
+     "readout_range_median_hz": 4.03256782010202,
+     "frequency_median_hz": 11.627907,
+     "active_readout_median": 7.0,
+     "solver_failures": 0
+    },
+    "sufficiency_keep_only_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.011337946659450385,
+     "frequency_median_hz": null,
+     "active_readout_median": 1.5,
+     "solver_failures": 0
+    },
+    "sufficiency_pass": false,
+    "sufficiency_pass_score_only": false,
+    "core_neurons_missing_from_network": [],
+    "necessity": [],
+    "n_necessity_claims": 0,
+    "necessity_accuracy": null,
+    "dynamics_claims": {
+     "predicted_frequency_hz": null,
+     "simulated_frequency_median_hz": 11.627907,
+     "frequency_abs_error_hz": null,
+     "predicted_rhythmic": true,
+     "simulated_fraction_rhythmic": 1.0,
+     "predicted_n_active_readout": null,
+     "simulated_active_readout_median": 7.0
+    }
+   },
+   "robustness": {
+    "keep_only_core_weight_noise_0.1": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.011036534448635227,
+     "frequency_median_hz": null,
+     "active_readout_median": 2.0,
+     "solver_failures": 0
+    },
+    "keep_only_core_weight_noise_0.3": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.013070978836352665,
+     "frequency_median_hz": null,
+     "active_readout_median": 3.0,
+     "solver_failures": 0
+    },
+    "keep_only_core_parameter_sd_x2": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.010531824466617323,
+     "frequency_median_hz": null,
+     "active_readout_median": 1.0,
+     "solver_failures": 0
+    }
+   }
+  },
+  "manc_v1.2.1": {
+   "prediction_sha256": "df2795ebedfb5a219f18542831cbf02d859fb446903be29e01554e31a72d9af7",
+   "method": {
+    "name": "baseline_pagerank",
+    "version": "1.0",
+    "description": "personalized PageRank (alpha 0.85) restarting at the stimulus on the directed synapse-count-weighted graph; top-k interneurons; roles from the network sign column; no essentiality claims.",
+    "code_commit": null,
+    "inputs_used": [
+     "networks/manc_v1.2.1/neurons.parquet",
+     "networks/manc_v1.2.1/edges.parquet",
+     "networks/manc_v1.2.1/stimulus.json",
+     "networks/manc_v1.2.1/readout.json",
+     "networks/manc_v1.2.1/network.json",
+     "manifest.json"
+    ],
+    "compute": {
+     "backend": "networkx",
+     "simulations": 0,
+     "wall_time_s": 0.86
+    },
+    "random_seed": 0
+   },
+   "structural": {
+    "n_predicted": 3,
+    "excitatory_core_recall": 0.5,
+    "inhibitory_slot_filled": false,
+    "inhibitory_slot_members_found": [],
+    "precision_vs_dng100_circuit_labels": 0.3333333333333333,
+    "precision_vs_all_published_labels": 0.3333333333333333,
+    "jaccard_vs_reference_core": 0.2,
+    "published_labels_found": [
+     "E1"
+    ],
+    "modal_circuit_recovered": false,
+    "compactness": {
+     "n_core": 3,
+     "within_10": true
+    },
+    "evidence_level_of_reference": "paper_simulation"
+   },
+   "type_role": {
+    "type_level_excitatory_recall": 0.5,
+    "type_level_inhibitory_slot_filled": false,
+    "published_types_found": [
+     "E1"
+    ],
+    "n_predicted_with_type": 3,
+    "role_agreement_with_oracle": {
+     "n": 1,
+     "agree": 1,
+     "fraction": 1.0
+    },
+    "role_consistent_with_network_sign": {
+     "n": 3,
+     "agree": 3,
+     "fraction": 1.0
+    },
+    "note": "type-level credit counts any neuron of a published core type (e.g. a contralateral copy); tier A predictions still carry source_ids, so this layer is computed from the evaluator's own type table"
+   },
+   "mechanism": {
+    "n_core": 3,
+    "internal_edges": 4,
+    "internal_synapses": 215,
+    "loop_claimed": [],
+    "loop_is_strongly_connected": null,
+    "core_receives_stimulus_directly": true,
+    "core_projects_to_readout": true,
+    "motif_text": "random-walk reachability from the stimulus (personalized PageRank)"
+   },
+   "functional": {
+    "settings": {
+     "n_replicates": 8,
+     "seeds": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007
+     ],
+     "t_end": 2.0,
+     "rhythmic_threshold": 0.5,
+     "amplitude_min_hz": 0.25,
+     "pass_rule": "sustained (score >= 0.5 AND median readout peak-to-trough >= 0.25 Hz) in >= 50% of replicates",
+     "keep_only_always_keeps": "stimulus + readout motor neurons"
+    },
+    "intact_network": {
+     "n": 8,
+     "score_mean": 0.9813195208333333,
+     "score_median": 0.9992444166666666,
+     "fraction_rhythmic": 1.0,
+     "fraction_sustained": 1.0,
+     "readout_range_median_hz": 1.4782928955576793,
+     "frequency_median_hz": 11.11248305,
+     "active_readout_median": 3.0,
+     "solver_failures": 0
+    },
+    "sufficiency_keep_only_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "sufficiency_pass": false,
+    "sufficiency_pass_score_only": false,
+    "core_neurons_missing_from_network": [],
+    "necessity": [],
+    "n_necessity_claims": 0,
+    "necessity_accuracy": null,
+    "dynamics_claims": {
+     "predicted_frequency_hz": null,
+     "simulated_frequency_median_hz": 11.11248305,
+     "frequency_abs_error_hz": null,
+     "predicted_rhythmic": true,
+     "simulated_fraction_rhythmic": 1.0,
+     "predicted_n_active_readout": null,
+     "simulated_active_readout_median": 3.0
+    }
+   },
+   "robustness": {
+    "keep_only_core_weight_noise_0.1": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "keep_only_core_weight_noise_0.3": {
+     "n": 8,
+     "score_mean": 0.006475125,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.003941324428101765,
+     "frequency_median_hz": 3.9370079,
+     "active_readout_median": 1.0,
+     "solver_failures": 0
+    },
+    "keep_only_core_parameter_sd_x2": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    }
+   }
+  },
+  "manc_v1.2.3": {
+   "prediction_sha256": "4461e71d18aff9d29015c83f34af948181d981a23f3c20dd11b317a7d060727d",
+   "method": {
+    "name": "baseline_pagerank",
+    "version": "1.0",
+    "description": "personalized PageRank (alpha 0.85) restarting at the stimulus on the directed synapse-count-weighted graph; top-k interneurons; roles from the network sign column; no essentiality claims.",
+    "code_commit": null,
+    "inputs_used": [
+     "networks/manc_v1.2.3/neurons.parquet",
+     "networks/manc_v1.2.3/edges.parquet",
+     "networks/manc_v1.2.3/stimulus.json",
+     "networks/manc_v1.2.3/readout.json",
+     "networks/manc_v1.2.3/network.json",
+     "manifest.json"
+    ],
+    "compute": {
+     "backend": "networkx",
+     "simulations": 0,
+     "wall_time_s": 0.77
+    },
+    "random_seed": 0
+   },
+   "structural": {
+    "n_predicted": 3,
+    "excitatory_core_recall": 0.5,
+    "inhibitory_slot_filled": false,
+    "inhibitory_slot_members_found": [],
+    "precision_vs_dng100_circuit_labels": 0.3333333333333333,
+    "precision_vs_all_published_labels": 0.3333333333333333,
+    "jaccard_vs_reference_core": 0.2,
+    "published_labels_found": [
+     "E1"
+    ],
+    "modal_circuit_recovered": false,
+    "compactness": {
+     "n_core": 3,
+     "within_10": true
+    },
+    "evidence_level_of_reference": "paper_simulation (same bodies as v1.2.1; connectivity identical for this network)"
+   },
+   "type_role": {
+    "type_level_excitatory_recall": 0.5,
+    "type_level_inhibitory_slot_filled": false,
+    "published_types_found": [
+     "E1"
+    ],
+    "n_predicted_with_type": 3,
+    "role_agreement_with_oracle": {
+     "n": 1,
+     "agree": 1,
+     "fraction": 1.0
+    },
+    "role_consistent_with_network_sign": {
+     "n": 3,
+     "agree": 3,
+     "fraction": 1.0
+    },
+    "note": "type-level credit counts any neuron of a published core type (e.g. a contralateral copy); tier A predictions still carry source_ids, so this layer is computed from the evaluator's own type table"
+   },
+   "mechanism": {
+    "n_core": 3,
+    "internal_edges": 4,
+    "internal_synapses": 215,
+    "loop_claimed": [],
+    "loop_is_strongly_connected": null,
+    "core_receives_stimulus_directly": true,
+    "core_projects_to_readout": true,
+    "motif_text": "random-walk reachability from the stimulus (personalized PageRank)"
+   },
+   "functional": {
+    "settings": {
+     "n_replicates": 8,
+     "seeds": [
+      1000,
+      1001,
+      1002,
+      1003,
+      1004,
+      1005,
+      1006,
+      1007
+     ],
+     "t_end": 2.0,
+     "rhythmic_threshold": 0.5,
+     "amplitude_min_hz": 0.25,
+     "pass_rule": "sustained (score >= 0.5 AND median readout peak-to-trough >= 0.25 Hz) in >= 50% of replicates",
+     "keep_only_always_keeps": "stimulus + readout motor neurons"
+    },
+    "intact_network": {
+     "n": 8,
+     "score_mean": 0.9418753645833333,
+     "score_median": 0.9637994999999999,
+     "fraction_rhythmic": 1.0,
+     "fraction_sustained": 1.0,
+     "readout_range_median_hz": 1.4038443328788572,
+     "frequency_median_hz": 10.811126699999999,
+     "active_readout_median": 3.0,
+     "solver_failures": 0
+    },
+    "sufficiency_keep_only_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "sufficiency_pass": false,
+    "sufficiency_pass_score_only": false,
+    "core_neurons_missing_from_network": [],
+    "necessity": [],
+    "n_necessity_claims": 0,
+    "necessity_accuracy": null,
+    "dynamics_claims": {
+     "predicted_frequency_hz": null,
+     "simulated_frequency_median_hz": 10.811126699999999,
+     "frequency_abs_error_hz": null,
+     "predicted_rhythmic": true,
+     "simulated_fraction_rhythmic": 1.0,
+     "predicted_n_active_readout": null,
+     "simulated_active_readout_median": 3.0
+    }
+   },
+   "robustness": {
+    "keep_only_core_weight_noise_0.1": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "keep_only_core_weight_noise_0.3": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "keep_only_core_parameter_sd_x2": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.004768250564973264,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.5,
+     "solver_failures": 0
+    }
+   }
+  }
+ },
+ "cross_connectome": {
+  "networks_evaluated": [
+   "male-cns_v1.0",
+   "manc_v1.2.1",
+   "manc_v1.2.3"
+  ],
+  "datasets_evaluated": [
+   "male-cns",
+   "manc"
+  ],
+  "published_labels_per_network": {
+   "male-cns_v1.0": [
+    "E1"
+   ],
+   "manc_v1.2.1": [
+    "E1"
+   ],
+   "manc_v1.2.3": [
+    "E1"
+   ]
+  },
+  "labels_recovered_in_all_datasets": [
+   "E1"
+  ],
+  "excitatory_core_in_all_datasets": false,
+  "note": "the two MANC networks share one synapse table; agreement between them is not cross-connectome evidence",
+  "claimed_correspondences": [],
+  "n_claims": 0,
+  "n_ungradeable_by_oracle": 0,
+  "claimed_correspondence_accuracy_vs_oracle": null,
+  "agreement_with_curated_pairs": null,
+  "per_basis": {},
+  "curated_reference": {
+   "schema": "cross_connectome_reference.1.0",
+   "created_utc": "2026-09-23T09:25:18Z",
+   "mapping_schema_version": "1.1.0",
+   "caveat": "curated_body_match rows restate the MaleCNS release's manc_body_id annotations; two animals, no identity; agreement with these pairs is agreement with curation, not with the paper",
+   "a": {
+    "dataset": "male-cns",
+    "version": "v1.0",
+    "network": "male-cns_v1.0",
+    "n_nodes": 4310
+   },
+   "b": {
+    "manc_v1.2.1": {
+     "dataset": "manc",
+     "version": "v1.2.1",
+     "n_nodes": 4604,
+     "n_pairs": 3717,
+     "mapping_table_sha256": "81699b6bad9c5810a65d97a69679142d72e1ff7313ba9853bdad6ff00cba7bb5"
+    },
+    "manc_v1.2.3": {
+     "dataset": "manc",
+     "version": "v1.2.3",
+     "n_nodes": 4604,
+     "n_pairs": 3717,
+     "mapping_table_sha256": "e6e8cc6426616d8f408b7c01cf046912d9f95d31ab8c62be2dfd4f847490b25c"
+    }
+   }
+  },
+  "transfer_keep_only_mapped_core": {
+   "male-cns_v1.0->manc_v1.2.1": {
+    "n_core": 3,
+    "n_mapped_by_curated_pairs": 3,
+    "n_in_destination_network": 3,
+    "keep_only_mapped_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "transfer_pass": false
+   },
+   "male-cns_v1.0->manc_v1.2.3": {
+    "n_core": 3,
+    "n_mapped_by_curated_pairs": 3,
+    "n_in_destination_network": 3,
+    "keep_only_mapped_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.0,
+     "frequency_median_hz": null,
+     "active_readout_median": 0.0,
+     "solver_failures": 0
+    },
+    "transfer_pass": false
+   },
+   "manc_v1.2.1->male-cns_v1.0": {
+    "n_core": 3,
+    "n_mapped_by_curated_pairs": 3,
+    "n_in_destination_network": 3,
+    "keep_only_mapped_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.011337946659450385,
+     "frequency_median_hz": null,
+     "active_readout_median": 1.5,
+     "solver_failures": 0
+    },
+    "transfer_pass": false
+   },
+   "manc_v1.2.3->male-cns_v1.0": {
+    "n_core": 3,
+    "n_mapped_by_curated_pairs": 3,
+    "n_in_destination_network": 3,
+    "keep_only_mapped_core": {
+     "n": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "fraction_rhythmic": 0.0,
+     "fraction_sustained": 0.0,
+     "readout_range_median_hz": 0.011337946659450385,
+     "frequency_median_hz": null,
+     "active_readout_median": 1.5,
+     "solver_failures": 0
+    },
+    "transfer_pass": false
+   }
+  }
+ },
+ "run_record": null,
+ "simulation": {
+  "enabled": true,
+  "n_replicates": 8,
+  "seeds": [
+   1000,
+   1001,
+   1002,
+   1003,
+   1004,
+   1005,
+   1006,
+   1007
+  ],
+  "t_end": 2.0,
+  "model_config": {
+   "b_exc": 0.03,
+   "b_inh": 0.03,
+   "tau_mean": 0.02,
+   "tau_sd": 0.002,
+   "a_mean": 1.0,
+   "a_sd": 0.1,
+   "theta_mean": 7.5,
+   "theta_sd": 0.6,
+   "r_max_mean": 200.0,
+   "r_max_sd": 10.0,
+   "size_scaling": true,
+   "t_end": 2.0,
+   "dt_out": 0.001,
+   "pulse_start": 0.02,
+   "pulse_end": null,
+   "method": "RK45",
+   "rtol": 2e-06,
+   "atol": 5e-09,
+   "integration": "segments",
+   "dt": null,
+   "max_step": null,
+   "clip_max_rate": 1000.0
+  }
+ },
+ "wall_time_s": 96.9
+}

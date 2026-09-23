@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:41:32Z",
+ "method_file": "statistical_motif.py",
+ "method_sha256": "9457ff846cbb1e5aa5b8f7134643045734c3b13a0f729ce1b9b6d78b11d0ffe0",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 4.2,
+   "stdout_tail": "baseline_statistical_motif: wrote prediction_manc_v1.2.1.json with 3 core neurons {'n_shuffles': 100, 'n_bins': 10, 'seed': 0, 'z': {686: {'S': 0, 'R': 41, 'z_S': -0.06, 'z_R': 41.0, 'combined': 4.167}, 3062: {'S': 0, 'R': 89, 'z_S': -0.13, 'z_R': 63.78, 'combined': 4.028}, 2167: {'S': 0, 'R': 68, 'z_S': -0.13, 'z_R': 55.28, 'combined': 3.927}}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "8760e4481bb400b77fac25b841f37adfa1bc09c8e745f20ee91e2be57413cf2f",
+   "n_core": 3,
+   "method_name": "baseline_statistical_motif"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 3.9,
+   "stdout_tail": "baseline_statistical_motif: wrote prediction_manc_v1.2.3.json with 3 core neurons {'n_shuffles': 100, 'n_bins': 10, 'seed': 0, 'z': {351: {'S': 0, 'R': 41, 'z_S': -0.06, 'z_R': 40.93, 'combined': 4.328}, 1350: {'S': 0, 'R': 40, 'z_S': -0.13, 'z_R': 39.92, 'combined': 3.94}, 1108: {'S': 61, 'R': 152, 'z_S': 7.27, 'z_R': 12.55, 'combined': 3.911}}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "8327ec512a45de1ec507237f51a40b077c56dba22536a3128e7f2e7b0a291575",
+   "n_core": 3,
+   "method_name": "baseline_statistical_motif"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 3.0,
+   "stdout_tail": "baseline_statistical_motif: wrote prediction_male-cns_v1.0.json with 3 core neurons {'n_shuffles': 100, 'n_bins': 10, 'seed': 0, 'z': {3212: {'S': 50, 'R': 166, 'z_S': 6.57, 'z_R': 11.8, 'combined': 4.177}, 1052: {'S': 155, 'R': 953, 'z_S': 6.53, 'z_R': 9.33, 'combined': 3.896}, 2096: {'S': 0, 'R': 41, 'z_S': -0.07, 'z_R': 41.0, 'combined': 3.771}}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "967b73cf3da8a67d70f8c8aaf5a404041780f3f1d52765c555deab55a92b7695",
+   "n_core": 3,
+   "method_name": "baseline_statistical_motif"
+  }
+ ]
+}

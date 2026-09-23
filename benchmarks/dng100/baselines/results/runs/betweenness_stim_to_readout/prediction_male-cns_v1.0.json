@@ -1,0 +1,68 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "excitatory",
+   "source_id": 1052
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "inhibitory",
+   "source_id": 1986
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "excitatory",
+   "source_id": 2384
+  }
+ ],
+ "created_utc": "2026-09-23T09:34:20Z",
+ "cross_connectome": [],
+ "dataset": "male-cns",
+ "dataset_version": "v1.0",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "feed-forward relay on stimulus->readout shortest paths",
+  "notes": "{\"hops\": 3, \"min_synapses\": 5, \"n_in_subgraph\": 3345, \"betweenness\": {\"1052\": 95.0, \"1986\": 29.0, \"2384\": 18.0}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "networkx",
+   "simulations": 0,
+   "wall_time_s": 0.31
+  },
+  "description": "betweenness restricted to stimulus->readout pairs on the 3-hop downstream subgraph (edge length 1/synapse_count, >= 5 synapses); top-k interneurons; roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/male-cns_v1.0/neurons.parquet",
+   "networks/male-cns_v1.0/edges.parquet",
+   "networks/male-cns_v1.0/stimulus.json",
+   "networks/male-cns_v1.0/readout.json",
+   "networks/male-cns_v1.0/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_betweenness_stim_to_readout",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  1589
+ ]
+}

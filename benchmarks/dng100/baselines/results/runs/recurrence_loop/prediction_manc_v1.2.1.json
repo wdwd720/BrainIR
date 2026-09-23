@@ -1,0 +1,72 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "inhibitory",
+   "source_id": 2531
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "excitatory",
+   "source_id": 2653
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "excitatory",
+   "source_id": 3810
+  }
+ ],
+ "created_utc": "2026-09-23T09:37:50Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.1",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [
+   2531,
+   2653,
+   3810
+  ],
+  "motif": "reciprocal excitation between the heaviest direct target and its excitatory 2-cycle partner, plus an inhibitory partner",
+  "notes": "{\"hub\": 2531, \"hub_sign\": -1, \"n_reciprocal_partners\": 28, \"loop_synapses\": {\"2653\": 76, \"3810\": 12}, \"loop_members\": [2531, 2653, 3810]}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "pandas",
+   "simulations": 0,
+   "wall_time_s": 0.12
+  },
+  "description": "hub = interneuron receiving the most synapses from the stimulus; partners scored by the mutual 2-cycle synapse count min(hub->j, j->hub); core = hub + partners completing an excitatory pair and an inhibitory slot; roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/manc_v1.2.1/neurons.parquet",
+   "networks/manc_v1.2.1/edges.parquet",
+   "networks/manc_v1.2.1/stimulus.json",
+   "networks/manc_v1.2.1/readout.json",
+   "networks/manc_v1.2.1/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_recurrence_loop",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  3084
+ ]
+}

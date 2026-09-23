@@ -84,16 +84,17 @@ sufficiency pass) and its essentiality claims are correct, and the structural re
 distributions (`baselines/results/null_distributions.md`, empirical p < 0.05 against the matched null). Tier B
 results are reported but cannot support an independence claim.
 
-**Baselines set the bar, family by family** (`baselines/results/baselines_summary.md`). The structural heuristics
-(degree, PageRank, betweenness, community, k-core, recurrence, statistical motif, random) recover at most one core
-neuron and never a sufficient core. The simulation-guided elimination baseline (`greedy_prune_sim`) recovers the full
-core in every network in tier A — the published answer was itself produced by simulation-guided pruning of this model,
-so recovering it by search is expected. A method is judged against that baseline on the axes the structural family
-does not see, each reported separately: simulation budget (number of simulated seconds; `MethodInfo.compute`),
-robustness of its core under parameter spread and weight noise (robustness family), mechanism explanation (mechanism
-family), cross-connectome transfer (cross_connectome family; MANC ↔ MaleCNS only) and independence from the specific
-rate model (declared in `MethodInfo`). "Beats a baseline" means better on a named family with the same replicate
-count and seeds; no family may be traded for another and no aggregate exists.
+**Baselines set the bar, family by family** (`baselines/results/baselines_summary.md`, hash-locked). The structural
+heuristics (degree, PageRank, betweenness, community, k-core, recurrence, statistical motif, random) recover at most
+one core neuron and never a sufficient core. The simulation-guided elimination baseline (`greedy_prune_sim`) recovers
+the full core in tier A in two of the three networks (and fails in the third, where its greedy path is order-sensitive)
+— the published answer was itself produced by simulation-guided pruning of this model, so recovering it by search is
+expected. A method is judged against that baseline on the axes the structural family does not see, each reported
+separately: reliability (the same result across node orders and seeds), simulation budget (number of simulated seconds;
+`MethodInfo.compute`), robustness of its core under parameter spread and weight noise (robustness family), mechanism
+explanation (mechanism family), cross-connectome transfer (cross_connectome family; MANC ↔ MaleCNS only) and
+independence from the specific rate model (declared in `MethodInfo`). "Beats a baseline" means better on a named family
+with the same replicate count and seeds; no family may be traded for another and no aggregate exists.
 
 ## 6. Freezing and versioning
 

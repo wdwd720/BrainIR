@@ -1,0 +1,68 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "inhibitory",
+   "source_id": 2531
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "excitatory",
+   "source_id": 2973
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "inhibitory",
+   "source_id": 2931
+  }
+ ],
+ "created_utc": "2026-09-23T09:32:31Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.1",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "random-walk reachability from the stimulus (personalized PageRank)",
+  "notes": "{\"alpha\": 0.85, \"pagerank\": {\"2531\": 0.0096606, \"2973\": 0.00898683, \"2931\": 0.00842748}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "networkx",
+   "simulations": 0,
+   "wall_time_s": 0.86
+  },
+  "description": "personalized PageRank (alpha 0.85) restarting at the stimulus on the directed synapse-count-weighted graph; top-k interneurons; roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/manc_v1.2.1/neurons.parquet",
+   "networks/manc_v1.2.1/edges.parquet",
+   "networks/manc_v1.2.1/stimulus.json",
+   "networks/manc_v1.2.1/readout.json",
+   "networks/manc_v1.2.1/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_pagerank",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  3084
+ ]
+}

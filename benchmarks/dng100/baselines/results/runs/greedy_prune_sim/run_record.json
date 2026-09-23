@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:48:29Z",
+ "method_file": "greedy_prune_sim.py",
+ "method_sha256": "4d8307ac0e3f6916e605e8f96aefb635dd7b1eac1973705298b86751e26dfa4f",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 128.1,
+   "stdout_tail": "baseline_greedy_prune_sim: wrote prediction_manc_v1.2.1.json with 3 core neurons; 883 simulations in 125.6 s; pool [40, 80, 160]; core keep-only score 0.0; essential {2973: True, 1220: False, 1126: False}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "c025e1cebd0e3b2f8cfc87e4f2e7d14fc4a820de5a3324e51c459fe49e98601c",
+   "n_core": 3,
+   "method_name": "baseline_greedy_prune_sim"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 107.2,
+   "stdout_tail": "baseline_greedy_prune_sim: wrote prediction_manc_v1.2.3.json with 3 core neurons; 714 simulations in 104.5 s; pool [40, 80, 160]; core keep-only score 0.8547; essential {1351: True, 3959: False, 1251: True}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "58115d73169516c9a29412694481a1674e31e78d023896b2329299b0c0cd32d6",
+   "n_core": 3,
+   "method_name": "baseline_greedy_prune_sim"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 83.7,
+   "stdout_tail": "baseline_greedy_prune_sim: wrote prediction_male-cns_v1.0.json with 3 core neurons; 550 simulations in 80.9 s; pool [40, 80]; core keep-only score 0.9158; essential {1052: True, 2152: False, 653: True}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "0153d5931963561ceb5c95ad9c51ba217ef87b7365e510dbe27e42bcd2fd51b8",
+   "n_core": 3,
+   "method_name": "baseline_greedy_prune_sim"
+  }
+ ]
+}

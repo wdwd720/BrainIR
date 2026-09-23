@@ -298,20 +298,25 @@ Frozen identity (`BENCHMARK_LOCK.json`, 68 hashed files; `freeze.py --check` ver
   [oracle-free], mechanism, cross-connectome, robustness); no aggregate number.
 - **Clean room**: `run_method.py` (bundle copy, stripped environment, forbidden imports, prediction hashes recorded
   before evaluation); `PROTOCOL.md` fixes the information budget and what may be claimed.
-- **Baselines / nulls** (`baselines/`, run through the clean room on the blind bundle, evaluated by the frozen
-  evaluator with 8 simulation replicates): nine non-BrainIR methods. Random matched, k-core/SCC, recurrence-loop,
-  community and statistical-motif baselines recover nothing of the published core in any network; degree,
-  personalised-PageRank and stimulus→readout betweenness each recover one of the two excitatory core neurons
-  (E-core recall 0.5, p ≈ 0.006–0.01 against 500 matched random draws) and never the inhibitory slot, and none of
-  their cores is sufficient (keep-only never rhythmic). **The simulation-guided backward-elimination baseline
-  (`greedy_prune_sim`) recovers the complete published core in all three networks in tier A** (E-core recall 1.0,
-  inhibitory slot filled, precision 1.0, keep-only sufficient in 8/8 replicates, essentiality claims 3/3 confirmed;
-  p = 0.002 against the null) in 70–90 s per network. Null distributions (500 draws × three samplers × k ∈ {3, 4, 5}):
-  E-core recall mean ≤ 0.005, P(any published label in a random set) 0.4–3.2 %; recall 1.0 is unreachable by chance.
-  Consequence for the protocol: on the structural families this benchmark is *solved* by generic simulation-guided
-  search under the published model — as it must be, since the published answer was itself produced that way. A
-  discovery method therefore has to be judged against `greedy_prune_sim` on the axes the structural score does not
-  see: simulation budget, robustness across parameter draws, mechanism explanation, cross-connectome transfer and
+- **Baselines / nulls** (`baselines/`; nine non-BrainIR methods run through the sandboxed clean room on the frozen
+  blind bundle, evaluated by the frozen evaluator with 8 simulation replicates at the published 2 s protocol;
+  `baselines/results/baselines_summary.md`, `null_distributions.md`, both hash-locked). Random-matched, k-core/SCC and
+  recurrence-loop baselines recover nothing of the published core; degree, personalised PageRank, stimulus→readout
+  betweenness, community (MaleCNS only) and statistical-motif (MaleCNS only) each recover one of the two excitatory core
+  neurons (E-core recall 0.5, empirical p ≈ 0.006–0.03 against 500 matched random draws) and never the inhibitory
+  slot; none of their cores is sufficient (keep-only never rhythmic). **The simulation-guided backward-elimination
+  baseline (`greedy_prune_sim`) recovers the complete published core in tier A in two of the three networks**
+  (`manc_v1.2.3`, `male-cns_v1.0`: E-core recall 1.0, inhibitory slot filled, precision 1.0, keep-only sufficient and
+  sustained in 8/8 replicates, 3/3 essentiality claims confirmed, transfer of its core into the other connectome
+  passes; p = 0.002 against the null) in 84–107 s per network; in `manc_v1.2.1` — the same synapse table as v1.2.3 in
+  a different node order — its greedy elimination path ended at E1 plus a non-core partner (recall 0.5, not
+  sufficient): the search is order-sensitive, and a single greedy pass is not guaranteed to find the modal circuit.
+  Null distributions (500 draws × three samplers × k ∈ {3, 4, 5}): E-core recall mean ≤ 0.005, P(any published label in
+  a random set) 0.4–3.2 %; recall 1.0 is unreachable by chance. Consequence for the protocol: on the structural
+  families this benchmark is largely *solved* by generic simulation-guided search under the published model — as it
+  must be, since the published answer was itself produced that way. A discovery method therefore has to be judged
+  against `greedy_prune_sim` on the axes the structural score does not see: reliability across node orders and seeds,
+  simulation budget, robustness across parameter draws, mechanism explanation, cross-connectome transfer and
   independence from the specific rate model (PROTOCOL.md §5).
 
 ## 9. Compute (D34, D37)

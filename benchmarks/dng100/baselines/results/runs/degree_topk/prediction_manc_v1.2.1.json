@@ -1,0 +1,68 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 1,
+   "role": "inhibitory",
+   "source_id": 2531
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 2,
+   "role": "inhibitory",
+   "source_id": 2931
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": null,
+   "rank": 3,
+   "role": "excitatory",
+   "source_id": 2973
+  }
+ ],
+ "created_utc": "2026-09-23T09:30:46Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.1",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "direct stimulus targets ranked by synapse count",
+  "notes": "{\"n_direct_targets\": 132, \"stimulus_synapses\": {\"2531\": 235, \"2931\": 217, \"2973\": 187}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "pandas",
+   "simulations": 0,
+   "wall_time_s": 0.1
+  },
+  "description": "top-k interneurons by total synapse count of edges shared with the stimulus (direct targets), ties by total weighted degree; roles from the network sign column; no essentiality claims.",
+  "inputs_used": [
+   "networks/manc_v1.2.1/neurons.parquet",
+   "networks/manc_v1.2.1/edges.parquet",
+   "networks/manc_v1.2.1/stimulus.json",
+   "networks/manc_v1.2.1/readout.json",
+   "networks/manc_v1.2.1/network.json",
+   "manifest.json"
+  ],
+  "name": "baseline_degree_topk",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  3084
+ ]
+}

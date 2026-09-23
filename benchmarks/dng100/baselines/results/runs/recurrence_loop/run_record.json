@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:37:52Z",
+ "method_file": "recurrence_loop.py",
+ "method_sha256": "17443677b1c5a908465255b48f06a7c402ce90d657a3eb4632d30bce0a89ef62",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 1.2,
+   "stdout_tail": "baseline_recurrence_loop: wrote prediction_manc_v1.2.1.json with 3 core neurons {'hub': 2531, 'hub_sign': -1, 'n_reciprocal_partners': 28, 'loop_synapses': {2653: 76, 3810: 12}, 'loop_members': [2531, 2653, 3810]}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "6e55620e2e81a43dc8a6bac9b072642630cb9aecdf6e86faf54e387c7be7bd56",
+   "n_core": 3,
+   "method_name": "baseline_recurrence_loop"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 1.1,
+   "stdout_tail": "baseline_recurrence_loop: wrote prediction_manc_v1.2.3.json with 3 core neurons {'hub': 2736, 'hub_sign': -1, 'n_reciprocal_partners': 28, 'loop_synapses': {1564: 76, 2786: 12}, 'loop_members': [2736, 1564, 2786]}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "2d6967fdccba302e24c7f2c7e0ebc7225e4b08a2fcb31acb477e41d32bb25b0b",
+   "n_core": 3,
+   "method_name": "baseline_recurrence_loop"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 1.2,
+   "stdout_tail": "baseline_recurrence_loop: wrote prediction_male-cns_v1.0.json with 3 core neurons {'hub': 909, 'hub_sign': -1, 'n_reciprocal_partners': 24, 'loop_synapses': {2919: 22, 2691: 18}, 'loop_members': [909, 2919, 2691]}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "8c94c99001f8f3e5f5c134d8df0d6e61fc8f7ffab66f87b4f0af6449cef5eafa",
+   "n_core": 3,
+   "method_name": "baseline_recurrence_loop"
+  }
+ ]
+}

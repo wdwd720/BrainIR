@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:34:20Z",
+ "method_file": "betweenness_stim_to_readout.py",
+ "method_sha256": "77397a5c5ccb695a1c614e812ee9d08c0ce5b2faae93cd0952814c3ff7c5cae3",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 1.8,
+   "stdout_tail": "baseline_betweenness_stim_to_readout: wrote prediction_manc_v1.2.1.json with 3 core neurons {'hops': 3, 'min_synapses': 5, 'n_in_subgraph': 3821, 'betweenness': {2973: 70.0, 2443: 18.0, 3384: 17.0}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "96eed3f59bb642dd663e38ad44bd4759fe11a05bf5fc95511d2659213c138846",
+   "n_core": 3,
+   "method_name": "baseline_betweenness_stim_to_readout"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 1.8,
+   "stdout_tail": "baseline_betweenness_stim_to_readout: wrote prediction_manc_v1.2.3.json with 3 core neurons {'hops': 3, 'min_synapses': 5, 'n_in_subgraph': 3821, 'betweenness': {1351: 68.0, 1150: 18.0, 3956: 17.0}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "5063a901762b3ab47b078d3b7e328ce987fb295cf1a8559b124e44013cb3529c",
+   "n_core": 3,
+   "method_name": "baseline_betweenness_stim_to_readout"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 1.7,
+   "stdout_tail": "baseline_betweenness_stim_to_readout: wrote prediction_male-cns_v1.0.json with 3 core neurons {'hops': 3, 'min_synapses': 5, 'n_in_subgraph': 3345, 'betweenness': {1052: 95.0, 1986: 29.0, 2384: 18.0}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "662c8ddd5fb07649f59fec977660c157331b9b0854942344117f4e7b7f6574d1",
+   "n_core": 3,
+   "method_name": "baseline_betweenness_stim_to_readout"
+  }
+ ]
+}

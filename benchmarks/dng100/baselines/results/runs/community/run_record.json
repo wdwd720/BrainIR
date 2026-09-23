@@ -1,0 +1,59 @@
+{
+ "created_utc": "2026-09-23T09:39:43Z",
+ "method_file": "community.py",
+ "method_sha256": "8a5df3e2cc9593d268e2d83f955d018c2ac1d8de3a1630995397b3853067f549",
+ "bundle": {
+  "root": "public_blind",
+  "tier": "A",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "benchmark_id": "dng100-benchmark-v1"
+ },
+ "seed": 0,
+ "method_args": "",
+ "sandbox": {
+  "file": "_sandbox.py",
+  "sha256": "51b637dd38509488fa9e91d5688bb0b9da0428520d8b61b063b613d933884b2a",
+  "allowed_roots": [
+   "<bundle copy>",
+   "<out>",
+   "<python installation>",
+   "<temp>",
+   "<method directory>"
+  ]
+ },
+ "runs": [
+  {
+   "network": "manc_v1.2.1",
+   "returncode": 0,
+   "wall_time_s": 3.9,
+   "stdout_tail": "baseline_community: wrote prediction_manc_v1.2.1.json with 3 core neurons {'hub': 2531, 'n_communities': 10, 'community_size': 1470, 'community_interneurons': 1003, 'resolution': 1.0, 'within_community_weighted_degree': {639: 22680.0, 2527: 19862.0, 3072: 18052.0}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.1.json",
+   "prediction_sha256": "d6a0f974e0f2eb0a20a55a7a4610b82da5c59a061c5ada05d966ce402eacba3e",
+   "n_core": 3,
+   "method_name": "baseline_community"
+  },
+  {
+   "network": "manc_v1.2.3",
+   "returncode": 0,
+   "wall_time_s": 4.5,
+   "stdout_tail": "baseline_community: wrote prediction_manc_v1.2.3.json with 3 core neurons {'hub': 2736, 'n_communities': 11, 'community_size': 1333, 'community_interneurons': 960, 'resolution': 1.0, 'within_community_weighted_degree': {983: 22428.0, 1321: 20121.0, 1467: 18231.0}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_manc_v1.2.3.json",
+   "prediction_sha256": "7707436d6410c4a2192d233af4943ae6eede4e504100a91b3174afacc50dae0a",
+   "n_core": 3,
+   "method_name": "baseline_community"
+  },
+  {
+   "network": "male-cns_v1.0",
+   "returncode": 0,
+   "wall_time_s": 3.2,
+   "stdout_tail": "baseline_community: wrote prediction_male-cns_v1.0.json with 3 core neurons {'hub': 909, 'n_communities': 13, 'community_size': 1082, 'community_interneurons': 793, 'resolution': 1.0, 'within_community_weighted_degree': {4078: 14882.0, 1986: 14216.0, 1052: 13497.0}}\n",
+   "stderr_tail": "",
+   "prediction": "prediction_male-cns_v1.0.json",
+   "prediction_sha256": "a45ca53a4f01a417150c725f60fb6200d7e454bc2938909bdcfe8e779599fd7c",
+   "n_core": 3,
+   "method_name": "baseline_community"
+  }
+ ]
+}

@@ -1,0 +1,83 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": true,
+   "rank": 1,
+   "role": "excitatory",
+   "source_id": 1052
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": false,
+   "rank": 2,
+   "role": "inhibitory",
+   "source_id": 2152
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": null,
+   "essential": true,
+   "rank": 3,
+   "role": "excitatory",
+   "source_id": 653
+  }
+ ],
+ "created_utc": "2026-09-23T09:48:28Z",
+ "cross_connectome": [],
+ "dataset": "male-cns",
+ "dataset_version": "v1.0",
+ "dynamics": {
+  "frequency_hz": null,
+  "frequency_range_hz": null,
+  "n_active_readout": null,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [],
+  "motif": "survivors of simulation-guided backward elimination (keep-only sufficiency)",
+  "notes": "{\"pool_expansion\": [{\"pool_size\": 40, \"keep_only_score\": 0.0}, {\"pool_size\": 80, \"keep_only_score\": 0.9995}], \"pool_rhythmic\": true, \"rhythmic_threshold\": 0.5, \"n_rounds\": 19, \"budget_exhausted\": false, \"core_keep_only_score\": 0.9158, \"core_sufficient\": true, \"leave_one_out_in_core\": {\"1052\": 0.0, \"2152\": 0.0, \"653\": 0.0}, \"silenced_in_full_network\": {\"1052\": 0.0, \"2152\": 0.949, \"653\": 0.0}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "backend": "brainir.sim (RK45, float64)",
+   "budget_exhausted": false,
+   "budget_s": 300.0,
+   "pool_sizes": [
+    40,
+    80
+   ],
+   "replicate_seeds": [
+    7919,
+    7920
+   ],
+   "replicates": 2,
+   "simulation_wall_s": 80.4,
+   "simulations": 550,
+   "t_end_s": 1.0,
+   "wall_time_s": 80.9,
+   "workers": 5
+  },
+  "description": "simulation-guided backward elimination: keep-only pool of the highest-degree 2-hop downstream interneurons (expanded until rhythmic), leave-one-out greedy removal (halving batches ranked with 1 replicate above 20 candidates, one at a time with all replicates below) down to k, ranks by leave-one-out impact; essential = single-neuron silencing in the full network abolishes the rhythm.",
+  "inputs_used": [
+   "networks/male-cns_v1.0/neurons.parquet",
+   "networks/male-cns_v1.0/edges.parquet",
+   "networks/male-cns_v1.0/stimulus.json",
+   "networks/male-cns_v1.0/readout.json",
+   "networks/male-cns_v1.0/network.json",
+   "manifest.json",
+   "model_config.json"
+  ],
+  "name": "baseline_greedy_prune_sim",
+  "random_seed": 0,
+  "version": "1.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  1589
+ ]
+}
