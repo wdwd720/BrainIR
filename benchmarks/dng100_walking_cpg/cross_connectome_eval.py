@@ -29,6 +29,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from brainir.compute import get_backend
 from brainir.mapping import forward_lookup, load_mapping, load_summary, reverse_lookup
 from brainir.sim import Intervention, ModelConfig
 from brainir.sim.experiments import stimulation_experiment
@@ -79,13 +80,13 @@ def correspondence(table: pd.DataFrame) -> dict:
     return out
 
 
-def _keep_only(net, readout, keep_ids: list[int], stim_pos: int, current: float, cfg, seeds, workers, name: str, sizes):
+def _keep_only(net, readout, keep_ids: list[int], stim_pos: int, current: float, cfg, seeds, workers, name: str, sizes, backend=None):
     idx = {int(i): p for p, i in enumerate(net.ids)}
     core_pos = tuple(idx[i] for i in keep_ids if i in idx)
     always = (stim_pos, *[int(p) for p in np.flatnonzero(readout)])
     inter = Intervention(keep_only=core_pos, always_keep=always)
     res = stimulation_experiment(net, (stim_pos,), current, cfg, seeds, readout, intervention=inter, name=name, sizes=sizes, n_workers=workers,
-                                 readout_description="front-leg motor neurons")
+                                 readout_description="front-leg motor neurons", backend=backend)
     s = res.summary()
     return {"kept_core_ids": [i for i in keep_ids if i in idx], "missing_ids": [i for i in keep_ids if i not in idx], "n_kept_positions": len(core_pos),
             "mean_score": s["score_mean"], "median_score": s["score_median"], "fraction_ge_0_5": s["fraction_ge_threshold"],
@@ -93,7 +94,7 @@ def _keep_only(net, readout, keep_ids: list[int], stim_pos: int, current: float,
             "active_readout_range": s["active_readout_range"]}
 
 
-def functional_transfer(table: pd.DataFrame, n: int, workers: int, t_end: float) -> dict:
+def functional_transfer(table: pd.DataFrame, n: int, workers: int, t_end: float, backend=None) -> dict:
     """Map each network's modal circuit into the other network and simulate it keep-only there."""
     cfg = ModelConfig(t_end=t_end)
     seeds = list(range(n))
@@ -121,10 +122,12 @@ def functional_transfer(table: pd.DataFrame, n: int, workers: int, t_end: float)
         current = STIM_CURRENT[dst]
         t0 = time.time()
         rows = {
-            "intact_network": _keep_only(net_d, readout_d, [int(i) for i in net_d.ids], stim_d, current, cfg, seeds, workers, "intact", net_d.sizes),
+            "intact_network": _keep_only(net_d, readout_d, [int(i) for i in net_d.ids], stim_d, current, cfg, seeds, workers, "intact", net_d.sizes,
+                                         backend),
             "own_modal_circuit_keep_only": _keep_only(net_d, readout_d, [int(onet_d["core"][lab]) for lab in onet_d["modal_circuit"]], stim_d, current,
-                                                      cfg, seeds, workers, "own_modal", net_d.sizes),
-            "mapped_modal_circuit_keep_only": _keep_only(net_d, readout_d, mapped, stim_d, current, cfg, seeds, workers, "mapped_modal", net_d.sizes),
+                                                      cfg, seeds, workers, "own_modal", net_d.sizes, backend),
+            "mapped_modal_circuit_keep_only": _keep_only(net_d, readout_d, mapped, stim_d, current, cfg, seeds, workers, "mapped_modal", net_d.sizes,
+                                                         backend),
         }
         out[f"{src}_to_{dst}"] = {"source_modal_circuit": onet_s["modal_circuit"], "source_ids": modal_src, "mapping_detail": detail,
                                   "mapped_ids": mapped, "destination_modal_circuit": onet_d["modal_circuit"], "destination_current": current,
@@ -138,6 +141,8 @@ def main(argv=None) -> None:
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--t-end", type=float, default=1.0)
     ap.add_argument("--skip-simulation", action="store_true")
+    ap.add_argument("--backend", choices=["local", "modal"], default="local")
+    ap.add_argument("--containers", type=int, default=64)
     args = ap.parse_args(argv)
     table = load_mapping(A, B)
     summary = load_summary(A, B)
@@ -145,8 +150,10 @@ def main(argv=None) -> None:
     res = {"mapping": {"a": summary["a"], "b": summary["b"], "rules": summary["rules"], "table_sha256": summary.get("table", {}).get("sha256")},
            "correspondence": corr}
     if not args.skip_simulation:
-        res["functional_transfer"] = functional_transfer(table, args.n, args.workers, args.t_end)
+        backend = get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=1800, max_containers=args.containers) if args.backend == "modal" else None
+        res["functional_transfer"] = functional_transfer(table, args.n, args.workers, args.t_end, backend)
         res["model_config"] = ModelConfig(t_end=args.t_end).to_dict()
+        res["backend"] = args.backend
     RESULTS.mkdir(exist_ok=True)
     name = f"cross_connectome_eval_n{args.n}"
     (RESULTS / f"{name}.json").write_text(json.dumps(res, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")

@@ -287,24 +287,38 @@ def _pulse_rhs(Wb, p, I_vec, t_on, t_off):
     return rhs
 
 
-def _fixed_step(rhs, r0, ts, dt, method):
-    """Explicit fixed-step integrator sampled onto ``ts`` (each output interval is subdivided into steps of ``dt``)."""
+def _fixed_step(rhs, r0, ts, dt, method, switches=()):
+    """Explicit fixed-step integrator sampled onto ``ts`` (each output interval is subdivided into steps of ``dt``).
+
+    ``switches`` are the times at which the input changes (pulse edges). Sub-steps are split there and the pulse
+    indicator is evaluated once per sub-step at its midpoint, so no Runge-Kutta stage straddles a discontinuity —
+    otherwise the k4 stage of the step ending at a switch sees the other side and the scheme degrades to first order
+    (found by the dt-convergence study, LOG §3.18)."""
     out = np.empty((len(ts), len(r0)))
     r = r0.copy()
     out[0] = r
+    sw = sorted({float(s) for s in switches})
     for k in range(1, len(ts)):
-        t = ts[k - 1]
-        span = ts[k] - t
-        n_sub = max(1, int(round(span / dt)))
-        h = span / n_sub
-        for _ in range(n_sub):
-            if method == "euler":
-                r = r + h * rhs(t, r)
-            else:
-                k1 = rhs(t, r); k2 = rhs(t + h / 2, r + h / 2 * k1)
-                k3 = rhs(t + h / 2, r + h / 2 * k2); k4 = rhs(t + h, r + h * k3)
-                r = r + (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
-            t += h
+        t0, t1 = ts[k - 1], ts[k]
+        pts = [t0, *[s for s in sw if t0 < s < t1], t1]
+        for a, b in zip(pts[:-1], pts[1:]):
+            span = b - a
+            n_sub = max(1, int(round(span / dt)))
+            h = span / n_sub
+            tm = a + span / 2  # the input is constant on (a, b); evaluate its indicator here for every stage
+
+            def f(_t, y, tm=tm):
+                return rhs(tm, y)
+
+            t = a
+            for _ in range(n_sub):
+                if method == "euler":
+                    r = r + h * f(t, r)
+                else:
+                    k1 = f(t, r); k2 = f(t + h / 2, r + h / 2 * k1)
+                    k3 = f(t + h / 2, r + h / 2 * k2); k4 = f(t + h, r + h * k3)
+                    r = r + (h / 6) * (k1 + 2 * k2 + 2 * k3 + k4)
+                t += h
         out[k] = r
     return out
 
@@ -329,7 +343,7 @@ def simulate(W: sp.csr_matrix | np.ndarray, params: NeuronParams, cfg: ModelConf
             "params_seed": params.seed, "pulse": [t_on, t_off]}
     if cfg.method in ("rk4", "euler"):
         dt = cfg.dt or cfg.dt_out
-        r = _fixed_step(_pulse_rhs(Wb, params, I_vec, t_on, t_off), r0, ts, dt, cfg.method)
+        r = _fixed_step(_pulse_rhs(Wb, params, I_vec, t_on, t_off), r0, ts, dt, cfg.method, switches=(t_on, t_off))
         info.update(method=cfg.method, dt=dt, n_steps=int(round(cfg.t_end / dt)), success=True)
     elif cfg.integration == "single":
         sol = solve_ivp(_pulse_rhs(Wb, params, I_vec, t_on, t_off), (0.0, cfg.t_end), r0, method=cfg.method, t_eval=ts,

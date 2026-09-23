@@ -120,19 +120,28 @@ def _run_replicate(args) -> tuple[ReplicateResult, Trajectory | None]:
 def stimulation_experiment(net: Network, stim_positions: Sequence[int], current: float, cfg: ModelConfig, seeds: Sequence[int],
                            readout_mask: np.ndarray, *, intervention: Intervention | None = None, name: str = "stimulation",
                            keep_trajectories: bool = False, sizes: np.ndarray | None = None,
-                           readout_description: str = "", n_workers: int = 1) -> ExperimentResult:
+                           readout_description: str = "", n_workers: int = 1, backend=None) -> ExperimentResult:
     """Constant-current stimulation of ``stim_positions`` across parameter replicates (one seed = one replicate).
 
-    ``n_workers > 1`` runs replicates in a process pool (results are identical to the serial run; order = seeds)."""
+    ``n_workers > 1`` runs replicates in a process pool (results are identical to the serial run; order = seeds).
+    ``backend`` (a :mod:`brainir.compute` backend) runs them there instead, shipping W/sizes/readout once as a shared payload."""
     stim = Stimulus(tuple(int(i) for i in stim_positions), (float(current),))
     sizes = net.sizes if sizes is None else sizes
-    jobs = [(net.W, cfg, stim, intervention, sizes, np.asarray(readout_mask, bool), int(s), keep_trajectories) for s in seeds]
-    if n_workers > 1 and len(jobs) > 1:
-        from concurrent.futures import ProcessPoolExecutor
-        with ProcessPoolExecutor(max_workers=int(n_workers)) as ex:
-            out = list(ex.map(_run_replicate, jobs, chunksize=1))
+    mask = np.asarray(readout_mask, bool)
+    if backend is not None:
+        from ..compute.backend import Shared, split_failures
+        jobs = [(Shared("W"), cfg, stim, intervention, Shared("sizes"), Shared("readout"), int(s), keep_trajectories) for s in seeds]
+        out, failed = split_failures(backend.map(_run_replicate, jobs, shared={"W": net.W, "sizes": sizes, "readout": mask}))
+        if failed:
+            raise RuntimeError(f"{len(failed)} of {len(jobs)} replicates failed on {backend.name}; first: {failed[0]}")
     else:
-        out = [_run_replicate(j) for j in jobs]
+        jobs = [(net.W, cfg, stim, intervention, sizes, mask, int(s), keep_trajectories) for s in seeds]
+        if n_workers > 1 and len(jobs) > 1:
+            from concurrent.futures import ProcessPoolExecutor
+            with ProcessPoolExecutor(max_workers=int(n_workers)) as ex:
+                out = list(ex.map(_run_replicate, jobs, chunksize=1))
+        else:
+            out = [_run_replicate(j) for j in jobs]
     reps = [r for r, _ in out]
     trajs = [t for _, t in out if t is not None]
     return ExperimentResult(

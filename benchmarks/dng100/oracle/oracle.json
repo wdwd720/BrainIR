@@ -1,89 +1,491 @@
 {
-  "_warning": "ORACLE of dng100-benchmark-v1. Evaluation only. Never expose to discovery code, prompts, features or priors.",
-  "oracle_version": "1.0.0",
-  "source": {
-    "paper": "Pugliese SM, Chou GM, Abe ETT, Turcu D, Lancaster JK, Tuthill JC, Brunton BW. Connectome simulations identify a central pattern generator circuit for fly walking. bioRxiv 10.1101/2025.09.12.675944 (v2, 2026-04-30).",
-    "code_data": "github.com/smpuglie/Pugliese_2026 @ 10e7661 (MIT per README); Zenodo 10.5281/zenodo.22260924",
-    "extraction": "benchmarks/dng100_walking_cpg/answer_key.json (Phase 0, 2026-09-22) + BrainIR reproductions (Phase 1, 2026-09-23)"
+ "_warning": "ORACLE of dng100-benchmark-v1. Evaluation only. Never expose to discovery code, prompts, features or priors.",
+ "oracle_version": "1.0.0",
+ "source": {
+  "paper": "Pugliese SM, Chou GM, Abe ETT, Turcu D, Lancaster JK, Tuthill JC, Brunton BW. Connectome simulations identify a central pattern generator circuit for fly walking. bioRxiv 10.1101/2025.09.12.675944 (v2, 2026-04-30).",
+  "code_data": "github.com/smpuglie/Pugliese_2026 @ 10e7661 (MIT per README); Zenodo 10.5281/zenodo.22260924",
+  "extraction": "benchmarks/dng100_walking_cpg/answer_key.json (Phase 0, 2026-09-22) + BrainIR reproductions (Phase 1, 2026-09-23)"
+ },
+ "evidence_levels": {
+  "paper_simulation": "result of the published model analysis; a model-derived hypothesis, not an experimental fact",
+  "brainir_simulation": "reproduced or extended with BrainIR's independent simulator on BrainIR's rebuilt networks",
+  "wet_lab": "experimental measurement",
+  "expert_interpretation": "reading of the paper/data by the BrainIR team"
+ },
+ "labels": {
+  "E1": {
+   "type": "IN17A001",
+   "nt": "acetylcholine",
+   "role": "excitatory"
   },
-  "evidence_levels": {
-    "paper_simulation": "result of the published model analysis; a model-derived hypothesis, not an experimental fact",
-    "brainir_simulation": "reproduced or extended with BrainIR's independent simulator on BrainIR's rebuilt networks",
-    "wet_lab": "experimental measurement",
-    "expert_interpretation": "reading of the paper/data by the BrainIR team"
+  "E2": {
+   "type": "INXXX466",
+   "nt": "acetylcholine",
+   "role": "excitatory"
   },
-  "labels": {
-    "E1": {"type": "IN17A001", "nt": "acetylcholine", "role": "excitatory"},
-    "E2": {"type": "INXXX466", "nt": "acetylcholine", "role": "excitatory"},
-    "I1": {"type": "IN16B036", "nt": "glutamate", "role": "inhibitory"},
-    "I2": {"type": "IN19A007", "nt": "gaba", "role": "inhibitory"},
-    "E3": {"type": "IN19B012", "nt": "acetylcholine", "role": "excitatory"},
-    "E4": {"type": "IN03A006", "nt": "acetylcholine", "role": "excitatory (DNb08 pathway)"},
-    "E5": {"type": "INXXX464", "nt": "acetylcholine", "role": "excitatory (DNb08 pathway)"}
+  "I1": {
+   "type": "IN16B036",
+   "nt": "glutamate",
+   "role": "inhibitory"
   },
-  "networks": {
-    "manc_v1.2.1": {
-      "dataset": "manc", "version": "v1.2.1",
-      "stimulus_source_ids": [10093],
-      "core": {"E1": 10707, "E2": 11751, "I1": 13905, "I2": 10242, "E3": 10715, "E4": 12021, "E5": 162543},
-      "roles": {"E1": "excitatory", "E2": "excitatory", "I1": "inhibitory", "I2": "inhibitory", "E3": "excitatory", "E4": "excitatory", "E5": "excitatory"},
-      "essential": {"E1": true, "E2": true, "I1": false, "I2": null, "E3": null},
-      "modal_circuit": ["E1", "E2", "I1"], "modal_prevalence": 0.621,
-      "other_circuits": [[["E1", "E3", "E2", "IN13A010", "MNfl10"], 123], [["I2", "E1", "E2"], 102], [["E1", "E3", "E2", "IN13A010"], 33]],
-      "inhibitory_slot": ["I1", "I2"],
-      "frequency_hz": [8.0, 14.0],
-      "stimulation_statistics_paper": {"mean_score": 0.974, "median_score": 0.999, "fraction_ge_0_5": 0.998, "active_mn_median": 3, "active_mn_range": [0, 6], "n": 1024},
-      "stimulation_statistics_brainir": {"see": "benchmarks/dng100_walking_cpg/results/stim_dng100_manc_v1.2.1_nt-paper_n1024.json", "mean_score": 0.973, "median_score": 0.999, "fraction_ge_0_5": 0.997, "active_mn_median": 3, "active_mn_range": [0, 5], "median_frequency_hz": 10.75, "n": 1024, "nt_labels": "paper (authors' predictedNt)"},
-      "silencing_paper": {"E1": {"mean_score": 0.000, "fraction_ge_0_5": 0.0}, "E2": {"mean_score": 0.005, "fraction_ge_0_5": 0.002}, "I1": {"mean_score": 0.938, "fraction_ge_0_5": 0.997}},
-      "evidence": {"core": "paper_simulation", "roles": "expert_interpretation (sign rule on predicted NT)", "essential": "paper_simulation",
-                   "modal_circuit": "paper_simulation", "frequency_hz": "paper_simulation + brainir_simulation", "stimulation_statistics_brainir": "brainir_simulation"}
-    },
-    "manc_v1.2.3": {
-      "dataset": "manc", "version": "v1.2.3",
-      "stimulus_source_ids": [10093],
-      "core": {"E1": 10707, "E2": 11751, "I1": 13905, "I2": 10242, "E3": 10715, "E4": 12021, "E5": 162543},
-      "roles": {"E1": "excitatory", "E2": "excitatory", "I1": "inhibitory", "I2": "inhibitory", "E3": "excitatory", "E4": "excitatory", "E5": "excitatory"},
-      "essential": {"E1": true, "E2": true, "I1": false, "I2": null, "E3": null},
-      "modal_circuit": ["E1", "E2", "I1"], "modal_prevalence": 0.621,
-      "inhibitory_slot": ["I1", "I2"],
-      "frequency_hz": [8.0, 14.0],
-      "evidence": {"core": "paper_simulation (same bodies as v1.2.1; connectivity identical for this network)", "roles": "expert_interpretation", "essential": "paper_simulation", "modal_circuit": "paper_simulation", "frequency_hz": "paper_simulation + brainir_simulation"}
-    },
-    "male-cns_v1.0": {
-      "dataset": "male-cns", "version": "v1.0",
-      "stimulus_source_ids": [10056],
-      "core": {"E1": 800173, "E2": 800863, "I1": 801884, "I2": 800374, "E3": 800216, "E4": 800663, "E5": 800286},
-      "core_contralateral_copies": {"E1": 800288, "E2": 903216, "I1": 803183, "I2": 800411, "E3": 801061, "E4": 903211, "E5": 800375},
-      "roles": {"E1": "excitatory", "E2": "excitatory", "I1": "inhibitory", "I2": "inhibitory", "E3": "excitatory", "E4": "excitatory", "E5": "excitatory"},
-      "essential": {"E1": true, "E2": true, "I2": false, "I1": null, "E3": null},
-      "modal_circuit": ["E1", "E2", "I2"], "modal_prevalence": 0.640,
-      "other_circuits": [[["E1", "E2", "I1"], 181], [["E1", "E3", "E2", "IN13A010", "IN19A020"], 61], [["E1", "E3", "E2", "IN13A010"], 22]],
-      "inhibitory_slot": ["I1", "I2"],
-      "frequency_hz": [8.0, 14.0],
-      "stimulation_statistics_paper": {"mean_score": 0.985, "median_score": 0.994, "fraction_ge_0_5": 1.0, "active_mn_median": 8, "active_mn_range": [6, 16], "n": 1024},
-      "silencing_paper": {"E1": {"mean_score": 0.028}, "E2": {"mean_score": 0.003}, "I2": {"mean_score": 0.952}},
-      "evidence": {"core": "paper_simulation (IDs verified in male-cns:v1.0, Phase 0)", "roles": "expert_interpretation", "essential": "paper_simulation", "modal_circuit": "paper_simulation", "frequency_hz": "paper_simulation"},
-      "caveat": "the paper's MaleCNS network was extracted from a pre-release neuPrint state (2026-02-10); 30 bodies changed before v1.0 (none of them core neurons: verified in Phase 0)"
-    }
+  "I2": {
+   "type": "IN19A007",
+   "nt": "gaba",
+   "role": "inhibitory"
   },
-  "cross_connectome": {
-    "correspondence_by_label": "the same label (E1, E2, ...) in different networks denotes the neurons the paper matched across connectomes (MaleCNS/BANC by cell-type annotation; FANC by morphology; method not fully stated)",
-    "pairs": [
-      {"label": "E1", "a": ["manc", "v1.2.1", 10707], "b": ["male-cns", "v1.0", 800173], "evidence": "paper_simulation + curated type annotation"},
-      {"label": "E2", "a": ["manc", "v1.2.1", 11751], "b": ["male-cns", "v1.0", 800863], "evidence": "paper_simulation + curated type annotation"},
-      {"label": "I1", "a": ["manc", "v1.2.1", 13905], "b": ["male-cns", "v1.0", 801884], "evidence": "paper_simulation + curated type annotation"},
-      {"label": "I2", "a": ["manc", "v1.2.1", 10242], "b": ["male-cns", "v1.0", 800374], "evidence": "paper_simulation + curated type annotation"},
-      {"label": "E3", "a": ["manc", "v1.2.1", 10715], "b": ["male-cns", "v1.0", 800216], "evidence": "paper_simulation + curated type annotation"}
-    ]
+  "E3": {
+   "type": "IN19B012",
+   "nt": "acetylcholine",
+   "role": "excitatory"
   },
-  "wet_lab": {
-    "DNg100_activation": "optogenetic activation of DNg100 drives walking / stepping in intact and decapitated flies (~11 Hz stepping in air)",
-    "DNb08_activation": "optogenetic activation drives rhythmic searching-like leg movements in decapitated flies",
-    "interneurons": "NO wet-lab manipulation of E1/E2/I1/I2/E3 exists (as of 2026-09-23); everything about them is model-derived"
+  "E4": {
+   "type": "IN03A006",
+   "nt": "acetylcholine",
+   "role": "excitatory (DNb08 pathway)"
   },
-  "scoring_notes": {
-    "inhibitory_slot": "published minimal circuits vary in their inhibitory member (I1 in MANC, I2 elsewhere; both occur in every dataset); a prediction naming either fills the slot",
-    "essential": "only E1 and E2 are individually essential in the published silencing analysis; I1/I2 are not",
-    "frequency": "MN rhythm 8-14 Hz under the benchmark stimulus (paper: ~11 Hz median at I=250 in MANC)"
+  "E5": {
+   "type": "INXXX464",
+   "nt": "acetylcholine",
+   "role": "excitatory (DNb08 pathway)"
   }
+ },
+ "networks": {
+  "manc_v1.2.1": {
+   "dataset": "manc",
+   "version": "v1.2.1",
+   "stimulus_source_ids": [
+    10093
+   ],
+   "core": {
+    "E1": 10707,
+    "E2": 11751,
+    "I1": 13905,
+    "I2": 10242,
+    "E3": 10715,
+    "E4": 12021,
+    "E5": 162543
+   },
+   "roles": {
+    "E1": "excitatory",
+    "E2": "excitatory",
+    "I1": "inhibitory",
+    "I2": "inhibitory",
+    "E3": "excitatory",
+    "E4": "excitatory",
+    "E5": "excitatory"
+   },
+   "essential": {
+    "E1": true,
+    "E2": true,
+    "I1": false,
+    "I2": null,
+    "E3": null
+   },
+   "modal_circuit": [
+    "E1",
+    "E2",
+    "I1"
+   ],
+   "modal_prevalence": 0.621,
+   "other_circuits": [
+    [
+     [
+      "E1",
+      "E3",
+      "E2",
+      "IN13A010",
+      "MNfl10"
+     ],
+     123
+    ],
+    [
+     [
+      "I2",
+      "E1",
+      "E2"
+     ],
+     102
+    ],
+    [
+     [
+      "E1",
+      "E3",
+      "E2",
+      "IN13A010"
+     ],
+     33
+    ]
+   ],
+   "inhibitory_slot": [
+    "I1",
+    "I2"
+   ],
+   "frequency_hz": [
+    8.0,
+    14.0
+   ],
+   "stimulation_statistics_paper": {
+    "mean_score": 0.974,
+    "median_score": 0.999,
+    "fraction_ge_0_5": 0.998,
+    "active_mn_median": 3,
+    "active_mn_range": [
+     0,
+     6
+    ],
+    "n": 1024
+   },
+   "stimulation_statistics_brainir": {
+    "see": "benchmarks/dng100_walking_cpg/results/stim_dng100_manc_v1.2.1_nt-paper_n1024.json",
+    "mean_score": 0.973,
+    "median_score": 0.999,
+    "fraction_ge_0_5": 0.997,
+    "active_mn_median": 3,
+    "active_mn_range": [
+     0,
+     5
+    ],
+    "median_frequency_hz": 10.75,
+    "n": 1024,
+    "nt_labels": "paper (authors' predictedNt)"
+   },
+   "silencing_paper": {
+    "E1": {
+     "mean_score": 0.0,
+     "fraction_ge_0_5": 0.0
+    },
+    "E2": {
+     "mean_score": 0.005,
+     "fraction_ge_0_5": 0.002
+    },
+    "I1": {
+     "mean_score": 0.938,
+     "fraction_ge_0_5": 0.997
+    }
+   },
+   "evidence": {
+    "core": "paper_simulation",
+    "roles": "expert_interpretation (sign rule on predicted NT)",
+    "essential": "paper_simulation",
+    "modal_circuit": "paper_simulation + brainir_simulation (68.1% of 1024 BrainIR screens; paper 62.1%)",
+    "frequency_hz": "paper_simulation + brainir_simulation",
+    "stimulation_statistics_brainir": "brainir_simulation",
+    "pruning_statistics_brainir": "brainir_simulation"
+   },
+   "pruning_statistics_brainir": {
+    "n_screens": 1024,
+    "converged": 1018,
+    "algorithm": "brainir.sim.prune.stochastic_sufficiency_v1",
+    "t_end_s": 1.0,
+    "nt_labels": "authors' predictedNt",
+    "modal_circuit_prevalence": 0.6806640625,
+    "circuits_top5": [
+     {
+      "labels": [
+       "E1",
+       "E2",
+       "I1"
+      ],
+      "count": 697,
+      "fraction": 0.6807
+     },
+     {
+      "labels": [
+       "E1",
+       "E2",
+       "E3",
+       "IN13A010"
+      ],
+      "count": 169,
+      "fraction": 0.165
+     },
+     {
+      "labels": [
+       "E1",
+       "E2",
+       "I2"
+      ],
+      "count": 83,
+      "fraction": 0.0811
+     },
+     {
+      "labels": [
+       "E1",
+       "E2",
+       "IN03A067",
+       "IN03A088",
+       "IN19A020"
+      ],
+      "count": 13,
+      "fraction": 0.0127
+     },
+     {
+      "labels": [
+       "E1",
+       "E2",
+       "E5",
+       "IN19A020"
+      ],
+      "count": 8,
+      "fraction": 0.0078
+     }
+    ],
+    "fraction_with_both_excitatory_core": 0.9951,
+    "fraction_excitatory_core_plus_inhibitory_slot": 0.7646,
+    "source": "benchmarks/dng100_walking_cpg/results/pruning_manc_v1.2.1_nt-paper_n1024_seed0.json (registry run 5abf1fd8732d5ebb)"
+   }
+  },
+  "manc_v1.2.3": {
+   "dataset": "manc",
+   "version": "v1.2.3",
+   "stimulus_source_ids": [
+    10093
+   ],
+   "core": {
+    "E1": 10707,
+    "E2": 11751,
+    "I1": 13905,
+    "I2": 10242,
+    "E3": 10715,
+    "E4": 12021,
+    "E5": 162543
+   },
+   "roles": {
+    "E1": "excitatory",
+    "E2": "excitatory",
+    "I1": "inhibitory",
+    "I2": "inhibitory",
+    "E3": "excitatory",
+    "E4": "excitatory",
+    "E5": "excitatory"
+   },
+   "essential": {
+    "E1": true,
+    "E2": true,
+    "I1": false,
+    "I2": null,
+    "E3": null
+   },
+   "modal_circuit": [
+    "E1",
+    "E2",
+    "I1"
+   ],
+   "modal_prevalence": 0.621,
+   "inhibitory_slot": [
+    "I1",
+    "I2"
+   ],
+   "frequency_hz": [
+    8.0,
+    14.0
+   ],
+   "evidence": {
+    "core": "paper_simulation (same bodies as v1.2.1; connectivity identical for this network)",
+    "roles": "expert_interpretation",
+    "essential": "paper_simulation",
+    "modal_circuit": "paper_simulation",
+    "frequency_hz": "paper_simulation + brainir_simulation"
+   }
+  },
+  "male-cns_v1.0": {
+   "dataset": "male-cns",
+   "version": "v1.0",
+   "stimulus_source_ids": [
+    10056
+   ],
+   "core": {
+    "E1": 800173,
+    "E2": 800863,
+    "I1": 801884,
+    "I2": 800374,
+    "E3": 800216,
+    "E4": 800663,
+    "E5": 800286
+   },
+   "core_contralateral_copies": {
+    "E1": 800288,
+    "E2": 903216,
+    "I1": 803183,
+    "I2": 800411,
+    "E3": 801061,
+    "E4": 903211,
+    "E5": 800375
+   },
+   "roles": {
+    "E1": "excitatory",
+    "E2": "excitatory",
+    "I1": "inhibitory",
+    "I2": "inhibitory",
+    "E3": "excitatory",
+    "E4": "excitatory",
+    "E5": "excitatory"
+   },
+   "essential": {
+    "E1": true,
+    "E2": true,
+    "I2": false,
+    "I1": null,
+    "E3": null
+   },
+   "modal_circuit": [
+    "E1",
+    "E2",
+    "I2"
+   ],
+   "modal_prevalence": 0.64,
+   "other_circuits": [
+    [
+     [
+      "E1",
+      "E2",
+      "I1"
+     ],
+     181
+    ],
+    [
+     [
+      "E1",
+      "E3",
+      "E2",
+      "IN13A010",
+      "IN19A020"
+     ],
+     61
+    ],
+    [
+     [
+      "E1",
+      "E3",
+      "E2",
+      "IN13A010"
+     ],
+     22
+    ]
+   ],
+   "inhibitory_slot": [
+    "I1",
+    "I2"
+   ],
+   "frequency_hz": [
+    8.0,
+    14.0
+   ],
+   "stimulation_statistics_paper": {
+    "mean_score": 0.985,
+    "median_score": 0.994,
+    "fraction_ge_0_5": 1.0,
+    "active_mn_median": 8,
+    "active_mn_range": [
+     6,
+     16
+    ],
+    "n": 1024
+   },
+   "silencing_paper": {
+    "E1": {
+     "mean_score": 0.028
+    },
+    "E2": {
+     "mean_score": 0.003
+    },
+    "I2": {
+     "mean_score": 0.952
+    }
+   },
+   "evidence": {
+    "core": "paper_simulation (IDs verified in male-cns:v1.0, Phase 0)",
+    "roles": "expert_interpretation",
+    "essential": "paper_simulation",
+    "modal_circuit": "paper_simulation",
+    "frequency_hz": "paper_simulation"
+   },
+   "caveat": "the paper's MaleCNS network was extracted from a pre-release neuPrint state (2026-02-10); 30 bodies changed before v1.0 (none of them core neurons: verified in Phase 0)"
+  }
+ },
+ "cross_connectome": {
+  "correspondence_by_label": "the same label (E1, E2, ...) in different networks denotes the neurons the paper matched across connectomes (MaleCNS/BANC by cell-type annotation; FANC by morphology; method not fully stated)",
+  "pairs": [
+   {
+    "label": "E1",
+    "a": [
+     "manc",
+     "v1.2.1",
+     10707
+    ],
+    "b": [
+     "male-cns",
+     "v1.0",
+     800173
+    ],
+    "evidence": "paper_simulation + curated type annotation"
+   },
+   {
+    "label": "E2",
+    "a": [
+     "manc",
+     "v1.2.1",
+     11751
+    ],
+    "b": [
+     "male-cns",
+     "v1.0",
+     800863
+    ],
+    "evidence": "paper_simulation + curated type annotation"
+   },
+   {
+    "label": "I1",
+    "a": [
+     "manc",
+     "v1.2.1",
+     13905
+    ],
+    "b": [
+     "male-cns",
+     "v1.0",
+     801884
+    ],
+    "evidence": "paper_simulation + curated type annotation"
+   },
+   {
+    "label": "I2",
+    "a": [
+     "manc",
+     "v1.2.1",
+     10242
+    ],
+    "b": [
+     "male-cns",
+     "v1.0",
+     800374
+    ],
+    "evidence": "paper_simulation + curated type annotation"
+   },
+   {
+    "label": "E3",
+    "a": [
+     "manc",
+     "v1.2.1",
+     10715
+    ],
+    "b": [
+     "male-cns",
+     "v1.0",
+     800216
+    ],
+    "evidence": "paper_simulation + curated type annotation"
+   }
+  ]
+ },
+ "wet_lab": {
+  "DNg100_activation": "optogenetic activation of DNg100 drives walking / stepping in intact and decapitated flies (~11 Hz stepping in air)",
+  "DNb08_activation": "optogenetic activation drives rhythmic searching-like leg movements in decapitated flies",
+  "interneurons": "NO wet-lab manipulation of E1/E2/I1/I2/E3 exists (as of 2026-09-23); everything about them is model-derived"
+ },
+ "scoring_notes": {
+  "inhibitory_slot": "published minimal circuits vary in their inhibitory member (I1 in MANC, I2 elsewhere; both occur in every dataset); a prediction naming either fills the slot",
+  "essential": "only E1 and E2 are individually essential in the published silencing analysis; I1/I2 are not",
+  "frequency": "MN rhythm 8-14 Hz under the benchmark stimulus (paper: ~11 Hz median at I=250 in MANC)"
+ }
 }

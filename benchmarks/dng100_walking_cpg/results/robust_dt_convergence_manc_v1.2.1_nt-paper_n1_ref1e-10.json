@@ -1,0 +1,1934 @@
+{
+ "experiment": "dt-convergence",
+ "created_utc": "2026-09-23T08:31:19Z",
+ "model_id": "brainir.sim.pugliese_rate_v1",
+ "network": {
+  "dataset": "manc",
+  "version": "v1.2.1",
+  "n": 4604,
+  "floor": 5,
+  "remove_autapses": true,
+  "sign_basis": "nt_body_prediction",
+  "sign_rule": "pugliese2026.sign.predictedNt",
+  "nt_overrides": 4604,
+  "roi_restrict": null,
+  "n_pairs": 196535,
+  "total_synapses": 3817772,
+  "n_positive_rows": 2419,
+  "n_negative_rows": 2172,
+  "n_zero_rows": 13,
+  "size_source": "manc:v1.0 size_voxels by body ID",
+  "readout_n": 144,
+  "readout_description": "motor neurons with sub_class 'fl' (front leg)",
+  "sign_rows": {
+   "positive": 2419,
+   "negative": 2172,
+   "zero": 13
+  },
+  "super_class_counts": {
+   "intrinsic_neuron": 2471,
+   "descending_neuron": 1318,
+   "ascending_neuron": 375,
+   "sensory_neuron": 283,
+   "motor_neuron": 148,
+   "efferent_ascending": 2,
+   "sensory_ascending": 2,
+   "glia": 2,
+   "Interneuron_TBD": 2,
+   "efferent_neuron": 1
+  },
+  "evidence_note": "counts and sign rows are anatomy + NT predictions; nothing here is a model parameter"
+ },
+ "stimulus": {
+  "positions": [
+   31
+  ],
+  "source_ids": [
+   10093
+  ],
+  "cell_type": "DNg100",
+  "current": 250.0
+ },
+ "model_config_base": {
+  "b_exc": 0.03,
+  "b_inh": 0.03,
+  "tau_mean": 0.02,
+  "tau_sd": 0.002,
+  "a_mean": 1.0,
+  "a_sd": 0.1,
+  "theta_mean": 7.5,
+  "theta_sd": 0.6,
+  "r_max_mean": 200.0,
+  "r_max_sd": 10.0,
+  "size_scaling": true,
+  "t_end": 2.0,
+  "dt_out": 0.001,
+  "pulse_start": 0.02,
+  "pulse_end": null,
+  "method": "RK45",
+  "rtol": 2e-06,
+  "atol": 5e-09,
+  "integration": "segments",
+  "dt": null,
+  "max_step": null,
+  "clip_max_rate": 1000.0
+ },
+ "seeds": [
+  0
+ ],
+ "workers": 1,
+ "wall_time_s_total": 864.3,
+ "reference": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+ "reference_error_estimate_hz": 3.6552232055615087e-06,
+ "early_window_s": 0.3,
+ "parts": {
+  "order_study": {
+   "model_config": {
+    "b_exc": 0.03,
+    "b_inh": 0.03,
+    "tau_mean": 0.02,
+    "tau_sd": 0.002,
+    "a_mean": 1.0,
+    "a_sd": 0.1,
+    "theta_mean": 7.5,
+    "theta_sd": 0.6,
+    "r_max_mean": 200.0,
+    "r_max_sd": 10.0,
+    "size_scaling": true,
+    "t_end": 2.0,
+    "dt_out": 0.001,
+    "pulse_start": 0.0,
+    "pulse_end": 2.0,
+    "method": "RK45",
+    "rtol": 2e-06,
+    "atol": 5e-09,
+    "integration": "segments",
+    "dt": null,
+    "max_step": null,
+    "clip_max_rate": 1000.0
+   },
+   "comparison_samples": "all samples",
+   "methods": [
+    {
+     "method": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+     "family": "reference",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.0,
+     "err_max_all_hz_max": 0.0,
+     "err_rms_all_hz_mean": 0.0,
+     "err_rms_all_hz_max": 0.0,
+     "err_max_window_hz_mean": 0.0,
+     "err_max_window_hz_max": 0.0,
+     "err_rms_window_hz_mean": 0.0,
+     "err_rms_window_hz_max": 0.0,
+     "err_max_early_hz_mean": 0.0,
+     "err_max_early_hz_max": 0.0,
+     "err_rms_early_hz_mean": 0.0,
+     "err_rms_early_hz_max": 0.0,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.0,
+     "err_last_sample_hz_max": 0.0,
+     "wall_time_s_mean": 189.85,
+     "wall_time_s_max": 189.85,
+     "n_rhs_evaluations_mean": 208352.0,
+     "n_rhs_evaluations_max": 208352.0,
+     "score_mean": 0.892382,
+     "score_diff_max_abs": 0.0,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK45 rtol 2e-6 atol 5e-9 (default)",
+     "family": "adaptive",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.07310446411123017,
+     "err_max_all_hz_max": 0.07310446411123017,
+     "err_rms_all_hz_mean": 0.0008881185842224094,
+     "err_rms_all_hz_max": 0.0008881185842224094,
+     "err_max_window_hz_mean": 0.07310446411123017,
+     "err_max_window_hz_max": 0.07310446411123017,
+     "err_rms_window_hz_mean": 0.0009492677687880303,
+     "err_rms_window_hz_max": 0.0009492677687880303,
+     "err_max_early_hz_mean": 0.008703041138036438,
+     "err_max_early_hz_max": 0.008703041138036438,
+     "err_rms_early_hz_mean": 5.305319808063249e-05,
+     "err_rms_early_hz_max": 5.305319808063249e-05,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.016761803877961334,
+     "err_last_sample_hz_max": 0.016761803877961334,
+     "wall_time_s_mean": 29.455,
+     "wall_time_s_max": 29.455,
+     "n_rhs_evaluations_mean": 22730.0,
+     "n_rhs_evaluations_max": 22730.0,
+     "score_mean": 0.8909836666666667,
+     "score_diff_max_abs": 0.0013983333333332792,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "DOP853 rtol 2e-6 atol 5e-9",
+     "family": "adaptive",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.02126711493076705,
+     "err_max_all_hz_max": 0.02126711493076705,
+     "err_rms_all_hz_mean": 0.0002565067648882754,
+     "err_rms_all_hz_max": 0.0002565067648882754,
+     "err_max_window_hz_mean": 0.02126711493076705,
+     "err_max_window_hz_max": 0.02126711493076705,
+     "err_rms_window_hz_mean": 0.0002728933492027299,
+     "err_rms_window_hz_max": 0.0002728933492027299,
+     "err_max_early_hz_mean": 0.006391266738670964,
+     "err_max_early_hz_max": 0.006391266738670964,
+     "err_rms_early_hz_mean": 7.80777665422398e-05,
+     "err_rms_early_hz_max": 7.80777665422398e-05,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.0060723607424364445,
+     "err_last_sample_hz_max": 0.0060723607424364445,
+     "wall_time_s_mean": 82.525,
+     "wall_time_s_max": 82.525,
+     "n_rhs_evaluations_mean": 88118.0,
+     "n_rhs_evaluations_max": 88118.0,
+     "score_mean": 0.8917893333333332,
+     "score_diff_max_abs": 0.0005926666666667968,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK4 dt 1e-3",
+     "family": "rk4",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.025236205101028197,
+     "err_max_all_hz_max": 0.025236205101028197,
+     "err_rms_all_hz_mean": 0.00028237951077504864,
+     "err_rms_all_hz_max": 0.00028237951077504864,
+     "err_max_window_hz_mean": 0.025236205101028197,
+     "err_max_window_hz_max": 0.025236205101028197,
+     "err_rms_window_hz_mean": 0.0002983565892936429,
+     "err_rms_window_hz_max": 0.0002983565892936429,
+     "err_max_early_hz_mean": 0.009234088067474389,
+     "err_max_early_hz_max": 0.009234088067474389,
+     "err_rms_early_hz_mean": 0.0001370183676790394,
+     "err_rms_early_hz_max": 0.0001370183676790394,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.007114604416314396,
+     "err_last_sample_hz_max": 0.007114604416314396,
+     "wall_time_s_mean": 3.817,
+     "wall_time_s_max": 3.817,
+     "n_rhs_evaluations_mean": 2000.0,
+     "n_rhs_evaluations_max": 2000.0,
+     "score_mean": 0.892747,
+     "score_diff_max_abs": 0.0003649999999999487,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK4 dt 5e-4",
+     "family": "rk4",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.005111997911424027,
+     "err_max_all_hz_max": 0.005111997911424027,
+     "err_rms_all_hz_mean": 4.3934348751503326e-05,
+     "err_rms_all_hz_max": 4.3934348751503326e-05,
+     "err_max_window_hz_mean": 0.005111997911424027,
+     "err_max_window_hz_max": 0.005111997911424027,
+     "err_rms_window_hz_mean": 4.3816525567934166e-05,
+     "err_rms_window_hz_max": 4.3816525567934166e-05,
+     "err_max_early_hz_mean": 0.004870969454877638,
+     "err_max_early_hz_max": 0.004870969454877638,
+     "err_rms_early_hz_mean": 4.916711214177406e-05,
+     "err_rms_early_hz_max": 4.916711214177406e-05,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.001474149738375452,
+     "err_last_sample_hz_max": 0.001474149738375452,
+     "wall_time_s_mean": 6.751,
+     "wall_time_s_max": 6.751,
+     "n_rhs_evaluations_mean": 4000.0,
+     "n_rhs_evaluations_max": 4000.0,
+     "score_mean": 0.892324,
+     "score_diff_max_abs": 5.8000000000002494e-05,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK4 dt 2.5e-4",
+     "family": "rk4",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.003550671415274209,
+     "err_max_all_hz_max": 0.003550671415274209,
+     "err_rms_all_hz_mean": 4.7504891384797874e-05,
+     "err_rms_all_hz_max": 4.7504891384797874e-05,
+     "err_max_window_hz_mean": 0.003550671415274209,
+     "err_max_window_hz_max": 0.003550671415274209,
+     "err_rms_window_hz_mean": 5.049872175565718e-05,
+     "err_rms_window_hz_max": 5.049872175565718e-05,
+     "err_max_early_hz_mean": 0.001216347429892295,
+     "err_max_early_hz_max": 0.001216347429892295,
+     "err_rms_early_hz_mean": 1.7014754621839707e-05,
+     "err_rms_early_hz_max": 1.7014754621839707e-05,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.0001950351149164753,
+     "err_last_sample_hz_max": 0.0001950351149164753,
+     "wall_time_s_mean": 12.897,
+     "wall_time_s_max": 12.897,
+     "n_rhs_evaluations_mean": 8000.0,
+     "n_rhs_evaluations_max": 8000.0,
+     "score_mean": 0.8923869999999999,
+     "score_diff_max_abs": 4.999999999921734e-06,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK4 dt 1.25e-4",
+     "family": "rk4",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.0008949440513390527,
+     "err_max_all_hz_max": 0.0008949440513390527,
+     "err_rms_all_hz_mean": 9.17241340397632e-06,
+     "err_rms_all_hz_max": 9.17241340397632e-06,
+     "err_max_window_hz_mean": 0.0008949440513390527,
+     "err_max_window_hz_max": 0.0008949440513390527,
+     "err_rms_window_hz_mean": 9.747463302952369e-06,
+     "err_rms_window_hz_max": 9.747463302952369e-06,
+     "err_max_early_hz_mean": 0.00022327484144213372,
+     "err_max_early_hz_max": 0.00022327484144213372,
+     "err_rms_early_hz_mean": 3.2367327059584896e-06,
+     "err_rms_early_hz_max": 3.2367327059584896e-06,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 2.5705765759553856e-05,
+     "err_last_sample_hz_max": 2.5705765759553856e-05,
+     "wall_time_s_mean": 39.757,
+     "wall_time_s_max": 39.757,
+     "n_rhs_evaluations_mean": 16000.0,
+     "n_rhs_evaluations_max": 16000.0,
+     "score_mean": 0.8923573333333333,
+     "score_diff_max_abs": 2.4666666666672832e-05,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "Euler dt 1e-3",
+     "family": "euler",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 14.74713061808349,
+     "err_max_all_hz_max": 14.74713061808349,
+     "err_rms_all_hz_mean": 0.28857530417226096,
+     "err_rms_all_hz_max": 0.28857530417226096,
+     "err_max_window_hz_mean": 14.74713061808349,
+     "err_max_window_hz_max": 14.74713061808349,
+     "err_rms_window_hz_mean": 0.303729315149962,
+     "err_rms_window_hz_max": 0.303729315149962,
+     "err_max_early_hz_mean": 11.23063509054706,
+     "err_max_early_hz_max": 11.23063509054706,
+     "err_rms_early_hz_mean": 0.1840813605377922,
+     "err_rms_early_hz_max": 0.1840813605377922,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 11.958538858465086,
+     "err_last_sample_hz_max": 11.958538858465086,
+     "wall_time_s_mean": 1.751,
+     "wall_time_s_max": 1.751,
+     "n_rhs_evaluations_mean": 2000.0,
+     "n_rhs_evaluations_max": 2000.0,
+     "score_mean": 0.8020262499999999,
+     "score_diff_max_abs": 0.09035575000000007,
+     "frequency_mean_hz": 9.174311900000001,
+     "n_active_readout": [
+      4
+     ],
+     "all_success": true
+    },
+    {
+     "method": "Euler dt 1e-4",
+     "family": "euler",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 10.560543677795195,
+     "err_max_all_hz_max": 10.560543677795195,
+     "err_rms_all_hz_mean": 0.13284655532635084,
+     "err_rms_all_hz_max": 0.13284655532635084,
+     "err_max_window_hz_mean": 10.560543677795195,
+     "err_max_window_hz_max": 10.560543677795195,
+     "err_rms_window_hz_mean": 0.14185874602005874,
+     "err_rms_window_hz_max": 0.14185874602005874,
+     "err_max_early_hz_mean": 1.5445580942306005,
+     "err_max_early_hz_max": 1.5445580942306005,
+     "err_rms_early_hz_mean": 0.02047291405172298,
+     "err_rms_early_hz_max": 0.02047291405172298,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 4.690885064611636,
+     "err_last_sample_hz_max": 4.690885064611636,
+     "wall_time_s_mean": 16.796,
+     "wall_time_s_max": 16.796,
+     "n_rhs_evaluations_mean": 20000.0,
+     "n_rhs_evaluations_max": 20000.0,
+     "score_mean": 0.894355,
+     "score_diff_max_abs": 0.0019730000000000025,
+     "frequency_mean_hz": 9.803921599999999,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK45 rtol 1e-8 atol 1e-11",
+     "family": "adaptive",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.0072051626309121986,
+     "err_max_all_hz_max": 0.0072051626309121986,
+     "err_rms_all_hz_mean": 6.741652945700587e-05,
+     "err_rms_all_hz_max": 6.741652945700587e-05,
+     "err_max_window_hz_mean": 0.0072051626309121986,
+     "err_max_window_hz_max": 0.0072051626309121986,
+     "err_rms_window_hz_mean": 7.205191073054456e-05,
+     "err_rms_window_hz_max": 7.205191073054456e-05,
+     "err_max_early_hz_mean": 0.0003970557376149486,
+     "err_max_early_hz_max": 0.0003970557376149486,
+     "err_rms_early_hz_mean": 5.062558070412444e-06,
+     "err_rms_early_hz_max": 5.062558070412444e-06,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.0017902813509458326,
+     "err_last_sample_hz_max": 0.0017902813509458326,
+     "wall_time_s_mean": 90.821,
+     "wall_time_s_max": 90.821,
+     "n_rhs_evaluations_mean": 97238.0,
+     "n_rhs_evaluations_max": 97238.0,
+     "score_mean": 0.8924076666666666,
+     "score_diff_max_abs": 2.5666666666590565e-05,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    }
+   ],
+   "convergence_orders": {
+    "rk4:err_max_all_hz": {
+     "dts": [
+      0.001,
+      0.0005,
+      0.00025,
+      0.000125
+     ],
+     "per_seed_orders": [
+      [
+       2.3035358291339247,
+       0.5257953895879678,
+       1.9882224590248798
+      ]
+     ],
+     "mean_orders": [
+      2.3035358291339247,
+      0.5257953895879678,
+      1.9882224590248798
+     ],
+     "errors_mean": [
+      0.025236205101028197,
+      0.005111997911424027,
+      0.003550671415274209,
+      0.0008949440513390527
+     ]
+    },
+    "rk4:err_rms_all_hz": {
+     "dts": [
+      0.001,
+      0.0005,
+      0.00025,
+      0.000125
+     ],
+     "per_seed_orders": [
+      [
+       2.684214197817352,
+       -0.11272676080090653,
+       2.3727027852306404
+      ]
+     ],
+     "mean_orders": [
+      2.684214197817352,
+      -0.11272676080090653,
+      2.3727027852306404
+     ],
+     "errors_mean": [
+      0.00028237951077504864,
+      4.3934348751503326e-05,
+      4.7504891384797874e-05,
+      9.17241340397632e-06
+     ]
+    },
+    "rk4:err_max_window_hz": {
+     "dts": [
+      0.001,
+      0.0005,
+      0.00025,
+      0.000125
+     ],
+     "per_seed_orders": [
+      [
+       2.3035358291339247,
+       0.5257953895879678,
+       1.9882224590248798
+      ]
+     ],
+     "mean_orders": [
+      2.3035358291339247,
+      0.5257953895879678,
+      1.9882224590248798
+     ],
+     "errors_mean": [
+      0.025236205101028197,
+      0.005111997911424027,
+      0.003550671415274209,
+      0.0008949440513390527
+     ]
+    },
+    "rk4:err_rms_window_hz": {
+     "dts": [
+      0.001,
+      0.0005,
+      0.00025,
+      0.000125
+     ],
+     "per_seed_orders": [
+      [
+       2.7674906441411524,
+       -0.20477177990026357,
+       2.373148146921006
+      ]
+     ],
+     "mean_orders": [
+      2.7674906441411524,
+      -0.20477177990026357,
+      2.373148146921006
+     ],
+     "errors_mean": [
+      0.0002983565892936429,
+      4.3816525567934166e-05,
+      5.049872175565718e-05,
+      9.747463302952369e-06
+     ]
+    },
+    "rk4:err_max_early_hz": {
+     "dts": [
+      0.001,
+      0.0005,
+      0.00025,
+      0.000125
+     ],
+     "per_seed_orders": [
+      [
+       0.9227605554628191,
+       2.0016535662245016,
+       2.445662767171826
+      ]
+     ],
+     "mean_orders": [
+      0.9227605554628191,
+      2.0016535662245016,
+      2.445662767171826
+     ],
+     "errors_mean": [
+      0.009234088067474389,
+      0.004870969454877638,
+      0.001216347429892295,
+      0.00022327484144213372
+     ]
+    },
+    "rk4:err_rms_early_hz": {
+     "dts": [
+      0.001,
+      0.0005,
+      0.00025,
+      0.000125
+     ],
+     "per_seed_orders": [
+      [
+       1.478603778034654,
+       1.5309072744983798,
+       2.394176209889237
+      ]
+     ],
+     "mean_orders": [
+      1.478603778034654,
+      1.5309072744983798,
+      2.394176209889237
+     ],
+     "errors_mean": [
+      0.0001370183676790394,
+      4.916711214177406e-05,
+      1.7014754621839707e-05,
+      3.2367327059584896e-06
+     ]
+    },
+    "euler:err_max_all_hz": {
+     "dts": [
+      0.001,
+      0.0001
+     ],
+     "per_seed_orders": [
+      [
+       0.14502124977610267
+      ]
+     ],
+     "mean_orders": [
+      0.14502124977610267
+     ],
+     "errors_mean": [
+      14.74713061808349,
+      10.560543677795195
+     ]
+    },
+    "euler:err_rms_all_hz": {
+     "dts": [
+      0.001,
+      0.0001
+     ],
+     "per_seed_orders": [
+      [
+       0.3369088643392733
+      ]
+     ],
+     "mean_orders": [
+      0.3369088643392733
+     ],
+     "errors_mean": [
+      0.28857530417226096,
+      0.13284655532635084
+     ]
+    },
+    "euler:err_max_window_hz": {
+     "dts": [
+      0.001,
+      0.0001
+     ],
+     "per_seed_orders": [
+      [
+       0.14502124977610267
+      ]
+     ],
+     "mean_orders": [
+      0.14502124977610267
+     ],
+     "errors_mean": [
+      14.74713061808349,
+      10.560543677795195
+     ]
+    },
+    "euler:err_rms_window_hz": {
+     "dts": [
+      0.001,
+      0.0001
+     ],
+     "per_seed_orders": [
+      [
+       0.33063059437215253
+      ]
+     ],
+     "mean_orders": [
+      0.33063059437215253
+     ],
+     "errors_mean": [
+      0.303729315149962,
+      0.14185874602005874
+     ]
+    },
+    "euler:err_max_early_hz": {
+     "dts": [
+      0.001,
+      0.0001
+     ],
+     "per_seed_orders": [
+      [
+       0.8616000685203098
+      ]
+     ],
+     "mean_orders": [
+      0.8616000685203098
+     ],
+     "errors_mean": [
+      11.23063509054706,
+      1.5445580942306005
+     ]
+    },
+    "euler:err_rms_early_hz": {
+     "dts": [
+      0.001,
+      0.0001
+     ],
+     "per_seed_orders": [
+      [
+       0.953830152319854
+      ]
+     ],
+     "mean_orders": [
+      0.953830152319854
+     ],
+     "errors_mean": [
+      0.1840813605377922,
+      0.02047291405172298
+     ]
+    }
+   },
+   "rows": [
+    {
+     "seed": 0,
+     "method": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+     "family": "reference",
+     "wall_time_s": 189.85,
+     "n_rhs_evaluations": 208352,
+     "success": true,
+     "score": 0.892382,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.71978158000403,
+     "err_max_all_hz": 0.0,
+     "err_rms_all_hz": 0.0,
+     "err_max_window_hz": 0.0,
+     "err_rms_window_hz": 0.0,
+     "err_max_early_hz": 0.0,
+     "err_rms_early_hz": 0.0,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.0,
+     "score_diff": 0.0
+    },
+    {
+     "seed": 0,
+     "method": "RK45 rtol 2e-6 atol 5e-9 (default)",
+     "family": "adaptive",
+     "wall_time_s": 29.455,
+     "n_rhs_evaluations": 22730,
+     "success": true,
+     "score": 0.8909836666666667,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.718584627461862,
+     "err_max_all_hz": 0.07310446411123017,
+     "err_rms_all_hz": 0.0008881185842224094,
+     "err_max_window_hz": 0.07310446411123017,
+     "err_rms_window_hz": 0.0009492677687880303,
+     "err_max_early_hz": 0.008703041138036438,
+     "err_rms_early_hz": 5.305319808063249e-05,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.016761803877961334,
+     "score_diff": -0.0013983333333332792
+    },
+    {
+     "seed": 0,
+     "method": "DOP853 rtol 2e-6 atol 5e-9",
+     "family": "adaptive",
+     "wall_time_s": 82.525,
+     "n_rhs_evaluations": 88118,
+     "success": true,
+     "score": 0.8917893333333332,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719724666055242,
+     "err_max_all_hz": 0.02126711493076705,
+     "err_rms_all_hz": 0.0002565067648882754,
+     "err_max_window_hz": 0.02126711493076705,
+     "err_rms_window_hz": 0.0002728933492027299,
+     "err_max_early_hz": 0.006391266738670964,
+     "err_rms_early_hz": 7.80777665422398e-05,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.0060723607424364445,
+     "score_diff": -0.0005926666666667968
+    },
+    {
+     "seed": 0,
+     "method": "RK4 dt 1e-3",
+     "family": "rk4",
+     "wall_time_s": 3.817,
+     "n_rhs_evaluations": 2000,
+     "success": true,
+     "score": 0.892747,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.721482002978586,
+     "err_max_all_hz": 0.025236205101028197,
+     "err_rms_all_hz": 0.00028237951077504864,
+     "err_max_window_hz": 0.025236205101028197,
+     "err_rms_window_hz": 0.0002983565892936429,
+     "err_max_early_hz": 0.009234088067474389,
+     "err_rms_early_hz": 0.0001370183676790394,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.007114604416314396,
+     "score_diff": 0.0003649999999999487
+    },
+    {
+     "seed": 0,
+     "method": "RK4 dt 5e-4",
+     "family": "rk4",
+     "wall_time_s": 6.751,
+     "n_rhs_evaluations": 4000,
+     "success": true,
+     "score": 0.892324,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.718823620197238,
+     "err_max_all_hz": 0.005111997911424027,
+     "err_rms_all_hz": 4.3934348751503326e-05,
+     "err_max_window_hz": 0.005111997911424027,
+     "err_rms_window_hz": 4.3816525567934166e-05,
+     "err_max_early_hz": 0.004870969454877638,
+     "err_rms_early_hz": 4.916711214177406e-05,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.001474149738375452,
+     "score_diff": -5.8000000000002494e-05
+    },
+    {
+     "seed": 0,
+     "method": "RK4 dt 2.5e-4",
+     "family": "rk4",
+     "wall_time_s": 12.897,
+     "n_rhs_evaluations": 8000,
+     "success": true,
+     "score": 0.8923869999999999,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719958958926096,
+     "err_max_all_hz": 0.003550671415274209,
+     "err_rms_all_hz": 4.7504891384797874e-05,
+     "err_max_window_hz": 0.003550671415274209,
+     "err_rms_window_hz": 5.049872175565718e-05,
+     "err_max_early_hz": 0.001216347429892295,
+     "err_rms_early_hz": 1.7014754621839707e-05,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.0001950351149164753,
+     "score_diff": 4.999999999921734e-06
+    },
+    {
+     "seed": 0,
+     "method": "RK4 dt 1.25e-4",
+     "family": "rk4",
+     "wall_time_s": 39.757,
+     "n_rhs_evaluations": 16000,
+     "success": true,
+     "score": 0.8923573333333333,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719794924044034,
+     "err_max_all_hz": 0.0008949440513390527,
+     "err_rms_all_hz": 9.17241340397632e-06,
+     "err_max_window_hz": 0.0008949440513390527,
+     "err_rms_window_hz": 9.747463302952369e-06,
+     "err_max_early_hz": 0.00022327484144213372,
+     "err_rms_early_hz": 3.2367327059584896e-06,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 2.5705765759553856e-05,
+     "score_diff": -2.4666666666672832e-05
+    },
+    {
+     "seed": 0,
+     "method": "Euler dt 1e-3",
+     "family": "euler",
+     "wall_time_s": 1.751,
+     "n_rhs_evaluations": 2000,
+     "success": true,
+     "score": 0.8020262499999999,
+     "mean_frequency_hz": 9.174311900000001,
+     "n_active_readout": 4,
+     "n_active_all": 109,
+     "max_rate_hz": 18.147897654142014,
+     "err_max_all_hz": 14.74713061808349,
+     "err_rms_all_hz": 0.28857530417226096,
+     "err_max_window_hz": 14.74713061808349,
+     "err_rms_window_hz": 0.303729315149962,
+     "err_max_early_hz": 11.23063509054706,
+     "err_rms_early_hz": 0.1840813605377922,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 11.958538858465086,
+     "score_diff": -0.09035575000000007
+    },
+    {
+     "seed": 0,
+     "method": "Euler dt 1e-4",
+     "family": "euler",
+     "wall_time_s": 16.796,
+     "n_rhs_evaluations": 20000,
+     "success": true,
+     "score": 0.894355,
+     "mean_frequency_hz": 9.803921599999999,
+     "n_active_readout": 3,
+     "n_active_all": 105,
+     "max_rate_hz": 16.850109326541443,
+     "err_max_all_hz": 10.560543677795195,
+     "err_rms_all_hz": 0.13284655532635084,
+     "err_max_window_hz": 10.560543677795195,
+     "err_rms_window_hz": 0.14185874602005874,
+     "err_max_early_hz": 1.5445580942306005,
+     "err_rms_early_hz": 0.02047291405172298,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 4.690885064611636,
+     "score_diff": 0.0019730000000000025
+    },
+    {
+     "seed": 0,
+     "method": "RK45 rtol 1e-8 atol 1e-11",
+     "family": "adaptive",
+     "wall_time_s": 90.821,
+     "n_rhs_evaluations": 97238,
+     "success": true,
+     "score": 0.8924076666666666,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719860476972507,
+     "err_max_all_hz": 0.0072051626309121986,
+     "err_rms_all_hz": 6.741652945700587e-05,
+     "err_max_window_hz": 0.0072051626309121986,
+     "err_rms_window_hz": 7.205191073054456e-05,
+     "err_max_early_hz": 0.0003970557376149486,
+     "err_rms_early_hz": 5.062558070412444e-06,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.0017902813509458326,
+     "score_diff": 2.5666666666590565e-05
+    }
+   ]
+  },
+  "protocol_edges": {
+   "model_config": {
+    "b_exc": 0.03,
+    "b_inh": 0.03,
+    "tau_mean": 0.02,
+    "tau_sd": 0.002,
+    "a_mean": 1.0,
+    "a_sd": 0.1,
+    "theta_mean": 7.5,
+    "theta_sd": 0.6,
+    "r_max_mean": 200.0,
+    "r_max_sd": 10.0,
+    "size_scaling": true,
+    "t_end": 2.0,
+    "dt_out": 0.001,
+    "pulse_start": 0.02,
+    "pulse_end": null,
+    "method": "RK45",
+    "rtol": 2e-06,
+    "atol": 5e-09,
+    "integration": "segments",
+    "dt": null,
+    "max_step": null,
+    "clip_max_rate": 1000.0
+   },
+   "comparison_samples": "t <= pulse_end (final sample reported separately)",
+   "methods": [
+    {
+     "method": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+     "family": "reference",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.0,
+     "err_max_all_hz_max": 0.0,
+     "err_rms_all_hz_mean": 0.0,
+     "err_rms_all_hz_max": 0.0,
+     "err_max_window_hz_mean": 0.0,
+     "err_max_window_hz_max": 0.0,
+     "err_rms_window_hz_mean": 0.0,
+     "err_rms_window_hz_max": 0.0,
+     "err_max_early_hz_mean": 0.0,
+     "err_max_early_hz_max": 0.0,
+     "err_rms_early_hz_mean": 0.0,
+     "err_rms_early_hz_max": 0.0,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.0,
+     "err_last_sample_hz_max": 0.0,
+     "wall_time_s_mean": 190.777,
+     "wall_time_s_max": 190.777,
+     "n_rhs_evaluations_mean": 206706.0,
+     "n_rhs_evaluations_max": 206706.0,
+     "score_mean": 0.896391,
+     "score_diff_max_abs": 0.0,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK45 default, segments",
+     "family": "adaptive",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.10650153405900298,
+     "err_max_all_hz_max": 0.10650153405900298,
+     "err_rms_all_hz_mean": 0.0011038060556911114,
+     "err_rms_all_hz_max": 0.0011038060556911114,
+     "err_max_window_hz_mean": 0.10650153405900298,
+     "err_max_window_hz_max": 0.10650153405900298,
+     "err_rms_window_hz_mean": 0.0011798898051970691,
+     "err_rms_window_hz_max": 0.0011798898051970691,
+     "err_max_early_hz_mean": 0.007924964213241736,
+     "err_max_early_hz_max": 0.007924964213241736,
+     "err_rms_early_hz_mean": 5.517941336043328e-05,
+     "err_rms_early_hz_max": 5.517941336043328e-05,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.060035028052043415,
+     "err_last_sample_hz_max": 0.060035028052043415,
+     "wall_time_s_mean": 25.729,
+     "wall_time_s_max": 25.729,
+     "n_rhs_evaluations_mean": 22512.0,
+     "n_rhs_evaluations_max": 22512.0,
+     "score_mean": 0.8946943333333334,
+     "score_diff_max_abs": 0.0016966666666666796,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK45 default, single interval",
+     "family": "adaptive",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.031161656872390253,
+     "err_max_all_hz_max": 0.031161656872390253,
+     "err_rms_all_hz_mean": 0.0002796529650591872,
+     "err_rms_all_hz_max": 0.0002796529650591872,
+     "err_max_window_hz_mean": 0.031161656872390253,
+     "err_max_window_hz_max": 0.031161656872390253,
+     "err_rms_window_hz_mean": 0.0002972123605050798,
+     "err_rms_window_hz_max": 0.0002972123605050798,
+     "err_max_early_hz_mean": 0.01416567688074899,
+     "err_max_early_hz_max": 0.01416567688074899,
+     "err_rms_early_hz_mean": 0.00016783698127917511,
+     "err_rms_early_hz_max": 0.00016783698127917511,
+     "err_onset_sample_hz_mean": 3.3501042269068105e-05,
+     "err_onset_sample_hz_max": 3.3501042269068105e-05,
+     "err_last_sample_hz_mean": 0.02293671172153111,
+     "err_last_sample_hz_max": 0.02293671172153111,
+     "wall_time_s_mean": 25.888,
+     "wall_time_s_max": 25.888,
+     "n_rhs_evaluations_mean": 22855.0,
+     "n_rhs_evaluations_max": 22855.0,
+     "score_mean": 0.8946383333333333,
+     "score_diff_max_abs": 0.0017526666666667357,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK4 dt 1e-3",
+     "family": "rk4",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.14049507692989316,
+     "err_max_all_hz_max": 0.14049507692989316,
+     "err_rms_all_hz_mean": 0.0020494662343781425,
+     "err_rms_all_hz_max": 0.0020494662343781425,
+     "err_max_window_hz_mean": 0.13059784833277632,
+     "err_max_window_hz_max": 0.13059784833277632,
+     "err_rms_window_hz_mean": 0.002015781841878763,
+     "err_rms_window_hz_max": 0.002015781841878763,
+     "err_max_early_hz_mean": 0.14049507692989316,
+     "err_max_early_hz_max": 0.14049507692989316,
+     "err_rms_early_hz_mean": 0.0023405755451851415,
+     "err_rms_early_hz_max": 0.0023405755451851415,
+     "err_onset_sample_hz_mean": 0.13419780451600768,
+     "err_onset_sample_hz_max": 0.13419780451600768,
+     "err_last_sample_hz_mean": 0.12746621706904904,
+     "err_last_sample_hz_max": 0.12746621706904904,
+     "wall_time_s_mean": 7.472,
+     "wall_time_s_max": 7.472,
+     "n_rhs_evaluations_mean": 2000.0,
+     "n_rhs_evaluations_max": 2000.0,
+     "score_mean": 0.896921,
+     "score_diff_max_abs": 0.0005299999999999194,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK4 dt 5e-4",
+     "family": "rk4",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.08335354451257615,
+     "err_max_all_hz_max": 0.08335354451257615,
+     "err_rms_all_hz_mean": 0.0014209939308166355,
+     "err_rms_all_hz_max": 0.0014209939308166355,
+     "err_max_window_hz_mean": 0.08335354451257615,
+     "err_max_window_hz_max": 0.08335354451257615,
+     "err_rms_window_hz_mean": 0.0014451901966397,
+     "err_rms_window_hz_max": 0.0014451901966397,
+     "err_max_early_hz_mean": 0.07986194965047844,
+     "err_max_early_hz_max": 0.07986194965047844,
+     "err_rms_early_hz_mean": 0.0013765849953272984,
+     "err_rms_early_hz_max": 0.0013765849953272984,
+     "err_onset_sample_hz_mean": 0.06709890225800384,
+     "err_onset_sample_hz_max": 0.06709890225800384,
+     "err_last_sample_hz_mean": 0.06373377511126854,
+     "err_last_sample_hz_max": 0.06373377511126854,
+     "wall_time_s_mean": 14.636,
+     "wall_time_s_max": 14.636,
+     "n_rhs_evaluations_mean": 4000.0,
+     "n_rhs_evaluations_max": 4000.0,
+     "score_mean": 0.8955296666666666,
+     "score_diff_max_abs": 0.0008613333333334916,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    },
+    {
+     "method": "RK45 rtol 1e-8 atol 1e-11",
+     "family": "adaptive",
+     "n_seeds": 1,
+     "err_max_all_hz_mean": 0.0034500092979037333,
+     "err_max_all_hz_max": 0.0034500092979037333,
+     "err_rms_all_hz_mean": 2.6683490876481744e-05,
+     "err_rms_all_hz_max": 2.6683490876481744e-05,
+     "err_max_window_hz_mean": 0.0034500092979037333,
+     "err_max_window_hz_max": 0.0034500092979037333,
+     "err_rms_window_hz_mean": 2.8498064299478723e-05,
+     "err_rms_window_hz_max": 2.8498064299478723e-05,
+     "err_max_early_hz_mean": 0.0006055225913783602,
+     "err_max_early_hz_max": 0.0006055225913783602,
+     "err_rms_early_hz_mean": 6.530037525380166e-06,
+     "err_rms_early_hz_max": 6.530037525380166e-06,
+     "err_onset_sample_hz_mean": 0.0,
+     "err_onset_sample_hz_max": 0.0,
+     "err_last_sample_hz_mean": 0.001986277122330904,
+     "err_last_sample_hz_max": 0.001986277122330904,
+     "wall_time_s_mean": 114.246,
+     "wall_time_s_max": 114.246,
+     "n_rhs_evaluations_mean": 97062.0,
+     "n_rhs_evaluations_max": 97062.0,
+     "score_mean": 0.8963190000000001,
+     "score_diff_max_abs": 7.199999999996098e-05,
+     "frequency_mean_hz": 9.9009901,
+     "n_active_readout": [
+      3
+     ],
+     "all_success": true
+    }
+   ],
+   "convergence_orders": {
+    "rk4:err_max_all_hz": {
+     "dts": [
+      0.001,
+      0.0005
+     ],
+     "per_seed_orders": [
+      [
+       0.753204123480468
+      ]
+     ],
+     "mean_orders": [
+      0.753204123480468
+     ],
+     "errors_mean": [
+      0.14049507692989316,
+      0.08335354451257615
+     ]
+    },
+    "rk4:err_rms_all_hz": {
+     "dts": [
+      0.001,
+      0.0005
+     ],
+     "per_seed_orders": [
+      [
+       0.5283478285758777
+      ]
+     ],
+     "mean_orders": [
+      0.5283478285758777
+     ],
+     "errors_mean": [
+      0.0020494662343781425,
+      0.0014209939308166355
+     ]
+    },
+    "rk4:err_max_window_hz": {
+     "dts": [
+      0.001,
+      0.0005
+     ],
+     "per_seed_orders": [
+      [
+       0.6478156733736365
+      ]
+     ],
+     "mean_orders": [
+      0.6478156733736365
+     ],
+     "errors_mean": [
+      0.13059784833277632,
+      0.08335354451257615
+     ]
+    },
+    "rk4:err_rms_window_hz": {
+     "dts": [
+      0.001,
+      0.0005
+     ],
+     "per_seed_orders": [
+      [
+       0.4800801380396536
+      ]
+     ],
+     "mean_orders": [
+      0.4800801380396536
+     ],
+     "errors_mean": [
+      0.002015781841878763,
+      0.0014451901966397
+     ]
+    },
+    "rk4:err_max_early_hz": {
+     "dts": [
+      0.001,
+      0.0005
+     ],
+     "per_seed_orders": [
+      [
+       0.8149393803596849
+      ]
+     ],
+     "mean_orders": [
+      0.8149393803596849
+     ],
+     "errors_mean": [
+      0.14049507692989316,
+      0.07986194965047844
+     ]
+    },
+    "rk4:err_rms_early_hz": {
+     "dts": [
+      0.001,
+      0.0005
+     ],
+     "per_seed_orders": [
+      [
+       0.7657696408166591
+      ]
+     ],
+     "mean_orders": [
+      0.7657696408166591
+     ],
+     "errors_mean": [
+      0.0023405755451851415,
+      0.0013765849953272984
+     ]
+    }
+   },
+   "rows": [
+    {
+     "seed": 0,
+     "method": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+     "family": "reference",
+     "wall_time_s": 190.777,
+     "n_rhs_evaluations": 206706,
+     "success": true,
+     "score": 0.896391,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719781094152484,
+     "err_max_all_hz": 0.0,
+     "err_rms_all_hz": 0.0,
+     "err_max_window_hz": 0.0,
+     "err_rms_window_hz": 0.0,
+     "err_max_early_hz": 0.0,
+     "err_rms_early_hz": 0.0,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.0,
+     "score_diff": 0.0
+    },
+    {
+     "seed": 0,
+     "method": "RK45 default, segments",
+     "family": "adaptive",
+     "wall_time_s": 25.729,
+     "n_rhs_evaluations": 22512,
+     "success": true,
+     "score": 0.8946943333333334,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719733678556103,
+     "err_max_all_hz": 0.10650153405900298,
+     "err_rms_all_hz": 0.0011038060556911114,
+     "err_max_window_hz": 0.10650153405900298,
+     "err_rms_window_hz": 0.0011798898051970691,
+     "err_max_early_hz": 0.007924964213241736,
+     "err_rms_early_hz": 5.517941336043328e-05,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.060035028052043415,
+     "score_diff": -0.0016966666666666796
+    },
+    {
+     "seed": 0,
+     "method": "RK45 default, single interval",
+     "family": "adaptive",
+     "wall_time_s": 25.888,
+     "n_rhs_evaluations": 22855,
+     "success": true,
+     "score": 0.8946383333333333,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.720228606092384,
+     "err_max_all_hz": 0.031161656872390253,
+     "err_rms_all_hz": 0.0002796529650591872,
+     "err_max_window_hz": 0.031161656872390253,
+     "err_rms_window_hz": 0.0002972123605050798,
+     "err_max_early_hz": 0.01416567688074899,
+     "err_rms_early_hz": 0.00016783698127917511,
+     "err_onset_sample_hz": 3.3501042269068105e-05,
+     "err_last_sample_hz": 0.02293671172153111,
+     "score_diff": -0.0017526666666667357
+    },
+    {
+     "seed": 0,
+     "method": "RK4 dt 1e-3",
+     "family": "rk4",
+     "wall_time_s": 7.472,
+     "n_rhs_evaluations": 2000,
+     "success": true,
+     "score": 0.896921,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.720740102375846,
+     "err_max_all_hz": 0.14049507692989316,
+     "err_rms_all_hz": 0.0020494662343781425,
+     "err_max_window_hz": 0.13059784833277632,
+     "err_rms_window_hz": 0.002015781841878763,
+     "err_max_early_hz": 0.14049507692989316,
+     "err_rms_early_hz": 0.0023405755451851415,
+     "err_onset_sample_hz": 0.13419780451600768,
+     "err_last_sample_hz": 0.12746621706904904,
+     "score_diff": 0.0005299999999999194
+    },
+    {
+     "seed": 0,
+     "method": "RK4 dt 5e-4",
+     "family": "rk4",
+     "wall_time_s": 14.636,
+     "n_rhs_evaluations": 4000,
+     "success": true,
+     "score": 0.8955296666666666,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.719618955222057,
+     "err_max_all_hz": 0.08335354451257615,
+     "err_rms_all_hz": 0.0014209939308166355,
+     "err_max_window_hz": 0.08335354451257615,
+     "err_rms_window_hz": 0.0014451901966397,
+     "err_max_early_hz": 0.07986194965047844,
+     "err_rms_early_hz": 0.0013765849953272984,
+     "err_onset_sample_hz": 0.06709890225800384,
+     "err_last_sample_hz": 0.06373377511126854,
+     "score_diff": -0.0008613333333334916
+    },
+    {
+     "seed": 0,
+     "method": "RK45 rtol 1e-8 atol 1e-11",
+     "family": "adaptive",
+     "wall_time_s": 114.246,
+     "n_rhs_evaluations": 97062,
+     "success": true,
+     "score": 0.8963190000000001,
+     "mean_frequency_hz": 9.9009901,
+     "n_active_readout": 3,
+     "n_active_all": 104,
+     "max_rate_hz": 16.71973002978294,
+     "err_max_all_hz": 0.0034500092979037333,
+     "err_rms_all_hz": 2.6683490876481744e-05,
+     "err_max_window_hz": 0.0034500092979037333,
+     "err_rms_window_hz": 2.8498064299478723e-05,
+     "err_max_early_hz": 0.0006055225913783602,
+     "err_rms_early_hz": 6.530037525380166e-06,
+     "err_onset_sample_hz": 0.0,
+     "err_last_sample_hz": 0.001986277122330904,
+     "score_diff": -7.199999999996098e-05
+    }
+   ]
+  }
+ },
+ "conditions": [
+  {
+   "label": "order_study: RK45 rtol 1e-10 atol 1e-13 (reference)",
+   "part": "order_study",
+   "method": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+   "family": "reference",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.0,
+   "err_max_all_hz_max": 0.0,
+   "err_rms_all_hz_mean": 0.0,
+   "err_rms_all_hz_max": 0.0,
+   "err_max_window_hz_mean": 0.0,
+   "err_max_window_hz_max": 0.0,
+   "err_rms_window_hz_mean": 0.0,
+   "err_rms_window_hz_max": 0.0,
+   "err_max_early_hz_mean": 0.0,
+   "err_max_early_hz_max": 0.0,
+   "err_rms_early_hz_mean": 0.0,
+   "err_rms_early_hz_max": 0.0,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.0,
+   "err_last_sample_hz_max": 0.0,
+   "wall_time_s_mean": 189.85,
+   "wall_time_s_max": 189.85,
+   "n_rhs_evaluations_mean": 208352.0,
+   "n_rhs_evaluations_max": 208352.0,
+   "score_mean": 0.892382,
+   "score_diff_max_abs": 0.0,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: RK45 rtol 2e-6 atol 5e-9 (default)",
+   "part": "order_study",
+   "method": "RK45 rtol 2e-6 atol 5e-9 (default)",
+   "family": "adaptive",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.07310446411123017,
+   "err_max_all_hz_max": 0.07310446411123017,
+   "err_rms_all_hz_mean": 0.0008881185842224094,
+   "err_rms_all_hz_max": 0.0008881185842224094,
+   "err_max_window_hz_mean": 0.07310446411123017,
+   "err_max_window_hz_max": 0.07310446411123017,
+   "err_rms_window_hz_mean": 0.0009492677687880303,
+   "err_rms_window_hz_max": 0.0009492677687880303,
+   "err_max_early_hz_mean": 0.008703041138036438,
+   "err_max_early_hz_max": 0.008703041138036438,
+   "err_rms_early_hz_mean": 5.305319808063249e-05,
+   "err_rms_early_hz_max": 5.305319808063249e-05,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.016761803877961334,
+   "err_last_sample_hz_max": 0.016761803877961334,
+   "wall_time_s_mean": 29.455,
+   "wall_time_s_max": 29.455,
+   "n_rhs_evaluations_mean": 22730.0,
+   "n_rhs_evaluations_max": 22730.0,
+   "score_mean": 0.8909836666666667,
+   "score_diff_max_abs": 0.0013983333333332792,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: DOP853 rtol 2e-6 atol 5e-9",
+   "part": "order_study",
+   "method": "DOP853 rtol 2e-6 atol 5e-9",
+   "family": "adaptive",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.02126711493076705,
+   "err_max_all_hz_max": 0.02126711493076705,
+   "err_rms_all_hz_mean": 0.0002565067648882754,
+   "err_rms_all_hz_max": 0.0002565067648882754,
+   "err_max_window_hz_mean": 0.02126711493076705,
+   "err_max_window_hz_max": 0.02126711493076705,
+   "err_rms_window_hz_mean": 0.0002728933492027299,
+   "err_rms_window_hz_max": 0.0002728933492027299,
+   "err_max_early_hz_mean": 0.006391266738670964,
+   "err_max_early_hz_max": 0.006391266738670964,
+   "err_rms_early_hz_mean": 7.80777665422398e-05,
+   "err_rms_early_hz_max": 7.80777665422398e-05,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.0060723607424364445,
+   "err_last_sample_hz_max": 0.0060723607424364445,
+   "wall_time_s_mean": 82.525,
+   "wall_time_s_max": 82.525,
+   "n_rhs_evaluations_mean": 88118.0,
+   "n_rhs_evaluations_max": 88118.0,
+   "score_mean": 0.8917893333333332,
+   "score_diff_max_abs": 0.0005926666666667968,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: RK4 dt 1e-3",
+   "part": "order_study",
+   "method": "RK4 dt 1e-3",
+   "family": "rk4",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.025236205101028197,
+   "err_max_all_hz_max": 0.025236205101028197,
+   "err_rms_all_hz_mean": 0.00028237951077504864,
+   "err_rms_all_hz_max": 0.00028237951077504864,
+   "err_max_window_hz_mean": 0.025236205101028197,
+   "err_max_window_hz_max": 0.025236205101028197,
+   "err_rms_window_hz_mean": 0.0002983565892936429,
+   "err_rms_window_hz_max": 0.0002983565892936429,
+   "err_max_early_hz_mean": 0.009234088067474389,
+   "err_max_early_hz_max": 0.009234088067474389,
+   "err_rms_early_hz_mean": 0.0001370183676790394,
+   "err_rms_early_hz_max": 0.0001370183676790394,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.007114604416314396,
+   "err_last_sample_hz_max": 0.007114604416314396,
+   "wall_time_s_mean": 3.817,
+   "wall_time_s_max": 3.817,
+   "n_rhs_evaluations_mean": 2000.0,
+   "n_rhs_evaluations_max": 2000.0,
+   "score_mean": 0.892747,
+   "score_diff_max_abs": 0.0003649999999999487,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: RK4 dt 5e-4",
+   "part": "order_study",
+   "method": "RK4 dt 5e-4",
+   "family": "rk4",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.005111997911424027,
+   "err_max_all_hz_max": 0.005111997911424027,
+   "err_rms_all_hz_mean": 4.3934348751503326e-05,
+   "err_rms_all_hz_max": 4.3934348751503326e-05,
+   "err_max_window_hz_mean": 0.005111997911424027,
+   "err_max_window_hz_max": 0.005111997911424027,
+   "err_rms_window_hz_mean": 4.3816525567934166e-05,
+   "err_rms_window_hz_max": 4.3816525567934166e-05,
+   "err_max_early_hz_mean": 0.004870969454877638,
+   "err_max_early_hz_max": 0.004870969454877638,
+   "err_rms_early_hz_mean": 4.916711214177406e-05,
+   "err_rms_early_hz_max": 4.916711214177406e-05,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.001474149738375452,
+   "err_last_sample_hz_max": 0.001474149738375452,
+   "wall_time_s_mean": 6.751,
+   "wall_time_s_max": 6.751,
+   "n_rhs_evaluations_mean": 4000.0,
+   "n_rhs_evaluations_max": 4000.0,
+   "score_mean": 0.892324,
+   "score_diff_max_abs": 5.8000000000002494e-05,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: RK4 dt 2.5e-4",
+   "part": "order_study",
+   "method": "RK4 dt 2.5e-4",
+   "family": "rk4",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.003550671415274209,
+   "err_max_all_hz_max": 0.003550671415274209,
+   "err_rms_all_hz_mean": 4.7504891384797874e-05,
+   "err_rms_all_hz_max": 4.7504891384797874e-05,
+   "err_max_window_hz_mean": 0.003550671415274209,
+   "err_max_window_hz_max": 0.003550671415274209,
+   "err_rms_window_hz_mean": 5.049872175565718e-05,
+   "err_rms_window_hz_max": 5.049872175565718e-05,
+   "err_max_early_hz_mean": 0.001216347429892295,
+   "err_max_early_hz_max": 0.001216347429892295,
+   "err_rms_early_hz_mean": 1.7014754621839707e-05,
+   "err_rms_early_hz_max": 1.7014754621839707e-05,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.0001950351149164753,
+   "err_last_sample_hz_max": 0.0001950351149164753,
+   "wall_time_s_mean": 12.897,
+   "wall_time_s_max": 12.897,
+   "n_rhs_evaluations_mean": 8000.0,
+   "n_rhs_evaluations_max": 8000.0,
+   "score_mean": 0.8923869999999999,
+   "score_diff_max_abs": 4.999999999921734e-06,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: RK4 dt 1.25e-4",
+   "part": "order_study",
+   "method": "RK4 dt 1.25e-4",
+   "family": "rk4",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.0008949440513390527,
+   "err_max_all_hz_max": 0.0008949440513390527,
+   "err_rms_all_hz_mean": 9.17241340397632e-06,
+   "err_rms_all_hz_max": 9.17241340397632e-06,
+   "err_max_window_hz_mean": 0.0008949440513390527,
+   "err_max_window_hz_max": 0.0008949440513390527,
+   "err_rms_window_hz_mean": 9.747463302952369e-06,
+   "err_rms_window_hz_max": 9.747463302952369e-06,
+   "err_max_early_hz_mean": 0.00022327484144213372,
+   "err_max_early_hz_max": 0.00022327484144213372,
+   "err_rms_early_hz_mean": 3.2367327059584896e-06,
+   "err_rms_early_hz_max": 3.2367327059584896e-06,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 2.5705765759553856e-05,
+   "err_last_sample_hz_max": 2.5705765759553856e-05,
+   "wall_time_s_mean": 39.757,
+   "wall_time_s_max": 39.757,
+   "n_rhs_evaluations_mean": 16000.0,
+   "n_rhs_evaluations_max": 16000.0,
+   "score_mean": 0.8923573333333333,
+   "score_diff_max_abs": 2.4666666666672832e-05,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: Euler dt 1e-3",
+   "part": "order_study",
+   "method": "Euler dt 1e-3",
+   "family": "euler",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 14.74713061808349,
+   "err_max_all_hz_max": 14.74713061808349,
+   "err_rms_all_hz_mean": 0.28857530417226096,
+   "err_rms_all_hz_max": 0.28857530417226096,
+   "err_max_window_hz_mean": 14.74713061808349,
+   "err_max_window_hz_max": 14.74713061808349,
+   "err_rms_window_hz_mean": 0.303729315149962,
+   "err_rms_window_hz_max": 0.303729315149962,
+   "err_max_early_hz_mean": 11.23063509054706,
+   "err_max_early_hz_max": 11.23063509054706,
+   "err_rms_early_hz_mean": 0.1840813605377922,
+   "err_rms_early_hz_max": 0.1840813605377922,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 11.958538858465086,
+   "err_last_sample_hz_max": 11.958538858465086,
+   "wall_time_s_mean": 1.751,
+   "wall_time_s_max": 1.751,
+   "n_rhs_evaluations_mean": 2000.0,
+   "n_rhs_evaluations_max": 2000.0,
+   "score_mean": 0.8020262499999999,
+   "score_diff_max_abs": 0.09035575000000007,
+   "frequency_mean_hz": 9.174311900000001,
+   "n_active_readout": [
+    4
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: Euler dt 1e-4",
+   "part": "order_study",
+   "method": "Euler dt 1e-4",
+   "family": "euler",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 10.560543677795195,
+   "err_max_all_hz_max": 10.560543677795195,
+   "err_rms_all_hz_mean": 0.13284655532635084,
+   "err_rms_all_hz_max": 0.13284655532635084,
+   "err_max_window_hz_mean": 10.560543677795195,
+   "err_max_window_hz_max": 10.560543677795195,
+   "err_rms_window_hz_mean": 0.14185874602005874,
+   "err_rms_window_hz_max": 0.14185874602005874,
+   "err_max_early_hz_mean": 1.5445580942306005,
+   "err_max_early_hz_max": 1.5445580942306005,
+   "err_rms_early_hz_mean": 0.02047291405172298,
+   "err_rms_early_hz_max": 0.02047291405172298,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 4.690885064611636,
+   "err_last_sample_hz_max": 4.690885064611636,
+   "wall_time_s_mean": 16.796,
+   "wall_time_s_max": 16.796,
+   "n_rhs_evaluations_mean": 20000.0,
+   "n_rhs_evaluations_max": 20000.0,
+   "score_mean": 0.894355,
+   "score_diff_max_abs": 0.0019730000000000025,
+   "frequency_mean_hz": 9.803921599999999,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "order_study: RK45 rtol 1e-8 atol 1e-11",
+   "part": "order_study",
+   "method": "RK45 rtol 1e-8 atol 1e-11",
+   "family": "adaptive",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.0072051626309121986,
+   "err_max_all_hz_max": 0.0072051626309121986,
+   "err_rms_all_hz_mean": 6.741652945700587e-05,
+   "err_rms_all_hz_max": 6.741652945700587e-05,
+   "err_max_window_hz_mean": 0.0072051626309121986,
+   "err_max_window_hz_max": 0.0072051626309121986,
+   "err_rms_window_hz_mean": 7.205191073054456e-05,
+   "err_rms_window_hz_max": 7.205191073054456e-05,
+   "err_max_early_hz_mean": 0.0003970557376149486,
+   "err_max_early_hz_max": 0.0003970557376149486,
+   "err_rms_early_hz_mean": 5.062558070412444e-06,
+   "err_rms_early_hz_max": 5.062558070412444e-06,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.0017902813509458326,
+   "err_last_sample_hz_max": 0.0017902813509458326,
+   "wall_time_s_mean": 90.821,
+   "wall_time_s_max": 90.821,
+   "n_rhs_evaluations_mean": 97238.0,
+   "n_rhs_evaluations_max": 97238.0,
+   "score_mean": 0.8924076666666666,
+   "score_diff_max_abs": 2.5666666666590565e-05,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "protocol_edges: RK45 rtol 1e-10 atol 1e-13 (reference)",
+   "part": "protocol_edges",
+   "method": "RK45 rtol 1e-10 atol 1e-13 (reference)",
+   "family": "reference",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.0,
+   "err_max_all_hz_max": 0.0,
+   "err_rms_all_hz_mean": 0.0,
+   "err_rms_all_hz_max": 0.0,
+   "err_max_window_hz_mean": 0.0,
+   "err_max_window_hz_max": 0.0,
+   "err_rms_window_hz_mean": 0.0,
+   "err_rms_window_hz_max": 0.0,
+   "err_max_early_hz_mean": 0.0,
+   "err_max_early_hz_max": 0.0,
+   "err_rms_early_hz_mean": 0.0,
+   "err_rms_early_hz_max": 0.0,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.0,
+   "err_last_sample_hz_max": 0.0,
+   "wall_time_s_mean": 190.777,
+   "wall_time_s_max": 190.777,
+   "n_rhs_evaluations_mean": 206706.0,
+   "n_rhs_evaluations_max": 206706.0,
+   "score_mean": 0.896391,
+   "score_diff_max_abs": 0.0,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "protocol_edges: RK45 default, segments",
+   "part": "protocol_edges",
+   "method": "RK45 default, segments",
+   "family": "adaptive",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.10650153405900298,
+   "err_max_all_hz_max": 0.10650153405900298,
+   "err_rms_all_hz_mean": 0.0011038060556911114,
+   "err_rms_all_hz_max": 0.0011038060556911114,
+   "err_max_window_hz_mean": 0.10650153405900298,
+   "err_max_window_hz_max": 0.10650153405900298,
+   "err_rms_window_hz_mean": 0.0011798898051970691,
+   "err_rms_window_hz_max": 0.0011798898051970691,
+   "err_max_early_hz_mean": 0.007924964213241736,
+   "err_max_early_hz_max": 0.007924964213241736,
+   "err_rms_early_hz_mean": 5.517941336043328e-05,
+   "err_rms_early_hz_max": 5.517941336043328e-05,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.060035028052043415,
+   "err_last_sample_hz_max": 0.060035028052043415,
+   "wall_time_s_mean": 25.729,
+   "wall_time_s_max": 25.729,
+   "n_rhs_evaluations_mean": 22512.0,
+   "n_rhs_evaluations_max": 22512.0,
+   "score_mean": 0.8946943333333334,
+   "score_diff_max_abs": 0.0016966666666666796,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "protocol_edges: RK45 default, single interval",
+   "part": "protocol_edges",
+   "method": "RK45 default, single interval",
+   "family": "adaptive",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.031161656872390253,
+   "err_max_all_hz_max": 0.031161656872390253,
+   "err_rms_all_hz_mean": 0.0002796529650591872,
+   "err_rms_all_hz_max": 0.0002796529650591872,
+   "err_max_window_hz_mean": 0.031161656872390253,
+   "err_max_window_hz_max": 0.031161656872390253,
+   "err_rms_window_hz_mean": 0.0002972123605050798,
+   "err_rms_window_hz_max": 0.0002972123605050798,
+   "err_max_early_hz_mean": 0.01416567688074899,
+   "err_max_early_hz_max": 0.01416567688074899,
+   "err_rms_early_hz_mean": 0.00016783698127917511,
+   "err_rms_early_hz_max": 0.00016783698127917511,
+   "err_onset_sample_hz_mean": 3.3501042269068105e-05,
+   "err_onset_sample_hz_max": 3.3501042269068105e-05,
+   "err_last_sample_hz_mean": 0.02293671172153111,
+   "err_last_sample_hz_max": 0.02293671172153111,
+   "wall_time_s_mean": 25.888,
+   "wall_time_s_max": 25.888,
+   "n_rhs_evaluations_mean": 22855.0,
+   "n_rhs_evaluations_max": 22855.0,
+   "score_mean": 0.8946383333333333,
+   "score_diff_max_abs": 0.0017526666666667357,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "protocol_edges: RK4 dt 1e-3",
+   "part": "protocol_edges",
+   "method": "RK4 dt 1e-3",
+   "family": "rk4",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.14049507692989316,
+   "err_max_all_hz_max": 0.14049507692989316,
+   "err_rms_all_hz_mean": 0.0020494662343781425,
+   "err_rms_all_hz_max": 0.0020494662343781425,
+   "err_max_window_hz_mean": 0.13059784833277632,
+   "err_max_window_hz_max": 0.13059784833277632,
+   "err_rms_window_hz_mean": 0.002015781841878763,
+   "err_rms_window_hz_max": 0.002015781841878763,
+   "err_max_early_hz_mean": 0.14049507692989316,
+   "err_max_early_hz_max": 0.14049507692989316,
+   "err_rms_early_hz_mean": 0.0023405755451851415,
+   "err_rms_early_hz_max": 0.0023405755451851415,
+   "err_onset_sample_hz_mean": 0.13419780451600768,
+   "err_onset_sample_hz_max": 0.13419780451600768,
+   "err_last_sample_hz_mean": 0.12746621706904904,
+   "err_last_sample_hz_max": 0.12746621706904904,
+   "wall_time_s_mean": 7.472,
+   "wall_time_s_max": 7.472,
+   "n_rhs_evaluations_mean": 2000.0,
+   "n_rhs_evaluations_max": 2000.0,
+   "score_mean": 0.896921,
+   "score_diff_max_abs": 0.0005299999999999194,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "protocol_edges: RK4 dt 5e-4",
+   "part": "protocol_edges",
+   "method": "RK4 dt 5e-4",
+   "family": "rk4",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.08335354451257615,
+   "err_max_all_hz_max": 0.08335354451257615,
+   "err_rms_all_hz_mean": 0.0014209939308166355,
+   "err_rms_all_hz_max": 0.0014209939308166355,
+   "err_max_window_hz_mean": 0.08335354451257615,
+   "err_max_window_hz_max": 0.08335354451257615,
+   "err_rms_window_hz_mean": 0.0014451901966397,
+   "err_rms_window_hz_max": 0.0014451901966397,
+   "err_max_early_hz_mean": 0.07986194965047844,
+   "err_max_early_hz_max": 0.07986194965047844,
+   "err_rms_early_hz_mean": 0.0013765849953272984,
+   "err_rms_early_hz_max": 0.0013765849953272984,
+   "err_onset_sample_hz_mean": 0.06709890225800384,
+   "err_onset_sample_hz_max": 0.06709890225800384,
+   "err_last_sample_hz_mean": 0.06373377511126854,
+   "err_last_sample_hz_max": 0.06373377511126854,
+   "wall_time_s_mean": 14.636,
+   "wall_time_s_max": 14.636,
+   "n_rhs_evaluations_mean": 4000.0,
+   "n_rhs_evaluations_max": 4000.0,
+   "score_mean": 0.8955296666666666,
+   "score_diff_max_abs": 0.0008613333333334916,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  },
+  {
+   "label": "protocol_edges: RK45 rtol 1e-8 atol 1e-11",
+   "part": "protocol_edges",
+   "method": "RK45 rtol 1e-8 atol 1e-11",
+   "family": "adaptive",
+   "n_seeds": 1,
+   "err_max_all_hz_mean": 0.0034500092979037333,
+   "err_max_all_hz_max": 0.0034500092979037333,
+   "err_rms_all_hz_mean": 2.6683490876481744e-05,
+   "err_rms_all_hz_max": 2.6683490876481744e-05,
+   "err_max_window_hz_mean": 0.0034500092979037333,
+   "err_max_window_hz_max": 0.0034500092979037333,
+   "err_rms_window_hz_mean": 2.8498064299478723e-05,
+   "err_rms_window_hz_max": 2.8498064299478723e-05,
+   "err_max_early_hz_mean": 0.0006055225913783602,
+   "err_max_early_hz_max": 0.0006055225913783602,
+   "err_rms_early_hz_mean": 6.530037525380166e-06,
+   "err_rms_early_hz_max": 6.530037525380166e-06,
+   "err_onset_sample_hz_mean": 0.0,
+   "err_onset_sample_hz_max": 0.0,
+   "err_last_sample_hz_mean": 0.001986277122330904,
+   "err_last_sample_hz_max": 0.001986277122330904,
+   "wall_time_s_mean": 114.246,
+   "wall_time_s_max": 114.246,
+   "n_rhs_evaluations_mean": 97062.0,
+   "n_rhs_evaluations_max": 97062.0,
+   "score_mean": 0.8963190000000001,
+   "score_diff_max_abs": 7.199999999996098e-05,
+   "frequency_mean_hz": 9.9009901,
+   "n_active_readout": [
+    3
+   ],
+   "all_success": true
+  }
+ ]
+}

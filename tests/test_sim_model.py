@@ -136,6 +136,24 @@ def test_silencing_changes_dynamics_and_zero_input_network_stays_silent():
     assert quiet.r.max() == 0.0
 
 
+def test_fixed_step_schemes_keep_their_order_across_a_mid_step_pulse_edge():
+    """One uncoupled neuron with a constant input has the closed form r(t) = r_inf (1 - exp(-(t - t_on)/tau)).
+
+    With the pulse edge inside a step (t_on = 20.5 ms on a 1 ms grid) a naive RK4 whose k4 stage sees the other side
+    of the switch is first-order accurate (~0.1 Hz error); the segment-wise scheme must stay far below that."""
+    tau, a, theta, r_max, current = 0.02, 1.0, 7.5, 200.0, 40.0
+    p = NeuronParams(tau=np.array([tau]), a=np.array([a]), theta=np.array([theta]), r_max=np.array([r_max]))
+    W = sp.csr_matrix((1, 1))
+    t_on = 0.0205
+    cfg = ModelConfig(t_end=0.2, pulse_start=t_on, pulse_end=0.2, size_scaling=False, method="rk4", dt=1e-3)
+    traj = simulate(W, p, cfg, Stimulus((0,), (current,)))
+    r_inf = r_max * np.tanh((a / r_max) * (current - theta))
+    exact = np.where(traj.t >= t_on, r_inf * (1 - np.exp(-(np.maximum(traj.t - t_on, 0.0)) / tau)), 0.0)
+    assert np.abs(traj.r[:, 0] - exact).max() < 2e-3
+    e = simulate(W, p, ModelConfig(**{**cfg.to_dict(), "method": "euler", "dt": 1e-4}), Stimulus((0,), (current,)))
+    assert np.abs(e.r[:, 0] - exact).max() < 0.2
+
+
 def test_stimulus_validation():
     with pytest.raises(ValueError):
         Stimulus((0, 1), (1.0, 2.0, 3.0))

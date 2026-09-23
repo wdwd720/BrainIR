@@ -19,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 
+from brainir.compute import get_backend
 from brainir.sim import Intervention, ModelConfig
 from brainir.sim.experiments import stimulation_experiment
 
@@ -38,12 +39,15 @@ def main(argv=None) -> None:
     ap.add_argument("--n", type=int, default=64)
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--t-end", type=float, default=1.0)
+    ap.add_argument("--backend", choices=["local", "modal"], default="local")
+    ap.add_argument("--containers", type=int, default=64)
     args = ap.parse_args(argv)
     net_name = f"{args.dataset}_{args.version}"
     onet = ORACLE["networks"][net_name]
     wt, net, readout = paper_network(args.dataset, args.version, args.nt)
-    stim_pos = [int(net.positions_of_type("DNg100")[0])]
-    assert int(net.ids[stim_pos[0]]) == onet["stimulus_source_ids"][0]
+    stim_pos = [int(net.index_of([onet["stimulus_source_ids"][0]])[0])]  # the benchmark's stimulus neuron (oracle)
+    assert net.table["cell_type"].iloc[stim_pos[0]] == "DNg100"
+    backend = get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=1800, max_containers=args.containers) if args.backend == "modal" else None
     core = onet["core"]
     pos = {lab: int(net.index_of([i])[0]) for lab, i in core.items() if int(i) in set(net.ids.tolist())}
     cfg = ModelConfig(t_end=args.t_end)
@@ -61,10 +65,10 @@ def main(argv=None) -> None:
     conditions["keep_only_alternative_core"] = Intervention(keep_only=tuple(pos[lab] for lab in alt), always_keep=always)
     conditions["keep_only_E1_E2"] = Intervention(keep_only=(pos["E1"], pos["E2"]), always_keep=always)
     out = {"dataset": args.dataset, "version": args.version, "nt": args.nt, "n": args.n, "t_end": args.t_end, "current": cur,
-           "core_positions": pos, "modal_circuit": modal, "conditions": {}}
+           "core_positions": pos, "modal_circuit": modal, "backend": args.backend, "network": net.meta, "conditions": {}}
     t0 = time.time()
     for name, iv in conditions.items():
-        res = stimulation_experiment(net, stim_pos, cur, cfg, seeds, readout, intervention=iv, n_workers=args.workers, name=name)
+        res = stimulation_experiment(net, stim_pos, cur, cfg, seeds, readout, intervention=iv, n_workers=args.workers, name=name, backend=backend)
         s = res.summary()
         out["conditions"][name] = {"summary": s, "scores": [round(r.score, 4) for r in res.replicates],
                                    "frequencies_hz": [None if r.mean_frequency_hz is None else round(r.mean_frequency_hz, 2) for r in res.replicates],
