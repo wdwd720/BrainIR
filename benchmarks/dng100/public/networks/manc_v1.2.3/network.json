@@ -1,0 +1,31 @@
+{
+ "name": "manc_v1.2.3",
+ "dataset": "manc",
+ "version": "v1.2.3",
+ "tier": "B",
+ "node_rule": "network membership from node list manc_v1.2.3.csv (front-leg network as published)",
+ "n_neurons": 4604,
+ "n_edges": 196359,
+ "total_synapses": 3815864,
+ "floor": 5,
+ "remove_autapses": true,
+ "sign_rule": "pugliese2026.sign.predictedNt",
+ "sign_basis": "nt_body_prediction",
+ "nt_label_source": "body-level predictedNt (v1.0 predictions carried by body ID)",
+ "roi_restrict": null,
+ "size_source": "manc:v1.0 size_voxels by body ID",
+ "sign_rows": {
+  "positive": 2424,
+  "negative": 2141,
+  "zero": 39
+ },
+ "orientation": "edges.parquet lists pre -> post; W[post, pre] = signed_weight (post x pre) for the model",
+ "source_tables": {
+  "processed_dir": "$DATA/processed/manc/v1.2.3",
+  "build_info_sha256": "b477358a4fa9d80c4cd3773902886a2b24f6078e0560254971a99865d7aa2f6b",
+  "connections_sha256": "e0a60d5f96fe1988f3af29c3890bc2f40676b57b8bcb52829608d969912b536b",
+  "neurons_sha256": "f4e75c879e3757adb4db3b2f41ebdb166c73be4bc8478e7ed7ded2826b1553a4",
+  "manifest_sha256": "ca8962d5ed1153ff0916ddb8813c4bc8fe828c9b75fd6365617b7bea0a1466f4"
+ },
+ "id_semantics": "dataset body IDs"
+}

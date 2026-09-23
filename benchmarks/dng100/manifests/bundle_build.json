@@ -1,0 +1,89 @@
+{
+ "specs": [
+  {
+   "name": "manc_v1.2.1",
+   "dataset": "manc",
+   "version": "v1.2.1",
+   "nodes_file": "manc_v1.2.1.csv",
+   "stim_current": 250.0,
+   "sizes_from": [
+    "manc",
+    "v1.0"
+   ],
+   "roi_restrict_vnc": false,
+   "sign_basis": "nt_body_prediction",
+   "node_rule_note": "front-leg network as published"
+  },
+  {
+   "name": "manc_v1.2.3",
+   "dataset": "manc",
+   "version": "v1.2.3",
+   "nodes_file": "manc_v1.2.3.csv",
+   "stim_current": 250.0,
+   "sizes_from": [
+    "manc",
+    "v1.0"
+   ],
+   "roi_restrict_vnc": false,
+   "sign_basis": "nt_body_prediction",
+   "node_rule_note": "front-leg network as published"
+  },
+  {
+   "name": "male-cns_v1.0",
+   "dataset": "male-cns",
+   "version": "v1.0",
+   "nodes_file": "male-cns_v1.0.csv",
+   "stim_current": 400.0,
+   "sizes_from": null,
+   "roi_restrict_vnc": true,
+   "sign_basis": "nt_consensus",
+   "node_rule_note": "front-leg network as published; VNC synapses only"
+  }
+ ],
+ "bundles": {
+  "B": {
+   "root": "public",
+   "bundle_sha256": "e76cb61a73293a4befd96832401eac311a70eee3c040282b71997cd99a9491a7",
+   "n_files": 17,
+   "networks": [
+    [
+     "manc_v1.2.1",
+     4604,
+     196359
+    ],
+    [
+     "manc_v1.2.3",
+     4604,
+     196359
+    ],
+    [
+     "male-cns_v1.0",
+     4309,
+     118745
+    ]
+   ]
+  },
+  "A": {
+   "root": "public_blind",
+   "bundle_sha256": "7e7d67a4a4ed50dc09bd9317353dcc22f0c65b9a1ef8d111687a1403106f9b77",
+   "n_files": 17,
+   "networks": [
+    [
+     "manc_v1.2.1",
+     4604,
+     196359
+    ],
+    [
+     "manc_v1.2.3",
+     4604,
+     196359
+    ],
+    [
+     "male-cns_v1.0",
+     4309,
+     118745
+    ]
+   ]
+  }
+ }
+}

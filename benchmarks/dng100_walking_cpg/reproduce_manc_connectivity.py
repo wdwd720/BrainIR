@@ -164,10 +164,30 @@ def compare_network(label: str, wt: pd.DataFrame, pairs_auth: pd.DataFrame, cx: 
     sub_all = _our_counts(cx, present, roi_restrict)
     ours = sub_all[sub_all["synapse_count"] >= FLOOR][["pre_id", "post_id", "synapse_count"]]
     a = pairs_auth.assign(w_abs=lambda d: d["w_signed"].abs())
+    # the paper zeroes the output rows of neurons whose label is not ACh/GABA/Glu: such pairs can never appear in W
+    nt_all = wt.set_index("bodyId")[nt_column]
+    zero_sign_pre = set(nt_all.index[signs_from_nt(nt_all) == 0].tolist())
+    n_zero_rows_dropped = int(ours["pre_id"].isin(zero_sign_pre).sum())
+    ours = ours[~ours["pre_id"].isin(zero_sign_pre)]
+    # bodies proofread between the authors' extraction and this release (size differs or body absent)
+    if "size" in wt.columns:
+        sz_ours = cx.neurons["size_voxels"].reindex(present).astype("float64").to_numpy()
+        sz_auth = wt.set_index("bodyId")["size"].reindex(present).to_numpy(dtype="float64")
+        changed = set(present[np.abs(sz_ours - sz_auth) > 0].tolist()) | set(missing)
+    else:
+        changed = set(missing)
     m = a.merge(ours, on=["pre_id", "post_id"], how="outer", indicator=True)
+    m["touches_changed_body"] = m["pre_id"].isin(changed) | m["post_id"].isin(changed)
     both = m[m["_merge"] == "both"]
     only_auth = m[m["_merge"] == "left_only"]
     only_ours = m[m["_merge"] == "right_only"]
+    stable = m[~m["touches_changed_body"]]
+    stable_both = stable[stable["_merge"] == "both"]
+    stable_summary = {"n_changed_bodies": len(changed), "pairs_authors": int((stable["_merge"] != "right_only").sum()),
+                      "pairs_brainir": int((stable["_merge"] != "left_only").sum()), "both": int(len(stable_both)),
+                      "only_authors": int((stable["_merge"] == "left_only").sum()),
+                      "only_brainir": int((stable["_merge"] == "right_only").sum()),
+                      "exact_count_match": int((stable_both["w_abs"] == stable_both["synapse_count"]).sum())}
     exact = int((both["w_abs"] == both["synapse_count"]).sum())
     diff = (both["synapse_count"] - both["w_abs"])
     # pairs the authors have that we count below the floor (or not at all): recover our raw count
@@ -190,6 +210,8 @@ def compare_network(label: str, wt: pd.DataFrame, pairs_auth: pd.DataFrame, cx: 
         "roi_restrict": sorted(roi_restrict) if roi_restrict is not None else None,
         "neurons": {"authors": int(len(ids)), "present_in_brainir": int(len(present)), "missing": missing[:50],
                     "n_missing": len(missing)},
+        "zero_sign_rows_dropped_from_brainir": n_zero_rows_dropped,
+        "stable_bodies_only": stable_summary,
         "pairs": {"authors": int(len(a)), "brainir_ge_floor": int(len(ours)), "both": int(len(both)),
                   "only_authors": int(len(only_auth)), "only_brainir": int(len(only_ours)),
                   "exact_count_match": exact, "exact_fraction_of_both": round(exact / max(1, len(both)), 6),
@@ -287,8 +309,10 @@ def main(argv=None) -> None:
 
 
 def write_markdown(s: dict) -> None:
-    lines = ["# MANC connectivity reproduction (Pugliese et al. matrices vs BrainIR builds)", "",
-             f"Authors' repository `{REPO}` @ `{COMMIT[:10]}` (files pinned by SHA-256). Floor: {s['floor']} synapses per pair.", "",
+    lines = ["# Connectivity reproduction (Pugliese et al. matrices vs BrainIR builds)", "",
+             f"Authors' repository `{REPO}` @ `{COMMIT[:10]}` (files pinned by SHA-256). Floor: {s['floor']} synapses per pair; "
+             "BrainIR counts are restricted to the paper's ROI set where the paper did so (MaleCNS: VNC neuropils), autapses are "
+             "removed and output rows of neurons whose label is not ACh/GABA/Glu are zeroed, as in the paper.", "",
              "| network | BrainIR build | neurons found | pairs (authors / ours) | both | only authors | only ours | exact count | Σsyn authors / ours |",
              "|---|---|---|---|---|---|---|---|---|"]
     for c in s["comparisons"]:
@@ -296,6 +320,14 @@ def write_markdown(s: dict) -> None:
         lines.append(f"| {c['network']} | {c['brainir_dataset']} | {n['present_in_brainir']}/{n['authors']} | "
                      f"{p['authors']} / {p['brainir_ge_floor']} | {p['both']} | {p['only_authors']} | {p['only_brainir']} | "
                      f"{p['exact_count_match']} ({p['exact_fraction_of_both']:.4%}) | {p['total_synapses_authors']} / {p['total_synapses_brainir']} |")
+    lines += ["", "## Restricted to bodies not proofread between the authors' extraction and the BrainIR release", "",
+              "A body counts as changed when its size differs from the authors' table or it no longer exists.", "",
+              "| network | BrainIR build | changed bodies | pairs (authors / ours) | both | only authors | only ours | exact count |",
+              "|---|---|---|---|---|---|---|---|"]
+    for c in s["comparisons"]:
+        st = c["stable_bodies_only"]
+        lines.append(f"| {c['network']} | {c['brainir_dataset']} | {st['n_changed_bodies']} | {st['pairs_authors']} / {st['pairs_brainir']} | "
+                     f"{st['both']} | {st['only_authors']} | {st['only_brainir']} | {st['exact_count_match']} |")
     lines += ["", "## Sign agreement (presynaptic rows with output)", "",
               "| network | BrainIR build | sign source | rows | agree | fraction |", "|---|---|---|---|---|---|"]
     for c in s["comparisons"]:

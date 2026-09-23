@@ -1,0 +1,247 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "bundle_format_version": "1.0.0",
+ "tier": "A",
+ "created_utc": "2026-09-23T07:56:45Z",
+ "brainir_version": "0.0.1",
+ "code_commit": "b671f426abb8080338e645a79bed1174d7efdefb",
+ "networks": [
+  {
+   "name": "manc_v1.2.1",
+   "dataset": "manc",
+   "version": "v1.2.1",
+   "tier": "A",
+   "node_rule": "network membership from node list manc_v1.2.1.csv (front-leg network as published)",
+   "n_neurons": 4604,
+   "n_edges": 196359,
+   "total_synapses": 3815864,
+   "floor": 5,
+   "remove_autapses": true,
+   "sign_rule": "pugliese2026.sign.predictedNt",
+   "sign_basis": "nt_body_prediction",
+   "nt_label_source": "body-level predictedNt (v1.0 predictions carried by body ID)",
+   "roi_restrict": null,
+   "size_source": "manc:v1.0 size_voxels by body ID",
+   "sign_rows": {
+    "positive": 2424,
+    "negative": 2141,
+    "zero": 39
+   },
+   "orientation": "edges.parquet lists pre -> post; W[post, pre] = signed_weight (post x pre) for the model",
+   "source_tables": {
+    "processed_dir": "$DATA/processed/manc/v1.2.1",
+    "build_info_sha256": "8c39699c9940ad74277844f0e34afb7d89a4f358b8d25e95b926072f43cd21ba",
+    "connections_sha256": "ecb825db5848dbc1f66286aea52b57e34babdb6cc0f4daf9bdb0a4096fd66484",
+    "neurons_sha256": "222cad44c36c35d256aa2b52cb4f659edea76ae8bf558a5cdbae52526b2adeb4",
+    "manifest_sha256": "cea1472cfecc8196475316c9f7e1559b175a57abfad00e81d5c28ee4f1e0a580"
+   },
+   "id_semantics": "positional (tier A)",
+   "readout_n": 144,
+   "stimulus_source_ids": [
+    31
+   ]
+  },
+  {
+   "name": "manc_v1.2.3",
+   "dataset": "manc",
+   "version": "v1.2.3",
+   "tier": "A",
+   "node_rule": "network membership from node list manc_v1.2.3.csv (front-leg network as published)",
+   "n_neurons": 4604,
+   "n_edges": 196359,
+   "total_synapses": 3815864,
+   "floor": 5,
+   "remove_autapses": true,
+   "sign_rule": "pugliese2026.sign.predictedNt",
+   "sign_basis": "nt_body_prediction",
+   "nt_label_source": "body-level predictedNt (v1.0 predictions carried by body ID)",
+   "roi_restrict": null,
+   "size_source": "manc:v1.0 size_voxels by body ID",
+   "sign_rows": {
+    "positive": 2424,
+    "negative": 2141,
+    "zero": 39
+   },
+   "orientation": "edges.parquet lists pre -> post; W[post, pre] = signed_weight (post x pre) for the model",
+   "source_tables": {
+    "processed_dir": "$DATA/processed/manc/v1.2.3",
+    "build_info_sha256": "b477358a4fa9d80c4cd3773902886a2b24f6078e0560254971a99865d7aa2f6b",
+    "connections_sha256": "e0a60d5f96fe1988f3af29c3890bc2f40676b57b8bcb52829608d969912b536b",
+    "neurons_sha256": "f4e75c879e3757adb4db3b2f41ebdb166c73be4bc8478e7ed7ded2826b1553a4",
+    "manifest_sha256": "ca8962d5ed1153ff0916ddb8813c4bc8fe828c9b75fd6365617b7bea0a1466f4"
+   },
+   "id_semantics": "positional (tier A)",
+   "readout_n": 142,
+   "stimulus_source_ids": [
+    31
+   ]
+  },
+  {
+   "name": "male-cns_v1.0",
+   "dataset": "male-cns",
+   "version": "v1.0",
+   "tier": "A",
+   "node_rule": "network membership from node list male-cns_v1.0.csv (front-leg network as published; VNC synapses only)",
+   "n_neurons": 4309,
+   "n_edges": 118745,
+   "total_synapses": 2185576,
+   "floor": 5,
+   "remove_autapses": true,
+   "sign_rule": "pugliese2026.sign.predictedNt",
+   "sign_basis": "nt_consensus",
+   "nt_label_source": "consensusNt",
+   "roi_restrict": [
+    "ADMN(L)",
+    "ADMN(R)",
+    "ANm",
+    "AbN1(L)",
+    "AbN1(R)",
+    "AbN2(L)",
+    "AbN2(R)",
+    "AbN3(L)",
+    "AbN3(R)",
+    "AbN4(L)",
+    "AbN4(R)",
+    "AbNT(L)",
+    "AbNT(R)",
+    "CvN(L)",
+    "CvN(R)",
+    "DMetaN(L)",
+    "DMetaN(R)",
+    "DProN(L)",
+    "DProN(R)",
+    "HTct(UTct-T3)(L)",
+    "HTct(UTct-T3)(R)",
+    "IntTct",
+    "LTct",
+    "LegNp(T1)(L)",
+    "LegNp(T1)(R)",
+    "LegNp(T2)(L)",
+    "LegNp(T2)(R)",
+    "LegNp(T3)(L)",
+    "LegNp(T3)(R)",
+    "MesoAN(L)",
+    "MesoAN(R)",
+    "MesoLN(L)",
+    "MesoLN(R)",
+    "MetaLN(L)",
+    "MetaLN(R)",
+    "NTct(UTct-T1)(L)",
+    "NTct(UTct-T1)(R)",
+    "Ov(L)",
+    "Ov(R)",
+    "PDMN(L)",
+    "PDMN(R)",
+    "PrN(L)",
+    "PrN(R)",
+    "ProAN(L)",
+    "ProAN(R)",
+    "ProCN(L)",
+    "ProCN(R)",
+    "ProLN(L)",
+    "ProLN(R)",
+    "VNC-unspecified",
+    "VProN(L)",
+    "VProN(R)",
+    "WTct(UTct-T2)(L)",
+    "WTct(UTct-T2)(R)",
+    "mVAC(T1)(L)",
+    "mVAC(T1)(R)",
+    "mVAC(T2)(L)",
+    "mVAC(T2)(R)",
+    "mVAC(T3)(L)",
+    "mVAC(T3)(R)"
+   ],
+   "size_source": "male-cns:v1.0 size_voxels",
+   "sign_rows": {
+    "positive": 2493,
+    "negative": 1704,
+    "zero": 112
+   },
+   "orientation": "edges.parquet lists pre -> post; W[post, pre] = signed_weight (post x pre) for the model",
+   "source_tables": {
+    "processed_dir": "$DATA/processed/male-cns/v1.0",
+    "build_info_sha256": "91da0db5951b6fbafcefbc20540ab15f6a43c8311470358336877cdd879e8dd6",
+    "connections_sha256": "741860dbdc2730d05bf878851ef2b5198ba94c3a23f9112edc3d0d85918b073e",
+    "neurons_sha256": "b12ad0028356880d5946daa99008678d748783182b2857d2930f518552ea267f",
+    "manifest_sha256": "84ccb2413bda05bd59b92043a7cddfb68dd7524c910ebd7c5f298b0434d7370a"
+   },
+   "id_semantics": "positional (tier A)",
+   "readout_n": 130,
+   "stimulus_source_ids": [
+    9
+   ]
+  }
+ ],
+ "files": {
+  "model_config.json": {
+   "sha256": "f7c6857b0398d96713a497d3550f17eb5368de03c93504d181e8d7a06a15d720",
+   "size_bytes": 936
+  },
+  "networks/male-cns_v1.0/edges.parquet": {
+   "sha256": "f16baa4e00a00681fbffce3e8016db2d6f7b106cb1b90a9177bb4a7a859574cb",
+   "size_bytes": 632768
+  },
+  "networks/male-cns_v1.0/network.json": {
+   "sha256": "00e9388bce96633040dbfdab39525d7f00b016c55babeccf860fea2546ef28ba",
+   "size_bytes": 2058
+  },
+  "networks/male-cns_v1.0/neurons.parquet": {
+   "sha256": "acdc3ec39f4ca0a01fb46ddda5a5aa200f5771749df8e50d1e44b769ed4093b5",
+   "size_bytes": 114636
+  },
+  "networks/male-cns_v1.0/readout.json": {
+   "sha256": "a5ec36dc0d809e6acab0d1dd0b7e40138ad66415389ae270e6b3d08405954b36",
+   "size_bytes": 2233
+  },
+  "networks/male-cns_v1.0/stimulus.json": {
+   "sha256": "a87aebbf6ff982bc8f4e547a349b2051f098cdc60b8feeb8755523c36cf6ca19",
+   "size_bytes": 259
+  },
+  "networks/manc_v1.2.1/edges.parquet": {
+   "sha256": "bbc77a8e110f7c1e54df14fbd3337dd53040b0a66b9738650bbd057b95288012",
+   "size_bytes": 1051033
+  },
+  "networks/manc_v1.2.1/network.json": {
+   "sha256": "0878e5e2a339eab47f7cd59ba1c1873705df2a039ec62977d0a2bb1a2ee45541",
+   "size_bytes": 1187
+  },
+  "networks/manc_v1.2.1/neurons.parquet": {
+   "sha256": "8757fda4ec58df23f15ac8e1187ee7603f6060defcad3374974d1059cbe96136",
+   "size_bytes": 114390
+  },
+  "networks/manc_v1.2.1/readout.json": {
+   "sha256": "f2a7bf9ceab836b5185e0c3d9de1ad2a61485708b824cd7c83d7ec2b1493290b",
+   "size_bytes": 2427
+  },
+  "networks/manc_v1.2.1/stimulus.json": {
+   "sha256": "58fa3e36a6733c34f7c56ad7d658922181caa13dc73b0fa971e8c7cb7a811cfd",
+   "size_bytes": 261
+  },
+  "networks/manc_v1.2.3/edges.parquet": {
+   "sha256": "bbc77a8e110f7c1e54df14fbd3337dd53040b0a66b9738650bbd057b95288012",
+   "size_bytes": 1051033
+  },
+  "networks/manc_v1.2.3/network.json": {
+   "sha256": "2394b2848f4127d1aea80248cf513cffb700fbddf2ea6393833625d3dc09907e",
+   "size_bytes": 1187
+  },
+  "networks/manc_v1.2.3/neurons.parquet": {
+   "sha256": "3f20a3e4f3824809eaa670a2747c1142404a67d3caf4cc8a313e6f18066cda0e",
+   "size_bytes": 123404
+  },
+  "networks/manc_v1.2.3/readout.json": {
+   "sha256": "e5ea4c6796497e6a1c2ed7891875bbfe0eb80f90b9f1a015402651f212fb0e02",
+   "size_bytes": 2395
+  },
+  "networks/manc_v1.2.3/stimulus.json": {
+   "sha256": "58fa3e36a6733c34f7c56ad7d658922181caa13dc73b0fa971e8c7cb7a811cfd",
+   "size_bytes": 261
+  },
+  "README.md": {
+   "sha256": "0aa090fd2869ac53b9bb5a40c96856667b5380d51c856d742cda6fca750bbd1f",
+   "size_bytes": 2872
+  }
+ },
+ "bundle_sha256": "7e7d67a4a4ed50dc09bd9317353dcc22f0c65b9a1ef8d111687a1403106f9b77"
+}

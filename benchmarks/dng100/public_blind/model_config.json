@@ -1,0 +1,36 @@
+{
+ "model_id": "brainir.sim.pugliese_rate_v1",
+ "config": {
+  "b_exc": 0.03,
+  "b_inh": 0.03,
+  "tau_mean": 0.02,
+  "tau_sd": 0.002,
+  "a_mean": 1.0,
+  "a_sd": 0.1,
+  "theta_mean": 7.5,
+  "theta_sd": 0.6,
+  "r_max_mean": 200.0,
+  "r_max_sd": 10.0,
+  "size_scaling": true,
+  "t_end": 2.0,
+  "dt_out": 0.001,
+  "pulse_start": 0.02,
+  "pulse_end": null,
+  "method": "RK45",
+  "rtol": 2e-06,
+  "atol": 5e-09,
+  "integration": "segments",
+  "dt": null,
+  "max_step": null,
+  "clip_max_rate": 1000.0
+ },
+ "metric": {
+  "score": "brainir.metrics.rhythm.network_oscillation_score (published autocorrelation score)",
+  "analysis_start_s": 0.25,
+  "active_rate_hz": 0.01,
+  "prominence": 0.05,
+  "rhythmic_threshold": 0.5
+ },
+ "parameter_distributions": "truncated normals, see ModelConfig fields *_mean/*_sd; size scaling a/s, theta*s",
+ "reference_implementation": "brainir.sim.model.simulate; brainir.sim.experiments.stimulation_experiment"
+}

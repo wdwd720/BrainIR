@@ -106,6 +106,12 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
     network (23,532 neurons, 2025-10-06) vs `manc:v1.2.3`: all 1,372,404 pairs identical; 8 extra autapses in ours.
     Recounting the front-leg network from the raw v1.2 partner table matches only at `conf_post ≥ 0.4` (0.5 misses
     18,537 pairs). Against `manc:v1.0`: 22 of the 4604 bodies do not exist and 515 pairs are missing.
+11b. **Pugliese et al. MaleCNS matrix (4310 neurons, VNC ROIs only, 2026-02-10) vs `male-cns:v1.0`.** Counting only
+    synapses whose PSD lies in a VNC primary ROI, flooring at 5, removing autapses and zeroing the output rows of
+    neurons whose consensusNt is not ACh/GABA/Glu (77 `unclear`, 4 histamine, 2 serotonin) reproduces every pair
+    and count among the bodies that were NOT proofread between the authors' extraction and the release
+    (116,424/116,424 exact). 30 bodies changed (size differs, e.g. IN21A004_L 800802 lost 60% of its volume; one body
+    no longer exists): the paper's MaleCNS network comes from a pre-release neuPrint state of 2026-02-10, not v1.0.
 12. **MANC NT labels changed between v1.0 and neuPrint v1.2.x.** `predictedNtProb` is identical, but `predictedNt`
     differs for 72/4604 front-leg neurons (mostly `unknown`/`gaba`/`acetylcholine` → `glutamate`, 31 of them motor
     neurons) and 398/23,532 full-VNC neurons; the changed labels are not the argmax of the published probabilities,
