@@ -201,6 +201,12 @@ The isolated modal circuit oscillates faster (median 16.7 Hz) than the intact ne
 `results/pruning_manc_v1.2.1_nt-paper_n1024_seed0.*`; registry `5abf1fd8732d5ebb`. The prevalence is now recorded in the
 oracle as `brainir_simulation` evidence next to the paper's.
 
+Integrator sensitivity (review B): the first 64 seeds were re-screened with DOP853 at 10× tighter tolerances (rtol
+2e-7, atol 5e-10; 64 containers, 10.8 min, $3.0). 59 of 64 screens end in the identical circuit; the prevalence is
+unchanged (modal circuit 49/64 = 76.6 % vs 50/64 = 78.1 % with RK45 on the same seeds; four-neuron alternative 10 vs
+9; other inhibitory partner 2 vs 3). The hard ≥ 0.5 decisions of the search are therefore not artefacts of the
+integrator; the residual 5 differences are near-threshold decisions that flip either way.
+
 ### 7.5 Descending-neuron activation screen (Fig. 1)
 
 933 excitatory descending neurons × 16 parameter replicates, each job auto-tuning its amplitude from 128 (BrainIR's
@@ -228,14 +234,17 @@ annotations. This is curated evidence restated, not a derivation (LOG D39).
 Functional transfer (map one network's modal circuit into the other network and simulate it there keep-only, with
 that network's stimulus and MNs):
 
-| direction | intact | destination's own modal core | mapped source modal core |
-|---|---|---|---|
-| MANC (E1, E2, I1) → MaleCNS (I = 400) | 0.983 | 0.795 | **0.765** (100 % ≥ 0.5, 15.2 Hz) |
-| MaleCNS (E1, E2, I2) → MANC (I = 250) | 0.969 | 0.978 | **0.857** (100 % ≥ 0.5, 14.9 Hz) |
+| direction | intact | destination's own modal core | mapped source modal core | null: sign-matched random triple |
+|---|---|---|---|---|
+| MANC (E1, E2, I1) → MaleCNS (I = 400) | 0.983 | 0.795 | **0.765** (100 % ≥ 0.5, 15.2 Hz) | 0.000 |
+| MaleCNS (E1, E2, I2) → MANC (I = 250) | 0.969 | 0.978 | **0.857** (100 % ≥ 0.5, 14.9 Hz) | 0.000 |
 
 The mechanism transfers in both directions: the circuit found in one animal, carried through the public mapping into
-the other animal's wiring, generates the motor rhythm there in every replicate. The mapped and own modal cores differ
-in their inhibitory member in both directions, so the test is not a tautology. Files: `results/cross_connectome_eval_n64.*`.
+the other animal's wiring (stimulus included — it maps to the benchmark's neuron), generates the motor rhythm there in
+every replicate, while a random interneuron triple with the same sign composition never does. The mapped and own modal
+cores differ in their inhibitory member in both directions, so the test is not a tautology. The frozen evaluator runs
+the same transfer for any prediction (`cross_connectome.transfer_keep_only_mapped_core`). Files:
+`results/cross_connectome_eval_n64.*`.
 
 ### 7.7 Robustness, input sweep, weight noise, negative controls (`robustness_experiments.py`, `manc:v1.2.1`, paired seeds)
 
@@ -299,12 +308,31 @@ in their inhibitory member in both directions, so the test is not a tautology. F
 `brainir.compute`: `LocalBackend` (process pool) and `ModalBackend` (image built from the repository source; shared
 payload uploaded once per campaign to a content-addressed Volume; per-item exceptions returned, never a lost
 campaign); every campaign is registered in `benchmarks/dng100/manifests/experiments/` (config, seeds, input hashes,
-commit, environment, backend stats, approximate cost, artefact hashes). Modal usage this phase: [PENDING: total $].
+commit, environment, backend stats, approximate cost, artefact hashes). Modal usage this phase (list-price estimates
+from container-seconds, recorded per run): pruning 1,024 screens $15.5; DN screen 933 × 16 $18.6; DOP853 pruning
+sensitivity 64 screens $3.0; interventions MANC + MaleCNS ≈ $0.5 and cross-connectome transfer (two runs) ≈ $0.5
+(estimated after the fact from replicate counts; their drivers register runs from now on); smokes < $0.1. **Total ≈ $38**
+of the ~$1,000 available (list-price estimates; Modal's own billing may differ by container start-up and idle time). Local compute: the 1,024-replicate MANC reproductions (2 × ~25–45 min on 6 cores), the
+baseline campaign (~1 h) and the robustness sweeps.
 
 ## 10. Tests, audits, reviews
 
-[PENDING: final counts] Fast suite (`-m "not real_data"`): 300 tests at commit 247d0f4 (+ agents' suites).
-Independent reviews A–F: [PENDING].
+Fast suite (`uv run pytest -m "not real_data"`): 361 tests, synthetic fixtures with hand-derived truth (MaleCNS and
+MANC ingestion fixtures, simulator vs closed forms and an independent reference integrator, labelled rhythm signals,
+mapping rules, prediction schema, bundle export/verification, clean-room contract of every baseline, leakage guard and
+the benchmark's automated leakage checks); 18 real-data smoke tests need `data/processed`. Audits: `LEAKAGE_AUDIT.md`
+(PASS, re-run after every bundle export), `research/audit/` (Phase 0 independent audit), the dataset validation reports.
+
+Six independent reviews ran as separate agents with written contracts (`research/audit/phase1_reviews/`):
+
+| review | scope | blockers found → status |
+|---|---|---|
+| A | MANC data, ingestion, validation, provenance | none; majors: manifests carried a stale commit/fingerprint (rebuilt), silent version mislabelling possible through the API (guard added), fixture cannot separate 0.4 from 0.5 (open, minor), v1.2.x snapshot attribution (fixed) |
+| B | simulator, metrics, procedures vs the code spec | none; majors: dt-study reference floor under-estimated (report reworded to the measured floor; expected order 2 for a C⁰ kink), no integrator-sensitivity check of the pruning prevalence (DOP853 run added, §7.4), reference integrator not independent (closed-form single-neuron test added). Minor: fixed-step pulse-edge artefact (fixed), uninitialised samples after solver failure (fixed), amplitude-blind results (amplitude statistics added), 144 vs 138 MNs (documented) |
+| C (adversarial) | leakage, blinding, clean room | 4 blockers → closed: positions followed the paper's table order (now a salted permutation), tier B was the tier-A id map (positions differ now; structure fingerprinting acknowledged in PROTOCOL), the clean room did not confine (audit-hook sandbox; escape test fails as intended), no lock/tag (this freeze). Attacker result without simulation: the excitatory core is the strongest direct target plus its top reciprocal partner — recall 1.0 by a two-line heuristic; the inhibitory slot does not follow from degree |
+| D | oracle, schema, evaluator, baselines, nulls | 2 blockers → closed: type-level family was always 0 in tier A (real types in the private id map), MaleCNS "recruitment discrepancy" was a stimulus-selection error (D41). Majors addressed: amplitude-gated pass rule, transfer sub-family, oracle-graded claims only where labelled, every oracle field has an evidence level, precision vs circuit labels, t_end 2.0 |
+| E | mapping layer, cross-connectome | none; majors: `confidence` read as correctness (structured consistency columns + documentation), evaluator scored unlabelled claims as wrong (fixed); prose figures corrected; `vnc_tbc` role; tests added |
+| F | reproducibility, provenance, report consistency | [PENDING] |
 
 ## 11. Limitations (precise language)
 
@@ -321,8 +349,25 @@ Independent reviews A–F: [PENDING].
 
 ## 12. Unresolved issues
 
-[PENDING: keep to what is actually unresolved at the end — LOG §8.6–8.7 plus anything new]
+1. The rule behind the paper's `predictedNt` labels for 72 / 4,604 MANC neurons is unknown (LOG §8.6); the labels do not
+   change the rhythm statistics (§7.2) but they are what the oracle's roles rest on.
+2. The DN activation screen declares 14.4 % of descending neurons never usable vs the paper's 7.9 %; the paper's exact
+   usability filter is not in its repository (§7.5).
+3. Procedures not determinable from the authors' repository (engine per run, the Dirichlet screen, the type-level
+   screen's "≥ 10 active neurons", the mCNS/BANC experiment configurations) — LOG §8.7.
+4. Blinding is of identifiers only; exact counts and sizes fingerprint every neuron against public databases and tier B
+   (review C). Budget adherence is declared and auditable, not enforced.
+5. The clean-room sandbox is a CPython audit hook: it stops file reads outside the bundle, subprocesses, sockets and
+   ctypes calls, and children inherit it, but native code or a hand-rolled process launch could bypass it.
+6. The synthetic MANC fixture has no synapse with confidence in [0.4, 0.5), so the count-rule inference test cannot by
+   itself distinguish the 0.4 rule from 0.5 (review A); the real-data inference and the v1.2.3 `syn_*` totals do.
+7. MaleCNS `side` of descending neurons vs MANC root side: 45 % disagreement, interpretation untested (review E).
 
 ## 13. The one next step for Phase 2
 
-[PENDING]
+Write the first BrainIR discovery method as a clean-room method for tier A and evaluate it against this frozen
+benchmark. The bar is set by `greedy_prune_sim`, which already recovers the published core by simulation-guided search:
+the method must match its structural result while beating it on the axes the structural score does not see —
+simulation budget, robustness of its core under parameter spread and weight noise, an explicit mechanism claim, and
+transfer to the other connectome — and it must do so without the published model's specific parameters being the
+only thing that makes the search work.

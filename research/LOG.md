@@ -148,7 +148,9 @@ three-neuron circuit 68.1 % (paper 62.1 %), the published four-neuron alternativ
 with one motor neuron), the published alternative with the other inhibitory partner 8.1 % (paper 10.0 %); both
 excitatory core neurons kept in 99.5 % of screens. The isolated three-neuron circuit runs faster (median 16.7 Hz) than
 the intact network (10.75 Hz). Files: `benchmarks/dng100_walking_cpg/results/pruning_manc_v1.2.1_nt-paper_n1024_seed0.*`,
-registry run `5abf1fd8732d5ebb`.
+registry run `5abf1fd8732d5ebb`. Integrator sensitivity (review B-2): the first 64 seeds re-screened with DOP853 at
+rtol 2e-7 / atol 5e-10 give the identical circuit in 59/64 screens and the same prevalence (76.6 % vs 78.1 % on those
+seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 
 ### 3.18 Two defects found and fixed before the freeze (2026-09-23)
 - `reproduce_dynamics.paper_network` selected the readout by MANC's `super_class == 'motor_neuron'`; MaleCNS spells it
@@ -309,3 +311,12 @@ registry run `5abf1fd8732d5ebb`.
   - Delegated: robustness/dt/negative-control suite (`robustness_experiments.py`), nine baselines + null
     distributions (`benchmarks/dng100/baselines/`), reviews A–F (`research/audit/phase1_reviews/`).
   - PROTOCOL.md, freeze.py, cross-connectome evaluation (D38, D39); PHASE1_REPORT.md drafted.
+- **2026-09-23 03:00 – 04:00 (session 2, reviews and freeze).**
+  - Reviews A–E returned (`research/audit/phase1_reviews/`); their blockers and majors were closed in one pass (D40,
+    D41): permuted tier-A positions, audit-hook clean-room sandbox, evaluator 1.1.0 (tier-A type-level family, amplitude
+    gate, curated-pair grading, transfer sub-family), mapping schema 1.1.0, ingest version guard, corrected MaleCNS
+    stimulus (the "recruitment discrepancy" retracted). All four datasets rebuilt with the final code; mapping tables
+    rebuilt; `oracle/cross_connectome_reference.json` frozen; bundles re-exported (audit PASS); baselines re-run on the
+    final blind bundle at the published 2 s protocol; DOP853 integrator-sensitivity run of the pruning prevalence.
+  - Review F (reproducibility, report consistency) ran on the near-final tree; BENCHMARK_LOCK.json written and the tree
+    tagged `dng100-benchmark-v1`; PHASE1_REPORT.md finalised.
