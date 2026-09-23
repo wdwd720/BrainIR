@@ -1,5 +1,5 @@
 {
-  "mapping_schema_version": "1.0.0",
+  "mapping_schema_version": "1.1.0",
   "rules": {
     "role_class": "brainir.role.v1",
     "priority": [
@@ -17,11 +17,11 @@
     "dataset": "male-cns",
     "version": "v1.0",
     "n_neurons": 166700,
-    "n_in_scope": 24136,
-    "n_out_of_scope": 142564,
+    "n_in_scope": 24162,
+    "n_out_of_scope": 142538,
     "manifest": {
       "path": "$DATA/manifests/male-cns_v1.0.manifest.json",
-      "sha256": "84ccb2413bda05bd59b92043a7cddfb68dd7524c910ebd7c5f298b0434d7370a",
+      "sha256": "e52ccb180e61644692f24af3b24464a7fd6e6c0a70703488cf4436e704081c38",
       "matches_build": true,
       "neurons_parquet_sha256": "b12ad0028356880d5946daa99008678d748783182b2857d2930f518552ea267f"
     }
@@ -33,7 +33,7 @@
     "n_cell_types": 4076,
     "manifest": {
       "path": "$DATA/manifests/manc_v1.2.1.manifest.json",
-      "sha256": "cea1472cfecc8196475316c9f7e1559b175a57abfad00e81d5c28ee4f1e0a580",
+      "sha256": "117d93c757af6f980b0629bf2277eba222f88010e241839b66d69f55d37f7ea1",
       "matches_build": true,
       "neurons_parquet_sha256": "222cad44c36c35d256aa2b52cb4f659edea76ae8bf558a5cdbae52526b2adeb4"
     }
@@ -48,7 +48,8 @@
       "sensory_descending",
       "vnc_intrinsic",
       "vnc_motor",
-      "vnc_sensory"
+      "vnc_sensory",
+      "vnc_unknown"
     ],
     "in_scope_by_role_class": {
       "vnc_intrinsic": 13161,
@@ -58,21 +59,20 @@
       "vnc_motor": 708,
       "sensory_ascending": 539,
       "efferent": 110,
+      "vnc_unknown": 38,
       "endocrine": 22,
       "sensory_descending": 12,
-      "unknown": 12,
       "cb_intrinsic": 4
     },
     "in_scope_via_annotation_only": {
-      "n": 38,
+      "n": 26,
       "by_role_class": {
         "endocrine": 22,
-        "unknown": 12,
         "cb_intrinsic": 4
       }
     },
     "out_of_scope": {
-      "n": 142564,
+      "n": 142538,
       "by_role_class": {
         "ol_intrinsic": 89403,
         "cb_intrinsic": 32160,
@@ -81,32 +81,31 @@
         "cb_sensory": 4882,
         "visual_centrifugal": 563,
         "endocrine": 122,
-        "cb_motor": 107,
-        "unknown": 26
+        "cb_motor": 107
       },
       "note": "outside MANC volume (brain-only role class, or no VNC role and no curated MANC annotation); counted here, not enumerated as rows"
     }
   },
-  "rows": 449958,
+  "rows": 449984,
   "a_neurons_by_mapping_kind": {
     "curated_body_match": 18555,
     "curated_type_match": 4414,
     "same_type_name": 0,
     "same_role_only": 1165,
-    "unmatched": 2
+    "unmatched": 28
   },
   "rows_by_mapping_kind": {
     "curated_body_match": 18555,
     "curated_type_match": 430236,
     "same_type_name": 0,
     "same_role_only": 1165,
-    "unmatched": 2
+    "unmatched": 28
   },
   "a_neurons_by_confidence": {
     "high": 18555,
     "medium": 78,
     "low": 4336,
-    "none": 1167
+    "none": 1193
   },
   "ambiguity_by_mapping_kind": {
     "curated_type_match": {
@@ -161,13 +160,26 @@
       "inconsistent": 5941,
       "unknown": 327,
       "rate": 0.6741
+    },
+    "both_type_annotations_contradicted_by_snapshot": {
+      "n": 4022,
+      "b_role_class": {
+        "vnc_intrinsic": 2649,
+        "vnc_sensory": 343,
+        "descending": 325,
+        "sensory_ascending": 233,
+        "ascending": 230,
+        "vnc_motor": 212,
+        "efferent": 30
+      },
+      "note": "confidence stays 'high' (uniqueness of the curated body match); readers wanting corroborated matches filter on manc_type_consistent / a_type_consistent"
     }
   },
   "type_name_coverage": {
     "a_in_scope_cell_types": 4202,
     "a_cell_types_present_in_b": 3395,
     "a_in_scope_neurons_with_cell_type_present_in_b": 19032,
-    "a_in_scope_neurons_without_cell_type": 1053,
+    "a_in_scope_neurons_without_cell_type": 1079,
     "b_cell_types": 4076,
     "b_cell_types_present_in_a_in_scope": 3395
   },
@@ -190,8 +202,8 @@
   },
   "table": {
     "path": "$DATA/processed/mappings/male-cns_v1.0__manc_v1.2.1/neuron_mapping.parquet",
-    "size_bytes": 1912876,
-    "sha256": "e0e18526d45f3960b7c48757beedab1e00ddaca2fd145e44e83e8734c49cc541",
-    "rows": 449958
+    "size_bytes": 1952125,
+    "sha256": "81699b6bad9c5810a65d97a69679142d72e1ff7313ba9853bdad6ff00cba7bb5",
+    "rows": 449984
   }
 }

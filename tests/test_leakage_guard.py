@@ -15,14 +15,23 @@ from pathlib import Path
 from brainir import paths
 
 SRC = paths.repo_root() / "src" / "brainir"
-ANSWER_KEY_TOKENS = [
-    # published CPG interneuron types (Pugliese et al.)
-    "IN17A001", "INXXX466", "IN16B036", "IN19A007", "IN19B012", "IN03A006", "INXXX464",
-    # MaleCNS body IDs reported for the minimal circuits (mCNS extraction used by the paper)
-    "800173", "800863", "801884", "800374", "800216", "800663", "800286",
-    # MANC body IDs of the canonical circuit
-    "10707", "11751", "13905",
-]
+ORACLE = paths.repo_root() / "benchmarks" / "dng100" / "oracle" / "oracle.json"
+
+
+def _answer_key_tokens() -> list[str]:
+    """Every published interneuron type and every core body id of every network, read from the oracle at test time
+    (so this file itself carries no answer token)."""
+    import json
+
+    o = json.loads(ORACLE.read_text(encoding="utf-8"))
+    toks = {v["type"] for v in o["labels"].values()}
+    for n in o["networks"].values():
+        toks |= {str(i) for i in n["core"].values()}
+        toks |= {str(i) for i in (n.get("core_contralateral_copies") or {}).values()}
+    return sorted(toks)
+
+
+ANSWER_KEY_TOKENS = _answer_key_tokens()
 
 
 def _library_files() -> list[Path]:
@@ -40,7 +49,8 @@ def test_library_contains_no_answer_key_tokens():
 
 
 CLEAN_DOCS = ["README.md", "CLAUDE.md", "docs", "research/data_ecosystem.md", "research/connectome_ecosystem_survey.md",
-              "research/LOG.md", "data/README.md"]
+              "research/LOG.md", "research/cross_connectome_mapping.md", "research/manc_release_notes.md", "data/README.md",
+              "data/manifests"]
 
 
 def test_non_answer_docs_are_clean():

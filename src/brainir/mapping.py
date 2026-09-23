@@ -3,6 +3,11 @@
 Two connectomes are two animals. **No row of the mapping table asserts identity.** Each row records which fields were
 compared (``method``), the epistemic status of that comparison (``evidence_kind``), a coarse category
 (``mapping_kind``), a uniqueness label (``confidence``) and how many B candidates the rule produced (``ambiguity``).
+``confidence`` and ``ambiguity`` describe the A -> B direction (how uniquely the A neuron's rule singled out B
+candidates); ``b_ambiguity`` gives the B -> A count (how many A neurons name the same B candidate under the same
+rule). **Neither encodes agreement**: whether the candidate's own annotations agree with A's lives in the
+``*_consistent`` columns (``manc_type_consistent``, ``a_type_consistent``, ``side_consistent``, ``role_consistent``,
+``nt_consistent``); a ``high`` body match whose current snapshot type contradicts the annotation is still ``high``.
 
 Rules, applied in priority order to every A neuron in scope (the first rule that yields candidates wins):
 
@@ -46,11 +51,12 @@ from .schema.evidence import EvidenceKind as E
 from .schema.tables import DSTR, STR, Col, TableSpec, conform
 from .schema.vocab import NT_CLASSES, ROLE_RULE_ID
 
-MAPPING_SCHEMA_VERSION = "1.0.0"
+MAPPING_SCHEMA_VERSION = "1.1.0"
+"""1.1.0 (2026-09-23): + manc_type_consistent, a_type_consistent, b_ambiguity; confidence documented as A -> B uniqueness."""
 MAPPING_KINDS = ("curated_body_match", "curated_type_match", "same_type_name", "same_role_only", "unmatched")
 CONFIDENCE_LEVELS = ("high", "medium", "low", "none")
 VNC_ROLES = frozenset({"descending", "ascending", "sensory_ascending", "sensory_descending", "efferent",
-                       "vnc_intrinsic", "vnc_motor", "vnc_sensory"})
+                       "vnc_intrinsic", "vnc_motor", "vnc_sensory", "vnc_unknown"})
 """Role classes (rule brainir.role.v1) whose neurons have arbor in the VNC and can therefore exist in a VNC connectome."""
 A_NT_FIELD = "nt_consensus"
 """NT label compared on the A side (MaleCNS publishes a consensus label)."""
@@ -74,10 +80,13 @@ MAPPING = TableSpec(
         Col("method", DSTR, E.PROVENANCE, "Which fields were compared.", False),
         Col("evidence_kind", DSTR, E.PROVENANCE, "Epistemic status of the comparison: curated_annotation (the A release's "
                                                  "own cross-dataset annotation) or derived_anatomy (BrainIR comparison of labels).", False),
-        Col("confidence", DSTR, E.PROVENANCE, "Uniqueness label: high (curated body), medium (one same-side candidate), low "
-                                              "(several / side unknown), none (no per-neuron candidate).", False),
-        Col("ambiguity", pa.int32(), E.PROVENANCE, "Number of B candidates this rule produced for the A neuron (0 = unmatched).",
+        Col("confidence", DSTR, E.PROVENANCE, "Uniqueness label for the A -> B direction, NOT agreement: high (curated body match), "
+                                              "medium (one same-side candidate), low (several / side unknown), none (no per-neuron "
+                                              "candidate). Agreement of the candidate's annotations is in the *_consistent columns.", False),
+        Col("ambiguity", pa.int32(), E.PROVENANCE, "Number of B candidates this rule produced for the A neuron (A -> B; 0 = unmatched).",
             False, unit="count"),
+        Col("b_ambiguity", pa.int32(), E.PROVENANCE, "Number of A neurons whose rows of the same mapping_kind name this B candidate "
+                                                     "(B -> A direction); null without a candidate.", unit="count"),
         Col("a_cell_type", STR, E.CURATED_ANNOTATION, "A cell_type."),
         Col("b_cell_type", STR, E.CURATED_ANNOTATION, "B cell_type of the candidate."),
         Col("a_side", DSTR, E.DERIVED_ANATOMY, "A side (soma side, else root side)."),
@@ -89,6 +98,10 @@ MAPPING = TableSpec(
         Col("a_nt", DSTR, E.ML_PREDICTION, f"A neurotransmitter label ({A_NT_FIELD}); prediction/curation mix, not physiology."),
         Col("b_nt", DSTR, E.ML_PREDICTION, f"B neurotransmitter label ({B_NT_FIELD}); ML prediction, not physiology."),
         Col("nt_consistent", pa.bool_(), E.DERIVED_ANATOMY, "a_nt == b_nt; null when either is missing, 'unclear' or 'unknown'."),
+        Col("manc_type_consistent", pa.bool_(), E.DERIVED_ANATOMY, "A's curated manc_type == the B candidate's current cell_type; null "
+                                                                   "when either is missing or the row has no candidate."),
+        Col("a_type_consistent", pa.bool_(), E.DERIVED_ANATOMY, "A cell_type == the B candidate's cell_type (verbatim names); null when "
+                                                                "either is missing or the row has no candidate."),
         Col("notes", STR, E.PROVENANCE, "Free-text details of the rule application (side filtering, annotation disagreements)."),
     ),
 )
@@ -251,11 +264,13 @@ def build_mapping(cx_a: Connectome, cx_b: Connectome, *, spec: MappingSpec | Non
         rows.append({
             "a_uid": a.uid[a_id], "b_uid": b_uid, "a_source_id": a_id, "b_source_id": b_id,
             "mapping_kind": kind, "method": _METHOD[kind], "evidence_kind": _EVIDENCE[kind],
-            "confidence": confidence, "ambiguity": ambiguity,
+            "confidence": confidence, "ambiguity": ambiguity, "b_ambiguity": None,  # filled once all rows exist
             "a_cell_type": a.cell_type[a_id], "b_cell_type": b_type,
             "a_side": a_side, "b_side": b_side, "side_consistent": _consistent(a_side, b_side),
             "a_role_class": a_role, "b_role_class": b_role, "role_consistent": _consistent(a_role, b_role),
             "a_nt": a_nt, "b_nt": b_nt, "nt_consistent": _nt_consistent(a_nt, b_nt),
+            "manc_type_consistent": _consistent(a.manc_type[a_id], b_type) if b_id is not None else None,
+            "a_type_consistent": _consistent(a.cell_type[a_id], b_type) if b_id is not None else None,
             "notes": "; ".join(n for n in notes if n) or None,
         })
 
@@ -310,6 +325,10 @@ def build_mapping(cx_a: Connectome, cx_b: Connectome, *, spec: MappingSpec | Non
             emit(a_id, None, "unmatched", "none", 0, [*notes, "no B neuron shares a known role class"])
             per_a.append((a_id, "unmatched", "none", 0))
 
+    named = Counter((r["mapping_kind"], r["b_source_id"]) for r in rows if r["b_source_id"] is not None)
+    for r in rows:  # B -> A direction: how many A neurons name this candidate under the same rule
+        if r["b_source_id"] is not None:
+            r["b_ambiguity"] = named[(r["mapping_kind"], r["b_source_id"])]
     table = _to_pandas(_to_arrow(rows))
     summary = _summary(spec, cx_a, cx_b, a, b, in_scope, out_scope, shared_body, rows, per_a)
     return table, summary
@@ -362,13 +381,7 @@ def _summary(spec, cx_a, cx_b, a: _Lookup, b: _Lookup, in_scope, out_scope, shar
     b_any = {r["b_source_id"] for r in rows if r["b_source_id"] is not None}
     b_body = Counter(r["b_source_id"] for r in body_rows)
     via_ann = [i for i in in_scope if a.role[i] not in VNC_ROLES]
-
-    def notes_flag(prefix: str) -> list[bool | None]:
-        out = []
-        for r in body_rows:
-            n = r["notes"] or ""
-            out.append(True if f"{prefix} == b.cell_type" in n else False if f"{prefix} != b.cell_type" in n else None)
-        return out
+    contradicted = [r for r in body_rows if r["manc_type_consistent"] is False and r["a_type_consistent"] is False]
 
     return {
         "mapping_schema_version": MAPPING_SCHEMA_VERSION,
@@ -407,8 +420,12 @@ def _summary(spec, cx_a, cx_b, a: _Lookup, b: _Lookup, in_scope, out_scope, shar
             "side": _agreement([r["side_consistent"] for r in body_rows]),
             "role": _agreement([r["role_consistent"] for r in body_rows]),
             "nt": _agreement([r["nt_consistent"] for r in body_rows]),
-            "manc_type_equals_b_cell_type": _agreement(notes_flag("manc_type")),
-            "a_cell_type_equals_b_cell_type": _agreement(notes_flag("a.cell_type")),
+            "manc_type_equals_b_cell_type": _agreement([r["manc_type_consistent"] for r in body_rows]),
+            "a_cell_type_equals_b_cell_type": _agreement([r["a_type_consistent"] for r in body_rows]),
+            "both_type_annotations_contradicted_by_snapshot": {
+                "n": len(contradicted), "b_role_class": _counts(r["b_role_class"] for r in contradicted),
+                "note": "confidence stays 'high' (uniqueness of the curated body match); readers wanting corroborated matches "
+                        "filter on manc_type_consistent / a_type_consistent"},
         },
         "type_name_coverage": {
             "a_in_scope_cell_types": len(a_types), "a_cell_types_present_in_b": len(a_types_in_b),
@@ -464,7 +481,11 @@ def _ordered(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def reverse_lookup(table: pd.DataFrame, b_source_id: int) -> pd.DataFrame:
-    """All rows naming a B neuron as candidate (B -> A direction), strongest mapping_kind first."""
+    """All rows naming a B neuron as candidate (B -> A direction), strongest mapping_kind first.
+
+    The rows are the forward rows: ``confidence``/``ambiguity`` still describe the A neuron's rule; ``b_ambiguity`` is
+    the B-side count. An empty result means no in-scope A neuron names this B neuron under any rule (or the id is not a
+    B neuron) — there are no B-side 'unmatched' rows."""
     m = table["b_source_id"].eq(int(b_source_id)).fillna(False).to_numpy(bool)
     return _ordered(table[m])
 

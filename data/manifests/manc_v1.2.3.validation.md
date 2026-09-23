@@ -10,19 +10,19 @@
   "version": "v1.2.3",
   "pipeline": "brainir.ingest.manc@1.0.0",
   "git": {
-    "commit": "b5d956511449c325b0c8e2b15fa4f6ab92b0b54b",
+    "commit": "8cf067322ea23496739abd3120e072d8c2a429d5",
     "src_dirty": true,
     "pipeline_code": {
-      "combined_sha256": "022fa60850ae391adf7644ef8f96914b400f02be6bb6a3f1567db77f1d1694d0",
+      "combined_sha256": "ab0e92f8a991e1b10de10879a2e518cf3e9c32600d0553113d51719cae4c2758",
       "files": {
         "ingest/common.py": "12630e70eb3bfad0b984ec9eead6a6d5089ed55a579d34644cf043501a3b7bb1",
         "ingest/malecns.py": "35ea4d371889c774758e3be86e205b7bb42cf4ce0e2afc5b3a2430734567e4df",
         "ingest/manc.py": "c2c95ceaae0bc6138af3be97f2b87f818858ed4c4746336b2f3365ee9b7fc5c6",
         "io.py": "caef03300a0021f9f05eee4bef7d06b935d1a3d45b2d26d365def931f127d91c",
         "schema/tables.py": "98dc8ae7dc0b6dcb9789388df4d2a96923ab244b7a1376d2a5c1dbf5d56b7652",
-        "schema/vocab.py": "b6aa8e69db0db034c8bb4b904b2089b3287340352f5fa218d25e62314d2d4ce0",
+        "schema/vocab.py": "63c9f8da8bcf9bd3ed25a914582d154f9a9f52ed92a7957b5f01d27f0b55b349",
         "schema/evidence.py": "ea3ec89660d7154d5c4182a10ef48d270e9ead8ad8fc05c03f137ed237bf0407",
-        "sources/registry.py": "1a680704222ab892de0ffb4b81ed7df4a27f5115316244b2c865f5b83ad39dba",
+        "sources/registry.py": "470bb9c6a6e82d1c2e486b964894566c6c08cb0fe185e6d0b5ea1923d4d6f84d",
         "validation.py": "2c16125a8ad1ceb30dd6c3e0bd0ac2b807e2eb5be4c5397df8e8d0ffc9773f61",
         "paths.py": "d1605ad6a2a90398bcac987703f3854601f7b57bfb15d600d0419836d3ca1c42"
       }

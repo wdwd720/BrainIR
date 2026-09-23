@@ -38,13 +38,17 @@ class ReplicateResult:
     """Per-neuron peak rate over the analysis window (Hz)."""
     readout_scores: np.ndarray = field(repr=False)
     readout_frequencies_hz: np.ndarray = field(repr=False)
+    readout_range_median_hz: float = 0.0
+    """Median peak-to-trough range of the scored readout neurons over the window (Hz): the amplitude the score ignores."""
+    readout_peak_median_hz: float = 0.0
     solver_success: bool = True
     wall_time_s: float = 0.0
 
     def to_dict(self, *, arrays: bool = False) -> dict:
         d = {"seed": self.seed, "score": self.score, "mean_frequency_hz": self.mean_frequency_hz,
              "n_active_readout": self.n_active_readout, "n_active_all": self.n_active_all, "n_high_rate": self.n_high_rate,
-             "max_rate_hz": self.max_rate_hz, "solver_success": self.solver_success, "wall_time_s": self.wall_time_s}
+             "max_rate_hz": self.max_rate_hz, "readout_range_median_hz": self.readout_range_median_hz,
+             "readout_peak_median_hz": self.readout_peak_median_hz, "solver_success": self.solver_success, "wall_time_s": self.wall_time_s}
         if arrays:
             d.update(peak_rates=self.peak_rates.tolist(), readout_scores=self.readout_scores.tolist(),
                      readout_frequencies_hz=self.readout_frequencies_hz.tolist())
@@ -101,9 +105,14 @@ def score_trajectory(traj: Trajectory, readout_mask: np.ndarray, *, t_start: flo
     mask = active & readout_mask
     score, f, per, freqs = network_oscillation_score(win, mask, prominence)
     dt = float(traj.t[1] - traj.t[0])
+    # amplitude-aware statistics travel with the (amplitude-blind) published score: the peak-to-trough range of the scored
+    # readout neurons over the analysis window, so a sub-Hz ripple with a perfect autocorrelation is recognisable as such
+    rng = (win[:, mask].max(axis=0) - win[:, mask].min(axis=0)) if mask.any() else np.zeros(0)
     return {"score": score, "mean_frequency_hz": (f / dt) if f > 0 else None, "n_active_readout": int(mask.sum()),
             "n_active_all": int((traj.r.max(axis=0) > active_rate_hz).sum()), "n_high_rate": int((traj.r.max(axis=0) > high_rate_hz).sum()),
-            "max_rate_hz": float(traj.r.max()), "peak_rates": peak, "readout_scores": per, "readout_frequencies_hz": freqs / dt}
+            "max_rate_hz": float(traj.r.max()), "readout_range_median_hz": float(np.median(rng)) if rng.size else 0.0,
+            "readout_peak_median_hz": float(np.median(peak[mask])) if mask.any() else 0.0,
+            "peak_rates": peak, "readout_scores": per, "readout_frequencies_hz": freqs / dt}
 
 
 def _run_replicate(args) -> tuple[ReplicateResult, Trajectory | None]:

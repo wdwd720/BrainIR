@@ -189,6 +189,39 @@ Primary key: `x_pre, y_pre, z_pre, x_post, y_post, z_post` · sort order: `pre_i
 | `conf_post` | `float` | no | ml_prediction | probability | Synapse detector confidence of the PSD. |
 | `neuropil` | `dictionary<values=string, indices=int32, ordered=0>` | no | em_reconstruction |  | Primary neuropil of the PSD (or '<unassigned>'). |
 
+### `neuron_mapping (cross-connectome mapping, schema 1.1.0; data/processed/mappings/<a>__<b>/)`
+
+Candidate counterparts of A neurons in B. One row per (A neuron, B candidate) plus one row per A neuron without a candidate. Never identity: two animals, compared on annotations.
+
+Primary key: `a_source_id, b_source_id` · sort order: `a_source_id, b_source_id`
+
+| column | type | null | evidence | unit | description |
+|---|---|---|---|---|---|
+| `a_uid` | `string` | no | identifier |  | neuron_uid of the A neuron ('<dataset>:<version>:<source_id>'). |
+| `b_uid` | `string` | yes | identifier |  | neuron_uid of the B candidate; null for same_role_only / unmatched rows. |
+| `a_source_id` | `int64` | no | identifier |  | A dataset-native ID (meaningful only with the A dataset:version). |
+| `b_source_id` | `int64` | yes | identifier |  | B dataset-native ID; null when the row has no per-neuron candidate. |
+| `mapping_kind` | `dictionary<values=string, indices=int32, ordered=0>` | no | provenance |  | Rule that produced the row: curated_body_match, curated_type_match, same_type_name, same_role_only, unmatched. |
+| `method` | `dictionary<values=string, indices=int32, ordered=0>` | no | provenance |  | Which fields were compared. |
+| `evidence_kind` | `dictionary<values=string, indices=int32, ordered=0>` | no | provenance |  | Epistemic status of the comparison: curated_annotation (the A release's own cross-dataset annotation) or derived_anatomy (BrainIR comparison of labels). |
+| `confidence` | `dictionary<values=string, indices=int32, ordered=0>` | no | provenance |  | Uniqueness label for the A -> B direction, NOT agreement: high (curated body match), medium (one same-side candidate), low (several / side unknown), none (no per-neuron candidate). Agreement of the candidate's annotations is in the *_consistent columns. |
+| `ambiguity` | `int32` | no | provenance | count | Number of B candidates this rule produced for the A neuron (A -> B; 0 = unmatched). |
+| `b_ambiguity` | `int32` | yes | provenance | count | Number of A neurons whose rows of the same mapping_kind name this B candidate (B -> A direction); null without a candidate. |
+| `a_cell_type` | `string` | yes | curated_annotation |  | A cell_type. |
+| `b_cell_type` | `string` | yes | curated_annotation |  | B cell_type of the candidate. |
+| `a_side` | `dictionary<values=string, indices=int32, ordered=0>` | yes | derived_anatomy |  | A side (soma side, else root side). |
+| `b_side` | `dictionary<values=string, indices=int32, ordered=0>` | yes | derived_anatomy |  | B side of the candidate. |
+| `side_consistent` | `bool` | yes | derived_anatomy |  | a_side == b_side; null when either is unknown. |
+| `a_role_class` | `dictionary<values=string, indices=int32, ordered=0>` | yes | curated_annotation |  | A role class (rule brainir.role.v1). |
+| `b_role_class` | `dictionary<values=string, indices=int32, ordered=0>` | yes | curated_annotation |  | B role class of the candidate (same_role_only rows: the shared role). |
+| `role_consistent` | `bool` | yes | derived_anatomy |  | a_role_class == b_role_class; null when either is unknown. |
+| `a_nt` | `dictionary<values=string, indices=int32, ordered=0>` | yes | ml_prediction |  | A neurotransmitter label (nt_consensus); prediction/curation mix, not physiology. |
+| `b_nt` | `dictionary<values=string, indices=int32, ordered=0>` | yes | ml_prediction |  | B neurotransmitter label (nt_body_prediction); ML prediction, not physiology. |
+| `nt_consistent` | `bool` | yes | derived_anatomy |  | a_nt == b_nt; null when either is missing, 'unclear' or 'unknown'. |
+| `manc_type_consistent` | `bool` | yes | derived_anatomy |  | A's curated manc_type == the B candidate's current cell_type; null when either is missing or the row has no candidate. |
+| `a_type_consistent` | `bool` | yes | derived_anatomy |  | A cell_type == the B candidate's cell_type (verbatim names); null when either is missing or the row has no candidate. |
+| `notes` | `string` | yes | provenance |  | Free-text details of the rule application (side filtering, annotation disagreements). |
+
 
 ## Record models (pydantic, `brainir.schema.models`)
 

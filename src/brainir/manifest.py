@@ -187,8 +187,15 @@ def build_manifest(source: DatasetSource, build_info: dict, report_dict: dict, o
                  for c in report_dict["checks"] if c["status"] in ("fail", "warn")]
     acquired = sorted(f["acquired_at_utc"] for f in files) if files else []
     animal = facts.get("animal", {"species": "Drosophila melanogaster", "sex": "male", "n_animals": 1})
-    neuprint_snapshot = build_info.get("neuprint_meta") or build_info.get("neuprint_meta_v1_0")
-    release = {"date": facts.get("release_date"), "notes": facts.get("release_notes", []), "neuprint_snapshot": neuprint_snapshot}
+    if build_info.get("neuprint_meta") is not None:
+        release = {"date": facts.get("release_date"), "notes": facts.get("release_notes", []), "neuprint_snapshot": build_info["neuprint_meta"]}
+    else:
+        # v1.2.x rebuilds: no neuPrint bulk export exists; the v1.0 Meta describes only the export used for NT/sizes
+        release = {"date": facts.get("release_date"), "notes": facts.get("release_notes", []), "neuprint_snapshot": None,
+                   "neuprint_snapshot_note": "no bulk export of this version exists; the build is rebuilt from the public partner "
+                                             "table + annotation snapshot, and its correspondence to the live neuPrint dataset is "
+                                             "inferred (paper-table agreement), not verified against a Meta node",
+                   "v1_0_export_meta_used_for_nt_and_sizes": build_info.get("neuprint_meta_v1_0")}
     if build_info.get("annotation_snapshot"):
         release["annotation_snapshot"] = build_info["annotation_snapshot"]
     definitions = dict(build_info.get("definitions") or {})

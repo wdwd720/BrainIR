@@ -166,12 +166,22 @@
    "evidence": {
     "core": "paper_simulation",
     "roles": "expert_interpretation (sign rule on predicted NT)",
-    "essential": "paper_simulation",
+    "essential": "paper_simulation + brainir_simulation (silencing reproduced: see interventions_brainir)",
     "modal_circuit": "paper_simulation + brainir_simulation (68.1% of 1024 BrainIR screens; paper 62.1%)",
     "frequency_hz": "paper_simulation + brainir_simulation",
     "stimulation_statistics_brainir": "brainir_simulation",
     "pruning_statistics_brainir": "brainir_simulation",
-    "stimulation_statistics_brainir_nt_labels_brainir": "brainir_simulation (BrainIR nt_body_prediction labels instead of the authors' predictedNt)"
+    "stimulation_statistics_brainir_nt_labels_brainir": "brainir_simulation (BrainIR nt_body_prediction labels instead of the authors' predictedNt)",
+    "interventions_brainir": "brainir_simulation (silencing / keep-only, 64 replicates, T = 1 s)",
+    "dn_screen_brainir": "brainir_simulation (the stimulus DN ranks 1-2 of 933 excitatory DNs, type rank 1; paper: ranks 1-2 in its 16-replicate screen)",
+    "dataset": "benchmark definition",
+    "version": "benchmark definition",
+    "stimulus_source_ids": "benchmark definition (the DNg100 with the most output into LegNp(T1)(L); equals the paper's stimulated neuron)",
+    "modal_prevalence": "paper_simulation",
+    "other_circuits": "paper_simulation",
+    "inhibitory_slot": "expert_interpretation (both partners occur in published circuits)",
+    "stimulation_statistics_paper": "paper_simulation",
+    "silencing_paper": "paper_simulation"
    },
    "pruning_statistics_brainir": {
     "n_screens": 1024,
@@ -250,6 +260,100 @@
     "t_end_s": 2.0,
     "readout_n": 144,
     "source": "benchmarks/dng100_walking_cpg/results/stim_dng100_manc_v1.2.1_nt-brainir_n1024.json"
+   },
+   "interventions_brainir": {
+    "n": 64,
+    "t_end_s": 1.0,
+    "current": 250.0,
+    "conditions": {
+     "intact": {
+      "mean_score": 0.9694,
+      "median_score": 0.9966,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 10.53,
+      "median_active_readout": 3.0
+     },
+     "silence_E1": {
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "fraction_ge_0_5": 0.0,
+      "median_frequency_hz": null,
+      "median_active_readout": 2.0
+     },
+     "silence_E2": {
+      "mean_score": 0.0008,
+      "median_score": 0.0,
+      "fraction_ge_0_5": 0.0,
+      "median_frequency_hz": 16.67,
+      "median_active_readout": 1.0
+     },
+     "silence_I1": {
+      "mean_score": 0.9364,
+      "median_score": 0.9945,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 9.28,
+      "median_active_readout": 2.5
+     },
+     "silence_I2": {
+      "mean_score": 0.9512,
+      "median_score": 0.9964,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 11.26,
+      "median_active_readout": 3.0
+     },
+     "silence_E3": {
+      "mean_score": 0.7551,
+      "median_score": 0.9846,
+      "fraction_ge_0_5": 0.75,
+      "median_frequency_hz": 20.0,
+      "median_active_readout": 2.0
+     },
+     "keep_only_modal_core": {
+      "mean_score": 0.9775,
+      "median_score": 0.9953,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 16.39,
+      "median_active_readout": 2.0
+     },
+     "keep_only_alternative_core": {
+      "mean_score": 0.8571,
+      "median_score": 0.8624,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 14.93,
+      "median_active_readout": 2.0
+     },
+     "keep_only_E1_E2": {
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "fraction_ge_0_5": 0.0,
+      "median_frequency_hz": null,
+      "median_active_readout": 10.5
+     }
+    },
+    "source": "benchmarks/dng100_walking_cpg/results/interventions_manc_v1.2.1_nt-paper_n64.json"
+   },
+   "dn_screen_brainir": {
+    "n_candidates": 933,
+    "replicates": 16,
+    "n_candidates_with_mean_gt_0_5": 31,
+    "fraction_never_usable": 0.1436,
+    "dng100_neuron_ranks": [
+     1,
+     2
+    ],
+    "dng100_type_rank": 1,
+    "published": {
+     "n_dns": 933,
+     "mean_gt_0_5": 29,
+     "never_usable_fraction": 0.079,
+     "dng100_neuron_ranks_128rep": [
+      3,
+      4
+     ],
+     "dng100_type_rank": 1,
+     "note": "v2 screen: 128 replicates; v1 screen (16 replicates, cap 500): DNg100 neurons ranked 1 and 2"
+    },
+    "source": "benchmarks/dng100_walking_cpg/results/dn_screen_manc_v1.2.1_nt-paper_r16.json (registry run eadcf14fb9b2e55b)"
    }
   },
   "manc_v1.2.3": {
@@ -302,7 +406,12 @@
     "roles": "expert_interpretation",
     "essential": "paper_simulation",
     "modal_circuit": "paper_simulation",
-    "frequency_hz": "paper_simulation + brainir_simulation"
+    "frequency_hz": "paper_simulation + brainir_simulation",
+    "dataset": "benchmark definition",
+    "version": "benchmark definition",
+    "stimulus_source_ids": "benchmark definition (the DNg100 with the most output into LegNp(T1)(L); equals the paper's stimulated neuron)",
+    "modal_prevalence": "paper_simulation",
+    "inhibitory_slot": "expert_interpretation (both partners occur in published circuits)"
    }
   },
   "male-cns_v1.0": {
@@ -413,29 +522,113 @@
    "evidence": {
     "core": "paper_simulation (IDs verified in male-cns:v1.0, Phase 0)",
     "roles": "expert_interpretation",
-    "essential": "paper_simulation",
+    "essential": "paper_simulation + brainir_simulation (silencing reproduced: see interventions_brainir)",
     "modal_circuit": "paper_simulation",
     "frequency_hz": "paper_simulation",
-    "stimulation_statistics_brainir": "brainir_simulation (authors' consensusNt labels; v1.0 counts; one authors' body absent from v1.0 dropped)"
+    "stimulation_statistics_brainir": "brainir_simulation (authors' consensusNt labels; v1.0 counts; the benchmark's stimulus neuron; reproduces the paper's recruitment: median 8 active MNs)",
+    "interventions_brainir": "brainir_simulation (silencing / keep-only, 64 replicates, T = 1 s)",
+    "dataset": "benchmark definition",
+    "version": "benchmark definition",
+    "stimulus_source_ids": "benchmark definition (the DNg100 with the most output into LegNp(T1)(L); equals the paper's stimulated neuron)",
+    "core_contralateral_copies": "expert_interpretation (same cell type, other side)",
+    "modal_prevalence": "paper_simulation",
+    "other_circuits": "paper_simulation",
+    "inhibitory_slot": "expert_interpretation (both partners occur in published circuits)",
+    "stimulation_statistics_paper": "paper_simulation",
+    "silencing_paper": "paper_simulation",
+    "caveat": "expert_interpretation"
    },
    "caveat": "the paper's MaleCNS network was extracted from a pre-release neuPrint state (2026-02-10); 30 bodies changed before v1.0 (none of them core neurons: verified in Phase 0)",
    "stimulation_statistics_brainir": {
     "n": 128,
-    "mean_score": 0.9804,
-    "median_score": 0.9992,
-    "fraction_ge_0_5": 0.9922,
-    "median_frequency_hz": 13.16,
-    "median_active_readout": 4.0,
+    "mean_score": 0.9826,
+    "median_score": 0.9924,
+    "fraction_ge_0_5": 1.0,
+    "median_frequency_hz": 11.39,
+    "median_active_readout": 8.0,
     "active_readout_range": [
-     0,
-     6
+     6,
+     12
     ],
     "current": 400.0,
     "t_end_s": 2.0,
     "readout_n": 130,
+    "stimulus_source_ids": [
+     10056
+    ],
     "source": "benchmarks/dng100_walking_cpg/results/stim_dng100_male-cns_v1.0_nt-paper_n128.json"
    },
-   "discrepancy_note": "BrainIR reproduces the rhythm statistics of the paper's MaleCNS network (mean 0.980 vs 0.985) but recruits a median of 4 (0-6) active front-leg MNs vs the paper's 8 (6-16); the paper's mCNS stimulation configuration is not in its repository (LOG 8.8). Functional evaluation on this network uses BrainIR's own simulated statistics as reference."
+   "interventions_brainir": {
+    "n": 64,
+    "t_end_s": 1.0,
+    "current": 400.0,
+    "conditions": {
+     "intact": {
+      "mean_score": 0.9825,
+      "median_score": 0.9937,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 11.41,
+      "median_active_readout": 8.0
+     },
+     "silence_E1": {
+      "mean_score": 0.0441,
+      "median_score": 0.0,
+      "fraction_ge_0_5": 0.0156,
+      "median_frequency_hz": 10.94,
+      "median_active_readout": 3.0
+     },
+     "silence_E2": {
+      "mean_score": 0.0037,
+      "median_score": 0.0,
+      "fraction_ge_0_5": 0.0,
+      "median_frequency_hz": 11.23,
+      "median_active_readout": 1.0
+     },
+     "silence_I1": {
+      "mean_score": 0.9841,
+      "median_score": 0.9894,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 10.81,
+      "median_active_readout": 8.0
+     },
+     "silence_I2": {
+      "mean_score": 0.949,
+      "median_score": 0.9515,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 9.95,
+      "median_active_readout": 12.0
+     },
+     "silence_E3": {
+      "mean_score": 0.9956,
+      "median_score": 0.9987,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 16.39,
+      "median_active_readout": 4.0
+     },
+     "keep_only_modal_core": {
+      "mean_score": 0.7951,
+      "median_score": 0.7988,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 16.67,
+      "median_active_readout": 5.0
+     },
+     "keep_only_alternative_core": {
+      "mean_score": 0.7648,
+      "median_score": 0.7749,
+      "fraction_ge_0_5": 1.0,
+      "median_frequency_hz": 15.2,
+      "median_active_readout": 9.0
+     },
+     "keep_only_E1_E2": {
+      "mean_score": 0.0,
+      "median_score": 0.0,
+      "fraction_ge_0_5": 0.0,
+      "median_frequency_hz": null,
+      "median_active_readout": 17.0
+     }
+    },
+    "source": "benchmarks/dng100_walking_cpg/results/interventions_male-cns_v1.0_nt-paper_n64.json"
+   }
   }
  },
  "cross_connectome": {

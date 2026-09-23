@@ -11,9 +11,12 @@ Contract for a method file: a Python script that reads the environment variables
 and imports only the standard library, numpy/scipy/pandas/networkx and `brainir` (never `benchmarks`).
 
 The runner: copies the bundle to a fresh directory (so the method cannot see the rest of the repository through relative
-paths), strips the environment of everything but PATH/system variables, runs the method with cwd = the copy, verifies
-the produced predictions parse, records SHA-256 of the bundle, the method file and each prediction, and writes
-run_record.json. It never touches the oracle; evaluation is a separate step.
+paths), strips the environment of everything but PATH/system variables, runs the method with cwd = the copy under the
+audit-hook sandbox `_sandbox.py` (file access confined to the bundle copy, the output directory, the Python installation and
+temp; no subprocesses, sockets, ctypes), verifies the produced predictions parse, records SHA-256 of the bundle, the method
+file, the sandbox and each prediction plus the method arguments, and writes run_record.json. It never touches the oracle;
+evaluation is a separate step (`evaluator/evaluate.py --run-record run_record.json` verifies the hashes it recorded).
+The sandbox is a defence against inadvertent and casual leakage, not OS-level isolation (see _sandbox.py).
 """
 
 from __future__ import annotations
@@ -38,6 +41,7 @@ SAFE_ENV_KEYS = ("PATH", "SYSTEMROOT", "SYSTEMDRIVE", "WINDIR", "TEMP", "TMP", "
                  "APPDATA", "USERPROFILE", "HOMEDRIVE", "HOMEPATH", "HOME", "LANG", "LC_ALL", "PYTHONIOENCODING", "VIRTUAL_ENV",
                  "NUMBER_OF_PROCESSORS", "PROCESSOR_ARCHITECTURE")
 FORBIDDEN_IMPORT = re.compile(r"^\s*(from|import)\s+(benchmarks|oracle|evaluate)\b", re.M)
+SANDBOX = Path(__file__).resolve().parent / "_sandbox.py"
 
 
 def _sha(p: Path) -> str:
@@ -61,9 +65,16 @@ def run(method: Path, bundle: Path, out: Path, networks: list[str], seed: int, m
     with tempfile.TemporaryDirectory(prefix="brainir_cleanroom_") as tmp:
         copy = Path(tmp) / "bundle"
         shutil.copytree(bundle, copy)
+        # the method (and every child interpreter it starts) runs under the audit-hook sandbox: _sandbox.py is installed as
+        # sitecustomize through PYTHONPATH; file access only inside the bundle copy, the output directory, the Python
+        # installation, temp and the method's directory; no subprocesses, sockets or ctypes (see _sandbox.py)
+        site_dir = Path(tmp) / "sandbox_site"
+        site_dir.mkdir()
+        shutil.copyfile(SANDBOX, site_dir / "sitecustomize.py")
+        sandbox_env = {"PYTHONPATH": str(site_dir), "BRAINIR_SANDBOX_ROOTS": json.dumps([str(copy), str(out), str(method.parent)])}
         for net in networks:
             pred_path = out / f"prediction_{net}.json"
-            e = {**env, "BRAINIR_BUNDLE": str(copy), "BRAINIR_NETWORK": net, "BRAINIR_OUT": str(pred_path), "BRAINIR_SEED": str(seed)}
+            e = {**env, **sandbox_env, "BRAINIR_BUNDLE": str(copy), "BRAINIR_NETWORK": net, "BRAINIR_OUT": str(pred_path), "BRAINIR_SEED": str(seed)}
             t0 = time.time()
             proc = subprocess.run([sys.executable, str(method), *method_args.split()], cwd=copy, env=e, capture_output=True, text=True,
                                   timeout=timeout_s)
@@ -77,7 +88,9 @@ def run(method: Path, bundle: Path, out: Path, networks: list[str], seed: int, m
     record = {"created_utc": _dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
               "method_file": method.name, "method_sha256": _sha(method), "bundle": {"root": str(bundle.name), "tier": manifest["tier"],
               "bundle_sha256": manifest["bundle_sha256"], "benchmark_id": manifest["benchmark_id"]},
-              "seed": seed, "runs": records}
+              "seed": seed, "method_args": method_args, "sandbox": {"file": SANDBOX.name, "sha256": _sha(SANDBOX),
+              "allowed_roots": ["<bundle copy>", "<out>", "<python installation>", "<temp>", "<method directory>"]},
+              "runs": records}
     (out / "run_record.json").write_text(json.dumps(record, indent=1) + "\n", encoding="utf-8", newline="\n")
     return record
 

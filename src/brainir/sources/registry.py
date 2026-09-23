@@ -446,7 +446,8 @@ MANC_V1_2 = DatasetSource(
     bucket="manc-seg-v1p2",
     version_prefix="",
     neuprint_server="https://neuprint.janelia.org",
-    neuprint_dataset="manc:v1.2.1 / manc:v1.2.3 (rebuilt from public files; no bulk export exists)",
+    neuprint_dataset="manc:v1.2.1 / manc:v1.2.3 (rebuilt from public files; no bulk export exists; the correspondence to the live "
+                     "neuPrint datasets is inferred from the annotation snapshots and the paper's tables, not verified against a Meta node)",
     registered_on="2026-09-22",
     files=(
         # ---------------- core: synapses of the v1.2 segmentation ----------------

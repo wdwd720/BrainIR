@@ -122,17 +122,28 @@ def export_network(spec: NetworkSpec, out_dir: Path, *, tier: str, salt: str | N
     tab["soma_neuromere"] = neurons_full["soma_neuromere"].to_numpy()
     tab["hemilineage"] = neurons_full["hemilineage_truman"].to_numpy()
     id_map = None
+    order = np.arange(net.n)
     if tier == "A":
         if not salt:
             raise ValueError("tier A export needs a salt")
+        # positions are a salted random order: the node lists follow the paper's tables / ascending body ids, so an
+        # unpermuted position would identify the body to anyone holding those tables (review C, B1)
+        seed = int.from_bytes(hashlib.sha256(f"{salt}|order|{spec.dataset}|{spec.version}".encode()).digest()[:8], "big")
+        order = np.random.default_rng(seed).permutation(net.n)  # new position p holds the original neuron order[p]
+        tab = tab.iloc[order].reset_index(drop=True)
+        readout = readout[order]
         blind = tab["role_class"].isin([r for r in BLIND_ROLES if r is not None]) | tab["role_class"].isna()
         tokens = [_blind_token(salt, spec.dataset, spec.version, int(i)) for i in tab["source_id"]]
         tab.loc[blind, "cell_type"] = np.array(tokens, dtype=object)[blind.to_numpy()]
         tab.loc[blind, "instance"] = None
         tab.loc[blind, "hemilineage"] = None
-        # neuron identifiers become positional so that dataset body IDs (which appear in publications) are not visible
-        id_map = pd.DataFrame({"position": np.arange(net.n), "source_id": net.ids})
+        # neuron identifiers become positional so that dataset body IDs (which appear in publications) are not visible;
+        # the private map also keeps the real cell types so the evaluator can score type-level agreement in tier A
+        id_map = pd.DataFrame({"position": np.arange(net.n), "source_id": tab["source_id"].to_numpy(),
+                               "cell_type": net.table["cell_type"].to_numpy()[order]})
+        tab["position"] = np.arange(net.n)
         tab["source_id"] = tab["position"].to_numpy()
+    ids_pub = net.ids[order]  # ids in published position order
     public_ids = tab["source_id"].to_numpy()  # real IDs (tier B) or positions (tier A)
     cols = ["position", "source_id", "cell_type", "instance", "super_class", "sub_class", "role_class", "side", "soma_neuromere",
             "hemilineage", "nt_used", "sign", "size", "is_stimulus", "is_readout", "out_pairs", "in_pairs"]
@@ -141,12 +152,13 @@ def export_network(spec: NetworkSpec, out_dir: Path, *, tier: str, salt: str | N
     pq.write_table(ntab, out_dir / "neurons.parquet", compression="zstd")
     # edges = every observed pair (>= floor synapses, no autapses), including pairs whose presynaptic neuron has sign 0:
     # synapse_count is anatomy, signed_weight = synapse_count x sign(pre) is the model's hypothesis (0 for unknown NT)
-    C = net.C.tocoo()
+    C = net.C[order][:, order].tocoo()  # rows/cols in published position order
+    signs_pub = net.signs[order]
     edges = pd.DataFrame({"pre_id": public_ids[C.col], "post_id": public_ids[C.row], "pre_position": C.col, "post_position": C.row,
-                          "synapse_count": C.data.astype(np.int32), "signed_weight": (C.data * net.signs[C.col]).astype(np.int32)})
+                          "synapse_count": C.data.astype(np.int32), "signed_weight": (C.data * signs_pub[C.col]).astype(np.int32)})
     edges = edges.sort_values(["pre_position", "post_position"], ignore_index=True)
     pq.write_table(pa.Table.from_pandas(edges, preserve_index=False), out_dir / "edges.parquet", compression="zstd")
-    stim_pos = [int(np.flatnonzero(net.ids == s)[0]) for s in stim]
+    stim_pos = [int(np.flatnonzero(ids_pub == s)[0]) for s in stim]
     stimulus = {"cell_type": STIMULUS_TYPE, "source_ids": [int(public_ids[p]) for p in stim_pos], "positions": stim_pos,
                 "current": spec.stim_current, "pulse_start_s": ModelConfig().pulse_start,
                 "rule": "the DNg100 body with the most synaptic output into LegNp(T1)(L); constant current pulse",

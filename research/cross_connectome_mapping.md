@@ -51,10 +51,13 @@ annotation (`manc_body_id` or `manc_type`) whatever its role. The second clause 
 12 unknown, 4 cb_intrinsic): the release's own annotation is evidence that they were matched, and a role
 inconsistency is flagged in `role_consistent` rather than hidden.
 
-Everything else (142,564 neurons: ol_intrinsic 89,403; cb_intrinsic 32,160; visual_projection 9,203; ol_sensory 6,098;
-cb_sensory 4,882; visual_centrifugal 563; endocrine 122; cb_motor 107; unknown 26) is brain-only and cannot have a
-counterpart in a VNC volume. **Choice:** these are counted in `summary.scope.out_of_scope` and not written as rows
-(they would add 142k information-free rows to a 450k-row table). In scope: 24,136 A neurons.
+Everything else (142,564 neurons in the 1.0.0 build: ol_intrinsic 89,403; cb_intrinsic 32,160; visual_projection 9,203;
+ol_sensory 6,098; cb_sensory 4,882; visual_centrifugal 563; endocrine 122; cb_motor 107; unknown 26) is out of scope.
+All but the 26 `unknown` are brain-only classes that cannot have a counterpart in a VNC volume; the 26 were MaleCNS
+`vnc_tbc` neurons (placed in the VNC, class to be confirmed) that the role rule then mapped to `unknown`. Since
+2026-09-23 (`brainir.role.v1` maps `vnc_tbc` → `vnc_unknown`, a VNC role) they are in scope and fall through to
+`same_role_only`/`unmatched`. **Choice:** out-of-scope neurons are counted in `summary.scope.out_of_scope` and not
+written as rows (they would add 142k information-free rows to a 450k-row table).
 
 ## 4. Results
 
@@ -77,8 +80,9 @@ efferent 95 / 5 / 10; sensory_descending 12 / 0 / 0; endocrine 20 / 0 / 0 (+ 2 u
 
 - **Curated body annotations.** 18,572 in-scope A neurons carry a `manc_body_id`; 18,555 of those bodies are
   neurons of v1.2.1 and 18,542 of v1.2.3 (17 / 30 are absent: 12 / 21 sensory, 3 / 7 intrinsic, 2 / 2 ascending; they
-  fall through to the type rule). 412 MANC bodies are referenced by two A neurons each (never more); only 113 of these
-  pairs share an A cell type. The table keeps both rows and says so in `notes`.
+  fall through to the type rule). 412 MANC bodies are referenced by two A neurons each (never more); in 88 of these
+  pairs both A neurons carry the same (non-null) A cell type. The table keeps both rows, says so in `notes`, and
+  reports the count in `b_ambiguity` (schema 1.1.0).
 - **Curated type matches** are dominated by sensory neurons (3,839 of 4,414). 4,399 of the 4,414 have no
   `manc_body_id` at all: the release matched them at type level only. Ambiguity is large (1 candidate: 83; 2: 126;
   3–5: 246; >5: 3,959), so only 78 reach `medium`. Against v1.2.1, 3,867 of these neurons had candidates of unknown
@@ -105,19 +109,24 @@ efferent 95 / 5 / 10; sensory_descending 12 / 0 / 0; endocrine 20 / 0 / 0 (+ 2 u
 | `manc_type` == B `cell_type` | 13,940 / 13,957 | 4,028 / 4,009 | 587 / 576 | 77.6 % / 77.7 % |
 | A `cell_type` == B `cell_type` | 12,287 / 12,304 | 5,941 / 5,922 | 327 / 316 | 67.4 % / 67.5 % |
 
-Interpretation (each point was checked on the tables, not assumed):
+Interpretation (the counts were checked on the tables; the explanation of the descending-neuron sides is an
+inference marked as such):
 
 - **Side.** The v1.2.1 snapshot has no side for 2,985 matched bodies (1,315 descending, 1,128 sensory, 538
   sensory-ascending). v1.2.3 supplies sides for 2,981 of them: 2,353 agree with MaleCNS, 626 do not, and 583 of the
   1,089 v1.2.3 inconsistencies are descending neurons. Only **one** body has a different known side in the two MANC
-  snapshots. So the drop from 97.0 % to 94.1 % is not annotation churn but a **semantic difference**: MaleCNS `side`
-  of a descending neuron is its (brain) soma side; MANC has no soma for these cells and reports the entry/root side,
-  so neurons that cross the midline before entering the VNC carry opposite labels. `side_consistent = false` is
-  therefore not an error flag for descending neurons. Among inconsistencies L↔R dominate (v1.2.1: 197 + 190;
-  midline vs lateral: 78).
+  snapshots, so the drop from 97.0 % to 94.1 % is not annotation churn. The tables show that MaleCNS `side` of a
+  descending neuron is its (brain) soma side (`side_basis` soma for 1,314/1,316) and that MANC reports a root side
+  for these cells (all 1,322 in v1.2.3). The 45 % disagreement rate among descending neurons is *consistent with* a
+  semantic difference (a neuron that crosses the midline before entering the VNC would carry opposite labels), but
+  that was not tested — MaleCNS has no root side for the matched descending neurons, and a synapse-side comparison
+  has not been done. Treat `side_consistent = false` for descending neurons as unresolved rather than as an error;
+  for soma-bearing intrinsic neurons, whose conventions are directly comparable, sides agree in 97.8 % of body
+  matches. Among inconsistencies L↔R dominate (v1.2.1: 197 + 190; midline vs lateral: 78).
 - **Role class.** 295 disagreements are sensory in MaleCNS vs intrinsic in MANC; intrinsic↔motor 102,
-  intrinsic↔ascending 85, sensory→ascending 35, sensory→sensory_ascending 23. All 12 MaleCNS `sensory_descending`
-  neurons are `descending` in MANC, whose class vocabulary has no such class (vocabulary, not disagreement).
+  intrinsic↔ascending 85, sensory→ascending 35, sensory→sensory_ascending 23. The 12 MaleCNS `sensory_descending`
+  neurons are `descending` in the v1.2.1 snapshot, which has no `sensory_descending` class; v1.2.3 introduces it (6
+  neurons) and 6 of the 12 matches become role-consistent there (vocabulary drift, not disagreement).
 - **NT.** The two labels come from different classifiers at different levels: MaleCNS `nt_consensus` is a
   type-level prediction with expert overrides; MANC `nt_body_prediction` is the body-level v1.0 label carried into the
   v1.2.x builds (LOG D25, §3.12). Disagreements: ACh→Glu 452, GABA→Glu 447, ACh→GABA 302, GABA→ACh 122, Glu→GABA 65,
@@ -126,7 +135,8 @@ Interpretation (each point was checked on the tables, not assumed):
   informative about both, not a validation of either.
 - **Type names.** `manc_type` disagrees with the v1.2.x type of the annotated body for 22 % of body matches. In
   3,367 of the 4,028 cases the annotated name still exists as a type in B, i.e. *the body* carries a different type
-  in v1.2.x; in 661 the name exists in neither snapshot (renamed or retired). Conversely, in 1,655 body matches
+  in v1.2.x; in 661 the name is absent from the v1.2.1 snapshot, and 21 of those 661 names reappear in v1.2.3 (640
+  exist in neither: renamed or retired). Conversely, in 1,655 body matches
   `manc_type` equals the B type but MaleCNS's own consensus `cell_type` differs (MaleCNS renamed relative to MANC).
   Only 3 body matches have `manc_type` ≠ B type while A `cell_type` = B type. Between the two MANC snapshots, 28 matched
   bodies change type.
@@ -145,8 +155,8 @@ Interpretation (each point was checked on the tables, not assumed):
    builds; whether it is still a neuron in a given snapshot is what rule 1 checks.
 3. **Integer IDs never cross datasets.** Use `a_uid` / `b_uid`; `a_source_id == b_source_id` is a coincidence.
 4. **Side semantics differ** for neurons without a soma in the VNC (§4.2). **Class vocabularies differ**
-   (`role_class` is a relabeling; MANC has no `sensory_descending`). **NT labels differ in origin, level and
-   version** (§4.2).
+   (`role_class` is a relabeling; MANC v1.2.1 has no `sensory_descending` class, v1.2.3 has 6 such neurons). **NT
+   labels differ in origin, level and version** (§4.2).
 5. **Sensory populations are ambiguous by construction**: many neurons per type and per side; a `curated_type_match`
    with `ambiguity` 30 is a population statement, and the v1.2.1 snapshot's missing sides make it worse there.
 6. **Snapshot dependence.** v1.2.1 and v1.2.3 differ in membership (24,143 vs 23,665), types (28 matched bodies

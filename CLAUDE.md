@@ -39,6 +39,7 @@ uv run python benchmarks/dng100_walking_cpg/reproduce_dn_screen.py --replicates 
 uv run python benchmarks/dng100_walking_cpg/cross_connectome_eval.py --n 32                                    # both directions
 uv run python benchmarks/dng100_walking_cpg/robustness_experiments.py dt-convergence|param-sweep|input-sweep|weight-noise|negative-controls
 uv run python benchmarks/dng100/build_public_bundle.py      # re-export public/ + public_blind/ (then leakage_check, freeze)
+uv run python benchmarks/dng100/build_cross_connectome_reference.py   # oracle/cross_connectome_reference.json from the mapping tables
 uv run python benchmarks/dng100/cleanroom/leakage_check.py --write-audit
 uv run python benchmarks/dng100/baselines/run_all_baselines.py   # clean-room runs + frozen evaluation of every baseline
 uv run python benchmarks/dng100/freeze.py [--check]        # BENCHMARK_LOCK.json (git tag dng100-benchmark-v1)

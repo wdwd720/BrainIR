@@ -371,7 +371,7 @@ def simulate(W: sp.csr_matrix | np.ndarray, params: NeuronParams, cfg: ModelConf
             ok &= bool(sol.success); nfev += int(sol.nfev); msgs.append(sol.message)
             r_cur = sol.y[:, -1]
             r_parts.append((sol.t, sol.y.T))
-        r = np.empty((len(ts), n))
+        r = np.full((len(ts), n), np.nan)  # samples a failed segment never reached stay NaN (counted below), never stale memory
         for tt, yy in r_parts:
             idx = np.searchsorted(ts, tt)
             hit = (idx < len(ts)) & np.isclose(ts[np.minimum(idx, len(ts) - 1)], tt, atol=1e-9)

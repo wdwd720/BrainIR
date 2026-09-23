@@ -82,11 +82,15 @@ def paper_network(dataset: str, version: str, nt: str):
 
 def run_stim(args) -> None:
     wt, net, readout = paper_network(args.dataset, args.version, args.nt)
-    dn = net.positions_of_type("DNg100")
-    if args.stim_index is not None:  # positional index in the authors' table (31 = the neuron used for Fig. 2)
+    if args.stim_index is not None:  # positional index in the authors' table (31 = the neuron used for Fig. 2 in MANC)
         pos = [int(args.stim_index)]
     else:
-        pos = [int(dn[0])]
+        # the benchmark's stimulus rule (the DNg100 with the most output into LegNp(T1)(L)): position 31 in the authors'
+        # MANC table, position 9 in their MaleCNS table. NOT the first DNg100 in table order (that is a different neuron
+        # in MaleCNS; using it was the source of the spurious "recruitment discrepancy", LOG 8.8).
+        from brainir.benchmark.bundle import choose_stimulus
+        chosen = choose_stimulus(Connectome.open(args.dataset, args.version), net.ids)
+        pos = [int(net.index_of([chosen[0]])[0])]
     cfg = ModelConfig(t_end=args.t_end)
     seeds = list(range(args.seed0, args.seed0 + args.n))
     t0 = time.time()

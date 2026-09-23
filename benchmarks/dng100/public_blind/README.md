@@ -38,9 +38,9 @@ network, not dataset body IDs; predictions must use these positional ids.
 
 | name | dataset | neurons | edges | Σ synapses | stimulus | readout |
 |---|---|---|---|---|---|---|
-| manc_v1.2.1 | manc:v1.2.1 | 4604 | 196536 | 3817784 | [31] @ 250.0 | 144 MNs |
-| manc_v1.2.3 | manc:v1.2.3 | 4604 | 196536 | 3817784 | [31] @ 250.0 | 142 MNs |
-| male-cns_v1.0 | male-cns:v1.0 | 4309 | 119977 | 2196924 | [9] @ 400.0 | 130 MNs |
+| manc_v1.2.1 | manc:v1.2.1 | 4604 | 196536 | 3817784 | [3084] @ 250.0 | 144 MNs |
+| manc_v1.2.3 | manc:v1.2.3 | 4604 | 196536 | 3817784 | [2702] @ 250.0 | 142 MNs |
+| male-cns_v1.0 | male-cns:v1.0 | 4309 | 119977 | 2196924 | [1589] @ 400.0 | 130 MNs |
 
 ## Anatomy is not physiology
 

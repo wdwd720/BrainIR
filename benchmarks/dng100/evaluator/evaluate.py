@@ -42,9 +42,16 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "oracle"))
 from oracle import EVIDENCE_LEVELS, OracleNetwork, load_oracle, oracle_sha256  # noqa: E402
 
 HERE = Path(__file__).resolve().parent
-EVALUATOR_VERSION = "1.0.0"
+EVALUATOR_VERSION = "1.1.0"
 RHYTHMIC = 0.5
+"""Published criterion: mean readout oscillation score >= 0.5 (the paper's threshold for a rhythmic replicate)."""
+AMPLITUDE_MIN_HZ = 1.0
+"""Added gate: the median peak-to-trough range of the scored motor neurons must reach 1 Hz (the published score is
+min-max normalised and would call a 0.1 Hz ripple with a clean autocorrelation a rhythm). 'sustained' = both."""
 ANALYSIS_START_S = 0.25
+DNG100_CIRCUIT_LABELS = ("E1", "E2", "E3", "I1", "I2")
+"""Oracle labels that belong to the DNg100 circuit proper (E4/E5 are the paper's DNb08-pathway neurons)."""
+REFERENCE_PAIRS = Path(__file__).resolve().parents[1] / "oracle" / "cross_connectome_reference.json"
 
 
 # ---------------------------------------------------------------------------- bundle access
@@ -61,9 +68,12 @@ class BundleNetwork:
         self.readout = json.loads((d / "readout.json").read_text(encoding="utf-8"))
         self.positional = self.info.get("id_semantics", "").startswith("positional")
         self.public_to_real = None
+        self.real_types: dict[int, str | None] | None = None
         if self.positional:
             m = pd.read_csv(Path(__file__).resolve().parents[1] / "oracle" / "tier_a_ids" / f"ids_{name}.csv")
             self.public_to_real = dict(zip(m["position"].astype(int), m["source_id"].astype(int)))
+            if "cell_type" in m.columns:  # real types (tier A shows tokens) for the type-level family
+                self.real_types = {int(s): (None if pd.isna(t) else str(t)) for s, t in zip(m["source_id"], m["cell_type"])}
             real = np.array([self.public_to_real[int(p)] for p in self.neurons["position"]], dtype=np.int64)
             self.neurons = self.neurons.assign(source_id=real)
             self.edges = self.edges.assign(pre_id=[self.public_to_real[int(p)] for p in self.edges["pre_position"]],
@@ -108,7 +118,12 @@ class BundleNetwork:
         return BrainIRMechanismPrediction.model_validate(d)
 
     def type_of(self, source_id: int) -> str | None:
-        v = self.neurons.loc[self.pos[int(source_id)], "cell_type"] if self.has(source_id) else None
+        """Real cell type (tier B: from the bundle; tier A: from the private id map, since the bundle shows tokens)."""
+        if not self.has(source_id):
+            return None
+        if self.real_types is not None:
+            return self.real_types.get(int(source_id))
+        v = self.neurons.loc[self.pos[int(source_id)], "cell_type"]
         return None if v is None or (isinstance(v, float) and np.isnan(v)) else str(v)
 
     def sign_of(self, source_id: int) -> int:
@@ -124,8 +139,11 @@ def _run(net: BundleNetwork, cfg: ModelConfig, seed: int, intervention: Interven
     mask = (peak > ACTIVE_RATE_HZ) & net.readout_mask
     score, f, _, _ = network_oscillation_score(win, mask, DEFAULT_PROMINENCE)
     dt = float(traj.t[1] - traj.t[0])
+    # the published score is amplitude-blind (min-max normalised); a rhythm also has to have an amplitude to count as one
+    rng = float(np.median(win[:, mask].max(axis=0) - win[:, mask].min(axis=0))) if mask.any() else 0.0
     return {"seed": seed, "score": score, "frequency_hz": (f / dt) if f > 0 else None, "n_active_readout": int(mask.sum()),
-            "success": bool(traj.info.get("success", True))}
+            "readout_range_median_hz": rng, "sustained": bool(score >= RHYTHMIC and rng >= AMPLITUDE_MIN_HZ),
+            "success": bool(traj.info.get("success", True)) and not traj.info.get("non_finite_samples")}
 
 
 def _batch(net: BundleNetwork, cfg: ModelConfig, seeds: list[int], intervention: Intervention | None, workers: int) -> list[dict]:
@@ -145,8 +163,11 @@ def _summ(rows: list[dict]) -> dict:
     s = np.array([r["score"] for r in rows])
     f = np.array([np.nan if r["frequency_hz"] is None else r["frequency_hz"] for r in rows])
     act = np.array([r["n_active_readout"] for r in rows])
+    sus = np.array([r["sustained"] for r in rows], dtype=bool)
     return {"n": int(len(rows)), "score_mean": float(s.mean()), "score_median": float(np.median(s)),
-            "fraction_rhythmic": float((s >= RHYTHMIC).mean()), "frequency_median_hz": float(np.nanmedian(f)) if np.isfinite(f).any() else None,
+            "fraction_rhythmic": float((s >= RHYTHMIC).mean()), "fraction_sustained": float(sus.mean()),
+            "readout_range_median_hz": float(np.median([r["readout_range_median_hz"] for r in rows])),
+            "frequency_median_hz": float(np.nanmedian(f)) if np.isfinite(f).any() else None,
             "active_readout_median": float(np.median(act)), "solver_failures": int(sum(not r["success"] for r in rows))}
 
 
@@ -156,6 +177,7 @@ def structural(pred: BrainIRMechanismPrediction, onet: OracleNetwork) -> dict:
     e_ids = onet.core_ids(("E1", "E2"))
     inh_ids = onet.core_ids(onet.inhibitory_slot)
     all_pub = onet.core_ids()
+    circuit_pub = onet.core_ids(tuple(lab for lab in DNG100_CIRCUIT_LABELS if lab in onet.core))
     inh_hit = sorted(core & inh_ids)
     reference = e_ids | (set(inh_hit) if inh_hit else onet.core_ids((onet.inhibitory_slot[0],)))
     inter = core & reference
@@ -164,6 +186,7 @@ def structural(pred: BrainIRMechanismPrediction, onet: OracleNetwork) -> dict:
         "excitatory_core_recall": len(core & e_ids) / len(e_ids) if e_ids else None,
         "inhibitory_slot_filled": bool(inh_hit),
         "inhibitory_slot_members_found": [onet.label_of(i) for i in inh_hit],
+        "precision_vs_dng100_circuit_labels": (len(core & circuit_pub) / len(core)) if core else None,
         "precision_vs_all_published_labels": (len(core & all_pub) / len(core)) if core else None,
         "jaccard_vs_reference_core": (len(inter) / len(core | reference)) if (core | reference) else None,
         "published_labels_found": sorted({onet.label_of(i) for i in core & all_pub}),
@@ -218,8 +241,9 @@ def functional(pred: BrainIRMechanismPrediction, bnet: BundleNetwork, cfg: Model
             continue
         rows = _batch(bnet, cfg, seeds, Intervention(silence=(bnet.pos[c.source_id],)), workers)
         s = _summ(rows)
-        abolished = s["fraction_rhythmic"] < 0.5
+        abolished = s["fraction_sustained"] < 0.5
         necessity.append({"source_id": c.source_id, "claimed_essential": c.essential, "silenced_fraction_rhythmic": s["fraction_rhythmic"],
+                          "silenced_fraction_sustained": s["fraction_sustained"],
                           "silenced_score_mean": s["score_mean"], "observed_essential": abolished, "correct": abolished == c.essential})
     nec_correct = [x["correct"] for x in necessity]
     si, ss = _summ(intact), (_summ(suff) if suff else None)
@@ -229,12 +253,15 @@ def functional(pred: BrainIRMechanismPrediction, bnet: BundleNetwork, cfg: Model
         freq_err = abs(dyn.frequency_hz - si["frequency_median_hz"])
     return {
         "settings": {"n_replicates": len(seeds), "seeds": seeds, "t_end": cfg.t_end, "rhythmic_threshold": RHYTHMIC,
+                     "amplitude_min_hz": AMPLITUDE_MIN_HZ, "pass_rule": "sustained (score >= 0.5 AND amplitude >= 1 Hz) in >= 50% of replicates",
                      "keep_only_always_keeps": "stimulus + readout motor neurons"},
         "intact_network": si,
         "sufficiency_keep_only_core": ss,
-        "sufficiency_pass": (ss is not None and ss["fraction_rhythmic"] >= 0.5),
+        "sufficiency_pass": (ss is not None and ss["fraction_sustained"] >= 0.5),
+        "sufficiency_pass_score_only": (ss is not None and ss["fraction_rhythmic"] >= 0.5),
         "core_neurons_missing_from_network": missing,
         "necessity": necessity,
+        "n_necessity_claims": len(nec_correct),
         "necessity_accuracy": (sum(nec_correct) / len(nec_correct)) if nec_correct else None,
         "dynamics_claims": {"predicted_frequency_hz": dyn.frequency_hz, "simulated_frequency_median_hz": si["frequency_median_hz"],
                             "frequency_abs_error_hz": freq_err, "predicted_rhythmic": dyn.rhythmic,
@@ -263,27 +290,98 @@ def mechanism(pred: BrainIRMechanismPrediction, bnet: BundleNetwork) -> dict:
             "motif_text": pred.mechanism.motif}
 
 
-def cross_connectome(preds: dict[str, BrainIRMechanismPrediction], onets: dict[str, OracleNetwork], oracle_raw: dict) -> dict:
-    """Do predictions on different networks name the same published labels, and do claimed correspondences match?"""
+def _load_reference_pairs() -> tuple[set[frozenset], dict]:
+    """Frozen curated MaleCNS <-> MANC pairs of the benchmark networks (oracle/cross_connectome_reference.json)."""
+    if not REFERENCE_PAIRS.exists():
+        return set(), {}
+    ref = json.loads(REFERENCE_PAIRS.read_text(encoding="utf-8"))
+    pairs = {frozenset([tuple(p["a"]), tuple(p["b"])]) for p in ref["pairs"]}
+    return pairs, {k: v for k, v in ref.items() if k != "pairs"}
+
+
+def _map_through_reference(ids: list[int], src: OracleNetwork, dst: OracleNetwork, pairs: set[frozenset]) -> list[int]:
+    """Destination ids curated as counterparts of ``ids`` (both directions of the reference are the same set of pairs)."""
+    out = []
+    for i in ids:
+        key = (src.dataset, src.version, int(i))
+        for p in pairs:
+            if key in p:
+                other = next(x for x in p if x != key)
+                if (other[0], other[1]) == (dst.dataset, dst.version):
+                    out.append(int(other[2]))
+    return sorted(set(out))
+
+
+def cross_connectome(preds: dict[str, BrainIRMechanismPrediction], onets: dict[str, OracleNetwork], oracle_raw: dict,
+                     bnets: dict[str, BundleNetwork] | None = None, cfg: ModelConfig | None = None, seeds: list[int] | None = None,
+                     workers: int = 1, simulate_flag: bool = False) -> dict:
+    """Three separate questions, never merged:
+    1. label agreement (oracle): do predictions on different DATASETS name the same published labels? (the two MANC
+       networks share one synapse table and count as one dataset lineage);
+    2. claimed correspondences: graded against the oracle only where both endpoints carry oracle labels
+       (`n_ungradeable_by_oracle` reported), and separately against the frozen curated pairs (agreement with curation, per basis);
+    3. transfer (oracle-free simulation): the source network's predicted core, carried into the other dataset's network
+       through the curated pairs, is simulated keep-only there."""
+    pairs, ref_meta = _load_reference_pairs()
     labels_by_net = {}
     for name, p in preds.items():
         on = onets[name]
         labels_by_net[name] = {on.label_of(i) for i in p.core_ids() if on.label_of(i) is not None}
     names = sorted(labels_by_net)
-    common = set.intersection(*labels_by_net.values()) if labels_by_net else set()
+    datasets = {onets[n].dataset for n in names}
+    by_dataset: dict[str, set] = {}
+    for n in names:  # a label counts for a dataset if any of its networks recovered it
+        by_dataset.setdefault(onets[n].dataset, set()).update(labels_by_net[n])
+    common_datasets = set.intersection(*by_dataset.values()) if by_dataset else set()
     pair_checks = []
     for name, p in preds.items():
         for cc in p.cross_connectome:
             other = next((n for n, o in onets.items() if (o.dataset, o.version) == (cc.other_dataset, cc.other_version)), None)
             la = onets[name].label_of(cc.source_id)
             lb = onets[other].label_of(cc.other_source_id) if other else None
-            pair_checks.append({"from": name, "source_id": cc.source_id, "to": other, "other_source_id": cc.other_source_id,
-                                "labels": [la, lb], "consistent": (la is not None and la == lb)})
-    return {"networks_evaluated": names, "published_labels_per_network": {k: sorted(v) for k, v in labels_by_net.items()},
-            "labels_recovered_in_all_networks": sorted(common),
-            "excitatory_core_in_all": {"E1", "E2"} <= common if len(names) > 1 else None,
+            key_a = (onets[name].dataset, onets[name].version, int(cc.source_id))
+            key_b = (cc.other_dataset, cc.other_version, int(cc.other_source_id))
+            pair_checks.append({"from": name, "source_id": cc.source_id, "to": other, "other_source_id": cc.other_source_id, "basis": cc.basis,
+                                "labels": [la, lb], "gradeable_by_oracle": la is not None and lb is not None,
+                                "oracle_consistent": (la is not None and la == lb),
+                                "same_dataset_lineage": onets[name].dataset == cc.other_dataset,
+                                "curated_pair": (frozenset([key_a, key_b]) in pairs) if pairs else None})
+    gradeable = [c for c in pair_checks if c["gradeable_by_oracle"]]
+    cross_ds = [c for c in pair_checks if not c["same_dataset_lineage"]]
+    per_basis = {}
+    for b in sorted({c["basis"] for c in cross_ds}):
+        cs = [c for c in cross_ds if c["basis"] == b]
+        per_basis[b] = {"n": len(cs), "agreement_with_curated_pairs": (sum(bool(c["curated_pair"]) for c in cs) / len(cs)) if pairs else None,
+                        "oracle_consistent_fraction": (sum(c["oracle_consistent"] for c in cs if c["gradeable_by_oracle"]) /
+                                                       max(1, sum(c["gradeable_by_oracle"] for c in cs)))}
+    transfer = {}
+    if simulate_flag and bnets and cfg is not None and seeds and pairs:
+        for src_name, p in preds.items():
+            for dst_name, dnet in bnets.items():
+                if onets[dst_name].dataset == onets[src_name].dataset:
+                    continue  # same lineage: no transfer
+                mapped = _map_through_reference(p.core_ids(), onets[src_name], onets[dst_name], pairs)
+                mapped_pos = [dnet.pos[i] for i in mapped if dnet.has(i)]
+                entry = {"n_core": len(p.core_ids()), "n_mapped_by_curated_pairs": len(mapped), "n_in_destination_network": len(mapped_pos)}
+                if mapped_pos:
+                    always = tuple(dnet.stim_positions) + tuple(int(q) for q in np.flatnonzero(dnet.readout_mask))
+                    rows = _batch(dnet, cfg, seeds, Intervention(keep_only=tuple(mapped_pos), always_keep=always), workers)
+                    s = _summ(rows)
+                    entry.update(keep_only_mapped_core=s, transfer_pass=bool(s["fraction_sustained"] >= 0.5))
+                else:
+                    entry.update(keep_only_mapped_core=None, transfer_pass=False)
+                transfer[f"{src_name}->{dst_name}"] = entry
+    return {"networks_evaluated": names, "datasets_evaluated": sorted(datasets),
+            "published_labels_per_network": {k: sorted(v) for k, v in labels_by_net.items()},
+            "labels_recovered_in_all_datasets": sorted(common_datasets),
+            "excitatory_core_in_all_datasets": ({"E1", "E2"} <= common_datasets) if len(datasets) > 1 else None,
+            "note": "the two MANC networks share one synapse table; agreement between them is not cross-connectome evidence",
             "claimed_correspondences": pair_checks,
-            "claimed_correspondence_accuracy": (sum(c["consistent"] for c in pair_checks) / len(pair_checks)) if pair_checks else None}
+            "n_claims": len(pair_checks), "n_ungradeable_by_oracle": len(pair_checks) - len(gradeable),
+            "claimed_correspondence_accuracy_vs_oracle": (sum(c["oracle_consistent"] for c in gradeable) / len(gradeable)) if gradeable else None,
+            "agreement_with_curated_pairs": (sum(bool(c["curated_pair"]) for c in cross_ds) / len(cross_ds)) if (cross_ds and pairs) else None,
+            "per_basis": per_basis, "curated_reference": ref_meta or None,
+            "transfer_keep_only_mapped_core": transfer or None}
 
 
 def robustness(pred: BrainIRMechanismPrediction, bnet: BundleNetwork, cfg: ModelConfig, seeds: list[int], workers: int) -> dict:
@@ -306,9 +404,22 @@ def _sha(path: Path) -> str:
 
 
 def evaluate(pred_paths: list[Path], bundle: Path, *, n_replicates: int = 16, workers: int = 4, simulate_flag: bool = True,
-             t_end: float = 1.0) -> dict:
+             t_end: float = 2.0, run_record: Path | None = None) -> dict:
     oracle_raw, onets = load_oracle()
     manifest = json.loads((bundle / "manifest.json").read_text(encoding="utf-8"))
+    run_record_check = None
+    if run_record is not None:  # PROTOCOL step 4: predictions were hashed before evaluation; verify they are those files
+        rr = json.loads(Path(run_record).read_text(encoding="utf-8"))
+        recorded = {r.get("prediction"): r.get("prediction_sha256") for r in rr.get("runs", []) if r.get("prediction")}
+        checks = []
+        for p in pred_paths:
+            digest = BrainIRMechanismPrediction.from_json(p.read_text(encoding="utf-8")).digest()
+            checks.append({"prediction": p.name, "recorded_sha256": recorded.get(p.name), "matches": recorded.get(p.name) == digest})
+        bundle_ok = rr.get("bundle", {}).get("bundle_sha256") == manifest["bundle_sha256"]
+        run_record_check = {"path": str(run_record.name), "bundle_sha256_matches": bundle_ok, "predictions": checks,
+                            "ok": bundle_ok and all(c["matches"] for c in checks)}
+        if not run_record_check["ok"]:
+            raise ValueError(f"run record does not match the predictions/bundle being evaluated: {run_record_check}")
     preds: dict[str, BrainIRMechanismPrediction] = {}
     for p in pred_paths:
         pr = BrainIRMechanismPrediction.from_json(p.read_text(encoding="utf-8"))
@@ -349,7 +460,8 @@ def evaluate(pred_paths: list[Path], bundle: Path, *, n_replicates: int = 16, wo
         "evaluator_version": EVALUATOR_VERSION, "evaluator_sha256": _sha(Path(__file__)), "oracle_sha256": oracle_sha256(),
         "bundle": {"root": bundle.name, "benchmark_id": manifest["benchmark_id"], "bundle_sha256": manifest["bundle_sha256"], "tier": manifest["tier"]},
         "evidence_levels": EVIDENCE_LEVELS, "networks": per_net,
-        "cross_connectome": cross_connectome(preds, onets, oracle_raw) if len(preds) > 1 else None,
+        "cross_connectome": (cross_connectome(preds, onets, oracle_raw, bnets, cfg, seeds, workers, simulate_flag) if len(preds) > 1 else None),
+        "run_record": run_record_check,
         "simulation": {"enabled": simulate_flag, "n_replicates": n_replicates, "seeds": seeds, "t_end": t_end, "model_config": cfg.to_dict()},
         "wall_time_s": round(time.time() - t0, 1),
     }
@@ -366,7 +478,8 @@ def to_markdown(ev: dict) -> str:
                   f"| structural | predicted core size | {s['n_predicted']} |",
                   f"| structural | excitatory core recall (E1, E2) | {s['excitatory_core_recall']} |",
                   f"| structural | inhibitory slot filled | {s['inhibitory_slot_filled']} {s['inhibitory_slot_members_found']} |",
-                  f"| structural | precision vs published labels | {s['precision_vs_all_published_labels']} |",
+                  f"| structural | precision vs DNg100-circuit labels (E1-E3, I1-I2) | {s['precision_vs_dng100_circuit_labels']} |",
+                  f"| structural | precision vs all published labels (incl. DNb08 pathway) | {s['precision_vs_all_published_labels']} |",
                   f"| structural | Jaccard vs reference core | {s['jaccard_vs_reference_core']} |",
                   f"| type/role | type-level excitatory recall | {t['type_level_excitatory_recall']} |",
                   f"| type/role | role agreement with oracle | {t['role_agreement_with_oracle']} |",
@@ -377,18 +490,30 @@ def to_markdown(ev: dict) -> str:
             f = r["functional"]
             suff = f["sufficiency_keep_only_core"]
             suff_frac = None if suff is None else suff["fraction_rhythmic"]
-            lines += [f"| functional | intact network fraction rhythmic | {f['intact_network']['fraction_rhythmic']} |",
-                      f"| functional | keep-only core fraction rhythmic (sufficiency) | {suff_frac} → pass={f['sufficiency_pass']} |",
-                      f"| functional | necessity accuracy | {f['necessity_accuracy']} ({len(f['necessity'])} claims) |",
+            suff_sus = None if suff is None else suff["fraction_sustained"]
+            lines += [f"| functional | intact network fraction rhythmic / sustained | {f['intact_network']['fraction_rhythmic']} / "
+                      f"{f['intact_network']['fraction_sustained']} |",
+                      f"| functional | keep-only core fraction rhythmic / sustained (sufficiency) | {suff_frac} / {suff_sus} → "
+                      f"pass={f['sufficiency_pass']} |",
+                      f"| functional | necessity accuracy | {f['necessity_accuracy']} ({f['n_necessity_claims']} claims) |",
                       f"| functional | frequency abs error (Hz) | {f['dynamics_claims']['frequency_abs_error_hz']} |"]
             for k, v in r["robustness"].items():
                 if isinstance(v, dict) and "fraction_rhythmic" in v:
-                    lines.append(f"| robustness | {k} | fraction rhythmic {v['fraction_rhythmic']} |")
+                    lines.append(f"| robustness | {k} | fraction rhythmic {v['fraction_rhythmic']} / sustained {v.get('fraction_sustained')} |")
         lines.append("")
     if ev.get("cross_connectome"):
         c = ev["cross_connectome"]
-        lines += ["## cross-connectome", "", f"labels recovered in all networks: {c['labels_recovered_in_all_networks']}; "
-                  f"claimed correspondence accuracy: {c['claimed_correspondence_accuracy']}", ""]
+        lines += ["## cross-connectome (MANC <-> MaleCNS only; the two MANC networks are one lineage)", "",
+                  f"labels recovered in all datasets: {c['labels_recovered_in_all_datasets']}; excitatory core in all datasets: "
+                  f"{c['excitatory_core_in_all_datasets']}", "",
+                  f"claimed correspondences: {c['n_claims']} ({c['n_ungradeable_by_oracle']} not gradeable by the oracle); accuracy vs oracle "
+                  f"labels: {c['claimed_correspondence_accuracy_vs_oracle']}; agreement with curated pairs: {c['agreement_with_curated_pairs']}", ""]
+        for k, v in (c.get("transfer_keep_only_mapped_core") or {}).items():
+            s = v.get("keep_only_mapped_core")
+            lines.append(f"- transfer {k}: {v['n_mapped_by_curated_pairs']}/{v['n_core']} core neurons mapped; keep-only sustained fraction "
+                         f"{None if s is None else s['fraction_sustained']} → pass={v['transfer_pass']}")
+        lines.append("")
+    lines += [f"Evidence levels of oracle facts: {ev['evidence_levels']}", ""]
     return "\n".join(lines)
 
 
@@ -399,11 +524,12 @@ def main(argv=None) -> None:
     ap.add_argument("--out", type=Path, required=True)
     ap.add_argument("--n-replicates", type=int, default=16)
     ap.add_argument("--workers", type=int, default=4)
-    ap.add_argument("--t-end", type=float, default=1.0)
+    ap.add_argument("--t-end", type=float, default=2.0, help="simulated seconds per replicate (2.0 = the published protocol)")
     ap.add_argument("--no-simulation", action="store_true")
+    ap.add_argument("--run-record", type=Path, default=None, help="clean-room run_record.json; the prediction hashes must match")
     args = ap.parse_args(argv)
     ev = evaluate(args.predictions, args.bundle, n_replicates=args.n_replicates, workers=args.workers,
-                  simulate_flag=not args.no_simulation, t_end=args.t_end)
+                  simulate_flag=not args.no_simulation, t_end=args.t_end, run_record=args.run_record)
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(ev, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
     args.out.with_suffix(".md").write_text(to_markdown(ev), encoding="utf-8", newline="\n")

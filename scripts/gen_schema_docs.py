@@ -82,7 +82,11 @@ def render() -> str:
     for r in SIGN_RULES.values():
         lines.append(f"| {r.nt} | {'' if r.sign is None else f'{r.sign:+d}'} | {r.rule_class} | {r.rationale} |")
     lines += ["", "## Tables", ""]
-    for name, spec in CANONICAL_TABLES.items():
+    from brainir.mapping import MAPPING, MAPPING_SCHEMA_VERSION
+
+    tables = {**CANONICAL_TABLES, f"{MAPPING.name} (cross-connectome mapping, schema {MAPPING_SCHEMA_VERSION}; "
+              "data/processed/mappings/<a>__<b>/)": MAPPING}
+    for name, spec in tables.items():
         lines += [f"### `{name}`", "", spec.description, "",
                   f"Primary key: `{', '.join(spec.primary_key)}` · sort order: `{', '.join(spec.sort_by)}`", "",
                   "| column | type | null | evidence | unit | description |", "|---|---|---|---|---|---|"]

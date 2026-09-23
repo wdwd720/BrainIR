@@ -126,16 +126,18 @@ MANC 'class') can be compared and checked with one set of rules."""
 
 ROLE_CLASSES: tuple[str, ...] = (
     "descending", "ascending", "sensory_ascending", "sensory_descending", "efferent", "endocrine",
-    "vnc_intrinsic", "vnc_motor", "vnc_sensory",
+    "vnc_intrinsic", "vnc_motor", "vnc_sensory", "vnc_unknown",
     "cb_intrinsic", "cb_motor", "cb_sensory", "ol_intrinsic", "ol_sensory", "visual_projection", "visual_centrifugal",
     "glia", "unknown",
 )
+"""`vnc_unknown`: the source places the neuron in the VNC but has not classified it (MaleCNS `vnc_tbc`)."""
 
 _ROLE_MAP: dict[str, str] = {
     # MaleCNS superclass vocabulary
     "descending_neuron": "descending", "ascending_neuron": "ascending",
     "sensory_ascending": "sensory_ascending", "sensory_descending": "sensory_descending",
     "vnc_intrinsic": "vnc_intrinsic", "vnc_motor": "vnc_motor", "vnc_sensory": "vnc_sensory",
+    "vnc": "vnc_unknown",  # MaleCNS 'vnc_tbc' (to be classified) after the _tbc suffix is stripped
     "vnc_efferent": "efferent", "cb_efferent": "efferent", "efferent_ascending": "efferent",
     "efferent_descending": "efferent", "vnc_endocrine": "endocrine", "cb_endocrine": "endocrine", "ENS": "endocrine",
     "cb_intrinsic": "cb_intrinsic", "cb_motor": "cb_motor", "cb_sensory": "cb_sensory",
@@ -144,7 +146,9 @@ _ROLE_MAP: dict[str, str] = {
     # MANC class vocabulary (v1.0 uses spaces, v1.2.x tags use underscores; both normalised to underscores)
     "intrinsic_neuron": "vnc_intrinsic", "motor_neuron": "vnc_motor", "neck_motor_neuron": "vnc_motor",
     "sensory_neuron": "vnc_sensory", "efferent_neuron": "efferent",
-    "glia": "glia", "interneuron_tbd": "unknown", "sensory_tbd": "unknown", "tbd": "unknown",
+    # MANC TBD classes: the class word is kept when the source states it ('Sensory TBD' is a sensory neuron whose
+    # subclass is undecided); 'Interneuron TBD' could be intrinsic or ascending and stays unknown
+    "glia": "glia", "interneuron_tbd": "unknown", "sensory_tbd": "vnc_sensory", "tbd": "unknown",
 }
 
 

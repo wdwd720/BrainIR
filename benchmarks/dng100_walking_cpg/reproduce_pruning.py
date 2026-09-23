@@ -57,14 +57,18 @@ def main(argv=None) -> None:
     ap.add_argument("--containers", type=int, default=100)
     ap.add_argument("--report-set", choices=["structural", "activity"], default="activity",
                     help="which circuit definition to tabulate (the published tables match the activity-based set)")
+    ap.add_argument("--method", default="RK45", help="integrator (RK45 = the authors'; DOP853 for a numerical-sensitivity check)")
+    ap.add_argument("--rtol", type=float, default=2e-6)
+    ap.add_argument("--atol", type=float, default=5e-9)
     args = ap.parse_args(argv)
     net_name = f"{args.dataset}_{args.version}"
     onet = ORACLE["networks"][net_name]
     wt, net, readout = paper_network(args.dataset, args.version, args.nt)
     stim_pos = int(net.positions_of_type("DNg100")[0])
     assert int(net.ids[stim_pos]) == onet["stimulus_source_ids"][0]
-    cfg = ModelConfig(t_end=args.t_end)
+    cfg = ModelConfig(t_end=args.t_end, method=args.method, rtol=args.rtol, atol=args.atol)
     pcfg = PruneConfig(max_iterations=args.max_iterations)
+    tag = "" if (args.method, args.rtol, args.atol) == ("RK45", 2e-6, 5e-9) else f"_{args.method}_rtol{args.rtol:g}"
     stim = Stimulus((stim_pos,), (STIM_CURRENT[args.dataset],))
     prunable = np.ones(net.n, bool)
     seeds = list(range(args.seed0, args.seed0 + args.n))
@@ -109,7 +113,7 @@ def main(argv=None) -> None:
         "n_failed_screens": len(failed), "failed_screens": failed[:50],
     }
     RESULTS.mkdir(exist_ok=True)
-    name = f"pruning_{net_name}_nt-{args.nt}_n{args.n}_seed{args.seed0}"
+    name = f"pruning_{net_name}_nt-{args.nt}_n{args.n}_seed{args.seed0}{tag}"
     (RESULTS / f"{name}.json").write_text(json.dumps({"summary": summary, "screens": per_screen, "model_config": cfg.to_dict(),
                                                        "prune_config": pcfg.to_dict()}, indent=1, default=float) + "\n",
                                           encoding="utf-8", newline="\n")

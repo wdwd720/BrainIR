@@ -185,8 +185,9 @@ def cmd_mapping_lookup(args):
     if (args.a_id is None) == (args.b_id is None):
         raise SystemExit("give exactly one of --a-id / --b-id")
     df = forward_lookup(table, args.a_id) if args.a_id is not None else reverse_lookup(table, args.b_id)
-    _emit(df, args, ["a_source_id", "b_source_id", "mapping_kind", "confidence", "ambiguity", "a_cell_type", "b_cell_type",
-                     "side_consistent", "role_consistent", "nt_consistent", "notes"])
+    _emit(df, args, ["a_uid", "b_uid", "mapping_kind", "evidence_kind", "confidence", "ambiguity", "b_ambiguity", "a_cell_type",
+                     "b_cell_type", "manc_type_consistent", "a_type_consistent", "side_consistent", "role_consistent", "nt_consistent",
+                     "method", "notes"])
     return 0
 
 

@@ -105,20 +105,38 @@ def functional_transfer(table: pd.DataFrame, n: int, workers: int, t_end: float,
         stim_pos = int(net.index_of([onet["stimulus_source_ids"][0]])[0])
         nets[ds] = (net, readout, stim_pos, onet)
     out = {}
+    def lookup(src: str, i: int) -> tuple[list[int], list[int]]:
+        df = reverse_lookup(table, i) if src == "manc" else forward_lookup(table, i)
+        col = "a_source_id" if src == "manc" else "b_source_id"
+        cands = [int(c) for c in df[col].dropna().astype(int).tolist()]
+        hi = [int(c) for c, conf in zip(df[col].tolist(), df["confidence"].astype(str).tolist()) if conf == "high" and not pd.isna(c)]
+        return cands, hi
+
     for src, dst in ((B[0], A[0]), (A[0], B[0])):
-        net_s, _, _, onet_s = nets[src]
+        net_s, _, stim_s, onet_s = nets[src]
         net_d, readout_d, stim_d, onet_d = nets[dst]
         modal_src = [int(onet_s["core"][lab]) for lab in onet_s["modal_circuit"]]
         mapped, detail = [], []
         for i in modal_src:
-            df = reverse_lookup(table, i) if src == "manc" else forward_lookup(table, i)
-            col = "a_source_id" if src == "manc" else "b_source_id"
-            cands = [int(c) for c in df[col].dropna().astype(int).tolist()]
-            hi = [int(c) for c, conf in zip(df[col].tolist(), df["confidence"].astype(str).tolist()) if conf == "high" and not pd.isna(c)]
+            cands, hi = lookup(src, i)
             chosen = hi if hi else cands
             mapped.extend(chosen)
             detail.append({"source_id": i, "n_candidates": len(cands), "n_high": len(hi), "used": chosen})
         mapped = sorted(set(mapped))
+        # the destination stimulus is also reached through the table (self-contained test); it must equal the benchmark's
+        stim_cands, stim_hi = lookup(src, int(net_s.ids[stim_s]))
+        stim_mapped = stim_hi or stim_cands
+        stim_ok = int(net_d.ids[stim_d]) in stim_mapped
+        # null: a role-matched random triple (same sign composition as the mapped circuit) among the destination's interneurons
+        tab_d = net_d.table
+        rng = np.random.default_rng(20260923)
+        inter = np.flatnonzero((tab_d["role_class"].to_numpy() == "vnc_intrinsic") & ~readout_d)
+        signs_needed = [int(net_s.signs[int(net_s.index_of([i])[0])]) for i in modal_src]
+        null_pos = []
+        for sgn in signs_needed:
+            pool = [p for p in inter if int(net_d.signs[p]) == sgn and p not in null_pos]
+            null_pos.append(int(rng.choice(pool)))
+        null_ids = [int(net_d.ids[p]) for p in null_pos]
         current = STIM_CURRENT[dst]
         t0 = time.time()
         rows = {
@@ -128,9 +146,13 @@ def functional_transfer(table: pd.DataFrame, n: int, workers: int, t_end: float,
                                                       cfg, seeds, workers, "own_modal", net_d.sizes, backend),
             "mapped_modal_circuit_keep_only": _keep_only(net_d, readout_d, mapped, stim_d, current, cfg, seeds, workers, "mapped_modal", net_d.sizes,
                                                          backend),
+            "null_sign_matched_random_triple_keep_only": _keep_only(net_d, readout_d, null_ids, stim_d, current, cfg, seeds, workers, "null_triple",
+                                                                    net_d.sizes, backend),
         }
         out[f"{src}_to_{dst}"] = {"source_modal_circuit": onet_s["modal_circuit"], "source_ids": modal_src, "mapping_detail": detail,
                                   "mapped_ids": mapped, "destination_modal_circuit": onet_d["modal_circuit"], "destination_current": current,
+                                  "stimulus_mapped_through_table": {"candidates": stim_mapped, "equals_benchmark_stimulus": stim_ok},
+                                  "null_triple_ids": null_ids, "null_triple_signs": signs_needed,
                                   "results": rows, "wall_time_s": round(time.time() - t0, 1)}
     return out
 
@@ -158,6 +180,10 @@ def main(argv=None) -> None:
     name = f"cross_connectome_eval_n{args.n}"
     (RESULTS / f"{name}.json").write_text(json.dumps(res, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
     lines = ["# Cross-connectome evaluation — MANC v1.2.1 <-> MaleCNS v1.0", "",
+             f"Mapping table `{res['mapping']['table_sha256']}` (schema {summary['mapping_schema_version']}). **Caveat:** every correspondence "
+             "below is a `curated_body_match`, i.e. the MaleCNS release's own `manc_body_id` annotation restated by the table — curated "
+             "evidence, not something BrainIR derived; the two datasets are two animals and no row asserts identity (LOG D35, D39). "
+             "The functional transfer is the derived part.", "",
              "## Correspondence of the published core through the public mapping table", "",
              "| label | MANC id | MaleCNS id | MANC->MaleCNS best (kind/conf/amb) | published among cands | MaleCNS->MANC best | published among cands |",
              "|---|---|---|---|---|---|---|"]
@@ -171,7 +197,9 @@ def main(argv=None) -> None:
         lines += ["", f"## Functional transfer (keep-only simulations, n = {args.n}, T = {args.t_end} s)", ""]
         for k, v in res["functional_transfer"].items():
             lines += [f"### {k}: source modal circuit {v['source_modal_circuit']} -> mapped ids {v['mapped_ids']} (destination's own modal circuit "
-                      f"{v['destination_modal_circuit']}, I = {v['destination_current']})", "",
+                      f"{v['destination_modal_circuit']}, I = {v['destination_current']}; stimulus mapped through the table equals the "
+                      f"benchmark's: {v['stimulus_mapped_through_table']['equals_benchmark_stimulus']}; null = sign-matched random interneuron "
+                      f"triple, signs {v['null_triple_signs']})", "",
                       "| condition | kept | mean score | median | frac >= 0.5 | median f (Hz) | median active MNs |", "|---|---|---|---|---|---|---|"]
             for cond, r in v["results"].items():
                 lines.append(f"| {cond} | {r['n_kept_positions']} | {r.get('mean_score', float('nan')):.3f} | {r.get('median_score', float('nan')):.3f} | "

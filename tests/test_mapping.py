@@ -71,7 +71,9 @@ def test_columns_vocabulary_and_uids(mapped):
     assert table.a_source_id.is_monotonic_increasing
     assert summary["mapping_schema_version"] == MAPPING_SCHEMA_VERSION
     assert VNC_ROLES == {"descending", "ascending", "sensory_ascending", "sensory_descending", "efferent",
-                         "vnc_intrinsic", "vnc_motor", "vnc_sensory"}
+                         "vnc_intrinsic", "vnc_motor", "vnc_sensory", "vnc_unknown"}
+    for c in ("manc_type_consistent", "a_type_consistent", "b_ambiguity"):
+        assert c in table.columns
 
 
 def test_summary_keys(mapped):
@@ -82,7 +84,8 @@ def test_summary_keys(mapped):
     assert s["a"] == {**s["a"], "dataset": "male-cns", "version": "v1.0", "n_neurons": 7}
     assert s["b"] == {**s["b"], "dataset": "manc", "version": "v1.2.1", "n_neurons": 7}
     assert set(s["a_neurons_by_mapping_kind"]) == set(MAPPING_KINDS) and set(s["a_neurons_by_confidence"]) == set(CONFIDENCE_LEVELS)
-    assert set(s["body_match_consistency"]) == {"n", "side", "role", "nt", "manc_type_equals_b_cell_type", "a_cell_type_equals_b_cell_type"}
+    assert set(s["body_match_consistency"]) == {"n", "side", "role", "nt", "manc_type_equals_b_cell_type", "a_cell_type_equals_b_cell_type",
+                                                "both_type_annotations_contradicted_by_snapshot"}
     assert s["rules"]["a_nt_field"] == "nt_consensus" and s["rules"]["b_nt_field"] == "nt_body_prediction"
     # the committed real-data manifests exist but do not describe the fixture build: recorded, flagged, never claimed
     for side in ("a", "b"):
@@ -185,6 +188,52 @@ def test_type_name_fallback_side_handling_role_only_and_unmatched(fresh):
     assert forward_lookup(table, 105).mapping_kind.tolist() == ["same_role_only"]
 
 
+def test_ambiguous_type_matches_unknown_a_side_and_b_ambiguity(fresh):
+    """Two B neurons of one type (one of unknown side) -> ambiguity 2 / low; an A neuron without side lists every candidate;
+    b_ambiguity counts the A neurons naming each B candidate under the same rule; the consistency columns are structured."""
+    cx_a, cx_b = fresh
+    _strip_curated_manc_annotations(cx_a)
+    cx_b.neurons.loc[103, "cell_type"] = "INa"                   # B now has two INa: 102 (L) and 103 (R)
+    cx_a.neurons.loc[101, "cell_type"] = "INa"                    # A 101 and A 102 both look for INa
+    cx_a.neurons.loc[101, "side"] = None                          # A side unknown -> all candidates listed
+    cx_b.neurons.loc[103, "side"] = None                          # one candidate of unknown side
+    table, s = build_mapping(cx_a, cx_b)
+    by_a = table.set_index(["a_source_id", "b_source_id"])
+    r101 = table[table.a_source_id == 101]
+    assert sorted(r101.b_source_id.astype(int)) == [102, 103] and set(r101.confidence) == {"low"} and set(r101.ambiguity) == {2}
+    assert "a side unknown" in r101.notes.iloc[0]
+    r102 = table[table.a_source_id == 102]  # A 102 (L): same-side 102 + unknown-side 103 kept -> 2 candidates, low
+    assert sorted(r102.b_source_id.astype(int)) == [102, 103] and set(r102.confidence) == {"low"}
+    assert s["ambiguity_by_mapping_kind"]["same_type_name"]["2"] == 2
+    # B 102 is named by A 101 and A 102 under same_type_name -> b_ambiguity 2 on both rows
+    assert int(by_a.loc[(101, 102), "b_ambiguity"]) == 2 and int(by_a.loc[(102, 102), "b_ambiguity"]) == 2
+    assert table.loc[table.mapping_kind == "same_role_only", "b_ambiguity"].isna().all()
+    # structured type-consistency flags (no curated manc_type here -> null; a_type_consistent true for verbatim matches)
+    assert table.loc[table.b_source_id.notna(), "manc_type_consistent"].isna().all()
+    assert bool(by_a.loc[(101, 102), "a_type_consistent"]) and bool(by_a.loc[(102, 103), "a_type_consistent"])
+    rev = reverse_lookup(table, 102)
+    assert sorted(rev.a_source_id.astype(int)) == [101, 102]
+
+
+def test_build_is_deterministic(fresh):
+    cx_a, cx_b = fresh
+    t1, s1 = build_mapping(cx_a, cx_b)
+    t2, s2 = build_mapping(cx_a, cx_b)
+    assert t1.equals(t2)
+    assert {k: v for k, v in s1.items() if k not in ("a", "b")} == {k: v for k, v in s2.items() if k not in ("a", "b")}
+
+
+def test_curated_body_match_type_consistency_columns(fresh):
+    cx_a, cx_b = fresh
+    cx_a.neurons["manc_body_id"] = pd.array(cx_a.neurons.index.to_numpy(), dtype="Int64")  # annotate every body as itself
+    cx_a.neurons.loc[101, "manc_type"] = "WRONG"                                            # annotation contradicted by the snapshot
+    table, s = build_mapping(cx_a, cx_b)
+    body = table[table.mapping_kind == "curated_body_match"].set_index("a_source_id")
+    assert body.loc[101, "confidence"] == "high" and body.loc[101, "manc_type_consistent"] is False or body.loc[101, "manc_type_consistent"] == False  # noqa: E712
+    assert s["body_match_consistency"]["manc_type_equals_b_cell_type"]["inconsistent"] >= 1
+    assert "both_type_annotations_contradicted_by_snapshot" in s["body_match_consistency"]
+
+
 def test_a_neuron_without_type_or_role_candidate(fresh):
     cx_a, cx_b = fresh
     _strip_curated_manc_annotations(cx_a)
@@ -242,6 +291,7 @@ def test_cli_build_and_lookup(monkeypatch, capsys, tmp_path, synthetic_out, manc
     assert (mdir / "neuron_mapping.parquet").exists() and json.loads((mdir / "summary.json").read_text())["rows"] == 7
     assert cli.main(["mapping", "lookup", "--b-id", "102", "--json"]) == 0
     rows = json.loads(capsys.readouterr().out)
-    assert [(r["a_source_id"], r["mapping_kind"], r["confidence"]) for r in rows] == [(102, "curated_type_match", "medium")]
+    assert [(r["a_uid"], r["mapping_kind"], r["confidence"], r["evidence_kind"]) for r in rows] == \
+        [("male-cns:v1.0:102", "curated_type_match", "medium", "curated_annotation")]
     assert cli.main(["mapping", "lookup", "--a-id", "107"]) == 0
     assert "cb_intrinsic" in capsys.readouterr().out

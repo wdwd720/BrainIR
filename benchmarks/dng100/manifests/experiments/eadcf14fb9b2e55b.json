@@ -1,0 +1,140 @@
+{
+ "name": "dn_screen_manc_v1.2.1_nt-paper_r16",
+ "config": {
+  "model": {
+   "b_exc": 0.03,
+   "b_inh": 0.03,
+   "tau_mean": 0.02,
+   "tau_sd": 0.002,
+   "a_mean": 1.0,
+   "a_sd": 0.1,
+   "theta_mean": 7.5,
+   "theta_sd": 0.6,
+   "r_max_mean": 200.0,
+   "r_max_sd": 10.0,
+   "size_scaling": true,
+   "t_end": 1.0,
+   "dt_out": 0.001,
+   "pulse_start": 0.02,
+   "pulse_end": null,
+   "method": "RK45",
+   "rtol": 2e-06,
+   "atol": 5e-09,
+   "integration": "segments",
+   "dt": null,
+   "max_step": null,
+   "clip_max_rate": 1000.0
+  },
+  "screen": {
+   "algorithm": "brainir.sim.screen.autotuned_activation_v1",
+   "initial_current": 128.0,
+   "max_adjustment_iters": 10,
+   "n_active_upper": 1500,
+   "n_active_lower": 5,
+   "n_high_fr_upper": 100,
+   "high_fr_threshold": 100.0,
+   "analysis_start_s": 0.25,
+   "active_rate_hz": 0.01,
+   "prominence": 0.05
+  },
+  "network": {
+   "dataset": "manc",
+   "version": "v1.2.1",
+   "n": 4604,
+   "floor": 5,
+   "remove_autapses": true,
+   "sign_basis": "nt_body_prediction",
+   "sign_rule": "pugliese2026.sign.predictedNt",
+   "nt_overrides": 4604,
+   "roi_restrict": null,
+   "n_pairs": 196535,
+   "total_synapses": 3817772,
+   "n_positive_rows": 2419,
+   "n_negative_rows": 2172,
+   "n_zero_rows": 13,
+   "size_source": "manc:v1.0 size_voxels by body ID"
+  },
+  "candidates": 933
+ },
+ "seeds": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15
+ ],
+ "inputs": {
+  "network_hash": "08ab3c7601c13409846699ddbfe97c12fd4eecdf2913c65672d1162e42beb3f6"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 14928,
+  "wall_time_s": 2529.6,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 3600,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "6ec6674bfbabea0b7af1a192f149c114",
+   "shared_payload_bytes": 641381,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 18.5507
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/benchmarks/dng100_walking_cpg/results/dn_screen_manc_v1.2.1_nt-paper_r16.json",
+   "sha256": "e66ab68e7dc0424f178bee11ce6500e122fd9b9a3079d3b1664930a2ae61c542",
+   "size_bytes": 3941951
+  }
+ },
+ "summary": {
+  "n_candidates_with_mean_gt_0_5": 31,
+  "fraction_never_usable": 0.14362272240085744,
+  "dng100": [
+   {
+    "source_id": 10093,
+    "rank": 1,
+    "mean_score": 0.981255075,
+    "median_score": 0.99782025,
+    "n_usable": 16,
+    "best_score": 1.0,
+    "median_frequency_hz": 10.75393155
+   },
+   {
+    "source_id": 10339,
+    "rank": 2,
+    "mean_score": 0.91070205625,
+    "median_score": 0.968044125,
+    "n_usable": 16,
+    "best_score": 0.9999733333333333,
+    "median_frequency_hz": 12.5
+   }
+  ],
+  "dng100_type_rank": 1
+ },
+ "notes": "",
+ "run_id": "eadcf14fb9b2e55b",
+ "created_utc": "2026-09-23T09:03:36Z",
+ "code": {
+  "commit": "5776d24978ae52ed5d955539a85e5a892f965469",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}
