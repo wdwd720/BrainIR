@@ -296,3 +296,16 @@ def test_meaning_preserving_perturbations(tiny_suite, tmp_path):
     toks0 = set(p0.neurons["cell_type"])
     toks1 = set(DiscoveryProblem.from_bundle(tmp_path / "resalt_tokens", "main").neurons["cell_type"])
     assert "DNsyn" in toks1 and not ({t for t in toks0 if t.startswith("T#")} & toks1)
+
+
+def test_cross_connectome_diagnostics_become_schema_claims(tiny_suite):
+    root, label, _ = tiny_suite
+    p = DiscoveryProblem.from_bundle(root / "instances" / label, "main")
+    core = [int(x) for x in p.candidate_positions()[:2]]
+    res = DiscoveryResult(core=core, diagnostics={"cross_connectome": [{"source_position": core[0], "other_dataset": "synthetic-b",
+                                                                        "other_version": "v", "other_source_id": 17, "confidence": 1.3}]})
+    from brainir.benchmark.prediction import MethodInfo
+    pred = res.to_prediction(p, MethodInfo(name="t", version="0"))
+    assert len(pred.cross_connectome) == 1
+    c = pred.cross_connectome[0]
+    assert c.source_id == int(p.public_ids[core[0]]) and c.other_source_id == 17 and c.confidence == 1.0 and c.basis == "connectivity"

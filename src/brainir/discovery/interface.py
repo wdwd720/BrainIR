@@ -19,7 +19,7 @@ from dataclasses import dataclass, field
 
 import numpy as np
 
-from ..benchmark.prediction import BrainIRMechanismPrediction, DynamicsClaim, MechanismClaim, MethodInfo, NeuronClaim
+from ..benchmark.prediction import BrainIRMechanismPrediction, CrossConnectomeClaim, DynamicsClaim, MechanismClaim, MethodInfo, NeuronClaim
 from .problem import DiscoveryProblem
 from .simulator import BudgetedSimulator
 
@@ -74,13 +74,23 @@ class DiscoveryResult:
         if len(text) > 2000:  # schema limit: keep the most important part
             notes.pop("inclusion_probability_top", None)
             text = json.dumps(notes, default=float, separators=(",", ":"))[:2000]
+        # cross-connectome claims (a method that aligned its mechanism with another network of the bundle):
+        # diagnostics["cross_connectome"] = [{"source_position", "other_dataset", "other_version", "other_source_id", "confidence", "basis"}]
+        cross = []
+        for c in self.diagnostics.get("cross_connectome", []) or []:
+            conf = c.get("confidence")
+            cross.append(CrossConnectomeClaim(source_id=int(ids[int(c["source_position"])]), other_dataset=str(c["other_dataset"]),
+                                              other_version=str(c["other_version"]), other_source_id=int(c["other_source_id"]),
+                                              basis=c.get("basis", "connectivity"),
+                                              confidence=None if conf is None else float(min(1.0, max(0.0, conf)))))
         return BrainIRMechanismPrediction(
             benchmark_id=problem.benchmark_id, dataset=problem.dataset, dataset_version=problem.version,
             stimulus_source_ids=[int(ids[p]) for p in problem.stim_positions], core_neurons=claims,
             dynamics=DynamicsClaim(frequency_hz=self.predicted_frequency_hz, n_active_readout=self.predicted_n_active_readout,
                                    rhythmic=self.predicted_function_preserved if problem.criterion_spec.get("type") == "rhythm" else None),
             mechanism=MechanismClaim(motif=self.motif, loop_neurons=[int(ids[p]) for p in self.loop], notes=text),
-            method=method, created_utc=_dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"))
+            cross_connectome=cross, method=method,
+            created_utc=_dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"))
 
     def to_dict(self) -> dict:
         return {"core": [int(p) for p in self.core], "inclusion_probability": {int(k): float(v) for k, v in self.inclusion_probability.items()},
