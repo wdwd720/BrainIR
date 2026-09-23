@@ -29,9 +29,16 @@ B_VERSIONS = ("v1.2.1", "v1.2.3")
 
 
 def _nodes(name: str) -> set[int]:
+    """Members of the benchmark network = the node list restricted to the bodies present in the exported bundle
+    (one MaleCNS body of the authors' list is not a neuron of v1.0)."""
     df = pd.read_csv(NODES / f"{name}.csv")
     col = "bodyId" if "bodyId" in df.columns else "source_id" if "source_id" in df.columns else df.columns[0]
-    return {int(i) for i in df[col]}
+    listed = {int(i) for i in df[col]}
+    bundle_neurons = HERE / "public" / "networks" / name / "neurons.parquet"
+    if bundle_neurons.exists():
+        present = {int(i) for i in pd.read_parquet(bundle_neurons, columns=["source_id"])["source_id"]}
+        return listed & present
+    return listed
 
 
 def main(argv=None) -> int:

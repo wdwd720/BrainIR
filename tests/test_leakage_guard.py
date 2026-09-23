@@ -59,7 +59,8 @@ def test_non_answer_docs_are_clean():
     offenders = []
     for rel in CLEAN_DOCS:
         p = root / rel
-        files = [p] if p.is_file() else sorted(p.rglob("*.md")) if p.is_dir() else []
+        files = [p] if p.is_file() else sorted(f for f in p.rglob("*") if f.suffix in (".md", ".json", ".txt", ".csv", ".yaml", ".yml")) \
+            if p.is_dir() else []
         for f in files:
             text = f.read_text(encoding="utf-8")
             for tok in ANSWER_KEY_TOKENS:

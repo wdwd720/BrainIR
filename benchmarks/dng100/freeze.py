@@ -25,9 +25,15 @@ from brainir.benchmark.prediction import PREDICTION_SCHEMA_VERSION
 HERE = Path(__file__).resolve().parent
 LOCK = HERE / "BENCHMARK_LOCK.json"
 FROZEN_DIRS = ("public", "public_blind", "oracle", "evaluator", "cleanroom", "baselines", "nodes")
-FROZEN_FILES = ("PROTOCOL.md", "LEAKAGE_AUDIT.md", "build_public_bundle.py", "freeze.py")
+"""baselines/ includes baselines/results/ (the reference baseline evaluations and null distributions PROTOCOL.md §5 makes
+normative); everything else under results/ elsewhere in the repository is outside the lock."""
+FROZEN_FILES = ("PROTOCOL.md", "LEAKAGE_AUDIT.md", "build_public_bundle.py", "build_cross_connectome_reference.py", "freeze.py")
 EXCLUDE_SUFFIXES = (".pyc",)
-EXCLUDE_PARTS = ("__pycache__", "results")
+EXCLUDE_PARTS = ("__pycache__",)
+CODE_DIRS = ("src/brainir/sim", "src/brainir/metrics", "src/brainir/benchmark", "src/brainir/compute")
+"""Library code the evaluator and the baselines execute: hashed into the lock (a result is comparable only under the same
+simulator, metrics and schema), together with the dependency lock file."""
+CODE_FILES = ("uv.lock", "pyproject.toml", "src/brainir/graph.py", "src/brainir/mapping.py", "src/brainir/schema/vocab.py")
 
 
 def _sha(p: Path) -> str:
@@ -50,8 +56,22 @@ def frozen_files() -> dict[str, str]:
     return out
 
 
+def code_files() -> dict[str, str]:
+    root = paths.repo_root()
+    out = {}
+    for d in CODE_DIRS:
+        for p in sorted((root / d).rglob("*.py")):
+            if "__pycache__" not in p.parts:
+                out[p.relative_to(root).as_posix()] = _sha(p)
+    for f in CODE_FILES:
+        if (root / f).exists():
+            out[f] = _sha(root / f)
+    return out
+
+
 def build_lock() -> dict:
     files = frozen_files()
+    code = code_files()
     bundles = {}
     for name in ("public", "public_blind"):
         m = json.loads((HERE / name / "manifest.json").read_text(encoding="utf-8"))
@@ -72,7 +92,10 @@ def build_lock() -> dict:
         "frozen_utc": _dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
         "brainir_version": __version__, "code_commit": commit,
         "oracle_sha256": _sha(HERE / "oracle" / "oracle.json"), "evaluator_sha256": _sha(HERE / "evaluator" / "evaluate.py"),
-        "bundles": bundles, "dataset_manifests_sha256": manifests, "files": files,
+        "bundles": bundles, "dataset_manifests_sha256": manifests, "files": files, "code_files": code,
+        "notes": ["code_commit is the commit the tree was at when the lock was written; the lock itself is committed next",
+                  "files with timestamps (bundle manifests, LEAKAGE_AUDIT.md, reference json) are hashed as they are: regenerating them "
+                  "is a new benchmark version by definition"],
     }
     lock["lock_sha256"] = hashlib.sha256(json.dumps({k: v for k, v in lock.items() if k != "frozen_utc"}, sort_keys=True).encode()).hexdigest()
     return lock
@@ -83,7 +106,18 @@ def check() -> dict:
     now = frozen_files()
     changed = sorted(k for k in lock["files"] if now.get(k) != lock["files"][k])
     added = sorted(k for k in now if k not in lock["files"])
-    return {"ok": not changed and not added, "changed_or_missing": changed, "added": added, "lock_sha256": lock["lock_sha256"]}
+    code_now = code_files()
+    code_changed = sorted(k for k in lock.get("code_files", {}) if code_now.get(k) != lock["code_files"][k])
+    code_added = sorted(k for k in code_now if k not in lock.get("code_files", {}))
+    manifests_changed = []
+    for key, sha in lock.get("dataset_manifests_sha256", {}).items():
+        ds, ver = key.split(":")
+        p = paths.manifests_dir() / f"{ds}_{ver}.manifest.json"
+        if not p.exists() or _sha(p) != sha:
+            manifests_changed.append(key)
+    ok = not (changed or added or code_changed or code_added or manifests_changed)
+    return {"ok": ok, "changed_or_missing": changed, "added": added, "code_changed_or_missing": code_changed, "code_added": code_added,
+            "dataset_manifests_changed": manifests_changed, "lock_sha256": lock["lock_sha256"]}
 
 
 def main(argv=None) -> int:

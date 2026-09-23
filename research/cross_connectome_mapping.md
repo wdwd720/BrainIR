@@ -179,11 +179,11 @@ Both builds were verified against their committed manifests before mapping (`sum
 
 | artefact | rows | sha256 |
 |---|---|---|
-| `$DATA/processed/mappings/male-cns_v1.0__manc_v1.2.1/neuron_mapping.parquet` | 449,958 | `e0e18526d45f3960b7c48757beedab1e00ddaca2fd145e44e83e8734c49cc541` |
-| `$DATA/processed/mappings/male-cns_v1.0__manc_v1.2.3/neuron_mapping.parquet` | 243,378 | `67d513525581631132441c48d12605db562cef4e551d05c4d650ea341811846b` |
-| `$REPO/data/manifests/male-cns_v1.0.manifest.json` (A build) | | `84ccb2413bda05bd59b92043a7cddfb68dd7524c910ebd7c5f298b0434d7370a` |
-| `$REPO/data/manifests/manc_v1.2.1.manifest.json` (B build) | | `cea1472cfecc8196475316c9f7e1559b175a57abfad00e81d5c28ee4f1e0a580` |
-| `$REPO/data/manifests/manc_v1.2.3.manifest.json` (B build) | | `ca8962d5ed1153ff0916ddb8813c4bc8fe828c9b75fd6365617b7bea0a1466f4` |
+| `$DATA/processed/mappings/male-cns_v1.0__manc_v1.2.1/neuron_mapping.parquet` (schema 1.1.0) | 449,984 | `81699b6bad9c5810a65d97a69679142d72e1ff7313ba9853bdad6ff00cba7bb5` |
+| `$DATA/processed/mappings/male-cns_v1.0__manc_v1.2.3/neuron_mapping.parquet` (schema 1.1.0) | 243,404 | `e6e8cc6426616d8f408b7c01cf046912d9f95d31ab8c62be2dfd4f847490b25c` |
+| `$REPO/data/manifests/male-cns_v1.0.manifest.json` (A build) | | `e52ccb180e61644692f24af3b24464a7fd6e6c0a70703488cf4436e704081c38` |
+| `$REPO/data/manifests/manc_v1.2.1.manifest.json` (B build) | | `117d93c757af6f980b0629bf2277eba222f88010e241839b66d69f55d37f7ea1` |
+| `$REPO/data/manifests/manc_v1.2.3.manifest.json` (B build) | | `8d4ef4a27fc8874d0c8e1610c4f57189f2bfa95ed2ad6edc7c5722f106e0f7ed` |
 
 The Parquet files are written with the canonical writer (sorted by `(a_source_id, b_source_id)`, zstd-3, normalised
 dictionaries), so a rebuild from the same inputs is byte-identical (tested on the fixtures); each file's metadata

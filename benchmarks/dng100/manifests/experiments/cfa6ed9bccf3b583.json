@@ -1,0 +1,977 @@
+{
+ "name": "robust_input_sweep_manc_v1.2.1_nt-paper_n8",
+ "config": {
+  "network": {
+   "dataset": "manc",
+   "version": "v1.2.1",
+   "n": 4604,
+   "floor": 5,
+   "remove_autapses": true,
+   "sign_basis": "nt_body_prediction",
+   "sign_rule": "pugliese2026.sign.predictedNt",
+   "nt_overrides": 4604,
+   "roi_restrict": null,
+   "n_pairs": 196535,
+   "total_synapses": 3817772,
+   "n_positive_rows": 2419,
+   "n_negative_rows": 2172,
+   "n_zero_rows": 13,
+   "size_source": "manc:v1.0 size_voxels by body ID",
+   "readout_n": 144,
+   "readout_description": "motor neurons with sub_class 'fl' (front leg)",
+   "sign_rows": {
+    "positive": 2419,
+    "negative": 2172,
+    "zero": 13
+   },
+   "super_class_counts": {
+    "intrinsic_neuron": 2471,
+    "descending_neuron": 1318,
+    "ascending_neuron": 375,
+    "sensory_neuron": 283,
+    "motor_neuron": 148,
+    "efferent_ascending": 2,
+    "sensory_ascending": 2,
+    "glia": 2,
+    "Interneuron_TBD": 2,
+    "efferent_neuron": 1
+   },
+   "evidence_note": "counts and sign rows are anatomy + NT predictions; nothing here is a model parameter"
+  },
+  "stimulus": {
+   "positions": [
+    31
+   ],
+   "source_ids": [
+    10093
+   ],
+   "cell_type": "DNg100",
+   "current": 250.0
+  },
+  "conditions": [
+   {
+    "label": "I=180",
+    "current": 180.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "summary": {
+     "n_replicates": 8,
+     "score_mean": 0.0,
+     "score_median": 0.0,
+     "score_min": 0.0,
+     "fraction_ge_threshold": 0.0,
+     "threshold": 0.5,
+     "fraction_any_sustained": 0.0,
+     "sustained_readout_median": 0.0,
+     "sustained_fraction_median": 0.0,
+     "frequency_median_hz": null,
+     "frequency_iqr_hz": null,
+     "active_readout_median": 0.0,
+     "active_readout_range": [
+      0,
+      0
+     ],
+     "active_all_median": 16.5,
+     "active_all_range": [
+      12,
+      26
+     ],
+     "solver_failures": 0,
+     "wall_time_s": 8.623
+    },
+    "replicates": [
+     {
+      "seed": 0,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 17,
+      "n_high_rate": 0,
+      "max_rate_hz": 9.292466070394328,
+      "solver_success": true,
+      "wall_time_s": 0.959,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 1,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 13,
+      "n_high_rate": 0,
+      "max_rate_hz": 8.70256674255516,
+      "solver_success": true,
+      "wall_time_s": 0.847,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 2,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 17,
+      "n_high_rate": 0,
+      "max_rate_hz": 9.294223388325292,
+      "solver_success": true,
+      "wall_time_s": 1.062,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 3,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 18,
+      "n_high_rate": 0,
+      "max_rate_hz": 10.11222188011254,
+      "solver_success": true,
+      "wall_time_s": 1.18,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 4,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 16,
+      "n_high_rate": 0,
+      "max_rate_hz": 10.053631961014943,
+      "solver_success": true,
+      "wall_time_s": 0.908,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 5,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 26,
+      "n_high_rate": 0,
+      "max_rate_hz": 10.444638487087866,
+      "solver_success": true,
+      "wall_time_s": 1.382,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 6,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 12,
+      "n_high_rate": 0,
+      "max_rate_hz": 7.996314674613428,
+      "solver_success": true,
+      "wall_time_s": 1.145,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 7,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 16,
+      "n_high_rate": 0,
+      "max_rate_hz": 9.57905389404064,
+      "solver_success": true,
+      "wall_time_s": 1.14,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     }
+    ]
+   },
+   {
+    "label": "I=220",
+    "current": 220.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "summary": {
+     "n_replicates": 8,
+     "score_mean": 0.8138805,
+     "score_median": 0.95034125,
+     "score_min": 0.0,
+     "fraction_ge_threshold": 0.875,
+     "threshold": 0.5,
+     "fraction_any_sustained": 0.875,
+     "sustained_readout_median": 1.0,
+     "sustained_fraction_median": 0.5,
+     "frequency_median_hz": 9.2592593,
+     "frequency_iqr_hz": [
+      8.708365133333334,
+      10.74712645
+     ],
+     "active_readout_median": 2.0,
+     "active_readout_range": [
+      0,
+      3
+     ],
+     "active_all_median": 65.5,
+     "active_all_range": [
+      28,
+      91
+     ],
+     "solver_failures": 0,
+     "wall_time_s": 112.8
+    },
+    "replicates": [
+     {
+      "seed": 0,
+      "score": 0.9794245,
+      "mean_frequency_hz": 8.695652200000001,
+      "n_active_readout": 2,
+      "n_active_all": 83,
+      "n_high_rate": 0,
+      "max_rate_hz": 12.928614929866747,
+      "solver_success": true,
+      "wall_time_s": 14.481,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.3335584125546176
+     },
+     {
+      "seed": 1,
+      "score": 0.832558,
+      "mean_frequency_hz": 9.2592593,
+      "n_active_readout": 2,
+      "n_active_all": 63,
+      "n_high_rate": 0,
+      "max_rate_hz": 12.012311518889724,
+      "solver_success": true,
+      "wall_time_s": 14.912,
+      "n_sustained_readout": 1,
+      "readout_range_hz_max": 1.7420271041136723
+     },
+     {
+      "seed": 2,
+      "score": 0.9887455,
+      "mean_frequency_hz": 10.0,
+      "n_active_readout": 2,
+      "n_active_all": 66,
+      "n_high_rate": 0,
+      "max_rate_hz": 13.114077962183273,
+      "solver_success": true,
+      "wall_time_s": 14.52,
+      "n_sustained_readout": 1,
+      "readout_range_hz_max": 3.048113199661591
+     },
+     {
+      "seed": 3,
+      "score": 0.9995536666666666,
+      "mean_frequency_hz": 11.4942529,
+      "n_active_readout": 3,
+      "n_active_all": 65,
+      "n_high_rate": 0,
+      "max_rate_hz": 13.866125618537069,
+      "solver_success": true,
+      "wall_time_s": 13.378,
+      "n_sustained_readout": 1,
+      "readout_range_hz_max": 1.3078867092089739
+     },
+     {
+      "seed": 4,
+      "score": 0.921258,
+      "mean_frequency_hz": 7.8740157,
+      "n_active_readout": 3,
+      "n_active_all": 65,
+      "n_high_rate": 0,
+      "max_rate_hz": 14.101261256358754,
+      "solver_success": true,
+      "wall_time_s": 15.228,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 2.9959978761497568
+     },
+     {
+      "seed": 5,
+      "score": 0.9996769999999999,
+      "mean_frequency_hz": 13.3333333,
+      "n_active_readout": 2,
+      "n_active_all": 76,
+      "n_high_rate": 0,
+      "max_rate_hz": 14.321969824596263,
+      "solver_success": true,
+      "wall_time_s": 14.8,
+      "n_sustained_readout": 1,
+      "readout_range_hz_max": 1.5948195952464503
+     },
+     {
+      "seed": 6,
+      "score": 0.0,
+      "mean_frequency_hz": null,
+      "n_active_readout": 0,
+      "n_active_all": 28,
+      "n_high_rate": 0,
+      "max_rate_hz": 11.650615466395505,
+      "solver_success": true,
+      "wall_time_s": 2.462,
+      "n_sustained_readout": 0,
+      "readout_range_hz_max": 0.0
+     },
+     {
+      "seed": 7,
+      "score": 0.7898273333333332,
+      "mean_frequency_hz": 8.721078066666667,
+      "n_active_readout": 3,
+      "n_active_all": 91,
+      "n_high_rate": 0,
+      "max_rate_hz": 13.187600085516092,
+      "solver_success": true,
+      "wall_time_s": 23.019,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 2.2654932941826096
+     }
+    ]
+   },
+   {
+    "label": "I=250",
+    "current": 250.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "summary": {
+     "n_replicates": 8,
+     "score_mean": 0.9685727666666666,
+     "score_median": 0.9996616666666667,
+     "score_min": 0.8556578,
+     "fraction_ge_threshold": 1.0,
+     "threshold": 0.5,
+     "fraction_any_sustained": 1.0,
+     "sustained_readout_median": 2.0,
+     "sustained_fraction_median": 1.0,
+     "frequency_median_hz": 10.385277649999999,
+     "frequency_iqr_hz": [
+      9.829588725,
+      11.4031568
+     ],
+     "active_readout_median": 3.0,
+     "active_readout_range": [
+      2,
+      5
+     ],
+     "active_all_median": 91.0,
+     "active_all_range": [
+      66,
+      114
+     ],
+     "solver_failures": 0,
+     "wall_time_s": 172.029
+    },
+    "replicates": [
+     {
+      "seed": 0,
+      "score": 0.8946943333333334,
+      "mean_frequency_hz": 9.9009901,
+      "n_active_readout": 3,
+      "n_active_all": 104,
+      "n_high_rate": 0,
+      "max_rate_hz": 16.719733678556103,
+      "solver_success": true,
+      "wall_time_s": 24.95,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 5.007608665240393
+     },
+     {
+      "seed": 1,
+      "score": 0.999261,
+      "mean_frequency_hz": 10.8695652,
+      "n_active_readout": 2,
+      "n_active_all": 81,
+      "n_high_rate": 0,
+      "max_rate_hz": 14.490582066070841,
+      "solver_success": true,
+      "wall_time_s": 19.03,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.140989655595412
+     },
+     {
+      "seed": 2,
+      "score": 0.99958,
+      "mean_frequency_hz": 11.2359551,
+      "n_active_readout": 2,
+      "n_active_all": 91,
+      "n_high_rate": 0,
+      "max_rate_hz": 15.972703605887329,
+      "solver_success": true,
+      "wall_time_s": 23.596,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 4.1035582202757865
+     },
+     {
+      "seed": 3,
+      "score": 0.9997433333333333,
+      "mean_frequency_hz": 11.904761899999999,
+      "n_active_readout": 3,
+      "n_active_all": 91,
+      "n_high_rate": 0,
+      "max_rate_hz": 16.674818172904594,
+      "solver_success": true,
+      "wall_time_s": 21.827,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 2.476264334185217
+     },
+     {
+      "seed": 4,
+      "score": 0.9998056666666667,
+      "mean_frequency_hz": 9.9009901,
+      "n_active_readout": 3,
+      "n_active_all": 88,
+      "n_high_rate": 0,
+      "max_rate_hz": 17.041700051360547,
+      "solver_success": true,
+      "wall_time_s": 21.062,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 4.134023613752255
+     },
+     {
+      "seed": 5,
+      "score": 0.99984,
+      "mean_frequency_hz": 13.698630099999999,
+      "n_active_readout": 3,
+      "n_active_all": 104,
+      "n_high_rate": 0,
+      "max_rate_hz": 17.222522190975194,
+      "solver_success": true,
+      "wall_time_s": 20.643,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 2.4197904148391567
+     },
+     {
+      "seed": 6,
+      "score": 1.0,
+      "mean_frequency_hz": 9.6153846,
+      "n_active_readout": 2,
+      "n_active_all": 66,
+      "n_high_rate": 0,
+      "max_rate_hz": 14.386607880149361,
+      "solver_success": true,
+      "wall_time_s": 16.166,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 2.5349805685998423
+     },
+     {
+      "seed": 7,
+      "score": 0.8556578,
+      "mean_frequency_hz": 9.523809499999999,
+      "n_active_readout": 5,
+      "n_active_all": 114,
+      "n_high_rate": 0,
+      "max_rate_hz": 15.88835385570117,
+      "solver_success": true,
+      "wall_time_s": 24.755,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.125551674330336
+     }
+    ]
+   },
+   {
+    "label": "I=260",
+    "current": 260.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "summary": {
+     "n_replicates": 8,
+     "score_mean": 0.9785858000000001,
+     "score_median": 0.9994671666666668,
+     "score_min": 0.8792034,
+     "fraction_ge_threshold": 1.0,
+     "threshold": 0.5,
+     "fraction_any_sustained": 1.0,
+     "sustained_readout_median": 2.0,
+     "sustained_fraction_median": 0.8333333333333333,
+     "frequency_median_hz": 10.7638889,
+     "frequency_iqr_hz": [
+      10.207206325,
+      11.835577624999999
+     ],
+     "active_readout_median": 3.0,
+     "active_readout_range": [
+      2,
+      5
+     ],
+     "active_all_median": 95.0,
+     "active_all_range": [
+      75,
+      117
+     ],
+     "solver_failures": 0,
+     "wall_time_s": 161.016
+    },
+    "replicates": [
+     {
+      "seed": 0,
+      "score": 0.9521036666666666,
+      "mean_frequency_hz": 10.3092784,
+      "n_active_readout": 3,
+      "n_active_all": 112,
+      "n_high_rate": 0,
+      "max_rate_hz": 18.13651861915442,
+      "solver_success": true,
+      "wall_time_s": 24.448,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 5.5792163841840665
+     },
+     {
+      "seed": 1,
+      "score": 0.9992175000000001,
+      "mean_frequency_hz": 11.111111099999999,
+      "n_active_readout": 2,
+      "n_active_all": 84,
+      "n_high_rate": 0,
+      "max_rate_hz": 15.315759502177356,
+      "solver_success": true,
+      "wall_time_s": 17.641,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.603309995439031
+     },
+     {
+      "seed": 2,
+      "score": 0.9996864999999999,
+      "mean_frequency_hz": 11.7647059,
+      "n_active_readout": 2,
+      "n_active_all": 95,
+      "n_high_rate": 0,
+      "max_rate_hz": 17.71093506778633,
+      "solver_success": true,
+      "wall_time_s": 20.841,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.9244089272340004
+     },
+     {
+      "seed": 3,
+      "score": 0.9994253333333334,
+      "mean_frequency_hz": 12.0481928,
+      "n_active_readout": 3,
+      "n_active_all": 95,
+      "n_high_rate": 0,
+      "max_rate_hz": 17.60953254742745,
+      "solver_success": true,
+      "wall_time_s": 20.137,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 2.8978640558175157
+     },
+     {
+      "seed": 4,
+      "score": 0.9995090000000001,
+      "mean_frequency_hz": 10.4166667,
+      "n_active_readout": 3,
+      "n_active_all": 93,
+      "n_high_rate": 0,
+      "max_rate_hz": 18.01733532376573,
+      "solver_success": true,
+      "wall_time_s": 19.243,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 4.584762820201964
+     },
+     {
+      "seed": 5,
+      "score": 0.999839,
+      "mean_frequency_hz": 13.698630099999999,
+      "n_active_readout": 3,
+      "n_active_all": 112,
+      "n_high_rate": 0,
+      "max_rate_hz": 18.18769670147788,
+      "solver_success": true,
+      "wall_time_s": 20.332,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 2.7987376014043917
+     },
+     {
+      "seed": 6,
+      "score": 0.999702,
+      "mean_frequency_hz": 9.9009901,
+      "n_active_readout": 3,
+      "n_active_all": 75,
+      "n_high_rate": 0,
+      "max_rate_hz": 15.29751193745619,
+      "solver_success": true,
+      "wall_time_s": 16.087,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.0901977172347195
+     },
+     {
+      "seed": 7,
+      "score": 0.8792034,
+      "mean_frequency_hz": 9.803921599999999,
+      "n_active_readout": 5,
+      "n_active_all": 117,
+      "n_high_rate": 0,
+      "max_rate_hz": 16.78732909232109,
+      "solver_success": true,
+      "wall_time_s": 22.287,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.443794538360674
+     }
+    ]
+   },
+   {
+    "label": "I=300",
+    "current": 300.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "summary": {
+     "n_replicates": 8,
+     "score_mean": 0.9686153520833333,
+     "score_median": 0.9787014583333333,
+     "score_min": 0.91310825,
+     "fraction_ge_threshold": 1.0,
+     "threshold": 0.5,
+     "fraction_any_sustained": 1.0,
+     "sustained_readout_median": 2.0,
+     "sustained_fraction_median": 0.6666666666666666,
+     "frequency_median_hz": 12.121657399999998,
+     "frequency_iqr_hz": [
+      11.0865408,
+      12.827004174999999
+     ],
+     "active_readout_median": 3.5,
+     "active_readout_range": [
+      2,
+      5
+     ],
+     "active_all_median": 122.0,
+     "active_all_range": [
+      110,
+      142
+     ],
+     "solver_failures": 0,
+     "wall_time_s": 170.603
+    },
+    "replicates": [
+     {
+      "seed": 0,
+      "score": 0.9919526666666667,
+      "mean_frequency_hz": 11.2359551,
+      "n_active_readout": 3,
+      "n_active_all": 130,
+      "n_high_rate": 0,
+      "max_rate_hz": 23.44606685438575,
+      "solver_success": true,
+      "wall_time_s": 22.253,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 6.387279231250595
+     },
+     {
+      "seed": 1,
+      "score": 0.9994943333333334,
+      "mean_frequency_hz": 12.195121999999998,
+      "n_active_readout": 3,
+      "n_active_all": 110,
+      "n_high_rate": 0,
+      "max_rate_hz": 18.611193756822875,
+      "solver_success": true,
+      "wall_time_s": 21.186,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 4.978369883700148
+     },
+     {
+      "seed": 2,
+      "score": 0.999253,
+      "mean_frequency_hz": 13.3333333,
+      "n_active_readout": 2,
+      "n_active_all": 111,
+      "n_high_rate": 0,
+      "max_rate_hz": 25.705270859313735,
+      "solver_success": true,
+      "wall_time_s": 20.524,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 4.392394456662744
+     },
+     {
+      "seed": 3,
+      "score": 0.94830625,
+      "mean_frequency_hz": 12.658227799999999,
+      "n_active_readout": 4,
+      "n_active_all": 122,
+      "n_high_rate": 0,
+      "max_rate_hz": 21.814737795268506,
+      "solver_success": true,
+      "wall_time_s": 21.407,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 4.375969294016585
+     },
+     {
+      "seed": 4,
+      "score": 0.96545025,
+      "mean_frequency_hz": 12.048192799999999,
+      "n_active_readout": 4,
+      "n_active_all": 122,
+      "n_high_rate": 0,
+      "max_rate_hz": 24.379384976131906,
+      "solver_success": true,
+      "wall_time_s": 19.527,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 5.109947159790687
+     },
+     {
+      "seed": 5,
+      "score": 0.9992776666666666,
+      "mean_frequency_hz": 14.084507,
+      "n_active_readout": 3,
+      "n_active_all": 136,
+      "n_high_rate": 0,
+      "max_rate_hz": 22.038736923473603,
+      "solver_success": true,
+      "wall_time_s": 22.013,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 3.9872037201166863
+     },
+     {
+      "seed": 6,
+      "score": 0.91310825,
+      "mean_frequency_hz": 10.6382979,
+      "n_active_readout": 4,
+      "n_active_all": 110,
+      "n_high_rate": 0,
+      "max_rate_hz": 18.93470882062147,
+      "solver_success": true,
+      "wall_time_s": 19.503,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 5.024886995462294
+     },
+     {
+      "seed": 7,
+      "score": 0.9320803999999999,
+      "mean_frequency_hz": 10.6382979,
+      "n_active_readout": 5,
+      "n_active_all": 142,
+      "n_high_rate": 0,
+      "max_rate_hz": 21.134834096681864,
+      "solver_success": true,
+      "wall_time_s": 24.19,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 4.8657844915803
+     }
+    ]
+   },
+   {
+    "label": "I=340",
+    "current": 340.0,
+    "seeds": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7
+    ],
+    "summary": {
+     "n_replicates": 8,
+     "score_mean": 0.9585327318452381,
+     "score_median": 0.9656655999999999,
+     "score_min": 0.8771538333333333,
+     "fraction_ge_threshold": 1.0,
+     "threshold": 0.5,
+     "fraction_any_sustained": 1.0,
+     "sustained_readout_median": 2.0,
+     "sustained_fraction_median": 0.5,
+     "frequency_median_hz": 12.9037629,
+     "frequency_iqr_hz": [
+      11.65645844375,
+      13.34064325
+     ],
+     "active_readout_median": 4.0,
+     "active_readout_range": [
+      4,
+      7
+     ],
+     "active_all_median": 152.5,
+     "active_all_range": [
+      129,
+      189
+     ],
+     "solver_failures": 0,
+     "wall_time_s": 174.148
+    },
+    "replicates": [
+     {
+      "seed": 0,
+      "score": 0.8771538333333333,
+      "mean_frequency_hz": 11.7647059,
+      "n_active_readout": 6,
+      "n_active_all": 158,
+      "n_high_rate": 0,
+      "max_rate_hz": 28.6665646408627,
+      "solver_success": true,
+      "wall_time_s": 26.571,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 7.56580265839197
+     },
+     {
+      "seed": 1,
+      "score": 0.954193,
+      "mean_frequency_hz": 12.987013,
+      "n_active_readout": 4,
+      "n_active_all": 129,
+      "n_high_rate": 0,
+      "max_rate_hz": 23.887238861893454,
+      "solver_success": true,
+      "wall_time_s": 23.438,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 5.80554509064552
+     },
+     {
+      "seed": 2,
+      "score": 0.9998495000000001,
+      "mean_frequency_hz": 13.8888889,
+      "n_active_readout": 4,
+      "n_active_all": 135,
+      "n_high_rate": 0,
+      "max_rate_hz": 33.408799932857804,
+      "solver_success": true,
+      "wall_time_s": 20.936,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 5.007621802202978
+     },
+     {
+      "seed": 3,
+      "score": 0.9804760000000001,
+      "mean_frequency_hz": 13.1578947,
+      "n_active_readout": 4,
+      "n_active_all": 151,
+      "n_high_rate": 0,
+      "max_rate_hz": 27.65401750661347,
+      "solver_success": true,
+      "wall_time_s": 24.806,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 5.363181684647832
+     },
+     {
+      "seed": 4,
+      "score": 0.9771382,
+      "mean_frequency_hz": 12.8205128,
+      "n_active_readout": 5,
+      "n_active_all": 154,
+      "n_high_rate": 0,
+      "max_rate_hz": 31.682153953024915,
+      "solver_success": true,
+      "wall_time_s": 22.187,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 5.9487275254255
+     },
+     {
+      "seed": 5,
+      "score": 0.9907557499999999,
+      "mean_frequency_hz": 14.4927536,
+      "n_active_readout": 4,
+      "n_active_all": 189,
+      "n_high_rate": 0,
+      "max_rate_hz": 27.25906500864329,
+      "solver_success": true,
+      "wall_time_s": 19.505,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 4.602481575133483
+     },
+     {
+      "seed": 6,
+      "score": 0.94567,
+      "mean_frequency_hz": 11.331716075000001,
+      "n_active_readout": 4,
+      "n_active_all": 136,
+      "n_high_rate": 0,
+      "max_rate_hz": 23.833837448977217,
+      "solver_success": true,
+      "wall_time_s": 17.703,
+      "n_sustained_readout": 2,
+      "readout_range_hz_max": 6.217495198957025
+     },
+     {
+      "seed": 7,
+      "score": 0.9430255714285714,
+      "mean_frequency_hz": 11.111111099999999,
+      "n_active_readout": 7,
+      "n_active_all": 160,
+      "n_high_rate": 0,
+      "max_rate_hz": 27.14908521750924,
+      "solver_success": true,
+      "wall_time_s": 19.002,
+      "n_sustained_readout": 3,
+      "readout_range_hz_max": 6.217322155879493
+     }
+    ]
+   }
+  ]
+ },
+ "seeds": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7
+ ],
+ "inputs": {},
+ "backend": {
+  "backend": "local",
+  "n_workers": 6,
+  "wall_time_s": null
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/benchmarks/dng100_walking_cpg/results/robust_input_sweep_manc_v1.2.1_nt-paper_n8.json",
+   "sha256": "ea3256996b5cc54a41bf54b0cdf58140b12c24bb03001b1a0d45054f17dc5954",
+   "size_bytes": 23399
+  }
+ },
+ "summary": {
+  "file": "robust_input_sweep_manc_v1.2.1_nt-paper_n8"
+ },
+ "notes": "registry record created retroactively from the result file (Review F-M3); the driver registers runs from now on. The code commit recorded here is the commit at registration time, not at run time; the result file's own configuration block is the authoritative description of the run.",
+ "run_id": "cfa6ed9bccf3b583",
+ "created_utc": "2026-09-23T09:52:28Z",
+ "code": {
+  "commit": "0333a3630da9f691e3260e01dfe53ed79a1d3a22",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

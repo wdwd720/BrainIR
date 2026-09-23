@@ -45,9 +45,13 @@ HERE = Path(__file__).resolve().parent
 EVALUATOR_VERSION = "1.1.0"
 RHYTHMIC = 0.5
 """Published criterion: mean readout oscillation score >= 0.5 (the paper's threshold for a rhythmic replicate)."""
-AMPLITUDE_MIN_HZ = 1.0
-"""Added gate: the median peak-to-trough range of the scored motor neurons must reach 1 Hz (the published score is
-min-max normalised and would call a 0.1 Hz ripple with a clean autocorrelation a rhythm). 'sustained' = both."""
+AMPLITUDE_MIN_HZ = 0.25
+"""Added gate: the median peak-to-trough range of the scored motor neurons must reach 0.25 Hz (the published score is
+min-max normalised and would call a 0.01 Hz ripple with a clean autocorrelation a rhythm). 'sustained' = both.
+Calibration: intact-network readout ranges are 1.4 Hz (MANC) and 4.0 Hz (MaleCNS) at the median; the published isolated
+three-neuron cores produce 0.8-1.2 Hz swings on MN peak rates of a few Hz. A 1 Hz gate rejected the intact MANC network
+in 2 of 8 replicates and the published MaleCNS core in 5 of 8; 0.25 Hz rejects ripples an order of magnitude below any
+published rhythm while keeping every published core (evaluator 1.1.0 calibration run, 2026-09-23)."""
 ANALYSIS_START_S = 0.25
 DNG100_CIRCUIT_LABELS = ("E1", "E2", "E3", "I1", "I2")
 """Oracle labels that belong to the DNg100 circuit proper (E4/E5 are the paper's DNb08-pathway neurons)."""
@@ -253,7 +257,8 @@ def functional(pred: BrainIRMechanismPrediction, bnet: BundleNetwork, cfg: Model
         freq_err = abs(dyn.frequency_hz - si["frequency_median_hz"])
     return {
         "settings": {"n_replicates": len(seeds), "seeds": seeds, "t_end": cfg.t_end, "rhythmic_threshold": RHYTHMIC,
-                     "amplitude_min_hz": AMPLITUDE_MIN_HZ, "pass_rule": "sustained (score >= 0.5 AND amplitude >= 1 Hz) in >= 50% of replicates",
+                     "amplitude_min_hz": AMPLITUDE_MIN_HZ,
+                     "pass_rule": f"sustained (score >= {RHYTHMIC} AND median readout peak-to-trough >= {AMPLITUDE_MIN_HZ} Hz) in >= 50% of replicates",
                      "keep_only_always_keeps": "stimulus + readout motor neurons"},
         "intact_network": si,
         "sufficiency_keep_only_core": ss,

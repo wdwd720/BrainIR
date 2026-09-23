@@ -119,12 +119,16 @@ published score is amplitude-blind. Generic procedures: `brainir.sim.prune` (sto
 circuits, 16 labelled signal kinds, hand-derived score values.
 
 Numerical correctness (`robustness_experiments.py dt-convergence`, `manc:v1.2.1`, 6 seeds, T = 2 s, reference RK45
-rtol 1e-8 / atol 1e-11 whose own error is ≈ 6e-4 Hz): the authors' RK45 tolerances differ from the reference by at most
-0.11 Hz in any rate (RMS 1.4e-3 Hz), by ≤ 1.6e-3 in the published score and by nothing in the MN frequency;
-segment-wise and single-interval integration agree to 0.07 Hz. Fixed-step RK4 at dt = 1 ms is already within
-2.3e-2 Hz / 3.8e-4 score and reaches 7.8e-3 Hz at 0.5 ms; its empirical order is ~2, not 4, because the right-hand side
-has a C⁰ kink at every threshold crossing. Forward Euler at 1 ms shifts the frequency by −7 % and the score by up to
-0.09 — unusable. Finding: the study exposed that the fixed-step schemes originally evaluated the pulse indicator at
+rtol 1e-8 / atol 1e-11). The reference's own error was *measured* against a rtol 1e-10 / atol 1e-13 run
+(`results/robust_dt_convergence_*_n1_ref1e-10.*`): 7.2e-3 Hz max over the whole run, 4e-4 Hz over the first 0.3 s, so
+differences below that floor are not resolvable and the tolerance-proportionality estimate the script prints (≈ 6e-4 Hz)
+is an under-estimate by an order of magnitude (review B). Decision-level result: the published score, the MN frequency
+(to 0.01 Hz) and the active-MN set are identical across RK45 (authors' tolerances), DOP853, RK4 at every step size and
+Euler at 0.1 ms; only Euler at 1 ms deviates (score −0.04, frequency −7 %, one extra active MN). Rate-level: the authors'
+RK45 tolerances differ from the reference by at most 0.11 Hz (RMS 1.4e-3 Hz) and ≤ 1.6e-3 in score; segment-wise and
+single-interval integration agree to 0.07 Hz; fixed-step RK4 at 1 ms is within 2.3e-2 Hz / 3.8e-4 score. The expected
+convergence order of any explicit Runge–Kutta scheme here is 2, not 4 (the right-hand side has a C⁰ kink at every
+threshold crossing); RK4's measured orders scatter around that bound and the finest step sizes are reference-limited. Finding: the study exposed that the fixed-step schemes originally evaluated the pulse indicator at
 the Runge–Kutta stage times (an O(dt) error of ≈ 0.15 Hz at the pulse onset); sub-steps are now split at the pulse
 edges (`_fixed_step`, regression test against the closed-form single-neuron response, LOG §5). The adaptive path,
 which every reproduction uses, was never affected.
@@ -250,8 +254,9 @@ the same transfer for any prediction (`cross_connectome.transfer_keep_only_mappe
 
 ### 7.7 Robustness, input sweep, weight noise, negative controls (`robustness_experiments.py`, `manc:v1.2.1`, paired seeds)
 
-- **Parameter spread** (all four SDs × 0 / 0.5 / 1 / 1.5 / 2 / 3; n = 8): mean score 1.000 / 0.989 / 0.969 / 0.958 /
-  0.888 / 0.687, fraction ≥ 0.5 = 1 until ×3 (0.75). Paper at ×3: 0.669, 70.8 %.
+- **Parameter spread** (all four SDs × 0 / 0.5 / 1 / 1.5 / 2 / 3; n = 8, except ×0 where every replicate is identical
+  and n = 2): mean score 1.000 / 0.989 / 0.969 / 0.958 / 0.888 / 0.687, fraction ≥ 0.5 = 1 until ×3 (0.75). Paper at ×3:
+  0.669, 70.8 %.
 - **Single parameters** (n = 8): gain a 0.5 / 0.75 / 1 / 1.25 / 1.5 → 0.000 / 0.458 / 0.969 / 0.947 / 0.946 (silent below
   0.75; the most sensitive parameter, as the paper states); threshold θ 5 / 6.5 / 7.5 / 8.5 / 10 → 0.943 / 0.980 / 0.969 /
   0.893 / 0.125 with 13.3 → 9.0 Hz; b 0.015 / 0.02 / 0.03 / 0.04 / 0.06 → 0 / 0 / 0.969 / 0.945 / 0.242 (runaway at 0.06:
@@ -278,8 +283,8 @@ Frozen identity (`BENCHMARK_LOCK.json`, 68 hashed files; `freeze.py --check` ver
 
 - **Networks**: `manc_v1.2.1` (primary, 4,604 neurons), `manc_v1.2.3` (4,604), `male-cns_v1.0` (4,309; VNC synapses
   only). Membership = the published node lists; everything else (counts, NT labels, signs, sizes, roles) from BrainIR
-  builds. Stimulus = the DNg100 with most output into LegNp(T1)(L); readout = front-leg motor neurons (144 / 144 /
-  135).
+  builds. Stimulus = the DNg100 with most output into LegNp(T1)(L); readout = front-leg motor neurons (144 in
+  `manc_v1.2.1`, 142 in `manc_v1.2.3` (two bodies re-classed in the later snapshot), 130 in `male-cns_v1.0`).
 - **Tier B** (`public/`): release cell types, instances and body IDs. **Tier A** (`public_blind/`): interneuron
   types/instances → salted tokens, neuron IDs → positions (D32). Both: no oracle label, no evaluation output; verified
   by `cleanroom/leakage_check.py` (`LEAKAGE_AUDIT.md`: PASS) and `tests/test_leakage_check.py`.
@@ -338,7 +343,7 @@ Six independent reviews ran as separate agents with written contracts (`research
 | C (adversarial) | leakage, blinding, clean room | 4 blockers → closed: positions followed the paper's table order (now a salted permutation), tier B was the tier-A id map (positions differ now; structure fingerprinting acknowledged in PROTOCOL), the clean room did not confine (audit-hook sandbox; escape test fails as intended), no lock/tag (this freeze). Attacker result without simulation: the excitatory core is the strongest direct target plus its top reciprocal partner — recall 1.0 by a two-line heuristic; the inhibitory slot does not follow from degree |
 | D | oracle, schema, evaluator, baselines, nulls | 2 blockers → closed: type-level family was always 0 in tier A (real types in the private id map), MaleCNS "recruitment discrepancy" was a stimulus-selection error (D41). Majors addressed: amplitude-gated pass rule, transfer sub-family, oracle-graded claims only where labelled, every oracle field has an evidence level, precision vs circuit labels, t_end 2.0 |
 | E | mapping layer, cross-connectome | none; majors: `confidence` read as correctness (structured consistency columns + documentation), evaluator scored unlabelled claims as wrong (fixed); prose figures corrected; `vnc_tbc` role; tests added |
-| F | reproducibility, provenance, report consistency | [PENDING] |
+| F | reproducibility, provenance, report consistency | 2 blockers → closed: bundle manifests attributed the export to the commit before the exporter change (bundles re-exported at the final code state before freezing), the protocol's normative baseline/null artefacts were outside the lock (now hashed; the lock also hashes the simulator/metrics/benchmark code and `uv.lock`, and `--check` verifies code and dataset manifests). Majors addressed: dt-reference floor wording (§6), readout counts (§8), registry records for the local runs (retroactive, marked as such), mapping report figures/hashes; superseded pilot outputs removed; leakage guard scans JSON/CSV/TXT as well as Markdown; sandbox and freeze tests added. Everything hash-linked verified end to end (34 bundle files, manifests, registry → results, oracle numbers) |
 
 ## 11. Limitations (precise language)
 
