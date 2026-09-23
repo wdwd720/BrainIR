@@ -267,3 +267,32 @@ def test_permuted_variant_verifies_and_hides_its_permutation(tiny_suite, tmp_pat
     inside = {p.relative_to(tmp_path / "work" / "order1").as_posix() for p in (tmp_path / "work" / "order1").rglob("*") if p.is_file()}
     assert not any("perm" in f or "_private" in f for f in inside)
     assert (tmp_path / "work" / "_private" / "perm_order1_main.json").exists()
+
+
+def test_meaning_preserving_perturbations(tiny_suite, tmp_path):
+    """Anti-gaming transforms keep every existing position, the function and (except the parameter change) the dynamics."""
+    from brainir.benchmark.bundle import verify_bundle
+    from brainir.discovery.perturb import TRANSFORMS, perturb_bundle
+
+    root, label, _ = tiny_suite
+    src = root / "instances" / label
+    p0 = DiscoveryProblem.from_bundle(src, "main")
+    truth = json.loads((root / "truth" / f"{label}.json").read_text(encoding="utf-8"))["networks"]["main"]
+    for t in TRANSFORMS:
+        dest = tmp_path / t
+        perturb_bundle(src, dest, t, seed=3, n_extra=12)
+        assert verify_bundle(dest)["ok"], t
+        p1 = DiscoveryProblem.from_bundle(dest, "main")
+        assert p1.stim_positions == p0.stim_positions and (p1.readout_positions == p0.readout_positions).all()
+        n0 = p0.n
+        if t == "add_sink_distractors":
+            assert p1.n == n0 + 12 and p1.W[:n0, :n0].toarray().tolist() == p0.W.toarray().tolist()
+            assert p1.W[:n0, n0:].nnz == 0  # the new neurons send nothing into the original network
+        elif t != "widen_parameters":
+            assert (p1.W != p0.W).nnz == 0
+        if t in ("reorder_edges", "resalt_tokens", "strip_annotations", "add_sink_distractors"):
+            sim = BudgetedSimulator(p1, max_calls=4)
+            assert sim.pass_fraction(keep_only(p1, truth["core_positions"]), [0, 1]) >= 0.5
+    toks0 = set(p0.neurons["cell_type"])
+    toks1 = set(DiscoveryProblem.from_bundle(tmp_path / "resalt_tokens", "main").neurons["cell_type"])
+    assert "DNsyn" in toks1 and not ({t for t in toks0 if t.startswith("T#")} & toks1)

@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 
 from brainir.compute import get_backend
-from brainir.discovery.tournament import run_tournament
+from brainir.discovery.tournament import run_tournament, select_instances
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -25,7 +25,8 @@ def main(argv=None) -> int:
     ap.add_argument("--methods", nargs="+", required=True)
     ap.add_argument("--suite", type=Path, default=ROOT / "data" / "synthetic" / "mechanisms_v1")
     ap.add_argument("--instances", nargs="*", default=None)
-    ap.add_argument("--max-n", type=int, default=None, help="only instances with at most this many neurons (by name n<...>)")
+    ap.add_argument("--max-n", type=int, default=None, help="only instances with at most this many neurons (from the truth spec)")
+    ap.add_argument("--min-n", type=int, default=None, help="only instances with at least this many neurons")
     ap.add_argument("--families", nargs="*", default=None)
     ap.add_argument("--networks", nargs="+", default=["main"])
     ap.add_argument("--seeds", nargs="+", type=int, default=[0])
@@ -43,14 +44,8 @@ def main(argv=None) -> int:
         m, _, js = c.partition("=")
         configs[m] = json.loads(js)
     inst = args.instances
-    if inst is None and (args.max_n or args.families):
-        names = [p.name for p in sorted((args.suite / "instances").iterdir()) if p.is_dir()]
-        inst = []
-        for nm in names:
-            fam, rest = nm.split("__", 1)
-            n = int(rest.split("__")[0][1:])
-            if (args.max_n is None or n <= args.max_n) and (not args.families or fam in set(args.families)):
-                inst.append(nm)
+    if inst is None and (args.max_n or args.min_n or args.families):
+        inst = select_instances(args.suite, max_n=args.max_n, min_n=args.min_n, families=args.families)
     backend = get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=3600, max_containers=args.containers) if args.backend == "modal" else None
     run_tournament(args.methods, args.suite, instances=inst, networks=tuple(args.networks), seeds=tuple(args.seeds), budget=args.budget,
                    configs=configs, backend=backend, workers=args.workers, robust=not args.no_robust, out_dir=args.out,

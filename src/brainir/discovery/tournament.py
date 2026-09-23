@@ -29,7 +29,7 @@ from ..compute.registry import ExperimentRecord, artifact_record, content_hash, 
 from .interface import DiscoveryResult, MethodRegistry
 from .interventions import keep_only
 from .problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
-from .simulator import BudgetedSimulator, BudgetExhausted
+from .simulator import BudgetedSimulator, BudgetExhausted, SimQuery
 
 
 # ---------------------------------------------------------------------------- scoring
@@ -40,13 +40,17 @@ def _set_metrics(pred: set[int], truth: set[int]) -> dict:
 
 
 def score_structure(result: DiscoveryResult, truth_net: dict) -> dict:
+    """Structural scores against the truth's sufficient alternatives: the planted ones plus any unplanted sufficient sets found by
+    the suite audit (:mod:`brainir.discovery.suite_audit`). ``success`` counts either; ``success_planted`` only the planted ones."""
     core = set(int(p) for p in result.core)
     alts = [set(int(p) for p in a) for a in truth_net["alternatives_positions"]]
+    unplanted = {frozenset(int(p) for p in a) for a in truth_net.get("unplanted_alternatives_positions", [])}
     vs_core = _set_metrics(core, set(truth_net["core_positions"]))
     per_alt = [_set_metrics(core, a) for a in alts]
     best_i = int(np.argmax([m["jaccard"] or 0 for m in per_alt])) if per_alt else 0
     best = per_alt[best_i] if per_alt else vs_core
     success = any(m["recall"] == 1.0 for m in per_alt)
+    success_planted = any(m["recall"] == 1.0 for m, a in zip(per_alt, alts) if frozenset(a) not in unplanted)
     # uncertainty: Brier score of inclusion probabilities vs membership of the best alternative (over all candidates assessed)
     probs = result.inclusion_probability
     brier = None
@@ -68,35 +72,44 @@ def score_structure(result: DiscoveryResult, truth_net: dict) -> dict:
             ess_hits += int(bool(v) == bool(ess[key]))
     smallest = min((len(a) for a in alts), default=len(truth_net["core_positions"]))
     return {"vs_core": vs_core, "vs_best_alternative": best, "best_alternative_index": best_i, "success": bool(success),
+            "success_planted": bool(success_planted), "n_unplanted_alternatives": len(unplanted),
             "role_accuracy": (role_hits / role_n) if role_n else None, "n_roles_scored": role_n,
             "essential_accuracy": (ess_hits / ess_n) if ess_n else None, "n_essential_claims": ess_n,
             "size_ratio_vs_smallest_sufficient": (len(core) / smallest) if smallest else None, "brier_inclusion": brier,
             "n_alternatives_claimed": len(result.alternatives)}
 
 
+MINIMALITY_MAX_CORE = 40
+
+
 def score_function(problem: DiscoveryProblem, result: DiscoveryResult, *, seeds: list[int], workers: int = 1, robust: bool = True) -> dict:
-    """Keep-only of the predicted core on fresh seeds: nominal, widened-parameter and weight-noise ensembles (true simulator)."""
+    """Keep-only of the predicted core on fresh seeds on the TRUE simulator: nominal pass fraction, 1-minimality (which members
+    can be removed without losing the function) and, with ``robust``, widened-parameter and weight-noise ensembles.
+
+    ``functional_success`` = the core is sufficient (nominal pass >= 0.5) AND 1-minimal (no single member removable): a valid
+    compact mechanism even when it is not one the generator planted (goal3 section 8 defines the target this way; unplanted
+    sufficient sets exist, e.g. a strongly driven hub under an activity-band criterion)."""
     core = [int(p) for p in result.core]
     sim = BudgetedSimulator(problem, max_calls=10 ** 9, workers=workers)
-    out = {"nominal": None, "robust_sd_x2": None, "weight_noise_0.2": None, "minimality": None}
+    out = {"nominal": None, "robust_sd_x2": None, "weight_noise_0.2": None, "minimality": None, "functional_success": False}
     if not core:
         return {**out, "nominal": 0.0}
     iv = keep_only(problem, core)
     out["nominal"] = sim.pass_fraction(iv, seeds)
+    if len(core) <= MINIMALITY_MAX_CORE:
+        removable = []
+        if out["nominal"] >= 0.5 and len(core) > 1:
+            for p in core:
+                if sim.pass_fraction(keep_only(problem, [q for q in core if q != p]), seeds) >= 0.5:
+                    removable.append(p)
+        out["minimality"] = {"removable_members": removable, "n_removable": len(removable), "checked": bool(out["nominal"] >= 0.5)}
+        out["functional_success"] = bool(out["nominal"] >= 0.5 and not removable)
     if robust:
         cfg = problem.model_cfg
         wide = {"tau_sd": cfg.tau_sd * 2, "a_sd": cfg.a_sd * 2, "theta_sd": cfg.theta_sd * 2, "r_max_sd": cfg.r_max_sd * 2}
         out["robust_sd_x2"] = float(np.mean([o.passed for o in sim.evaluate(iv, seeds, cfg_override=wide)]))
         noisy = [keep_only(problem, core, weight_noise_sd=0.2, weight_noise_seed=1000 + s) for s in seeds]
-        out["weight_noise_0.2"] = float(np.mean([sim.run(__import__("brainir.discovery.simulator", fromlist=["SimQuery"]).SimQuery(n, s)).passed
-                                                 for n, s in zip(noisy, seeds)]))
-        # minimality: which predicted members can be removed without losing the function (nominal seeds)
-        removable = []
-        if len(core) > 1:
-            for p in core:
-                if sim.pass_fraction(keep_only(problem, [q for q in core if q != p]), seeds) >= 0.5:
-                    removable.append(p)
-        out["minimality"] = {"removable_members": removable, "n_removable": len(removable)}
+        out["weight_noise_0.2"] = float(np.mean([sim.run(SimQuery(n, s)).passed for n, s in zip(noisy, seeds)]))
     out["verification_calls"] = sim.calls
     return out
 
@@ -180,9 +193,16 @@ def summarize(records: list[dict]) -> dict:
         if not rs:
             continue
         succ = np.array([r["structure"]["success"] for r in rs], dtype=float)
+        fsucc = np.array([bool((r.get("function") or {}).get("functional_success")) for r in rs], dtype=float)
+        either = np.maximum(succ, fsucc)
         boot = [rng.choice(succ, len(succ)).mean() for _ in range(2000)] if len(succ) > 1 else [succ.mean()]
+        fboot = [rng.choice(fsucc, len(fsucc)).mean() for _ in range(2000)] if len(fsucc) > 1 else [fsucc.mean()]
         out[m] = {"n_runs": len(rs), "success_rate": float(succ.mean()),
                   "success_ci95": [float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))],
+                  "success_planted_rate": _mean(rs, lambda r: float(r["structure"].get("success_planted", r["structure"]["success"]))),
+                  "functional_success_rate": float(fsucc.mean()),
+                  "functional_success_ci95": [float(np.percentile(fboot, 2.5)), float(np.percentile(fboot, 97.5))],
+                  "success_or_functional_rate": float(either.mean()),
                   "recall_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["recall"]),
                   "precision_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["precision"]),
                   "functional_nominal_mean": _mean(rs, lambda r: (r.get("function") or {}).get("nominal")),
@@ -210,10 +230,42 @@ def _by_family(rs: list[dict]) -> dict:
     fams = sorted({r.get("truth_family", "?") for r in rs})
     return {f: {"n": sum(1 for r in rs if r.get("truth_family") == f),
                 "success_rate": float(np.mean([r["structure"]["success"] for r in rs if r.get("truth_family") == f])),
+                "functional_success_rate": float(np.mean([bool((r.get("function") or {}).get("functional_success")) for r in rs
+                                                          if r.get("truth_family") == f])),
                 "calls_median": float(np.median([r["result"]["budget"].get("calls", 0) for r in rs if r.get("truth_family") == f]))} for f in fams}
 
 
 SCORE_SEEDS = (5000, 5001, 5002, 5003)
+
+
+def instance_spec(suite_root: Path, name: str) -> dict:
+    """Family and size of an instance, from its PRIVATE truth file (names may be anonymised); falls back to parsing a readable name."""
+    t = Path(suite_root) / "truth" / f"{name}.json"
+    if t.exists():
+        spec = json.loads(t.read_text(encoding="utf-8")).get("spec", {})
+        n = spec.get("n_total") or max(int(spec.get("n_total_a") or 0), int(spec.get("n_total_b") or 0))
+        return {"family": spec.get("family"), "n": int(n) if n else None, "complications": spec.get("complications")}
+    parts = name.split("__")
+    fam = parts[1] if parts[0] == "pair" and len(parts) > 1 else parts[0]
+    size = next((p for p in parts if p.startswith("n") and p[1:].replace("x", "").isdigit()), None)
+    n = max(int(x) for x in size[1:].split("x")) if size else None
+    return {"family": fam, "n": n, "complications": None}
+
+
+def select_instances(suite_root: Path | str, *, max_n: int | None = None, min_n: int | None = None, families=None) -> list[str]:
+    """Instance names of a suite filtered by size / family (read from truth, so anonymised suites work)."""
+    suite_root = Path(suite_root)
+    out = []
+    for d in sorted(p for p in (suite_root / "instances").iterdir() if p.is_dir()):
+        s = instance_spec(suite_root, d.name)
+        if max_n is not None and (s["n"] is None or s["n"] > max_n):
+            continue
+        if min_n is not None and (s["n"] is None or s["n"] < min_n):
+            continue
+        if families and s["family"] not in set(families):
+            continue
+        out.append(d.name)
+    return out
 
 
 def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str] | None = None, networks: tuple[str, ...] = ("main",),
@@ -272,14 +324,20 @@ def to_markdown(t: dict) -> str:
     lines = [f"# Synthetic tournament — {t['label']}", "",
              f"suite `{t['suite']}`; {t['n_jobs']} runs; budget {t['budget']} calls; seeds {t['seeds']}; networks {t['networks']}; "
              f"wall {t['wall_s']} s on {t['backend'].get('backend')}", "",
-             "| method | runs | success rate [95% CI] | recall (best alt, median) | precision (median) | functional nominal | functional robust | "
-             "calls median | size median | role acc | Brier |", "|---|---|---|---|---|---|---|---|---|---|---|"]
+             "| method | runs | structural success [95% CI] | functional success [95% CI] | either | recall (best alt, median) | "
+             "precision (median) | functional nominal | functional robust | calls median | size median | role acc | Brier |",
+             "|---|---|---|---|---|---|---|---|---|---|---|---|---|"]
     for m, s in t["summary"].items():
         ci = s["success_ci95"]
+        fci = s.get("functional_success_ci95", [float("nan")] * 2)
         fmt = lambda v: "–" if v is None else f"{v:.2f}"  # noqa: E731
-        lines.append(f"| {m} | {s['n_runs']} | {s['success_rate']:.2f} [{ci[0]:.2f}, {ci[1]:.2f}] | {fmt(s['recall_best_alt_median'])} | "
+        lines.append(f"| {m} | {s['n_runs']} | {s['success_rate']:.2f} [{ci[0]:.2f}, {ci[1]:.2f}] | "
+                     f"{fmt(s.get('functional_success_rate'))} [{fci[0]:.2f}, {fci[1]:.2f}] | {fmt(s.get('success_or_functional_rate'))} | "
+                     f"{fmt(s['recall_best_alt_median'])} | "
                      f"{fmt(s['precision_best_alt_median'])} | {fmt(s['functional_nominal_mean'])} | {fmt(s['functional_robust_mean'])} | "
                      f"{fmt(s['calls_median'])} | {fmt(s['size_median'])} | {fmt(s['role_accuracy_mean'])} | {fmt(s['brier_mean'])} |")
+    lines += ["", "structural success = the core contains a sufficient set listed in the truth (planted, or unplanted but found by the suite "
+              "audit); functional success = the core is sufficient on fresh seeds and 1-minimal (no member removable)."]
     lines += ["", "## By family (success rate / median calls)", ""]
     fams = sorted({f for s in t["summary"].values() for f in s["by_family"]})
     lines += ["| family | " + " | ".join(t["summary"]) + " |", "|---|" + "---|" * len(t["summary"])]

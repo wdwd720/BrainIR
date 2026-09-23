@@ -17,7 +17,7 @@ from pathlib import Path
 import numpy as np
 
 from brainir.compute import get_backend
-from brainir.discovery.tournament import run_tournament
+from brainir.discovery.tournament import run_tournament, select_instances
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -42,13 +42,7 @@ def main(argv=None) -> int:
     for c in args.config:
         m, _, js = c.partition("=")
         configs[m] = json.loads(js)
-    names = [p.name for p in sorted((args.suite / "instances").iterdir()) if p.is_dir()]
-    inst = []
-    for nm in names:
-        fam, rest = nm.split("__", 1)
-        n = int(rest.split("__")[0][1:])
-        if (args.max_n is None or n <= args.max_n) and (not args.families or fam in set(args.families)):
-            inst.append(nm)
+    inst = select_instances(args.suite, max_n=args.max_n, families=args.families)
     backend = get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=7200, max_containers=args.containers) if args.backend == "modal" else None
     curve: dict[str, dict] = {m: {"budgets": [], "success": [], "functional": [], "calls": []} for m in args.methods}
     for b in args.budgets:

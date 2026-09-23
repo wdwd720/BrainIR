@@ -22,7 +22,7 @@ import numpy as np
 from brainir.compute import ExperimentRecord, artifact_record, get_backend, register_run
 from brainir.compute.registry import content_hash
 from brainir.discovery.problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
-from brainir.discovery.tournament import score_structure
+from brainir.discovery.tournament import score_structure, select_instances
 from brainir.discovery.transfer import role_graph, role_graph_similarity
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -166,12 +166,8 @@ def main(argv=None) -> int:
     if args.instances:
         inst_dirs = [p for p in inst_dirs if p.name in set(args.instances)]
     if args.max_n is not None:
-        keep = []
-        for d in inst_dirs:
-            sizes = d.name.split("__n", 1)[1].split("__")[0].split("x")
-            if max(int(x) for x in sizes) <= args.max_n:
-                keep.append(d)
-        inst_dirs = keep
+        keep = set(select_instances(args.suite, max_n=args.max_n))
+        inst_dirs = [d for d in inst_dirs if d.name in keep]
     jobs = [(m, mode, str(d), s, args.budget_a, args.budget_b, configs.get(m, {}), str(args.suite / "truth" / f"{d.name}.json"), None)
             for m in args.methods for mode in args.modes for d in inst_dirs for s in args.seeds]
     t0 = time.time()
