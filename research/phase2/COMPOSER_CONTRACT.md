@@ -75,6 +75,16 @@ If you use the joint mode, emit `cross_connectome` claims through the diagnostic
 Decide, from the pair-tournament evidence, whether joint discovery is worth its auxiliary calls. If it is not, keep
 v1 single-network and say so.
 
+## 3b. Compute accounting on the real bundle
+
+The locked run uses a hard budget of **1,000 simulator calls per network** (`--budget 1000`), and simulated seconds are
+reported as well. Every call simulates the bundle's `model_config.json` protocol (`t_end` = 2 s) unless you pass
+`SimQuery(t_end=...)`. The frozen baseline in `benchmarks/dng100/baselines/greedy_prune_sim.py` searches with 1 s
+simulations. You may use shorter simulations for screening, but validate final claims under the bundle's protocol.
+
+A full-network 1 s simulation of the 4,604-neuron network costs about 2.4 s CPU; a keep-only simulation of a small
+set about 0.1 s. Wall time matters: keep a full blind run under about 30 minutes per network on one CPU.
+
 ## 4. Deliverables
 
 - `src/brainir/methods/brainir_v1.py` and `tests/test_method_brainir_v1.py`. The tests must be deterministic, respect the
