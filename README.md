@@ -4,8 +4,12 @@
 human-readable programs. Each program's variables and operations should map back onto real neurons, and its causal
 predictions should be testable through interventions.
 
-**Current phase: Phase 0 — data & research foundation.** Status and results: [`PHASE0_REPORT.md`](PHASE0_REPORT.md).
-The Phase 0 spec is [`goal1.md`](goal1.md). No modelling, synthesis or simulation code exists yet, by design.
+**Phase 0 (data & research foundation) and Phase 1 (frozen cross-connectome DNg100 benchmark, MaleCNS + MANC) are
+complete.** Reports: [`PHASE0_REPORT.md`](PHASE0_REPORT.md), [`PHASE1_REPORT.md`](PHASE1_REPORT.md); specs
+[`goal1.md`](goal1.md), [`goal2.md`](goal2.md). The benchmark package lives in `benchmarks/dng100/` (protocol:
+`benchmarks/dng100/PROTOCOL.md`; lock: `BENCHMARK_LOCK.json`, git tag `dng100-benchmark-v1`). Phase 1 added a
+rate-model simulator, rhythm metrics and the search procedures needed to *reproduce* the published circuit; no
+BrainIR circuit-discovery method exists yet, by design.
 
 ## What exists
 

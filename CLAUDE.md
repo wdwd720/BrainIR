@@ -2,8 +2,10 @@
 
 BrainIR aims to decompile biological neural circuits into compact, executable, testable programs.
 **Phase 0 (data & research foundation) is complete**: see `PHASE0_REPORT.md`. Its spec is `goal1.md`.
-**Phase 1 (cross-connectome DNg100 benchmark, MaleCNS + MANC) is in progress**: spec `goal2.md`; status in
-`research/LOG.md` §10 and `PHASE1_REPORT.md` (when written).
+**Phase 1 (cross-connectome DNg100 benchmark, MaleCNS + MANC) is complete and frozen**: spec `goal2.md`, report
+`PHASE1_REPORT.md`, benchmark package `benchmarks/dng100/` locked by `BENCHMARK_LOCK.json` and git tag
+`dng100-benchmark-v1`. Changing the bundles, oracle or evaluator requires a new benchmark version (`PROTOCOL.md` §6).
+Phase 2 (a discovery method evaluated in tier A against this benchmark) has not started.
 Read `research/LOG.md` (decisions, discrepancies, pitfalls) before changing anything.
 
 ## Environment (Windows 11 dev machine)
@@ -73,20 +75,27 @@ uv run brainir --help                      # neuron/type/search/up/down/edge/kho
   list of answer-bearing files (includes `goal1.md`, `goal2.md` and `research/literature/`). Also holds the
   reproduction scripts (`reproduce_manc_connectivity.py`, `reproduce_dynamics.py`, `reproduce_interventions.py`,
   `robustness_experiments.py`) and their `results/`.
-- `benchmarks/dng100/`: the frozen benchmark package. `public/` (tier B) and `public_blind/` (tier A: tokenised
-  interneuron types, positional ids) are the ONLY things a discovery method may see; `oracle/` (answer + tier-A id
-  maps + salt), `evaluator/evaluate.py` (metric families, reads the oracle), `cleanroom/` (runner, example method,
-  `leakage_check.py` → `LEAKAGE_AUDIT.md`), `baselines/`, `nodes/`, `manifests/`. Rebuild bundles with
-  `uv run python benchmarks/dng100/build_public_bundle.py`; run a method with `cleanroom/run_method.py`; evaluate
-  with `evaluator/evaluate.py`.
+- `benchmarks/dng100/`: the frozen benchmark package (`BENCHMARK_LOCK.json`, `freeze.py --check`). `public/` (tier B)
+  and `public_blind/` (tier A: tokenised interneuron types, salted-permutation positional ids) are the ONLY things a
+  discovery method may see; `oracle/` (answer + tier-A id maps with real types + salt + frozen curated cross-connectome
+  pairs), `evaluator/evaluate.py` (metric families, reads the oracle; `--run-record` verifies hashes), `cleanroom/`
+  (runner with the audit-hook sandbox `_sandbox.py`, example method, `leakage_check.py` → `LEAKAGE_AUDIT.md`),
+  `baselines/` (nine non-BrainIR methods + nulls; `results/` is answer-bearing), `nodes/`, `manifests/`, `PROTOCOL.md`.
+  Rebuild bundles with `uv run python benchmarks/dng100/build_public_bundle.py`; run a method with
+  `cleanroom/run_method.py`; evaluate with `evaluator/evaluate.py`.
 
 ## MANC facts you must not re-derive (details: LOG D21–D28, §3.11–3.16)
 - The paper's MANC front-leg network is neuPrint `manc:v1.2.1`; its full-VNC network is `manc:v1.2.3`. Both are
   reproduced exactly (every pair, every count) by BrainIR's rebuilds from the public v1.2 synapse-partner table.
 - neuPrint MANC counts: `weight` = pairs with `conf_post >= 0.4`, `weightHP` = `conf_post >= 0.7`, `weightHR` = all;
   rows with weight 0 exist (HR-only) and are dropped. Autapses are kept by BrainIR, zeroed by the authors.
-- Front-leg motor-neuron readout = `super_class == motor_neuron` and `sub_class == 'fl'` (144 in v1.2.1 = the
-  authors' set; the 4 `nm` neck MNs are excluded).
+- Front-leg motor-neuron readout = role `vnc_motor` (MANC `super_class == motor_neuron`, MaleCNS `vnc_motor`) and
+  `sub_class == 'fl'` (144 in v1.2.1 = the authors' set; 130 in the paper's MaleCNS network; the 4 `nm` neck MNs are
+  excluded). The benchmark stimulus = the DNg100 with the most output into `LegNp(T1)(L)` (`choose_stimulus`), NOT the
+  first DNg100 in table order (that cost a spurious "discrepancy" once, LOG D41).
+- Every published dynamical claim is reproduced by BrainIR's simulator (PHASE1_REPORT §7); the simulation-guided
+  baseline `greedy_prune_sim` recovers the published core in tier A, so the benchmark is structurally "solved" by search
+  (PROTOCOL §5 sets the bar family by family). Modal campaigns cost cents to ~$20 each (shared payload, LOG D37).
 
 ## Non-negotiable rules
 1. Keep observations (EM anatomy), curated annotations, ML predictions (NT), rule-based hypotheses (sign) and model

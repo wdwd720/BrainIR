@@ -5,7 +5,9 @@ robustness experiments and fixture generation). Decisions are logged in `researc
 chronology in its §10. **This file names the published answer (§7–§8) and is answer-bearing: never hand it to a
 discovery method** (see `benchmarks/dng100/PROTOCOL.md` §2).
 
-Status line: [PENDING: final status — frozen tag, lock hash, test counts, cloud cost]
+Status: **complete and frozen** — tag `dng100-benchmark-v1`, `BENCHMARK_LOCK.json` lock hash `[PENDING: final lock]`;
+361 fast tests + 18 real-data smoke tests pass; leakage audit PASS; six independent reviews closed (blockers fixed);
+cloud usage ≈ $38 of ~$1,000. Phase 2 not started.
 
 ---
 
@@ -266,9 +268,13 @@ the same transfer for any prediction (`cross_connectome.transfer_keep_only_mappe
   at 1.3–2.0 Hz instead of the ~10 Hz rhythm). The rhythm is a property of this wiring, not of its degree, sign or
   weight statistics.
 
-## 8. The benchmark package (`benchmarks/dng100/`, D31–D33, D38)
+## 8. The benchmark package (`benchmarks/dng100/`, D31–D33, D38, D40)
 
-[PENDING: bundle hashes after the final export; oracle hash; lock hash]
+Frozen identity (`BENCHMARK_LOCK.json`, 68 hashed files; `freeze.py --check` verifies the tree): tier B bundle
+`3cf5a5615ca7276661e86879830551deff34fd342c5103dbfd25ce6b0498d4d7`, tier A bundle
+`efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0`, oracle
+`269661940130566cd3edea918fd8e214f1f7976d55aaf0efcfb9e1ef6c734b6f`; git tag `dng100-benchmark-v1` (lock hash in
+`BENCHMARK_LOCK.json`, recorded in §1).
 
 - **Networks**: `manc_v1.2.1` (primary, 4,604 neurons), `manc_v1.2.3` (4,604), `male-cns_v1.0` (4,309; VNC synapses
   only). Membership = the published node lists; everything else (counts, NT labels, signs, sizes, roles) from BrainIR
