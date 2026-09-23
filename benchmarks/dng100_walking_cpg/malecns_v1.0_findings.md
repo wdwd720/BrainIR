@@ -12,12 +12,12 @@ MaleCNS v1.0 has **2 DNg100 neurons**. Each projects **contralaterally** to the 
 | soma_side               | L                     | R                     |
 | status_label            | Prelim Roughly traced | Prelim Roughly traced |
 | nt_consensus            | acetylcholine         | acetylcholine         |
-| nt_type_confidence      | 0.9545301198959351    | 0.9545301198959351    |
+| nt_type_confidence      | 0.954530119873198     | 0.954530119873198     |
 | synonyms                | Sapkal 2024: BDN2     | Sapkal 2024: BDN2     |
 | manc_type               | DNg100                | DNg100                |
-| manc_body_id            | 10339.0               | 10093.0               |
+| manc_body_id            | 10339                 | 10093                 |
 | flywire_type            | DNg100                | DNg100                |
-| group_id                | 10045.0               | 10045.0               |
+| group_id                | 10045                 | 10045                 |
 | n_pre                   | 7035                  | 7472                  |
 | n_post                  | 21592                 | 21477                 |
 | n_downstream            | 51033                 | 55262                 |

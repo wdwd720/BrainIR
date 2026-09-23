@@ -26,6 +26,7 @@ import duckdb
 import networkx as nx
 import numpy as np
 import pandas as pd
+import pyarrow as pa
 import pyarrow.parquet as pq
 import scipy.sparse as sp
 
@@ -43,8 +44,8 @@ from .schema.vocab import SIGN_RULE_ID, sign_for_nt
 from .sources.registry import SOURCES
 
 SEARCH_FIELDS = ("cell_type", "instance", "synonyms", "flywire_type", "manc_type", "hemibrain_type")
-_NULLABLE_INT = ("n_pre", "n_post", "n_downstream", "n_upstream", "size_voxels", "group_id", "manc_body_id",
-                 "soma_x", "soma_y", "soma_z", "nt_body_n_tbars", "nt_type_n_tbars")
+_NULLABLE_INTS = {pa.int8(): pd.Int8Dtype(), pa.int16(): pd.Int16Dtype(), pa.int32(): pd.Int32Dtype(),
+                  pa.int64(): pd.Int64Dtype()}
 
 
 def _ids(x: int | Iterable[int]) -> np.ndarray:
@@ -76,7 +77,8 @@ class Connectome:
         self.dir = Path(processed_dir)
         info_path = self.dir / "build_info.json"
         self.build_info = json.loads(info_path.read_text()) if info_path.exists() else {}
-        nt = pq.read_table(self.dir / "neurons.parquet").to_pandas()
+        # nullable integer dtypes: pyarrow's default would turn int columns containing nulls into float64
+        nt = pq.read_table(self.dir / "neurons.parquet").to_pandas(types_mapper=_NULLABLE_INTS.get)
         self.dataset = str(nt["dataset"].iloc[0]) if len(nt) else self.build_info.get("dataset")
         self.version = str(nt["dataset_version"].iloc[0]) if len(nt) else self.build_info.get("version")
         for c in nt.columns:

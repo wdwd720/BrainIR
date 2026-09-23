@@ -17,7 +17,7 @@ is met; the evidence for each is in §1. One *optional* verification needs a neu
 | 3 | Normalised into the BrainIR schema | ✅ | 6 canonical Parquet tables (`data/processed/male-cns/v1.0/`); schema in `docs/schema.md` |
 | 4 | Deterministic ingestion pipeline | ✅ | `uv run brainir ingest`; byte-identical rebuilds (synthetic test + real double build) |
 | 5 | Explicit provenance/versioning | ✅ | `data/manifests/male-cns_v1.0.manifest.json`: URLs, generations, SHA-256, row counts, schemas, transformations, git commit |
-| 6 | Validation/tests pass | ✅ | Build validation: 53 pass, 0 fail, 1 documented warning. `pytest`: 85 passed. Independent audit: 23/23 |
+| 6 | Validation/tests pass | ✅ | Build validation: 53 pass, 0 fail, 1 documented warning. `pytest`: 86 passed. Independent audit: 23/23 |
 | 7 | Basic graph queries work | ✅ | `brainir.graph.Connectome` + `brainir` CLI (neuron/type/search/up/down/edge/khop/paths/synapses) |
 | 8 | DNg100 and the walking benchmark are locatable | ✅ | §13; `benchmarks/dng100_walking_cpg/malecns_v1.0_findings.md` |
 | 9 | Literature summarised accurately | ✅ | `research/literature/`; key claims re-checked against the full text |
@@ -377,7 +377,7 @@ guards `src/` and the clean docs.
 | path | content |
 |---|---|
 | `src/brainir/` | library (registry, acquire, schema, ingest, graph, synapses, manifest, CLI) |
-| `tests/` | 85 tests (synthetic fixture with hand-derived truth; invalid-input mutations; determinism; CLI; docs; leakage; real-data) |
+| `tests/` | 86 tests (synthetic fixture with hand-derived truth; invalid-input mutations; determinism; CLI; docs; leakage; real-data) |
 | `data/manifests/` | committed manifest + validation report |
 | `research/LOG.md` | decisions, discrepancies, pitfalls, performance, open questions |
 | `research/literature/` | Pugliese et al. (concise + exhaustive notes), MaleCNS paper notes |

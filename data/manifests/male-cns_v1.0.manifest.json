@@ -1,0 +1,2080 @@
+{
+  "manifest_schema_version": "1.0",
+  "dataset": "male-cns",
+  "version": "v1.0",
+  "neuprint_dataset": "male-cns:v1.0",
+  "neuprint_server": "https://neuprint.janelia.org",
+  "animal": {
+    "species": "Drosophila melanogaster",
+    "sex": "male",
+    "n_animals": 1,
+    "cns_coverage": "entire CNS: central brain, both optic lobes, ventral nerve cord (VNC)"
+  },
+  "release": {
+    "date": "2026-06-08",
+    "notes": [
+      "v1.0: minor proofreading changes; refinement of neuron annotations",
+      "v0.9 (2025-10-05): initial release"
+    ],
+    "neuprint_snapshot": {
+      "uuid": "98d6995edd46478f896544dceaa6eab1",
+      "latestMutationId": 1006591300,
+      "lastDatabaseEdit": "2026-03-28 11:56:30.222612573-04:00 / 2026-04-30T12:26:48-04:00 (segment property update)",
+      "totalPreCount": 45656140,
+      "totalPostCount": 311833243,
+      "postHighAccuracyThreshold": 0.5,
+      "postHPThreshold": 0.7
+    }
+  },
+  "official_source": {
+    "bucket": "gs://flyem-male-cns/v1.0/",
+    "landing_page": "https://male-cns.janelia.org/",
+    "download_page": "https://male-cns.janelia.org/download/",
+    "release_notes": "https://male-cns.janelia.org/release/"
+  },
+  "documentation_urls": [
+    "https://connectome-neuprint.github.io/neuprint-python/docs/",
+    "https://doi.org/10.1016/j.cell.2026.08.015",
+    "https://github.com/janelia-flyem/flyem-snapshot",
+    "https://male-cns.janelia.org/",
+    "https://male-cns.janelia.org/download/",
+    "https://male-cns.janelia.org/release/",
+    "https://www.biorxiv.org/content/10.1101/2025.10.09.680999v2"
+  ],
+  "documentation_snapshots": [
+    {
+      "name": "download_page",
+      "url": "https://male-cns.janelia.org/download/",
+      "local_path": "$DATA/raw/male-cns/v1.0/docs/download_page_20260923.html",
+      "retrieved_at_utc": "2026-09-23T05:05:57Z",
+      "sha256": "51144922891ccdc5cda2490d55b39ef69222134ed6944bbff2766379e403ad3c",
+      "size_bytes": 44208
+    },
+    {
+      "name": "release_notes",
+      "url": "https://male-cns.janelia.org/release/",
+      "local_path": "$DATA/raw/male-cns/v1.0/docs/release_notes_20260923.html",
+      "retrieved_at_utc": "2026-09-23T05:05:57Z",
+      "sha256": "b2a4d40f0ae376f8c887cfbdbbc3dd10a6a165380b658fce8a20fd153a0a16aa",
+      "size_bytes": 21431
+    },
+    {
+      "name": "home",
+      "url": "https://male-cns.janelia.org/",
+      "local_path": "$DATA/raw/male-cns/v1.0/docs/home_20260923.html",
+      "retrieved_at_utc": "2026-09-23T05:05:57Z",
+      "sha256": "a9137b07e01b4e374fa6c993d4a9987164bffdae5512b03262e57e5704504e2b",
+      "size_bytes": 30861
+    }
+  ],
+  "citation": {
+    "dataset": "MaleCNS v1.0 connectome (neuPrint dataset male-cns:v1.0), HHMI Janelia FlyEM, University of Cambridge, MRC LMB and Google Research. https://male-cns.janelia.org/",
+    "paper": "Berg S, Beckett IR, Costa M, Schlegel P, Januszewski M, et al. (incl. Rubin GM, Jefferis GSXE). Sexual dimorphism in the complete Drosophila male central nervous system connectome. Cell (2026). doi:10.1016/j.cell.2026.08.015 (PMID 42691995; first published 2026-09-01). Preprint: 'Sexual dimorphism in the complete connectome of the Drosophila male central nervous system', bioRxiv doi:10.1101/2025.10.09.680999 (v2, 2025-10-30), CC-BY 4.0.",
+    "note": "Title/DOI verified via Europe PMC and bioRxiv on 2026-09-22; full Cell author list not re-checked."
+  },
+  "license": {
+    "name": "CC-BY-4.0",
+    "url": "https://creativecommons.org/licenses/by/4.0/",
+    "statement": "The Male CNS dataset is licensed under CC-BY (male-cns.janelia.org footer)."
+  },
+  "acquisition": {
+    "method": "HTTPS ranged download from the public GCS bucket; bytes verified against server CRC32C (and MD5 where available); GCS generation pinned in brainir.sources.registry; SHA-256 recorded; raw files set read-only.",
+    "first_acquired_utc": "2026-09-23T04:20:56Z",
+    "last_acquired_utc": "2026-09-23T05:05:57Z",
+    "files": [
+      {
+        "key": "body_annotations",
+        "tier": "core",
+        "description": "Curated body annotations (types, classes, sides, status, cross-dataset matches). Excludes neurotransmitter properties.",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+        "remote_path": "v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+        "gcs_generation": 1780494878811468,
+        "gcs_updated": "2026-06-03T13:54:38.876Z",
+        "size_bytes": 14483314,
+        "crc32c_b64": "vjz9cg==",
+        "md5_b64": "UKdxh3DFciDxYLpPQxq4ng==",
+        "sha256": "2177e246113e4cfbf1e7772ec37c6da1955ff22e8063d0b1f833101f99a9a3b2",
+        "local_path": "$DATA/raw/male-cns/v1.0/connectome-data/flat-connectome/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+        "acquired_at_utc": "2026-09-23T04:21:01Z",
+        "used_by_pipeline": true,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 211577,
+        "schema": [
+          {
+            "name": "assignedOlHex1",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "assignedOlHex2",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "bodyId",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "flywireType",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "group",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "instance",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "somaSide",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "statusLabel",
+            "type": "dictionary<values=string, indices=int8, ordered=1>",
+            "nullable": true
+          },
+          {
+            "name": "superclass",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "type",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "vfbId",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "hemibrainType",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "itoleeHl",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "supertype",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "birthtime",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "mancBodyid",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "mancGroup",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "mancType",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "subclass",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "synonyms",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "class",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "rootSide",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "somaNeuromere",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "trumanHl",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "dimorphism",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "matchingNotes",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "entryNerve",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "mancSerial",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "mcnsSerial",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "serialMotif",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "fruDsx",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "exitNerve",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "receptorType",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "somaLocation",
+            "type": "list<item: int64>",
+            "nullable": true
+          },
+          {
+            "name": "tosomaLocation",
+            "type": "list<item: int64>",
+            "nullable": true
+          },
+          {
+            "name": "status",
+            "type": "string",
+            "nullable": true
+          }
+        ]
+      },
+      {
+        "key": "body_neurotransmitters",
+        "tier": "core",
+        "description": "Aggregate neurotransmitter predictions per body and per cell type, ground-truth labels where known, and consensus NT.",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather",
+        "remote_path": "v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather",
+        "gcs_generation": 1780894899156750,
+        "gcs_updated": "2026-06-08T05:01:39.227Z",
+        "size_bytes": 43282834,
+        "crc32c_b64": "jcpNFg==",
+        "md5_b64": "PYQrEv5cSe763lKNfdJKHw==",
+        "sha256": "95c9289220663abeb3409f3ad9e5a7f8a53f8093f5139d15502cd08da8879621",
+        "local_path": "$DATA/raw/male-cns/v1.0/connectome-data/flat-connectome/body-neurotransmitters-male-cns-v1.0.feather",
+        "acquired_at_utc": "2026-09-23T04:21:09Z",
+        "used_by_pipeline": true,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 1835518,
+        "schema": [
+          {
+            "name": "body",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "cell_type",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "total_nt_predictions",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "predicted_nt_confidence",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "predicted_nt",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "ground_truth",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "celltype_total_nt_predictions",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "celltype_predicted_nt",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "celltype_predicted_nt_confidence",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "consensus_nt",
+            "type": "string",
+            "nullable": true
+          }
+        ]
+      },
+      {
+        "key": "flat_connectome_weights",
+        "tier": "core",
+        "description": "Flat segment->segment synapse-pair counts (independent official export; used to cross-check the neuPrint connection table).",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather",
+        "remote_path": "v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather",
+        "gcs_generation": 1780494887545976,
+        "gcs_updated": "2026-06-03T13:54:47.629Z",
+        "size_bytes": 1051241946,
+        "crc32c_b64": "dKRPVQ==",
+        "md5_b64": "8w6dzKJc/QIb8eez2XVZng==",
+        "sha256": "e35da783d1c686b2b58b3b87cd6a403ae43bfcfba8bff28e08ef752c1a56afc1",
+        "local_path": "$DATA/raw/male-cns/v1.0/connectome-data/flat-connectome/connectome-weights-male-cns-v1.0-minconf-0.5.feather",
+        "acquired_at_utc": "2026-09-23T04:43:31Z",
+        "used_by_pipeline": true,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 151856684,
+        "schema": [
+          {
+            "name": "body_pre",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "body_post",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "weight",
+            "type": "int64",
+            "nullable": true
+          }
+        ]
+      },
+      {
+        "key": "neuprint_connections",
+        "tier": "core",
+        "description": "All segment->segment :ConnectsTo relationships as loaded into neuPrint (weight, weightHP, weightHR, per-ROI roiInfo keyed by postsynaptic location).",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/database/neuprint-inputs/Neuprint_Neuron_Connections.feather",
+        "remote_path": "v1.0/database/neuprint-inputs/Neuprint_Neuron_Connections.feather",
+        "gcs_generation": 1780895322833388,
+        "gcs_updated": "2026-06-08T05:08:42.989Z",
+        "size_bytes": 3530452946,
+        "crc32c_b64": "0I3Jjg==",
+        "md5_b64": "lRxseiUv33zQ2FrxhTVvAw==",
+        "sha256": "6f1fa2690e0cedb80fa11a0ab4262edf26abb8c084ecf63c1136bbe6222e3205",
+        "local_path": "$DATA/raw/male-cns/v1.0/database/neuprint-inputs/Neuprint_Neuron_Connections.feather",
+        "acquired_at_utc": "2026-09-23T04:41:08Z",
+        "used_by_pipeline": true,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 151856684,
+        "schema": [
+          {
+            "name": ":START_ID(Body-ID)",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": ":END_ID(Body-ID)",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "weightHR:int",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "weight:int",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "weightHP:int",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "roiInfo:string",
+            "type": "string",
+            "nullable": true
+          }
+        ]
+      },
+      {
+        "key": "neuprint_meta_csv",
+        "tier": "metadata",
+        "description": "neuPrint :Meta node as neo4j-import CSV (same content as the JSON variant).",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/database/neuprint-inputs/Neuprint_Meta.csv",
+        "remote_path": "v1.0/database/neuprint-inputs/Neuprint_Meta.csv",
+        "gcs_generation": 1780895254951696,
+        "gcs_updated": "2026-06-08T05:07:35.015Z",
+        "size_bytes": 1247784,
+        "crc32c_b64": "qW0Qsg==",
+        "md5_b64": "7p5VAAp+gYE8lZqIy8R4hg==",
+        "sha256": "227ff1e873881a1ab124b10aa51ada94012773ddb9c4ad986e5cc83df8d360f7",
+        "local_path": "$DATA/raw/male-cns/v1.0/database/neuprint-inputs/Neuprint_Meta.csv",
+        "acquired_at_utc": "2026-09-23T04:20:57Z",
+        "used_by_pipeline": false,
+        "format": "csv"
+      },
+      {
+        "key": "neuprint_meta_json",
+        "tier": "metadata",
+        "description": "neuPrint :Meta node for male-cns:v1.0 as JSON (ROI hierarchy, primary ROIs, confidence thresholds, DVID uuid, totals).",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/database/neuprint-inputs/Neuprint_Meta_debug.json",
+        "remote_path": "v1.0/database/neuprint-inputs/Neuprint_Meta_debug.json",
+        "gcs_generation": 1780895254976045,
+        "gcs_updated": "2026-06-08T05:07:35.037Z",
+        "size_bytes": 1747811,
+        "crc32c_b64": "ntczkQ==",
+        "md5_b64": "0+slZvtwFbIsxqwZ8/Qa5Q==",
+        "sha256": "9e4dc98dcb207113882880ab2f60312c1ed26d96b14bab97f85807027ad14661",
+        "local_path": "$DATA/raw/male-cns/v1.0/database/neuprint-inputs/Neuprint_Meta_debug.json",
+        "acquired_at_utc": "2026-09-23T04:20:56Z",
+        "used_by_pipeline": true,
+        "format": "json"
+      },
+      {
+        "key": "neuprint_neurons",
+        "tier": "core",
+        "description": "All synaptic segments exactly as loaded into neuPrint (properties, per-ROI pre/post roiInfo, :Segment/:Neuron labels).",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/database/neuprint-inputs/Neuprint_Neurons.feather",
+        "remote_path": "v1.0/database/neuprint-inputs/Neuprint_Neurons.feather",
+        "gcs_generation": 1780895325252595,
+        "gcs_updated": "2026-06-08T05:08:45.320Z",
+        "size_bytes": 4648794426,
+        "crc32c_b64": "53OdcQ==",
+        "md5_b64": "Ri8Ot2lTZFGMlJR3VUhS7g==",
+        "sha256": "1142e5d09ed5599d96988c7dcea255d6532c6a83f7b9ec46a0656885d5bd40b3",
+        "local_path": "$DATA/raw/male-cns/v1.0/database/neuprint-inputs/Neuprint_Neurons.feather",
+        "acquired_at_utc": "2026-09-23T04:33:03Z",
+        "used_by_pipeline": true,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 88404403,
+        "schema": [
+          {
+            "name": ":ID(Body-ID)",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "post:int",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "pre:int",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "downstream:int",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "upstream:int",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "synweight:int",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "assignedOlHex1:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "assignedOlHex2:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "bodyId:long",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "flywireType:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "group:long",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "instance:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "somaSide:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "statusLabel:string",
+            "type": "dictionary<values=string, indices=int8, ordered=1>",
+            "nullable": true
+          },
+          {
+            "name": "superclass:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "type:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "vfbId:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "hemibrainType:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "itoleeHl:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "supertype:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "birthtime:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "mancBodyid:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "mancGroup:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "mancType:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "subclass:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "synonyms:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "class:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "rootSide:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "somaNeuromere:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "trumanHl:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "dimorphism:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "matchingNotes:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "entryNerve:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "mancSerial:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "mcnsSerial:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "serialMotif:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "fruDsx:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "exitNerve:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "receptorType:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "somaLocation:point{srid:9157}",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "tosomaLocation:point{srid:9157}",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "status:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "totalNtPredictions:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "predictedNtConfidence:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "predictedNt:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "celltypeTotalNtPredictions:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "celltypePredictedNt:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "celltypePredictedNtConfidence:float",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": "consensusNt:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "roiset_hash",
+            "type": "uint64",
+            "nullable": true
+          },
+          {
+            "name": "roiInfo:string",
+            "type": "string",
+            "nullable": true
+          },
+          {
+            "name": "size:long",
+            "type": "double",
+            "nullable": true
+          },
+          {
+            "name": ":LABEL",
+            "type": "string",
+            "nullable": true
+          }
+        ]
+      },
+      {
+        "key": "neuroglancer_scene",
+        "tier": "metadata",
+        "description": "Official neuroglancer scene; records the URLs of EM/segmentation/ROI/skeleton layers.",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/male-cns-v1.0.json",
+        "remote_path": "v1.0/male-cns-v1.0.json",
+        "gcs_generation": 1778032077888581,
+        "gcs_updated": "2026-05-06T01:47:57.958Z",
+        "size_bytes": 60253,
+        "crc32c_b64": "52JkWQ==",
+        "md5_b64": "Lvbruhomiy9TLfXFy2EK9g==",
+        "sha256": "390e01b0c78742bb2465f9ec8f89890106c008d6ac1d5b06840b610f532ea754",
+        "local_path": "$DATA/raw/male-cns/v1.0/male-cns-v1.0.json",
+        "acquired_at_utc": "2026-09-23T04:20:57Z",
+        "used_by_pipeline": false,
+        "format": "json"
+      },
+      {
+        "key": "syn_partners",
+        "tier": "synapses",
+        "description": "Every pre->post synaptic partner pair (T-bar -> PSD) with coordinates (8 nm voxels), confidences, body IDs and primary ROI of the postsynaptic point.",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/syn-partners-male-cns-v1.0-minconf-0.5.feather",
+        "remote_path": "v1.0/connectome-data/flat-connectome/syn-partners-male-cns-v1.0-minconf-0.5.feather",
+        "gcs_generation": 1780494942562468,
+        "gcs_updated": "2026-06-03T13:55:42.664Z",
+        "size_bytes": 6777179098,
+        "crc32c_b64": "jTlNIA==",
+        "md5_b64": "WO/PcS+MTU3l8q1R6X3vdg==",
+        "sha256": "959d8ef4173b35382a3e6acfaf5167c795b6d10b877572d146af04e1b487bc07",
+        "local_path": "$DATA/raw/male-cns/v1.0/connectome-data/flat-connectome/syn-partners-male-cns-v1.0-minconf-0.5.feather",
+        "acquired_at_utc": "2026-09-23T04:58:54Z",
+        "used_by_pipeline": true,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 311833243,
+        "schema": [
+          {
+            "name": "x_pre",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "y_pre",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "z_pre",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "body_pre",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "conf_pre",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "x_post",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "y_post",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "z_post",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "body_post",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "conf_post",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "primary_post",
+            "type": "dictionary<values=string, indices=int16, ordered=1>",
+            "nullable": true
+          }
+        ]
+      },
+      {
+        "key": "tbar_neurotransmitters",
+        "tier": "synapses",
+        "description": "Per-T-bar neurotransmitter prediction probabilities (7 classes) with location, body, and ROI.",
+        "remote_url": "https://storage.googleapis.com/flyem-male-cns/v1.0/connectome-data/flat-connectome/tbar-neurotransmitters-male-cns-v1.0.feather",
+        "remote_path": "v1.0/connectome-data/flat-connectome/tbar-neurotransmitters-male-cns-v1.0.feather",
+        "gcs_generation": 1780894927871192,
+        "gcs_updated": "2026-06-08T05:02:07.977Z",
+        "size_bytes": 2651680218,
+        "crc32c_b64": "RrR5/g==",
+        "md5_b64": "UbAsEWkGYq7e8o+G05T/DQ==",
+        "sha256": "bade84c9eab431dd537ff644aaf3d203d639a819c739ecedb338e7d109064f4d",
+        "local_path": "$DATA/raw/male-cns/v1.0/connectome-data/flat-connectome/tbar-neurotransmitters-male-cns-v1.0.feather",
+        "acquired_at_utc": "2026-09-23T05:05:57Z",
+        "used_by_pipeline": false,
+        "format": "arrow-ipc (feather v2)",
+        "rows": 45656140,
+        "schema": [
+          {
+            "name": "point_id",
+            "type": "uint64",
+            "nullable": true
+          },
+          {
+            "name": "x",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "y",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "z",
+            "type": "int32",
+            "nullable": true
+          },
+          {
+            "name": "conf",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "sv",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "body",
+            "type": "int64",
+            "nullable": true
+          },
+          {
+            "name": "major",
+            "type": "dictionary<values=string, indices=int8, ordered=1>",
+            "nullable": true
+          },
+          {
+            "name": "primary",
+            "type": "dictionary<values=string, indices=int16, ordered=1>",
+            "nullable": true
+          },
+          {
+            "name": "nt_acetylcholine_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "nt_dopamine_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "nt_gaba_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "nt_glutamate_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "nt_histamine_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "nt_octopamine_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "nt_serotonin_prob",
+            "type": "float",
+            "nullable": true
+          },
+          {
+            "name": "split",
+            "type": "dictionary<values=string, indices=int8, ordered=0>",
+            "nullable": true
+          }
+        ]
+      }
+    ]
+  },
+  "definitions": {
+    "neuron": "body with non-null superclass (Berg et al. Methods: 'Bodies in the dataset are defined as neurons if they have a superclass. Bodies without one are fragments of neurons.')",
+    "synapse_count": "number of T-bar->PSD pairs (synaptic connections) with conf_pre>=0.5 and conf_post>=0.5; polyadic: one T-bar can contribute several pairs. Equals neuPrint ConnectsTo.weight.",
+    "synapse_count_hp": "subset with conf_post>=0.7 (neuPrint weightHP).",
+    "edge_neuropil": "primary ROI containing the POSTsynaptic density (neuPrint convention).",
+    "autapse": "pre_id == post_id; retained and flagged, not dropped.",
+    "coordinates": "8 nm isotropic voxels in the MaleCNS EM space (voxelSize 8,8,8 nm)."
+  },
+  "transformations": [
+    {
+      "step": "acquire",
+      "code_ref": "brainir.acquire.acquire_dataset",
+      "description": "HTTPS ranged download from the public GCS bucket; bytes verified against server CRC32C (and MD5 where available); GCS generation pinned in brainir.sources.registry; SHA-256 recorded; raw files set read-only."
+    },
+    {
+      "step": "neuropils",
+      "code_ref": "brainir.ingest.malecns.build_neuropils",
+      "description": "ROI catalogue from the neuPrint :Meta roiHierarchy/roiInfo; primary ROIs = neuPrint primaryRois."
+    },
+    {
+      "step": "annotations",
+      "code_ref": "brainir.ingest.malecns.load_annotations",
+      "description": "Flat body annotations loaded verbatim; float-encoded integer columns (group, mancBodyid, ...) cast to int64 only after verifying every value is integral and < 2^53."
+    },
+    {
+      "step": "neuron_definition",
+      "code_ref": "brainir.ingest.malecns.build",
+      "description": "neurons = bodies with a non-null superclass (source paper's definition). Other bodies = fragments."
+    },
+    {
+      "step": "neuron_properties",
+      "code_ref": "brainir.ingest.malecns.scan_neuprint_neurons",
+      "description": "pre/post/downstream/upstream/size/:Neuron label taken from the neuPrint neuron table; per-neuron roiInfo exploded to primary ROIs with an explicit '<unassigned>' remainder."
+    },
+    {
+      "step": "connections",
+      "code_ref": "brainir.ingest.malecns.scan_connections",
+      "description": "neuPrint :ConnectsTo table filtered to neuron->neuron pairs; weight -> synapse_count, weightHP -> synapse_count_hp; weightHR dropped only if identical to weight (validated). Autapses kept and flagged. Edge roiInfo (postsynaptic location) exploded to primary ROIs with an '<unassigned>' remainder so per-edge neuropil counts sum exactly to synapse_count."
+    },
+    {
+      "step": "neurotransmitters",
+      "code_ref": "brainir.ingest.malecns.assemble_neurons",
+      "description": "Body- and type-level NT predictions, literature label and consensus copied verbatim from the flat NT export (ML predictions; not physiology). Sign hypotheses are NOT stored; they are computed on demand by the graph layer under rule brainir.sign.conventional-v1."
+    },
+    {
+      "step": "validate",
+      "code_ref": "brainir.ingest.malecns (checks) + brainir.validation",
+      "description": "IDs, uniqueness, duplicates, referential integrity, edge values, type/schema conformance, annotation coverage, directionality (exact edge-sum conservation + biological polarity), graph statistics, provenance, cross-source agreement (flat vs neuPrint exports), synapse-level recomputation on a seeded random neuron sample."
+    },
+    {
+      "step": "write",
+      "code_ref": "brainir.io.write_canonical",
+      "description": "Rows sorted by primary key, dictionaries normalised, Parquet (zstd level 3, 1M-row groups) -> byte-identical outputs for identical inputs and library versions (see uv.lock)."
+    }
+  ],
+  "processed_outputs": {
+    "neurons": {
+      "path": "$DATA/processed/male-cns/v1.0/neurons.parquet",
+      "size_bytes": 8700596,
+      "sha256": "adc6b994a39d1d1e9a07cdea770a680e9a300934261d9f0f6a82b9a5dd2d79a8",
+      "rows": 166700,
+      "schema": [
+        {
+          "name": "neuron_uid",
+          "type": "string",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Globally unique stable ID '<dataset>:<version>:<source_id>'."
+        },
+        {
+          "name": "dataset",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Dataset name (e.g. 'male-cns')."
+        },
+        {
+          "name": "dataset_version",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Release/version (e.g. 'v1.0')."
+        },
+        {
+          "name": "source_id",
+          "type": "int64",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Dataset-native neuron ID (neuPrint bodyId). Stable only within this version."
+        },
+        {
+          "name": "cell_type",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Primary cell type label from the source ('type')."
+        },
+        {
+          "name": "instance",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Source instance label (usually type + side, e.g. 'DNp01(GF)_R')."
+        },
+        {
+          "name": "super_class",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Coarse class (e.g. descending_neuron, vnc_intrinsic)."
+        },
+        {
+          "name": "cell_class",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Intermediate class ('class' in MaleCNS)."
+        },
+        {
+          "name": "sub_class",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Finer class ('subclass' in MaleCNS)."
+        },
+        {
+          "name": "hemilineage_ito_lee",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Hemilineage in Ito/Lee (brain) nomenclature ('itoleeHl')."
+        },
+        {
+          "name": "hemilineage_truman",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Hemilineage in Truman (VNC/SEZ) nomenclature, e.g. '17A' ('trumanHl'). Parallel to, not exclusive of, hemilineage_ito_lee (SEZ/descending neurons often carry both)."
+        },
+        {
+          "name": "soma_side",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Side of the soma: L, R or M (midline)."
+        },
+        {
+          "name": "root_side",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Side of entry root (sensory/afferent neurons without soma in volume)."
+        },
+        {
+          "name": "side",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "soma_side if known, else root_side."
+        },
+        {
+          "name": "side_basis",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "'soma' or 'root' \u2014 which field 'side' came from."
+        },
+        {
+          "name": "soma_neuromere",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Neuromere containing the soma (e.g. T1, T2, T3, A1, CG)."
+        },
+        {
+          "name": "soma_x",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Soma location x.",
+          "unit": "voxel(8nm), dataset EM space"
+        },
+        {
+          "name": "soma_y",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Soma location y.",
+          "unit": "voxel(8nm), dataset EM space"
+        },
+        {
+          "name": "soma_z",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Soma location z.",
+          "unit": "voxel(8nm), dataset EM space"
+        },
+        {
+          "name": "animal_sex",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": false,
+          "evidence": "provenance",
+          "description": "Sex of the imaged animal (dataset-level fact)."
+        },
+        {
+          "name": "status",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "neuPrint proofreading status (Traced/Anchor/Orphan/Assign/...)."
+        },
+        {
+          "name": "status_label",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Fine-grained DVID status label (e.g. 'Roughly traced')."
+        },
+        {
+          "name": "is_traced",
+          "type": "bool",
+          "nullable": false,
+          "evidence": "derived_anatomy",
+          "description": "status == 'Traced' (statusLabel >= 'Leaves')."
+        },
+        {
+          "name": "neuprint_neuron_label",
+          "type": "bool",
+          "nullable": false,
+          "evidence": "curated_annotation",
+          "description": "Body carries the neuPrint :Neuron label (neuPrint's own, broader node criterion)."
+        },
+        {
+          "name": "n_pre",
+          "type": "int32",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "Presynaptic sites (T-bars) with confidence >= threshold.",
+          "unit": "count"
+        },
+        {
+          "name": "n_post",
+          "type": "int32",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "Postsynaptic densities (PSDs) with confidence >= threshold.",
+          "unit": "count"
+        },
+        {
+          "name": "n_downstream",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "Outgoing synaptic connections (T-bar->PSD pairs) to ANY segment.",
+          "unit": "count"
+        },
+        {
+          "name": "n_upstream",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "Incoming synaptic connections from ANY segment.",
+          "unit": "count"
+        },
+        {
+          "name": "n_downstream_to_neurons",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "Outgoing connections whose partner is in this neuron table.",
+          "unit": "count"
+        },
+        {
+          "name": "n_upstream_from_neurons",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "Incoming connections whose partner is in this neuron table.",
+          "unit": "count"
+        },
+        {
+          "name": "size_voxels",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "Segment size.",
+          "unit": "voxel(8nm)^3"
+        },
+        {
+          "name": "nt_consensus",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Source 'consensusNt' (recommended by the source): cell-type prediction (untyped bodies: body prediction), overridden by literature/expert labels, with model octopamine/serotonin calls set to 'unclear'. Mixes ML output with curation; not physiology."
+        },
+        {
+          "name": "nt_body_prediction",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Neurotransmitter predicted from this body's T-bars."
+        },
+        {
+          "name": "nt_body_confidence",
+          "type": "double",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Model confidence for nt_body_prediction.",
+          "unit": "probability"
+        },
+        {
+          "name": "nt_body_n_tbars",
+          "type": "int32",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Number of T-bar predictions aggregated for this body.",
+          "unit": "count"
+        },
+        {
+          "name": "nt_type_prediction",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Neurotransmitter predicted by aggregating all bodies of the cell type."
+        },
+        {
+          "name": "nt_type_confidence",
+          "type": "double",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Model confidence for nt_type_prediction.",
+          "unit": "probability"
+        },
+        {
+          "name": "nt_type_n_tbars",
+          "type": "int32",
+          "nullable": true,
+          "evidence": "ml_prediction",
+          "description": "Number of T-bar predictions aggregated for the cell type.",
+          "unit": "count"
+        },
+        {
+          "name": "nt_literature_label",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "literature_label",
+          "description": "Known neurotransmitter of the cell type from literature ('ground_truth' in source)."
+        },
+        {
+          "name": "group_id",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Source homolog group ID (bilateral/serial partners share a group)."
+        },
+        {
+          "name": "synonyms",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Alternative names from the literature."
+        },
+        {
+          "name": "flywire_type",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Matched FlyWire (FAFB) cell type."
+        },
+        {
+          "name": "hemibrain_type",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Matched hemibrain cell type."
+        },
+        {
+          "name": "manc_type",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Matched MANC cell type."
+        },
+        {
+          "name": "manc_body_id",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Matched MANC bodyId."
+        },
+        {
+          "name": "dimorphism",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Sexual dimorphism annotation."
+        },
+        {
+          "name": "fru_dsx",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "fruitless/doublesex expression annotation."
+        }
+      ]
+    },
+    "connections": {
+      "path": "$DATA/processed/male-cns/v1.0/connections.parquet",
+      "size_bytes": 105805005,
+      "sha256": "fd2a1054b76bdb34253be3538f6c4138460d307b73a030bba1d1ae0855ce8dea",
+      "rows": 25582938,
+      "schema": [
+        {
+          "name": "pre_id",
+          "type": "int64",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Presynaptic neuron source_id."
+        },
+        {
+          "name": "post_id",
+          "type": "int64",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Postsynaptic neuron source_id."
+        },
+        {
+          "name": "synapse_count",
+          "type": "int32",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "Number of synaptic connections = T-bar->PSD pairs (polyadic synapses: one T-bar may contribute several pairs) with confidence >= threshold (neuPrint 'weight'). Anatomical, NOT a physiological strength.",
+          "unit": "count"
+        },
+        {
+          "name": "synapse_count_hp",
+          "type": "int32",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "High-precision subset: pairs whose PSD confidence >= the HP threshold (0.7 for MaleCNS; neuPrint 'weightHP'). Boundary: confidences are stored as float32 and compared in float64, so a PSD stored as float32(0.7)=0.69999999 is excluded.",
+          "unit": "count"
+        },
+        {
+          "name": "is_autapse",
+          "type": "bool",
+          "nullable": false,
+          "evidence": "derived_anatomy",
+          "description": "pre_id == post_id (self-connection kept intentionally)."
+        },
+        {
+          "name": "dominant_neuropil",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "Primary neuropil holding the most PSDs of this connection (ties: lexicographic)."
+        },
+        {
+          "name": "dominant_neuropil_fraction",
+          "type": "float",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "Fraction of synapse_count in dominant_neuropil.",
+          "unit": "fraction"
+        },
+        {
+          "name": "n_neuropils",
+          "type": "int16",
+          "nullable": false,
+          "evidence": "derived_anatomy",
+          "description": "Number of distinct neuropils (incl. unassigned) the connection spans.",
+          "unit": "count"
+        }
+      ]
+    },
+    "connection_neuropils": {
+      "path": "$DATA/processed/male-cns/v1.0/connection_neuropils.parquet",
+      "size_bytes": 94067666,
+      "sha256": "6b99353d0260cb43325d2407ac3bfb07cbbc4fe02a1495f443afbcad4004dc21",
+      "rows": 29456389,
+      "schema": [
+        {
+          "name": "pre_id",
+          "type": "int64",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Presynaptic neuron source_id."
+        },
+        {
+          "name": "post_id",
+          "type": "int64",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Postsynaptic neuron source_id."
+        },
+        {
+          "name": "neuropil",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "Primary neuropil ROI (or '<unassigned>')."
+        },
+        {
+          "name": "synapse_count",
+          "type": "int32",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "Synaptic connections of this pair located in this neuropil.",
+          "unit": "count"
+        }
+      ]
+    },
+    "neuron_neuropils": {
+      "path": "$DATA/processed/male-cns/v1.0/neuron_neuropils.parquet",
+      "size_bytes": 2955258,
+      "sha256": "27abfe38f276068ba77436b4e7317275d295597aa98edb0fc6634b0953a57788",
+      "rows": 661997,
+      "schema": [
+        {
+          "name": "source_id",
+          "type": "int64",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "Neuron source_id."
+        },
+        {
+          "name": "neuropil",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "Primary neuropil ROI (or '<unassigned>')."
+        },
+        {
+          "name": "n_pre",
+          "type": "int32",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "T-bars of this neuron in this neuropil.",
+          "unit": "count"
+        },
+        {
+          "name": "n_post",
+          "type": "int32",
+          "nullable": false,
+          "evidence": "em_reconstruction",
+          "description": "PSDs of this neuron in this neuropil.",
+          "unit": "count"
+        }
+      ]
+    },
+    "neuropils": {
+      "path": "$DATA/processed/male-cns/v1.0/neuropils.parquet",
+      "size_bytes": 63861,
+      "sha256": "1bb013b47d4c89493679a6b99626d1b4a3506b834e0dddf9ba4311d59495bd0f",
+      "rows": 5632,
+      "schema": [
+        {
+          "name": "name",
+          "type": "string",
+          "nullable": false,
+          "evidence": "identifier",
+          "description": "ROI name as used by the source."
+        },
+        {
+          "name": "parent",
+          "type": "string",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Authoritative single parent (source roiInfo 'parent'; else first hierarchy parent)."
+        },
+        {
+          "name": "all_parents",
+          "type": "list<item: string>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Every parent of the ROI in the hierarchy DAG."
+        },
+        {
+          "name": "depth",
+          "type": "int16",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Minimum depth in the hierarchy (root = 0); null if absent."
+        },
+        {
+          "name": "in_hierarchy",
+          "type": "bool",
+          "nullable": false,
+          "evidence": "curated_annotation",
+          "description": "ROI appears in the source hierarchy (some have statistics only)."
+        },
+        {
+          "name": "top_level_region",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "curated_annotation",
+          "description": "Depth-1 ancestor (e.g. CentralBrain, Optic(L), CV, VNC)."
+        },
+        {
+          "name": "is_primary",
+          "type": "bool",
+          "nullable": false,
+          "evidence": "curated_annotation",
+          "description": "Member of the non-overlapping primary ROI partition."
+        },
+        {
+          "name": "is_nerve",
+          "type": "bool",
+          "nullable": false,
+          "evidence": "curated_annotation",
+          "description": "ROI is a nerve (not neuropil)."
+        },
+        {
+          "name": "side",
+          "type": "dictionary<values=string, indices=int32, ordered=0>",
+          "nullable": true,
+          "evidence": "derived_anatomy",
+          "description": "Side parsed from the name suffix '(L)'/'(R)'; null if unpaired."
+        },
+        {
+          "name": "n_pre_total",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "All T-bars in the ROI.",
+          "unit": "count"
+        },
+        {
+          "name": "n_post_total",
+          "type": "int64",
+          "nullable": true,
+          "evidence": "em_reconstruction",
+          "description": "All PSDs in the ROI.",
+          "unit": "count"
+        }
+      ]
+    },
+    "neuron_annotations_source": {
+      "path": "$DATA/processed/male-cns/v1.0/neuron_annotations_source.parquet",
+      "size_bytes": 4624482,
+      "sha256": "ac7491d15ee4de6a372d853822694ae83d245c249b085a185962e3e08799cdae",
+      "rows": 211577,
+      "schema": [
+        {
+          "name": "assignedOlHex1",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "assignedOlHex2",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "bodyId",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "flywireType",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "group",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "instance",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "somaSide",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "statusLabel",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "superclass",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "type",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "vfbId",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "hemibrainType",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "itoleeHl",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "supertype",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "birthtime",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "mancBodyid",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "mancGroup",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "mancType",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "subclass",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "synonyms",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "class",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "rootSide",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "somaNeuromere",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "trumanHl",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "dimorphism",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "matchingNotes",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "entryNerve",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "mancSerial",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "mcnsSerial",
+          "type": "int64",
+          "nullable": true
+        },
+        {
+          "name": "serialMotif",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "fruDsx",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "exitNerve",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "receptorType",
+          "type": "large_string",
+          "nullable": true
+        },
+        {
+          "name": "somaLocation",
+          "type": "list<item: int64>",
+          "nullable": true
+        },
+        {
+          "name": "tosomaLocation",
+          "type": "list<item: int64>",
+          "nullable": true
+        },
+        {
+          "name": "status",
+          "type": "large_string",
+          "nullable": true
+        }
+      ]
+    }
+  },
+  "graph_statistics": {
+    "n_neurons": 166700,
+    "n_edges": 25582938,
+    "total_synapses": 124177617,
+    "density": 0.0009206174841816279,
+    "weight": {
+      "min": 1,
+      "median": 2.0,
+      "mean": 4.853923228051446,
+      "p99": 46.0,
+      "max": 2591,
+      "n_weight_1": 10299701,
+      "n_weight_ge_5": 6242118
+    },
+    "out_degree": {
+      "mean": 153.46693461307737,
+      "median": 112.0,
+      "max": 11203
+    },
+    "in_degree": {
+      "mean": 153.46693461307737,
+      "median": 98.0,
+      "max": 11526
+    },
+    "reciprocity_edges": 0.2989316626611818,
+    "autapses": {
+      "edges": 101,
+      "synapses": 474
+    },
+    "weakly_connected_components": 220,
+    "largest_wcc": 166479,
+    "strongly_connected_components": 1385,
+    "largest_scc": 165314,
+    "isolated_neurons": 217
+  },
+  "annotation_coverage": {
+    "fields": {
+      "cell_type": 0.9868,
+      "instance": 0.9602,
+      "cell_class": 0.159,
+      "sub_class": 0.1315,
+      "hemilineage_ito_lee": 0.2264,
+      "hemilineage_truman": 0.1184,
+      "side": 0.9967,
+      "soma_neuromere": 0.1308,
+      "soma_x": 0.8378,
+      "nt_consensus": 0.9989,
+      "nt_literature_label": 0.5128,
+      "group_id": 0.8849,
+      "flywire_type": 0.8588,
+      "manc_type": 0.1364,
+      "hemibrain_type": 0.1975,
+      "synonyms": 0.0237,
+      "nt_consensus_not_unclear": 0.9809,
+      "is_traced": 0.9874
+    },
+    "by_superclass": [
+      {
+        "super_class": "ENS",
+        "typed": 0.0,
+        "nt_known": 0.0,
+        "n": 50
+      },
+      {
+        "super_class": "ascending_neuron",
+        "typed": 0.9973,
+        "nt_known": 0.98,
+        "n": 1846
+      },
+      {
+        "super_class": "cb_efferent",
+        "typed": 1.0,
+        "nt_known": 0.0,
+        "n": 4
+      },
+      {
+        "super_class": "cb_endocrine",
+        "typed": 0.9028,
+        "nt_known": 0.0139,
+        "n": 72
+      },
+      {
+        "super_class": "cb_intrinsic",
+        "typed": 0.9725,
+        "nt_known": 0.9752,
+        "n": 32164
+      },
+      {
+        "super_class": "cb_motor",
+        "typed": 0.9907,
+        "nt_known": 0.2523,
+        "n": 107
+      },
+      {
+        "super_class": "cb_sensory",
+        "typed": 0.977,
+        "nt_known": 0.9614,
+        "n": 4868
+      },
+      {
+        "super_class": "cb_sensory_tbc",
+        "typed": 0.0,
+        "nt_known": 0.5,
+        "n": 14
+      },
+      {
+        "super_class": "descending_neuron",
+        "typed": 0.997,
+        "nt_known": 0.9726,
+        "n": 1314
+      },
+      {
+        "super_class": "descending_neuron_tbc",
+        "typed": 0.0,
+        "nt_known": 0.5,
+        "n": 2
+      },
+      {
+        "super_class": "efferent_ascending",
+        "typed": 1.0,
+        "nt_known": 0.375,
+        "n": 8
+      },
+      {
+        "super_class": "efferent_descending",
+        "typed": 1.0,
+        "nt_known": 1.0,
+        "n": 4
+      },
+      {
+        "super_class": "ol_intrinsic",
+        "typed": 0.9995,
+        "nt_known": 0.9991,
+        "n": 89403
+      },
+      {
+        "super_class": "ol_sensory",
+        "typed": 1.0,
+        "nt_known": 1.0,
+        "n": 6098
+      },
+      {
+        "super_class": "sensory_ascending",
+        "typed": 0.9832,
+        "nt_known": 0.9609,
+        "n": 537
+      },
+      {
+        "super_class": "sensory_ascending_tbc",
+        "typed": 0.5,
+        "nt_known": 0.5,
+        "n": 2
+      },
+      {
+        "super_class": "sensory_descending",
+        "typed": 1.0,
+        "nt_known": 0.6667,
+        "n": 12
+      },
+      {
+        "super_class": "visual_centrifugal",
+        "typed": 0.9982,
+        "nt_known": 0.9112,
+        "n": 563
+      },
+      {
+        "super_class": "visual_projection",
+        "typed": 1.0,
+        "nt_known": 0.9476,
+        "n": 9201
+      },
+      {
+        "super_class": "visual_projection_tbc",
+        "typed": 1.0,
+        "nt_known": 1.0,
+        "n": 2
+      },
+      {
+        "super_class": "vnc_efferent",
+        "typed": 0.8298,
+        "nt_known": 0.5213,
+        "n": 94
+      },
+      {
+        "super_class": "vnc_endocrine",
+        "typed": 1.0,
+        "nt_known": 0.0,
+        "n": 22
+      },
+      {
+        "super_class": "vnc_intrinsic",
+        "typed": 0.9853,
+        "nt_known": 0.9853,
+        "n": 13161
+      },
+      {
+        "super_class": "vnc_motor",
+        "typed": 0.9873,
+        "nt_known": 0.4492,
+        "n": 708
+      },
+      {
+        "super_class": "vnc_sensory",
+        "typed": 0.8799,
+        "nt_known": 0.9091,
+        "n": 6370
+      },
+      {
+        "super_class": "vnc_sensory_tbc",
+        "typed": 0.0,
+        "nt_known": 0.3056,
+        "n": 36
+      },
+      {
+        "super_class": "vnc_tbc",
+        "typed": 0.0,
+        "nt_known": 0.7105,
+        "n": 38
+      }
+    ]
+  },
+  "validation": {
+    "summary": {
+      "pass": 53,
+      "fail": 0,
+      "warn": 1,
+      "info": 19
+    },
+    "report_json": "data/manifests/male-cns_v1.0.validation.json",
+    "report_markdown": "data/manifests/male-cns_v1.0.validation.md",
+    "fail_and_warn_checks": [
+      {
+        "check_id": "consistency.nt_consensus_rule_typed",
+        "status": "warn",
+        "observed": {
+          "bodies": 4420,
+          "cell_types": 91
+        },
+        "expected": {
+          "bodies": 0
+        },
+        "description": "Typed bodies whose consensus_nt is not explained by (ground_truth else celltype prediction with octopamine/serotonin -> unclear). These are expert/literature overrides absent from the ground_truth column (documented source discrepancy; consensus is still what neuPrint shows and recommends)."
+      }
+    ]
+  },
+  "build": {
+    "pipeline": "brainir.ingest.malecns",
+    "pipeline_version": "1.0.0",
+    "brainir_version": "0.0.1",
+    "schema_version": "0.1.0",
+    "config": {
+      "synapse_checks": true,
+      "synapse_sample_neurons": 300,
+      "seed": 20260922
+    },
+    "git": {
+      "commit": "3c4ad5eaaad3fe7169f518396a13c9b263e5c4ef",
+      "src_dirty": false,
+      "pipeline_code": {
+        "combined_sha256": "b665bb38429e1f3ee534f2a920e6721a0e0bb9fd0b698ce1791119cee96f836c",
+        "files": {
+          "ingest/malecns.py": "6b6a70a6315cf372463201b60db674364d489f499476d9d2edbe48facca8bdbb",
+          "io.py": "caef03300a0021f9f05eee4bef7d06b935d1a3d45b2d26d365def931f127d91c",
+          "schema/tables.py": "7e4106787ce340ebcac23fbbbd2e2c06924415bc8f4bc3bf8748343a819a3574",
+          "schema/vocab.py": "9769f006836800d04b9c00aabe9daaa50bb830edf6e6843d4385b462737fcc76",
+          "schema/evidence.py": "ea3ec89660d7154d5c4182a10ef48d270e9ead8ad8fc05c03f137ed237bf0407",
+          "sources/registry.py": "bdd55f759c93893bce7993c0bd789a419a5989ebc369c313b524dcadeefbbd6a",
+          "validation.py": "2c16125a8ad1ceb30dd6c3e0bd0ac2b807e2eb5be4c5397df8e8d0ffc9773f61",
+          "paths.py": "d1605ad6a2a90398bcac987703f3854601f7b57bfb15d600d0419836d3ca1c42"
+        }
+      }
+    },
+    "environment": {
+      "python": "3.12.14",
+      "platform": "Windows-11-10.0.26100-SP0",
+      "pyarrow": "25.0.1",
+      "pandas": "3.0.6",
+      "duckdb": "1.5.5",
+      "numpy": "2.5.3"
+    },
+    "timings_s": {
+      "acquisition_check": 0.01,
+      "meta_neuropils": 0.06,
+      "annotations": 0.32,
+      "neurotransmitters": 0.78,
+      "neuprint_neurons_scan": 13.26,
+      "neuron_crosschecks": 1.75,
+      "neuron_neuropils": 2.81,
+      "connections": 253.19,
+      "flat_crosscheck": 49.25,
+      "synapse_checks": 40.72,
+      "assemble_validate": 11.62,
+      "write_outputs": 40.4
+    },
+    "total_s": 425.8
+  }
+}

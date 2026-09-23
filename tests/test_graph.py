@@ -13,6 +13,13 @@ def test_basic_sizes(cx):
     assert cx.dataset == "male-cns" and cx.version == "v1.0"
 
 
+def test_integer_columns_never_become_float(cx):
+    # 105 has no soma location (null soma_x): the column must stay a nullable integer, not float64
+    assert cx.neurons["soma_x"].dtype.name == "Int64" and cx.neurons["n_pre"].dtype.name == "Int32"
+    r = cx.neuron(104)
+    assert isinstance(r["n_pre"], int) and isinstance(r["source_id"], int) and cx.neuron(105)["soma_x"] is None
+
+
 def test_fetch_neuron_by_id(cx):
     n = cx.neuron(101)
     assert n["cell_type"] == "DNtest" and n["super_class"] == "descending_neuron" and n["n_downstream"] == 10
