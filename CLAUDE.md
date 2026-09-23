@@ -5,8 +5,39 @@ BrainIR aims to decompile biological neural circuits into compact, executable, t
 **Phase 1 (cross-connectome DNg100 benchmark, MaleCNS + MANC) is complete and frozen**: spec `goal2.md`, report
 `PHASE1_REPORT.md`, benchmark package `benchmarks/dng100/` locked by `BENCHMARK_LOCK.json` and git tag
 `dng100-benchmark-v1`. Changing the bundles, oracle or evaluator requires a new benchmark version (`PROTOCOL.md` §6).
-Phase 2 (a discovery method evaluated in tier A against this benchmark) has not started.
+**Phase 2 (blind causal mechanism discovery, spec `goal3.md`) is in progress**: status in `research/LOG.md` §10,
+protocol `research/phase2/SELECTION_PROTOCOL.md`, hidden-evaluation log `research/phase2/HIDDEN_EVAL_LOG.md`.
 Read `research/LOG.md` (decisions, discrepancies, pitfalls) before changing anything.
+
+## Phase 2 rules (anti-leakage; goal3 §4)
+- This repository's sessions have seen the dng100 oracle. **Method design happens only in fresh agents** working in
+  the oracle-free clean directory `C:\Dev\BrainIR_p2clean` (library + public bundles + synthetic suites without
+  truth). The orchestrator builds generic infrastructure, runs tournaments and returns aggregate scores only.
+- Sync generic files into the clean room one by one (`cp`); never re-run `scripts/make_phase2_cleanroom.py` over it,
+  and never copy anything truth-bearing there (`truth/`, build reports, per-instance scores, evaluator outputs).
+- Synthetic suites (`data/synthetic/`, git-ignored): development `mechanisms_v1`/`pairs_v1` (readable names, public
+  part in the clean room), selection `*_heldout`, confirmation `*_final` (anonymised, fresh salts, never in the clean
+  room). Truth, salts, build reports and the truth audit live under `<suite>/truth/` only.
+- No hidden-oracle evaluation before `research/phase2/METHOD_LOCK.json` + tag `brainir-v1-preblind`
+  (`scripts/method_lock.py`, `scripts/blind_eval.py`); every hidden evaluation is logged.
+- Never modify files hashed in `benchmarks/dng100/BENCHMARK_LOCK.json` (incl. `pyproject.toml`, `uv.lock`,
+  `src/brainir/{sim,metrics,benchmark,compute}`); `freeze.py --check` must stay green.
+
+## Phase 2 layout
+- `src/brainir/discovery/`: `problem.py` (bundle loader, `pack_bundle`, `write_bundle_manifest`), `simulator.py`
+  (hard call budget, in-run memo, persistent `CausalEffectCache`), `criteria.py`, `interventions.py`, `interface.py`
+  (`DiscoveryResult` → frozen prediction schema, `MethodRegistry`), `run.py`, `synthetic.py` / `synthetic_pairs.py`
+  (suites), `suite_audit.py` (unplanted sufficient sets), `tournament.py` (scorer), `reliability.py` (node-order
+  sweeps), `correspondence.py` / `transfer.py` (cross-network), `perturb.py` (anti-gaming), `joint.py` (pairs).
+- `src/brainir/methods/`: `greedy_reference` + tournament candidates (+ `brainir_v1`); every module present is
+  registered on import.
+- `scripts/`: `run_tournament.py`, `run_pair_tournament.py`, `budget_curve.py`, `anti_gaming.py`,
+  `reliability_sweep.py`, `compare_reliability.py`, `transfer_experiments.py`, `build_synthetic_suite.py`,
+  `build_pair_suite.py`, `audit_suite_truth.py`, `method_lock.py`, `blind_eval.py`, `cleanroom_entry/`.
+- `research/phase2/`: contracts (`METHOD_DEV_CONTRACT.md`, `CROSS_CONNECTOME_CONTRACT.md`, `COMPOSER_CONTRACT.md`),
+  `methods/` (per-method docs), `tournament/`, `reliability/`, `transfer/`, `methods_review.md`.
+- Pitfalls: a stray `re.py` in `%TEMP%` breaks scripts run from there (use the scratchpad); Modal workers are Linux
+  (`path_basename`); delete smoke-run records from `benchmarks/dng100/manifests/experiments/index.jsonl`.
 
 ## Environment (Windows 11 dev machine)
 - Always use **uv**: `uv sync`, `uv run ...`.
