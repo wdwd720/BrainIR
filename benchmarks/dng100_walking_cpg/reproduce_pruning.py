@@ -21,7 +21,7 @@ from pathlib import Path
 
 import numpy as np
 
-from brainir.compute import ExperimentRecord, artifact_record, content_hash, get_backend, register_run
+from brainir.compute import ExperimentRecord, Shared, artifact_record, content_hash, get_backend, register_run, split_failures
 from brainir.sim import ModelConfig, Stimulus
 from brainir.sim.prune import PRUNE_ALGORITHM_ID, PruneConfig, run_prune_job
 
@@ -68,11 +68,14 @@ def main(argv=None) -> None:
     stim = Stimulus((stim_pos,), (STIM_CURRENT[args.dataset],))
     prunable = np.ones(net.n, bool)
     seeds = list(range(args.seed0, args.seed0 + args.n))
-    jobs = [(net.W, cfg, stim, readout, prunable, net.sizes, s, pcfg) for s in seeds]
+    shared = {"W": net.W, "readout": readout, "prunable": prunable, "sizes": net.sizes}
+    jobs = [(Shared("W"), cfg, stim, Shared("readout"), Shared("prunable"), Shared("sizes"), s, pcfg) for s in seeds]
     backend = get_backend(args.backend, n_workers=args.workers, cpu=1.0, memory_mb=3072, timeout_s=3600, max_containers=args.containers)
     t0 = time.time()
-    results = backend.map(run_prune_job, jobs)
+    results, failed = split_failures(backend.map(run_prune_job, jobs, shared=shared))
     wall = time.time() - t0
+    if failed:
+        print(f"WARNING: {len(failed)} of {len(jobs)} screens failed; first: {failed[0]}")
     types = dict(zip(net.table["source_id"].astype(int), net.table["cell_type"].astype(object)))
     stim_id = int(net.ids[stim_pos])
     circuits = collections.Counter()
@@ -103,6 +106,7 @@ def main(argv=None) -> None:
         "published": {"modal_circuit": onet["modal_circuit"], "modal_prevalence": onet["modal_prevalence"], "other_circuits": onet.get("other_circuits")},
         "size_distribution": dict(collections.Counter(p["n_kept_active"] for p in per_screen)),
         "wall_time_s": round(wall, 1), "backend": backend.last_stats.to_dict(), "core_labels_known": sorted(core_labels),
+        "n_failed_screens": len(failed), "failed_screens": failed[:50],
     }
     RESULTS.mkdir(exist_ok=True)
     name = f"pruning_{net_name}_nt-{args.nt}_n{args.n}_seed{args.seed0}"

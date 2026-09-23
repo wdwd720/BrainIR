@@ -33,6 +33,15 @@ uv run python scripts/gen_schema_docs.py   # docs/schema.md is generated; a test
 uv run python benchmarks/dng100_walking_cpg/investigate_malecns.py            # answer-key analysis (benchmark only)
 uv run python benchmarks/dng100_walking_cpg/reproduce_manc_connectivity.py    # paper matrices vs BrainIR builds
 uv run python benchmarks/dng100_walking_cpg/reproduce_dynamics.py stim --dataset manc --version v1.2.1 --n 128
+uv run python benchmarks/dng100_walking_cpg/reproduce_interventions.py --dataset manc --version v1.2.1 --n 64
+uv run python benchmarks/dng100_walking_cpg/reproduce_pruning.py --n 1024 --backend modal --containers 200     # ~$25
+uv run python benchmarks/dng100_walking_cpg/reproduce_dn_screen.py --replicates 16 --backend modal              # ~$10
+uv run python benchmarks/dng100_walking_cpg/cross_connectome_eval.py --n 32                                    # both directions
+uv run python benchmarks/dng100_walking_cpg/robustness_experiments.py dt-convergence|param-sweep|input-sweep|weight-noise|negative-controls
+uv run python benchmarks/dng100/build_public_bundle.py      # re-export public/ + public_blind/ (then leakage_check, freeze)
+uv run python benchmarks/dng100/cleanroom/leakage_check.py --write-audit
+uv run python benchmarks/dng100/baselines/run_all_baselines.py   # clean-room runs + frozen evaluation of every baseline
+uv run python benchmarks/dng100/freeze.py [--check]        # BENCHMARK_LOCK.json (git tag dng100-benchmark-v1)
 uv run brainir mapping build --a male-cns:v1.0 --b manc:v1.2.1   # cross-connectome candidate table + summary
 uv run brainir --help                      # neuron/type/search/up/down/edge/khop/paths/synapses/mapping queries
 ```

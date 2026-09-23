@@ -55,6 +55,11 @@ def paper_network(dataset: str, version: str, nt: str):
         sizes_cx = None
     cx = Connectome.open(dataset, version)
     ids = wt["bodyId"].to_numpy().astype(np.int64)
+    # The authors' MaleCNS table predates the v1.0 release (2026-02-10 neuPrint state); bodies merged/split since then
+    # are not neurons of v1.0 and are dropped here (recorded in net.meta). MANC tables match the builds exactly.
+    dropped = [int(i) for i in ids if not cx.has(int(i))]
+    if dropped:
+        ids = np.array([i for i in ids if int(i) not in set(dropped)], dtype=np.int64)
     roi = vnc_neuropils(cx) if dataset == "male-cns" else None
     sizes = None
     if sizes_cx is not None:
@@ -62,6 +67,10 @@ def paper_network(dataset: str, version: str, nt: str):
     override = wt.set_index("bodyId")[nt_col].to_dict() if nt == "paper" else None
     net = build_network(cx, ids, floor=5, sign_basis=sign_basis, nt_override=override, roi_restrict=roi, sizes=sizes,
                         size_source=None if sizes is None else "manc:v1.0 size_voxels by body ID")
+    net.meta["authors_table_rows"] = int(len(wt))
+    net.meta["authors_ids_not_in_build"] = dropped
+    if dropped:
+        wt = wt[~wt["bodyId"].isin(dropped)].reset_index(drop=True)
     # readout = front-leg motor neurons (class motor neuron, subclass fl); identical to the authors' 144 MNs for manc:v1.2.1
     tab = net.table
     readout = (tab["super_class"].to_numpy() == "motor_neuron") & (tab["sub_class"].to_numpy() == "fl")
