@@ -22,7 +22,7 @@
      in particular `benchmarks/dng100/oracle/`, `benchmarks/dng100/baselines/results/eval/` and
      `benchmarks/dng100/baselines/results/null_distributions.*`;
    - `research/literature/` (Pugliese notes);
-   - `goal1.md` and `goal2.md` (the phase specs name the published cell types);
+   - `goal1.md`, `goal2.md` and `goal3.md` (the phase specs name the published cell types or oracle labels);
    - the "DNg100 benchmark" section of `PHASE0_REPORT.md`, and `PHASE1_REPORT.md` (§7–§8).
 
    `README.md`, `CLAUDE.md`, `docs/`, `src/` and `research/data_ecosystem.md` are kept free of answer-key IDs and
