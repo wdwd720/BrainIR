@@ -104,7 +104,8 @@ class DiscoveryMethod(ABC):
                     code_commit: str | None = None, extra: dict | None = None) -> MethodInfo:
         return MethodInfo(name=self.name, version=self.version, description=(self.__doc__ or "").strip()[:4000] or None, code_commit=code_commit,
                           inputs_used=list(problem.files_read), random_seed=int(seed),
-                          compute={"simulator": sim.report(), "wall_s": round(wall_s, 1), "config": config, **(extra or {})})
+                          compute={"simulations": sim.calls, "simulated_seconds": round(sim.simulated_seconds, 3), "simulator": sim.report(),
+                                   "wall_s": round(wall_s, 1), "config": config, **(extra or {})})
 
 
 class MethodRegistry:

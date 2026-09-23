@@ -127,8 +127,10 @@ class DiscoveryProblem:
         for arr in (Wc.row.astype(np.int64), Wc.col.astype(np.int64), Wc.data.astype(np.float64)):
             h.update(np.ascontiguousarray(arr).tobytes())
         h.update(b"|sizes|" + (np.ascontiguousarray(self.sizes).tobytes() if self.sizes is not None else b"none"))
+        st = self.extra.get("stimulus", {})
         h.update(json.dumps({"stim": list(self.stim_positions), "current": self.stim_current, "readout": self.readout_positions.tolist(),
-                             "cfg": self.model_cfg.to_dict(), "criterion": self.criterion_spec}, sort_keys=True).encode())
+                             "pulse": [st.get("pulse_start_s"), st.get("pulse_end_s")], "cfg": self.model_cfg.to_dict(),
+                             "criterion": self.criterion_spec}, sort_keys=True, default=str).encode())
         return h.hexdigest()
 
     def public_summary(self) -> dict:
@@ -169,3 +171,18 @@ def path_basename(p: Path | str) -> str:
     """Last path component whatever the separator (a Windows path shipped to a Linux worker keeps its backslashes)."""
     s = str(p).rstrip("\\").rstrip("/")
     return s.replace("\\", "/").rsplit("/", 1)[-1]
+
+
+def write_bundle_manifest(root: Path | str, header: dict) -> dict:
+    """(Re)write ``root/manifest.json`` in the benchmark bundle format: every file under ``root`` except the manifest, with its
+    SHA-256 and size, and ``bundle_sha256`` = SHA-256 of the sorted file table — so any bundle-format directory (synthetic
+    instances, node-order variants) verifies with :func:`brainir.benchmark.bundle.verify_bundle` and can run through the
+    frozen clean-room runner. ``header`` supplies the descriptive fields (benchmark_id, tier, networks, ...)."""
+    root = Path(root)
+    files = {}
+    for p in sorted(q for q in root.rglob("*") if q.is_file() and q.name != "manifest.json"):
+        files[p.relative_to(root).as_posix()] = {"sha256": hashlib.sha256(p.read_bytes()).hexdigest(), "size_bytes": p.stat().st_size}
+    manifest = {"bundle_format_version": "1.0.0", **header, "files": files}
+    manifest["bundle_sha256"] = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
+    (root / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return manifest

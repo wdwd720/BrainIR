@@ -43,6 +43,7 @@ import pyarrow.parquet as pq
 
 from ..sim.model import Intervention, ModelConfig, Stimulus, sample_neuron_params, simulate
 from .criteria import criterion_from_spec
+from .problem import write_bundle_manifest
 
 SUITE_ID = "synthetic-mechanisms-v1"
 STIM_CURRENT = 250.0
@@ -451,7 +452,6 @@ def export_instance(inst: BuiltInstance, verification: dict, root: Path, *, n_or
     (inst_dir / "model_config.json").write_text(json.dumps(mc, indent=1) + "\n", encoding="utf-8", newline="\n")
     rng = np.random.default_rng(inst.spec.seed + 7919)
     variants = {}
-    files = {}
     for v in range(n_order_variants):
         perm = np.arange(n) if v == 0 and False else rng.permutation(n)  # every variant is a random order (canonical order never exposed)
         # perm[p] = canonical node at public position p
@@ -514,13 +514,8 @@ def export_instance(inst: BuiltInstance, verification: dict, root: Path, *, n_or
                           "critical_edges_positions": [[int(inv[a]), int(inv[b])] for a, b in inst.truth["critical_edges"]],
                           "complication_positions": _remap(inst.truth["complications"], inv), "stimulus_position": int(inv[inst.stim]),
                           "readout_positions": sorted(int(inv[r]) for r in inst.readout)}
-        for f in ("neurons.parquet", "edges.parquet", "stimulus.json", "readout.json", "criterion.json", "network.json"):
-            files[f"networks/{name}/{f}"] = hashlib.sha256((d / f).read_bytes()).hexdigest()
-    files["model_config.json"] = hashlib.sha256((inst_dir / "model_config.json").read_bytes()).hexdigest()
-    manifest = {"benchmark_id": SUITE_ID, "format_version": "1.0.0", "tier": "A", "instance": label, "created_utc": _now(),
-                "networks": [{"name": k, "n_neurons": n, "n_edges": int(inst.C.astype(bool).sum())} for k in variants], "files": files}
-    manifest["bundle_sha256"] = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
-    (inst_dir / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n")
+    manifest = write_bundle_manifest(inst_dir, {"benchmark_id": SUITE_ID, "tier": "A", "instance": label, "created_utc": _now(),
+                                                "networks": [{"name": k, "n_neurons": n, "n_edges": int(inst.C.astype(bool).sum())} for k in variants]})
     truth = {"instance": label, "suite": SUITE_ID, "spec": {"family": inst.spec.family, "n_total": inst.spec.n_total, "seed": inst.spec.seed,
              "complications": list(inst.spec.complications), "n_readout": inst.spec.n_readout, "density": inst.spec.density},
              "description": inst.truth["description"], "verification": verification, "networks": variants, "bundle_sha256": manifest["bundle_sha256"]}

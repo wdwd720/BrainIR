@@ -221,3 +221,49 @@ def test_pack_unpack_bundle_roundtrip(tiny_suite, tmp_path):
     assert "networks/main/neurons.parquet" in pack and "model_config.json" in pack
     unpack_bundle(pack, tmp_path / "u")
     assert DiscoveryProblem.from_bundle(tmp_path / "u", "main").network_hash() == DiscoveryProblem.from_bundle(src, "main").network_hash()
+
+
+def test_causal_effect_cache_saves_compute_not_budget(tiny_suite, tmp_path):
+    """The persistent store answers identical queries across runs, but every served query is still charged as a call."""
+    from brainir.discovery.simulator import CausalEffectCache, sim_code_version
+
+    root, label, _ = tiny_suite
+    p = DiscoveryProblem.from_bundle(root / "instances" / label, "main")
+    store = CausalEffectCache(tmp_path / "effects.sqlite")
+    s1 = BudgetedSimulator(p, max_calls=10, store=store)
+    o1 = s1.evaluate(None, [0, 1])
+    assert s1.calls == 2 and s1.computed_calls == 2 and s1.store_hits == 0 and len(store) == 2
+    s2 = BudgetedSimulator(p, max_calls=10, store=store)
+    o2 = s2.evaluate(None, [0, 1])
+    assert s2.calls == 2 and s2.computed_calls == 0 and s2.store_hits == 2
+    assert [o.score for o in o1] == [o.score for o in o2] and [o.passed for o in o1] == [o.passed for o in o2]
+    assert np.array_equal(o1[0].active_positions, o2[0].active_positions)
+    # another intervention (or seed) is never answered from the store
+    cand = [int(x) for x in p.candidate_positions()[:3]]
+    s2.evaluate(silence([cand[0]]), [0])
+    s2.evaluate(keep_only(p, cand), [0])
+    assert s2.computed_calls == 2
+    rep = s2.report()
+    assert rep["n_distinct_interventions"] == 3 and rep["n_candidate_mechanisms"] == 1
+    assert rep["code_version"] == sim_code_version() and rep["cpu_seconds"] > 0 and rep["store_hits"] == 2
+    # the budget binds even when the store could answer
+    s3 = BudgetedSimulator(p, max_calls=1, store=store)
+    with pytest.raises(BudgetExhausted):
+        s3.evaluate(None, [0, 1])
+    store.close()
+
+
+def test_permuted_variant_verifies_and_hides_its_permutation(tiny_suite, tmp_path):
+    """A node-order variant is a verifiable bundle on its own, and nothing inside it reveals the permutation."""
+    from brainir.benchmark.bundle import verify_bundle
+    from brainir.discovery.reliability import make_permuted_bundle
+
+    root, label, _ = tiny_suite
+    src = root / "instances" / label
+    assert verify_bundle(src)["ok"]  # synthetic exports use the benchmark manifest format
+    make_permuted_bundle(src, "main", seed=11, dest_root=tmp_path / "work" / "order1")
+    v = verify_bundle(tmp_path / "work" / "order1")
+    assert v["ok"], v
+    inside = {p.relative_to(tmp_path / "work" / "order1").as_posix() for p in (tmp_path / "work" / "order1").rglob("*") if p.is_file()}
+    assert not any("perm" in f or "_private" in f for f in inside)
+    assert (tmp_path / "work" / "_private" / "perm_order1_main.json").exists()

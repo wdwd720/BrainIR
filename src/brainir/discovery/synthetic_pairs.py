@@ -17,7 +17,6 @@ role correspondence, per-network cores/alternatives/roles/essentials) is stored 
 from __future__ import annotations
 
 import datetime as _dt
-import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -28,6 +27,7 @@ import pyarrow as pa
 import pyarrow.parquet as pq
 
 from ..sim.model import ModelConfig
+from .problem import write_bundle_manifest
 from .synthetic import MOTIFS, STIM_CURRENT, BuiltInstance, InstanceSpec, _json_default, _token, build_instance, verify_instance
 
 PAIR_SUITE_ID = "synthetic-pairs-v1"
@@ -252,7 +252,6 @@ def export_pair(pair: BuiltPair, verification: dict, root: Path, *, salt: str = 
     (inst_dir / "model_config.json").write_text(json.dumps(mc, indent=1) + "\n", encoding="utf-8", newline="\n")
     rng = np.random.default_rng(pair.spec.seed + 4242)
     nets: dict[str, dict] = {}
-    files: dict[str, str] = {}
     assembled = {}
     parts = (("a", pair.a, pair.anchors_a, pair.meta_a, verification["a"]), ("b", pair.b, pair.anchors_b, pair.meta_b, verification["b"]))
     for net, inst, anchors, meta, ver in parts:
@@ -289,13 +288,9 @@ def export_pair(pair: BuiltPair, verification: dict, root: Path, *, salt: str = 
                      "necessary_within_core_positions": {int(inv[k]): v for k, v in ver["necessary_within_core"].items()},
                      "stimulus_position": int(inv[inst.stim]), "readout_positions": sorted(int(inv[r]) for r in inst.readout),
                      "n_instance_nodes": int(inst.W.shape[0]), "n_anchor_nodes": N_SOURCE_ANCHORS + N_SINK_ANCHORS}
-        for f in ("neurons.parquet", "edges.parquet", "stimulus.json", "readout.json", "criterion.json", "network.json"):
-            files[f"networks/{net}/{f}"] = hashlib.sha256((d / f).read_bytes()).hexdigest()
-    files["model_config.json"] = hashlib.sha256((inst_dir / "model_config.json").read_bytes()).hexdigest()
-    manifest = {"benchmark_id": PAIR_SUITE_ID, "format_version": "1.0.0", "tier": "A", "instance": label, "created_utc": _now(),
-                "networks": [{"name": k, "n_neurons": assembled[k]["n"], "n_edges": int(len(assembled[k]["edges"]))} for k in nets], "files": files}
-    manifest["bundle_sha256"] = hashlib.sha256(json.dumps(files, sort_keys=True).encode()).hexdigest()
-    (inst_dir / "manifest.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n")
+    manifest = write_bundle_manifest(inst_dir, {"benchmark_id": PAIR_SUITE_ID, "tier": "A", "instance": label, "created_utc": _now(),
+                                                "networks": [{"name": k, "n_neurons": assembled[k]["n"], "n_edges": int(len(assembled[k]["edges"]))}
+                                                             for k in nets]})
     inv_a, inv_b = assembled["a"]["inv"], assembled["b"]["inv"]
     truth = {"instance": label, "suite": PAIR_SUITE_ID, "spec": pair.spec.__dict__ | {"complications_a": list(pair.spec.complications_a),
              "complications_b": list(pair.spec.complications_b)},

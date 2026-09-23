@@ -33,19 +33,21 @@ import pyarrow.parquet as pq
 
 from ..benchmark.prediction import BrainIRMechanismPrediction
 from .interventions import keep_only
-from .problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
+from .problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle, write_bundle_manifest
 from .simulator import BudgetedSimulator
 
 FROZEN_NAME = "greedy_prune_sim_frozen"
 
 
 # ---------------------------------------------------------------------------- permuted variants
-def make_permuted_bundle(src_root: Path, network: str, seed: int | None, dest_root: Path) -> dict:
+def make_permuted_bundle(src_root: Path, network: str, seed: int | None, dest_root: Path, private_dir: Path | None = None) -> dict:
     """Copy one network of a bundle into dest_root with positions permuted (seeded; ``seed=None`` = identity, i.e. the bundle's
     own order). Returns {'perm': ..., 'dir': ..., 'positional': ...}.
 
     perm[p] = source position at new position p. Works for positional-id bundles (tier A / synthetic); for body-id bundles
-    (tier B) the ids stay but positions/edge positions are permuted, so the id semantics are unchanged."""
+    (tier B) the ids stay but positions/edge positions are permuted, so the id semantics are unchanged. The variant gets its own
+    verifiable manifest; the permutation is written to ``private_dir`` (default ``dest_root/../_private``), never inside the
+    variant."""
     src = Path(src_root) / "networks" / network
     d = Path(dest_root) / "networks" / network
     d.mkdir(parents=True, exist_ok=True)
@@ -84,13 +86,22 @@ def make_permuted_bundle(src_root: Path, network: str, seed: int | None, dest_ro
     info = json.loads((src / "network.json").read_text(encoding="utf-8"))
     info["order_variant_seed"] = None if seed is None else int(seed)
     (d / "network.json").write_text(json.dumps(info, indent=1) + "\n", encoding="utf-8", newline="\n")
-    for f in ("model_config.json", "manifest.json", "README.md"):
+    for f in ("model_config.json", "README.md"):
         if (Path(src_root) / f).exists():
             shutil.copyfile(Path(src_root) / f, Path(dest_root) / f)
-    priv = Path(dest_root) / "_private"
-    priv.mkdir(exist_ok=True)
-    (priv / f"perm_{network}.json").write_text(json.dumps({"seed": None if seed is None else int(seed), "perm": [int(x) for x in perm]}) + "\n",
-                                               encoding="utf-8", newline="\n")
+    # a fresh manifest (the variant's files differ from the source's) that records where it came from
+    src_manifest_path = Path(src_root) / "manifest.json"
+    src_manifest = json.loads(src_manifest_path.read_text(encoding="utf-8")) if src_manifest_path.exists() else {}
+    header = {k: v for k, v in src_manifest.items() if k not in ("files", "bundle_sha256", "networks")}
+    header["networks"] = [x for x in src_manifest.get("networks", []) if isinstance(x, dict) and x.get("name") == network]
+    header["node_order_variant"] = {"derived_from_bundle_sha256": src_manifest.get("bundle_sha256"), "network": network,
+                                    "seed": None if seed is None else int(seed)}
+    write_bundle_manifest(dest_root, header)
+    # the permutation is kept OUTSIDE the variant bundle: a method reading its bundle must not be able to undo the reordering
+    priv = Path(private_dir) if private_dir is not None else Path(dest_root).parent / "_private"
+    priv.mkdir(parents=True, exist_ok=True)
+    (priv / f"perm_{Path(dest_root).name}_{network}.json").write_text(
+        json.dumps({"seed": None if seed is None else int(seed), "perm": [int(x) for x in perm]}) + "\n", encoding="utf-8", newline="\n")
     return {"dir": str(dest_root), "perm": perm, "positional": positional}
 
 
@@ -146,15 +157,16 @@ def sweep_job(args) -> dict:
     if remote:
         tmp = Path(tempfile.mkdtemp(prefix="brainir_rel_"))
         variant_dir = unpack_bundle(packs[variant_name], tmp / variant_name)
-    priv = variant_dir / "_private"
-    priv.mkdir(exist_ok=True)
-    out = priv / f"pred_{method}_s{seed}.json"
+    # outputs live next to the variant, never inside it (a method must not see other runs' predictions in its bundle)
+    run_dir = variant_dir.parent / "_runs" / variant_name
+    run_dir.mkdir(parents=True, exist_ok=True)
+    out = run_dir / f"pred_{method}_s{seed}.json"
     t0 = time.time()
     result = None
     if method == FROZEN_NAME:
         script = Path(args["frozen_script_path"]) if args.get("frozen_script_path") and Path(args["frozen_script_path"]).exists() else None
         if script is None:
-            script = priv / "frozen_method.py"
+            script = run_dir / "frozen_method.py"
             script.write_text(args["frozen_script"], encoding="utf-8", newline="\n")
         r = run_frozen_baseline(script, variant_dir, network, out, seed, list(args.get("frozen_args") or []))
         if r["returncode"] != 0 or not out.exists():
