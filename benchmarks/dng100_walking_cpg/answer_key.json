@@ -1,0 +1,58 @@
+{
+  "_warning": "ANSWER KEY. Published solution of the DNg100 walking-CPG benchmark. Never use as input/prior/feature/prompt for BrainIR discovery. Evaluation only (see README.md, SPEC.md).",
+  "source": {
+    "citation": "Pugliese SM, Chou GM, Abe ETT, Turcu D, Lancaster JK, Tuthill JC, Brunton BW. Connectome simulations identify a central pattern generator circuit for fly walking. bioRxiv 2025.09.12.675944 (v1 2025-09-12; v2 2026-04-30). doi:10.1101/2025.09.12.675944. PMC13142387 (preprint copy of v2). No journal version as of 2026-09-22.",
+    "paper_license": "CC BY-NC-ND 4.0",
+    "code": "https://github.com/smpuglie/Pugliese_2026 (formerly Pugliese_cpg_2025) @ 10e7661bf414ba7b4c2edf795cd36d0f878c17c0 (2026-09-15); README states MIT (no LICENSE file)",
+    "data": "Zenodo doi:10.5281/zenodo.22260924 (CC-BY-4.0)",
+    "extracted_by": "BrainIR Phase 0 (2026-09-22) from paper v2 Supplementary Tables 3-9 and the authors' repository tables; see research/literature/pugliese_walking_cpg_detailed_notes.md"
+  },
+  "task_as_published": {
+    "stimulus": "tonic step input to ONE DNg100 (the one innervating the LEFT leg neuropils; soma in the right hemisphere)",
+    "readout": "leg motor neurons of the front-leg network; motor rhythmicity score (autocorrelation-based, 0..1), threshold 0.5",
+    "model": "rate model, rectified tanh, W = signed synapse counts (sign from predicted NT: ACh +, GABA/Glu -), global scale b=0.03, gain/threshold normalised by neuron size, randomised biophysical parameters",
+    "search": "stochastic iterative pruning of interneurons (removal prob ~ 1/max rate), 1024 screens per dataset, keep removal if rhythmicity >= 0.5"
+  },
+  "labels": {
+    "E1": {"type": "IN17A001", "nt": "acetylcholine", "role": "excitatory; receives DNg100 input; individually necessary (all 4 datasets)"},
+    "E2": {"type": "INXXX466", "nt": "acetylcholine", "role": "excitatory; strongest target of E1; individually necessary (all 4 datasets)"},
+    "I1": {"type": "IN16B036", "nt": "glutamate", "role": "inhibitory feedback onto E1/E2 (modal partner in MANC only); not individually necessary"},
+    "I2": {"type": "IN19A007", "nt": "gaba", "role": "inhibitory feedback (modal partner in FANC, MaleCNS, BANC); not individually necessary"},
+    "E3": {"type": "IN19B012", "nt": "acetylcholine", "role": "excitatory, contralateral soma; in FANC modal circuit"},
+    "E4": {"type": "IN03A006", "nt": "acetylcholine", "role": "DNb08 pathway"},
+    "E5": {"type": "INXXX464", "nt": "acetylcholine", "role": "DNb08 pathway"}
+  },
+  "minimal_circuits_DNg100_pruning": {
+    "MANC": {"n_screens": 1024, "modal": ["E1", "E2", "I1"], "modal_count": 636,
+             "others": [[["E1", "E3", "E2", "IN13A010", "MNfl10"], 123], [["I2", "E1", "E2"], 102], [["E1", "E3", "E2", "IN13A010"], 33]]},
+    "FANC": {"n_screens": 1024, "modal": ["I2", "E1", "E2", "E3"], "modal_count": 721,
+             "others": [[["I2", "E1", "E5", "E2"], 89], [["IN13A010", "E1", "E2", "E3"], 36], [["E1", "I1", "E2", "E3"], 15]]},
+    "MaleCNS": {"n_screens": 1024, "modal": ["E1", "I2", "E2"], "modal_count": 655,
+                "others": [[["E1", "E2", "I1"], 181], [["E1", "E3", "E2", "IN13A010", "IN19A020"], 61], [["E1", "E3", "E2", "IN13A010"], 22]]},
+    "BANC": {"n_screens": 1024, "modal": ["E2", "E1", "I2"], "modal_count": 681,
+             "others": [[["E2", "E1", "I1"], 231], [["E2", "E1", "E3", "I2"], 36]]},
+    "summary": "E1 and E2 present in essentially all solutions; inhibitory partner I1 or I2 (E1+E2+(I1 or I2) in 3521/4096 = 86.0% of screens)"
+  },
+  "necessity_in_silico": {
+    "E1_silenced": "rhythm abolished in all 4 datasets",
+    "E2_silenced": "rhythm abolished in all 4 datasets",
+    "I1_or_I2_silenced": "rhythm persists (not individually necessary)"
+  },
+  "ids_as_published": {
+    "_note": "IDs are dataset-native and version-specific. MaleCNS IDs come from the authors' extraction dated 2026-02-10 (before MaleCNS v1.0 was released on 2026-06-08, i.e. presumably male-cns:v0.9; version not stated in the paper). T1L = front-left leg copy used in the simulations.",
+    "MANC": {"DNg100_left_VNC": 10093, "DNg100_other": 10339, "E1": 10707, "E2": 11751, "I1": 13905, "I2": 10242, "E3": 10715, "E4": 12021, "E5": 162543},
+    "MaleCNS": {"DNg100_left_VNC": 10056, "DNg100_other": 10045, "E1": 800173, "E2": 800863, "I1": 801884, "I2": 800374, "E3": 800216, "E4": 800663, "E5": 800286,
+                "T1R_copies": {"E1": 800288, "E2": 903216, "I1": 803183, "I2": 800411, "E3": 801061, "E4": 903211, "E5": 800375}},
+    "FANC_supervoxel_ids": {"DNg100_left_VNC": 73115599907537415, "E1": 72834674820722635, "E2": 72975481296715415, "I1": 72905112619913957, "I2": 72483380721505294, "E3": 73820799177797612, "E4": 72624462142676168, "E5": 72905112552773752},
+    "BANC_root_ids": {"DNg100_left_VNC": 720575941500851362, "E1": 720575941504247575, "E2": 720575941469024064, "I1": 720575941544954556, "I2": 720575941569601650, "E3": 720575941542442076, "E4": 720575941481989059, "E5": 720575941571519483}
+  },
+  "signed_counts_as_published": {
+    "_note": "Signed synapse counts pre->post in the simulated networks (MANC/MaleCNS with >=5 floor, VNC synapses only for MaleCNS; FANC/BANC unfloored). Recomputed by the research agent from the authors' matrices.",
+    "edges": ["DNg100->E1", "E1->E2", "E2->E1", "E1->I1", "E2->I1", "I1->E1", "I1->E2", "E1->I2", "E2->I2", "I2->E1", "I2->E2", "E2->E3", "E3->I2"],
+    "MANC":    [187, 539, 19, 17, 71, -531, -172, 80, 231, -387, -101, 470, 274],
+    "FANC":    [200, 241, 12, 2, 29, -369, -93, 56, 145, -241, -42, 312, 225],
+    "MaleCNS": [155, 465, 11, 6, 38, -526, -121, 84, 215, -328, -56, 358, 187],
+    "BANC":    [198, 336, 26, 9, 50, -379, -116, 98, 164, -364, -92, 280, 222]
+  },
+  "wet_lab_status": "No interneuron-level experimental validation (E1/E2/I1/I2 not manipulated in this paper or in Sapkal et al. 2026 follow-up). Only DN-level optogenetics (DNg100: speed/step frequency; DNb08: rhythmic leg movements in decapitated flies)."
+}

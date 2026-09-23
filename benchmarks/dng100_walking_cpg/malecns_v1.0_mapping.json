@@ -1,0 +1,316 @@
+{
+  "dataset": "male-cns:v1.0",
+  "generated_by": "benchmarks/dng100_walking_cpg/investigate_malecns.py",
+  "external_reference": {
+    "repo": "smpuglie/Pugliese_2026",
+    "commit": "10e7661bf414ba7b4c2edf795cd36d0f878c17c0",
+    "files": {
+      "mcns_wtable": "data/imac t1 connectome data/wTable_20260210_vncRoisOnly.csv",
+      "mcns_W": "data/imac t1 connectome data/W_20260210_vncRoisOnly.csv"
+    }
+  },
+  "DNg100": {
+    "ids": [
+      10045,
+      10056
+    ],
+    "innervates_left_legs": 10056,
+    "innervates_right_legs": 10045,
+    "paper_left_vnc_id": 10056,
+    "paper_id_matches_v1.0": true
+  },
+  "readout_leg_motor_neurons": {
+    "definition": "super_class == vnc_motor and sub_class in {fl, ml, hl}",
+    "counts": {
+      "fl_L": 68,
+      "fl_R": 67,
+      "hl_L": 66,
+      "hl_R": 64,
+      "ml_L": 58,
+      "ml_R": 58
+    }
+  },
+  "circuit_neurons": [
+    {
+      "label": "E1",
+      "published_type": "IN17A001",
+      "paper_T1L_id": 800173,
+      "paper_table_type": "IN17A001",
+      "exists_in_v1.0": true,
+      "v1.0_type": "IN17A001",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        800173
+      ],
+      "paper_T1R_id": 800288,
+      "v1.0_T1R_copies": [
+        800288
+      ]
+    },
+    {
+      "label": "E2",
+      "published_type": "INXXX466",
+      "paper_T1L_id": 800863,
+      "paper_table_type": "INXXX466",
+      "exists_in_v1.0": true,
+      "v1.0_type": "INXXX466",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        800863
+      ],
+      "paper_T1R_id": 903216,
+      "v1.0_T1R_copies": [
+        903216
+      ]
+    },
+    {
+      "label": "I1",
+      "published_type": "IN16B036",
+      "paper_T1L_id": 801884,
+      "paper_table_type": "IN16B036",
+      "exists_in_v1.0": true,
+      "v1.0_type": "IN16B036",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        801884
+      ],
+      "paper_T1R_id": 803183,
+      "v1.0_T1R_copies": [
+        803183
+      ]
+    },
+    {
+      "label": "I2",
+      "published_type": "IN19A007",
+      "paper_T1L_id": 800374,
+      "paper_table_type": "IN19A007",
+      "exists_in_v1.0": true,
+      "v1.0_type": "IN19A007",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        800374
+      ],
+      "paper_T1R_id": 800411,
+      "v1.0_T1R_copies": [
+        800411
+      ]
+    },
+    {
+      "label": "E3",
+      "published_type": "IN19B012",
+      "paper_T1L_id": 800216,
+      "paper_table_type": "IN19B012",
+      "exists_in_v1.0": true,
+      "v1.0_type": "IN19B012",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        800216
+      ],
+      "paper_T1R_id": 801061,
+      "v1.0_T1R_copies": [
+        801061
+      ]
+    },
+    {
+      "label": "E4",
+      "published_type": "IN03A006",
+      "paper_T1L_id": 800663,
+      "paper_table_type": "IN03A006",
+      "exists_in_v1.0": true,
+      "v1.0_type": "IN03A006",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        800663
+      ],
+      "paper_T1R_id": 903211,
+      "v1.0_T1R_copies": [
+        903211
+      ]
+    },
+    {
+      "label": "E5",
+      "published_type": "INXXX464",
+      "paper_T1L_id": 800286,
+      "paper_table_type": "INXXX464",
+      "exists_in_v1.0": true,
+      "v1.0_type": "INXXX464",
+      "type_unchanged": true,
+      "v1.0_T1L_copies": [
+        800286
+      ],
+      "paper_T1R_id": 800375,
+      "v1.0_T1R_copies": [
+        800375
+      ]
+    }
+  ],
+  "t1l_members_v1.0": {
+    "DNg100": 10056,
+    "E1": 800173,
+    "E2": 800863,
+    "I1": 801884,
+    "I2": 800374,
+    "E3": 800216,
+    "E4": 800663,
+    "E5": 800286
+  },
+  "t1l_connectivity": [
+    {
+      "edge": "DNg100->E1",
+      "v1.0_pre": 10056,
+      "v1.0_post": 800173,
+      "v1.0_synapses_all": 155,
+      "v1.0_synapses_VNC": 155,
+      "v1.0_signed_VNC": 155,
+      "paper_signed_(answer_key)": 155,
+      "paper_matrix_value": 155.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E1->E2",
+      "v1.0_pre": 800173,
+      "v1.0_post": 800863,
+      "v1.0_synapses_all": 465,
+      "v1.0_synapses_VNC": 465,
+      "v1.0_signed_VNC": 465,
+      "paper_signed_(answer_key)": 465,
+      "paper_matrix_value": 465.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E2->E1",
+      "v1.0_pre": 800863,
+      "v1.0_post": 800173,
+      "v1.0_synapses_all": 11,
+      "v1.0_synapses_VNC": 11,
+      "v1.0_signed_VNC": 11,
+      "paper_signed_(answer_key)": 11,
+      "paper_matrix_value": 11.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E1->I1",
+      "v1.0_pre": 800173,
+      "v1.0_post": 801884,
+      "v1.0_synapses_all": 6,
+      "v1.0_synapses_VNC": 6,
+      "v1.0_signed_VNC": 6,
+      "paper_signed_(answer_key)": 6,
+      "paper_matrix_value": 6.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E2->I1",
+      "v1.0_pre": 800863,
+      "v1.0_post": 801884,
+      "v1.0_synapses_all": 38,
+      "v1.0_synapses_VNC": 38,
+      "v1.0_signed_VNC": 38,
+      "paper_signed_(answer_key)": 38,
+      "paper_matrix_value": 38.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "I1->E1",
+      "v1.0_pre": 801884,
+      "v1.0_post": 800173,
+      "v1.0_synapses_all": 526,
+      "v1.0_synapses_VNC": 526,
+      "v1.0_signed_VNC": -526,
+      "paper_signed_(answer_key)": -526,
+      "paper_matrix_value": -526.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "I1->E2",
+      "v1.0_pre": 801884,
+      "v1.0_post": 800863,
+      "v1.0_synapses_all": 121,
+      "v1.0_synapses_VNC": 121,
+      "v1.0_signed_VNC": -121,
+      "paper_signed_(answer_key)": -121,
+      "paper_matrix_value": -121.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E1->I2",
+      "v1.0_pre": 800173,
+      "v1.0_post": 800374,
+      "v1.0_synapses_all": 84,
+      "v1.0_synapses_VNC": 84,
+      "v1.0_signed_VNC": 84,
+      "paper_signed_(answer_key)": 84,
+      "paper_matrix_value": 84.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E2->I2",
+      "v1.0_pre": 800863,
+      "v1.0_post": 800374,
+      "v1.0_synapses_all": 215,
+      "v1.0_synapses_VNC": 215,
+      "v1.0_signed_VNC": 215,
+      "paper_signed_(answer_key)": 215,
+      "paper_matrix_value": 215.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "I2->E1",
+      "v1.0_pre": 800374,
+      "v1.0_post": 800173,
+      "v1.0_synapses_all": 328,
+      "v1.0_synapses_VNC": 328,
+      "v1.0_signed_VNC": -328,
+      "paper_signed_(answer_key)": -328,
+      "paper_matrix_value": -328.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "I2->E2",
+      "v1.0_pre": 800374,
+      "v1.0_post": 800863,
+      "v1.0_synapses_all": 56,
+      "v1.0_synapses_VNC": 56,
+      "v1.0_signed_VNC": -56,
+      "paper_signed_(answer_key)": -56,
+      "paper_matrix_value": -56.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E2->E3",
+      "v1.0_pre": 800863,
+      "v1.0_post": 800216,
+      "v1.0_synapses_all": 358,
+      "v1.0_synapses_VNC": 358,
+      "v1.0_signed_VNC": 358,
+      "paper_signed_(answer_key)": 358,
+      "paper_matrix_value": 358.0,
+      "abs_diff_VNC_vs_paper": 0
+    },
+    {
+      "edge": "E3->I2",
+      "v1.0_pre": 800216,
+      "v1.0_post": 800374,
+      "v1.0_synapses_all": 187,
+      "v1.0_synapses_VNC": 187,
+      "v1.0_signed_VNC": 187,
+      "paper_signed_(answer_key)": 187,
+      "paper_matrix_value": 187.0,
+      "abs_diff_VNC_vs_paper": 0
+    }
+  ],
+  "recurrence": {
+    "dng100_targets_ge5": 669,
+    "vnc_targets_ge5": 435,
+    "edges_among_vnc_targets_ge5": 3790,
+    "reciprocal_pairs_among_targets": 334,
+    "E1_rank_among_DNg100_targets": 11,
+    "DNg100_share_of_E1_input": 0.017363055897838018
+  },
+  "DNb08": [
+    12044,
+    12075,
+    12189,
+    12550
+  ]
+}

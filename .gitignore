@@ -1,0 +1,80 @@
+# ---------------------------------------------------------------
+# BrainIR .gitignore
+# Principle: code, docs, research notes and small machine-readable
+# manifests are versioned; bulk data, caches, secrets are not.
+# ---------------------------------------------------------------
+
+# ---- Data (bulk, regenerable or downloadable) ----
+data/*
+!data/README.md
+!data/manifests/
+data/manifests/*.tmp
+*.feather
+*.parquet
+*.arrow
+*.ipc
+*.h5
+*.hdf5
+*.npz
+*.npy
+*.zarr/
+*.n5/
+*.swc
+*.partial
+*.parts.json
+# small, reviewed test fixtures are the only exception
+!tests/fixtures/**
+
+# ---- Secrets / credentials / sessions ----
+.env
+.env.*
+!.env.example
+*.token
+*token*.txt
+*.secret
+*secrets*
+*credentials*
+.neuprint*
+neuprint_token*
+*.pem
+*.key
+cookies*.txt
+*.har
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*.so
+*.pyd
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.python-eggs/
+pip-wheel-metadata/
+
+# ---- Tooling caches ----
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.coverage
+.coverage.*
+htmlcov/
+.ipynb_checkpoints/
+.cache/
+*.log
+logs/
+tmp/
+scratch/
+
+# ---- OS / editor ----
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+*.swp
+*~
