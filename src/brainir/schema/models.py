@@ -146,8 +146,9 @@ class Neuron(_Model):
     soma_location_voxels: tuple[int, int, int] | None = None
     status: str | None = None
     status_label: str | None = None
-    is_traced: bool = False
+    is_traced: bool | None = None
     neuprint_neuron_label: bool | None = None
+    role_class: str | None = Field(None, description="Cross-dataset role from super_class (rule brainir.role.v1).")
     n_pre: int | None = None
     n_post: int | None = None
     n_downstream: int | None = None

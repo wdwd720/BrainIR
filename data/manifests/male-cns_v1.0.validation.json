@@ -1,5 +1,5 @@
 {
-  "title": "BrainIR ingestion validation \u2014 male-cns:v1.0",
+  "title": "BrainIR ingestion validation - male-cns:v1.0",
   "summary": {
     "pass": 53,
     "fail": 0,
@@ -11,17 +11,19 @@
     "version": "v1.0",
     "pipeline": "brainir.ingest.malecns@1.0.0",
     "git": {
-      "commit": "3c4ad5eaaad3fe7169f518396a13c9b263e5c4ef",
-      "src_dirty": false,
+      "commit": "b5d956511449c325b0c8e2b15fa4f6ab92b0b54b",
+      "src_dirty": true,
       "pipeline_code": {
-        "combined_sha256": "b665bb38429e1f3ee534f2a920e6721a0e0bb9fd0b698ce1791119cee96f836c",
+        "combined_sha256": "85ce8c98694bef0d76b30ed0d776f0efb8e1f7c09c862d16615b61bb035b2924",
         "files": {
-          "ingest/malecns.py": "6b6a70a6315cf372463201b60db674364d489f499476d9d2edbe48facca8bdbb",
+          "ingest/common.py": "12630e70eb3bfad0b984ec9eead6a6d5089ed55a579d34644cf043501a3b7bb1",
+          "ingest/malecns.py": "35ea4d371889c774758e3be86e205b7bb42cf4ce0e2afc5b3a2430734567e4df",
+          "ingest/manc.py": "18dc22a57906787a39f019f34d5b13e71b724c70db040185aad842e314a59379",
           "io.py": "caef03300a0021f9f05eee4bef7d06b935d1a3d45b2d26d365def931f127d91c",
-          "schema/tables.py": "7e4106787ce340ebcac23fbbbd2e2c06924415bc8f4bc3bf8748343a819a3574",
-          "schema/vocab.py": "9769f006836800d04b9c00aabe9daaa50bb830edf6e6843d4385b462737fcc76",
+          "schema/tables.py": "98dc8ae7dc0b6dcb9789388df4d2a96923ab244b7a1376d2a5c1dbf5d56b7652",
+          "schema/vocab.py": "b6aa8e69db0db034c8bb4b904b2089b3287340352f5fa218d25e62314d2d4ce0",
           "schema/evidence.py": "ea3ec89660d7154d5c4182a10ef48d270e9ead8ad8fc05c03f137ed237bf0407",
-          "sources/registry.py": "bdd55f759c93893bce7993c0bd789a419a5989ebc369c313b524dcadeefbbd6a",
+          "sources/registry.py": "60757139d8433b21b8c0ae7f3aa79a6705e1df23bbeb3d320d8fb090dda9a1d5",
           "validation.py": "2c16125a8ad1ceb30dd6c3e0bd0ac2b807e2eb5be4c5397df8e8d0ffc9773f61",
           "paths.py": "d1605ad6a2a90398bcac987703f3854601f7b57bfb15d600d0419836d3ca1c42"
         }
@@ -1135,7 +1137,7 @@
     {
       "check_id": "directionality.edge_sums_match_neuron_totals",
       "category": "directionality",
-      "description": "For every neuron, sum of outgoing edge weights (all partners) == neuPrint 'downstream' and incoming == 'upstream'. A pre/post swap anywhere would break this.",
+      "description": "For every neuron, sum of outgoing edge weights (all partners) == source 'downstream' and incoming == 'upstream'. A pre/post swap anywhere would break this.",
       "status": "pass",
       "observed": [
         0,
@@ -1153,13 +1155,13 @@
       "description": "Biological polarity sanity check: descending neurons have relatively more output (T-bars) than input in the VNC; ascending neurons the reverse (fraction of neurons consistent, expected > 0.8).",
       "status": "pass",
       "observed": {
-        "descending_neuron": {
-          "n": 1314,
-          "median_frac_pre_in_vnc": 0.6006541644276913,
-          "median_frac_post_in_vnc": 0.042316262128513915,
-          "fraction_consistent": 0.9817351598173516
+        "descending": {
+          "n": 1316,
+          "median_frac_pre_in_vnc": 0.6010911221676876,
+          "median_frac_post_in_vnc": 0.04240162277725485,
+          "fraction_consistent": 0.9810030395136778
         },
-        "ascending_neuron": {
+        "ascending": {
           "n": 1846,
           "median_frac_pre_in_vnc": 0.5149286987522281,
           "median_frac_post_in_vnc": 0.9125877573153348,
@@ -1172,16 +1174,16 @@
     {
       "check_id": "directionality.sensory_motor_polarity",
       "category": "directionality",
-      "description": "Sensory neurons are output-dominated (median output fraction > 0.5) and motor neurons input-dominated.",
+      "description": "Sensory neurons are output-dominated (median output fraction > 0.5) and motor neurons input-dominated (roles from ROLE_RULE_ID).",
       "status": "pass",
       "observed": {
         "vnc_sensory": {
-          "n": 6361,
-          "median_output_fraction": 0.8745019920318725
+          "n": 6389,
+          "median_output_fraction": 0.874741913282863
         },
         "cb_sensory": {
-          "n": 4788,
-          "median_output_fraction": 0.8312365180505497
+          "n": 4801,
+          "median_output_fraction": 0.83125
         },
         "ol_sensory": {
           "n": 6098,

@@ -31,9 +31,21 @@ Rules
 * Rebuild everything from scratch with:
 
   ```
-  uv run brainir acquire --tier metadata --tier core --tier synapses   # ~18.7 GB download, verified
-  uv run brainir ingest                                               # ~10-15 min on 8 cores / 16 GB free RAM
+  uv run brainir acquire --tier metadata --tier core --tier synapses                          # MaleCNS v1.0, ~18.7 GB
+  uv run brainir acquire --dataset manc --version v1.0 --tier metadata --tier core --tier synapses   # MANC v1.0, ~3.0 GB
+  uv run brainir acquire --dataset manc --version v1.2 --tier metadata --tier core            # MANC v1.2, ~1.95 GB
+  uv run brainir ingest                                               # male-cns v1.0, ~8 min on 8 cores / 16 GB free RAM
+  uv run brainir ingest --dataset manc --version v1.0                 # ~40 s
+  uv run brainir ingest --dataset manc --version v1.2.1               # ~50 s (needs raw manc/v1.0 for ROIs + NT)
+  uv run brainir ingest --dataset manc --version v1.2.3               # ~50 s
   ```
+
+* MANC layout: `raw/manc/v1.0/` (neuPrint bulk export) and `raw/manc/v1.2/` (synapse-partner table + neuroglancer
+  annotation snapshots) feed three processed builds, `processed/manc/{v1.0,v1.2.1,v1.2.3}/`. The neuron table of the
+  v1.2.x builds has no proofreading status (null `status`/`is_traced`) and carries body-level NT predictions from
+  v1.0 by body ID; see the manifests' `definitions` for every such choice.
+* `raw/external/` holds third-party derived files (e.g. the authors' matrices of a paper) fetched by benchmark
+  scripts with pinned SHA-256; also git-ignored.
 
 * Schemas (with per-column evidence kind) are defined in `src/brainir/schema/tables.py` and documented
   in `docs/schema.md`.

@@ -40,8 +40,12 @@ from .schema.models import (
     Provenance,
     SignHypothesis,
 )
-from .schema.vocab import SIGN_RULE_ID, sign_for_nt
+from .schema.vocab import SIGN_RULE_ID, role_class_for, sign_for_nt
 from .sources.registry import SOURCES
+
+NT_BASIS_ORDER = ("nt_consensus", "nt_type_prediction", "nt_body_prediction")
+"""Preference order for basis='auto': the source's consensus when it publishes one (MaleCNS), else the cell-type-level
+prediction, else the body-level prediction (MANC)."""
 
 SEARCH_FIELDS = ("cell_type", "instance", "synonyms", "flywire_type", "manc_type", "hemibrain_type")
 _NULLABLE_INTS = {pa.int8(): pd.Int8Dtype(), pa.int16(): pd.Int16Dtype(), pa.int32(): pd.Int32Dtype(),
@@ -84,6 +88,8 @@ class Connectome:
         for c in nt.columns:
             if isinstance(nt[c].dtype, pd.CategoricalDtype):
                 nt[c] = nt[c].astype(object).where(nt[c].notna(), None)
+        # cross-dataset role (rule brainir.role.v1) derived on load from the source's superclass/class vocabulary
+        nt["role_class"] = nt["super_class"].map(role_class_for).astype(object).where(nt["super_class"].notna(), None)
         self.neurons = nt.set_index("source_id", drop=False)
         self.ids = self.neurons.index.to_numpy(dtype=np.int64)  # sorted (written sorted)
         if not np.all(np.diff(self.ids) > 0):
@@ -108,6 +114,17 @@ class Connectome:
     @classmethod
     def open(cls, dataset: str = "male-cns", version: str = "v1.0", **kw) -> Connectome:
         return cls(paths.processed_dir(dataset, version), **kw)
+
+    @property
+    def neuropils(self) -> pd.DataFrame:
+        """ROI catalogue (neuropils.parquet) indexed by name; loaded lazily."""
+        if getattr(self, "_neuropils", None) is None:
+            t = pq.read_table(self.dir / "neuropils.parquet").to_pandas(types_mapper=_NULLABLE_INTS.get)
+            for c in t.columns:
+                if isinstance(t[c].dtype, pd.CategoricalDtype):
+                    t[c] = t[c].astype(object).where(t[c].notna(), None)
+            self._neuropils = t.set_index("name", drop=False)
+        return self._neuropils
 
     def _index(self, ids: np.ndarray) -> np.ndarray:
         idx = np.searchsorted(self.ids, ids)
@@ -240,8 +257,12 @@ class Connectome:
                 "nt_type_prediction", "nt_type_confidence", "nt_type_n_tbars", "nt_literature_label"]
         return self.neurons.loc[_ids(ids), cols]
 
-    def sign_hypothesis(self, source_id: int, basis: str = "nt_consensus") -> SignHypothesis | None:
+    def sign_hypothesis(self, source_id: int, basis: str = "auto") -> SignHypothesis | None:
+        """Excitatory/inhibitory hypothesis for a neuron under SIGN_RULE_ID. ``basis`` names the NT field to use, or
+        'auto' = first non-null of NT_BASIS_ORDER (the field actually used is recorded in ``based_on_field``)."""
         row = self.neuron(source_id)
+        if basis == "auto":
+            basis = next((b for b in NT_BASIS_ORDER if row.get(b) is not None), NT_BASIS_ORDER[0])
         nt = row.get(basis)
         rule = sign_for_nt(nt)
         if rule is None:
@@ -255,13 +276,14 @@ class Connectome:
         return SignHypothesis(sign=rule.sign, rule_id=SIGN_RULE_ID, rule_class=rule.rule_class, based_on_nt=nt,
                               based_on_field=basis, nt_confidence=None if conf is None else float(conf))
 
-    def sign_table(self, ids: Iterable[int], basis: str = "nt_consensus") -> pd.DataFrame:
+    def sign_table(self, ids: Iterable[int], basis: str = "auto") -> pd.DataFrame:
         rows = []
         for i in _ids(ids):
             h = self.sign_hypothesis(int(i), basis)
             rows.append({"source_id": int(i), "sign": None if h is None else h.sign,
                          "rule_class": None if h is None else h.rule_class,
                          "based_on_nt": None if h is None else h.based_on_nt,
+                         "based_on_field": None if h is None else h.based_on_field,
                          "nt_confidence": None if h is None else h.nt_confidence, "rule_id": SIGN_RULE_ID})
         return pd.DataFrame(rows)
 
@@ -338,15 +360,23 @@ class Connectome:
         if src is not None and self.dataset == "male-cns":
             morph.append(MorphologyRef(kind="skeleton_swc", coordinate_space="male-cns EM", units="8nm voxels",
                                        uri=f"gs://{src.bucket}/{self.version}/segmentation/skeletons-malecns/skeletons-swc/{source_id}.swc"))
+        elif self.dataset == "manc" and self.version.startswith("v1.2"):
+            morph.append(MorphologyRef(kind="skeleton_precomputed", coordinate_space="manc EM", units="8nm voxels",
+                                       uri=f"gs://manc-seg-v1p2/manc-seg-v1.2/skeleton/{source_id}"))
         soma = (r["soma_x"], r["soma_y"], r["soma_z"])
+
+        def opt_bool(v):
+            return None if v is None or v is pd.NA else bool(v)
+
         return Neuron(
             neuron_uid=r["neuron_uid"], dataset=r["dataset"], dataset_version=r["dataset_version"], source_id=r["source_id"],
-            cell_type=r["cell_type"], instance=r["instance"], super_class=r["super_class"], cell_class=r["cell_class"],
+            cell_type=r["cell_type"], instance=r["instance"], super_class=r["super_class"], role_class=r.get("role_class"),
+            cell_class=r["cell_class"],
             sub_class=r["sub_class"], hemilineage_ito_lee=r["hemilineage_ito_lee"], hemilineage_truman=r["hemilineage_truman"],
             animal_sex=r["animal_sex"], soma_side=r["soma_side"], root_side=r["root_side"], side=r["side"],
             soma_neuromere=r["soma_neuromere"], soma_location_voxels=None if None in soma else tuple(int(v) for v in soma),
-            status=r["status"], status_label=r["status_label"], is_traced=bool(r["is_traced"]),
-            neuprint_neuron_label=bool(r["neuprint_neuron_label"]), n_pre=r["n_pre"], n_post=r["n_post"],
+            status=r["status"], status_label=r["status_label"], is_traced=opt_bool(r["is_traced"]),
+            neuprint_neuron_label=opt_bool(r["neuprint_neuron_label"]), n_pre=r["n_pre"], n_post=r["n_post"],
             n_downstream=r["n_downstream"], n_upstream=r["n_upstream"],
             neurotransmitter=NeurotransmitterPrediction(
                 consensus=r["nt_consensus"], body_prediction=r["nt_body_prediction"], body_confidence=r["nt_body_confidence"],

@@ -1,0 +1,484 @@
+{
+  "external_reference": {
+    "repo": "smpuglie/Pugliese_2026",
+    "commit": "10e7661bf414ba7b4c2edf795cd36d0f878c17c0",
+    "files": {
+      "t1_W": "data/manc t1 connectome data/W_20250813_DNtoMN_unsorted.csv",
+      "t1_wtable": "data/manc t1 connectome data/wTable_20250813_DNtoMN_unsorted_withModules.csv",
+      "full_W": "data/manc full vnc data/W_20251006.feather",
+      "full_wtable": "data/manc full vnc data/wTable_20251006.feather",
+      "mcns_wtable": "data/imac t1 connectome data/wTable_20260210_vncRoisOnly.csv",
+      "mcns_W": "data/imac t1 connectome data/W_20260210_vncRoisOnly.csv"
+    }
+  },
+  "floor": 5,
+  "comparisons": [
+    {
+      "network": "t1_2025-08-13",
+      "brainir_dataset": "manc:v1.2.1",
+      "roi_restrict": null,
+      "neurons": {
+        "authors": 4604,
+        "present_in_brainir": 4604,
+        "missing": [],
+        "n_missing": 0
+      },
+      "pairs": {
+        "authors": 196535,
+        "brainir_ge_floor": 196536,
+        "both": 196535,
+        "only_authors": 0,
+        "only_brainir": 1,
+        "exact_count_match": 196535,
+        "exact_fraction_of_both": 1.0,
+        "count_diff_distribution": {
+          "0.0": 196535
+        },
+        "abs_diff_gt_1": 0,
+        "total_synapses_authors": 3817772,
+        "total_synapses_brainir": 3817784,
+        "only_authors_our_raw_count_hist": {},
+        "only_brainir_count_hist": {
+          "12": 1
+        }
+      },
+      "signs": {
+        "paper_rule_on_authors_predictedNt": {
+          "rows_compared": 4456,
+          "agree": 4456,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_body_prediction": {
+          "rows_compared": 4456,
+          "agree": 4431,
+          "fraction": 0.9944
+        }
+      }
+    },
+    {
+      "network": "t1_2025-08-13",
+      "brainir_dataset": "manc:v1.2.3",
+      "roi_restrict": null,
+      "neurons": {
+        "authors": 4604,
+        "present_in_brainir": 4604,
+        "missing": [],
+        "n_missing": 0
+      },
+      "pairs": {
+        "authors": 196535,
+        "brainir_ge_floor": 196536,
+        "both": 196535,
+        "only_authors": 0,
+        "only_brainir": 1,
+        "exact_count_match": 196535,
+        "exact_fraction_of_both": 1.0,
+        "count_diff_distribution": {
+          "0.0": 196535
+        },
+        "abs_diff_gt_1": 0,
+        "total_synapses_authors": 3817772,
+        "total_synapses_brainir": 3817784,
+        "only_authors_our_raw_count_hist": {},
+        "only_brainir_count_hist": {
+          "12": 1
+        }
+      },
+      "signs": {
+        "paper_rule_on_authors_predictedNt": {
+          "rows_compared": 4456,
+          "agree": 4456,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_body_prediction": {
+          "rows_compared": 4456,
+          "agree": 4431,
+          "fraction": 0.9944
+        },
+        "brainir.sign.conventional-v1 on nt_type_prediction": {
+          "rows_compared": 4456,
+          "agree": 4321,
+          "fraction": 0.9697
+        }
+      }
+    },
+    {
+      "network": "t1_2025-08-13",
+      "brainir_dataset": "manc:v1.0",
+      "roi_restrict": null,
+      "neurons": {
+        "authors": 4604,
+        "present_in_brainir": 4582,
+        "missing": [
+          15991,
+          25512,
+          32184,
+          49786,
+          68749,
+          80826,
+          88721,
+          94327,
+          101519,
+          102239,
+          102415,
+          102416,
+          102845,
+          103884,
+          147826,
+          150656,
+          153401,
+          155727,
+          190108,
+          196644,
+          205335,
+          45389356381
+        ],
+        "n_missing": 22
+      },
+      "pairs": {
+        "authors": 196535,
+        "brainir_ge_floor": 196021,
+        "both": 196020,
+        "only_authors": 515,
+        "only_brainir": 1,
+        "exact_count_match": 196018,
+        "exact_fraction_of_both": 0.99999,
+        "count_diff_distribution": {
+          "-1.0": 2,
+          "0.0": 196018
+        },
+        "abs_diff_gt_1": 0,
+        "total_synapses_authors": 3817772,
+        "total_synapses_brainir": 3811466,
+        "only_authors_our_raw_count_hist": {
+          "0": 515
+        },
+        "only_brainir_count_hist": {
+          "12.0": 1
+        }
+      },
+      "signs": {
+        "paper_rule_on_authors_predictedNt": {
+          "rows_compared": 4456,
+          "agree": 4456,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_body_prediction": {
+          "rows_compared": 4434,
+          "agree": 4409,
+          "fraction": 0.9944
+        }
+      }
+    },
+    {
+      "network": "full_2025-10-06",
+      "brainir_dataset": "manc:v1.2.3",
+      "roi_restrict": null,
+      "neurons": {
+        "authors": 23532,
+        "present_in_brainir": 23532,
+        "missing": [],
+        "n_missing": 0
+      },
+      "pairs": {
+        "authors": 1372404,
+        "brainir_ge_floor": 1372412,
+        "both": 1372404,
+        "only_authors": 0,
+        "only_brainir": 8,
+        "exact_count_match": 1372404,
+        "exact_fraction_of_both": 1.0,
+        "count_diff_distribution": {
+          "0.0": 1372404
+        },
+        "abs_diff_gt_1": 0,
+        "total_synapses_authors": 24149548,
+        "total_synapses_brainir": 24149609,
+        "only_authors_our_raw_count_hist": {},
+        "only_brainir_count_hist": {
+          "5": 1,
+          "6": 3,
+          "8": 2,
+          "10": 1,
+          "12": 1
+        }
+      },
+      "signs": {
+        "paper_rule_on_authors_predictedNt": {
+          "rows_compared": 22769,
+          "agree": 22769,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_body_prediction": {
+          "rows_compared": 22769,
+          "agree": 22595,
+          "fraction": 0.9924
+        },
+        "brainir.sign.conventional-v1 on nt_type_prediction": {
+          "rows_compared": 22769,
+          "agree": 21275,
+          "fraction": 0.9344
+        }
+      }
+    },
+    {
+      "network": "full_2025-10-06",
+      "brainir_dataset": "manc:v1.2.1",
+      "roi_restrict": null,
+      "neurons": {
+        "authors": 23532,
+        "present_in_brainir": 23510,
+        "missing": [
+          38148,
+          42683,
+          44461,
+          47109,
+          47439,
+          49732,
+          50201,
+          51924,
+          53732,
+          62688,
+          66425,
+          78726,
+          86156,
+          109912,
+          113393,
+          129004,
+          156915,
+          163093,
+          171968,
+          199616,
+          21560012279,
+          40077666240
+        ],
+        "n_missing": 22
+      },
+      "pairs": {
+        "authors": 1372404,
+        "brainir_ge_floor": 1372186,
+        "both": 1372178,
+        "only_authors": 226,
+        "only_brainir": 8,
+        "exact_count_match": 1372178,
+        "exact_fraction_of_both": 1.0,
+        "count_diff_distribution": {
+          "0.0": 1372178
+        },
+        "abs_diff_gt_1": 0,
+        "total_synapses_authors": 24149548,
+        "total_synapses_brainir": 24147604,
+        "only_authors_our_raw_count_hist": {
+          "0": 226
+        },
+        "only_brainir_count_hist": {
+          "5.0": 1,
+          "6.0": 3,
+          "8.0": 2,
+          "10.0": 1,
+          "12.0": 1
+        }
+      },
+      "signs": {
+        "paper_rule_on_authors_predictedNt": {
+          "rows_compared": 22769,
+          "agree": 22769,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_body_prediction": {
+          "rows_compared": 22748,
+          "agree": 22574,
+          "fraction": 0.9924
+        }
+      }
+    },
+    {
+      "network": "mcns_t1_2026-02-10",
+      "brainir_dataset": "male-cns:v1.0",
+      "roi_restrict": [
+        "ADMN(L)",
+        "ADMN(R)",
+        "ANm",
+        "AbN1(L)",
+        "AbN1(R)",
+        "AbN2(L)",
+        "AbN2(R)",
+        "AbN3(L)",
+        "AbN3(R)",
+        "AbN4(L)",
+        "AbN4(R)",
+        "AbNT(L)",
+        "AbNT(R)",
+        "CvN(L)",
+        "CvN(R)",
+        "DMetaN(L)",
+        "DMetaN(R)",
+        "DProN(L)",
+        "DProN(R)",
+        "HTct(UTct-T3)(L)",
+        "HTct(UTct-T3)(R)",
+        "IntTct",
+        "LTct",
+        "LegNp(T1)(L)",
+        "LegNp(T1)(R)",
+        "LegNp(T2)(L)",
+        "LegNp(T2)(R)",
+        "LegNp(T3)(L)",
+        "LegNp(T3)(R)",
+        "MesoAN(L)",
+        "MesoAN(R)",
+        "MesoLN(L)",
+        "MesoLN(R)",
+        "MetaLN(L)",
+        "MetaLN(R)",
+        "NTct(UTct-T1)(L)",
+        "NTct(UTct-T1)(R)",
+        "Ov(L)",
+        "Ov(R)",
+        "PDMN(L)",
+        "PDMN(R)",
+        "PrN(L)",
+        "PrN(R)",
+        "ProAN(L)",
+        "ProAN(R)",
+        "ProCN(L)",
+        "ProCN(R)",
+        "ProLN(L)",
+        "ProLN(R)",
+        "VNC-unspecified",
+        "VProN(L)",
+        "VProN(R)",
+        "WTct(UTct-T2)(L)",
+        "WTct(UTct-T2)(R)",
+        "mVAC(T1)(L)",
+        "mVAC(T1)(R)",
+        "mVAC(T2)(L)",
+        "mVAC(T2)(R)",
+        "mVAC(T3)(L)",
+        "mVAC(T3)(R)"
+      ],
+      "neurons": {
+        "authors": 4310,
+        "present_in_brainir": 4309,
+        "missing": [
+          825433
+        ],
+        "n_missing": 1
+      },
+      "pairs": {
+        "authors": 118920,
+        "brainir_ge_floor": 119977,
+        "both": 118680,
+        "only_authors": 240,
+        "only_brainir": 1297,
+        "exact_count_match": 118488,
+        "exact_fraction_of_both": 0.998382,
+        "count_diff_distribution": {
+          "-233.0": 1,
+          "-155.0": 1,
+          "-145.0": 1,
+          "-101.0": 1,
+          "-64.0": 1,
+          "-46.0": 1,
+          "-38.0": 1,
+          "-37.0": 1,
+          "-36.0": 1,
+          "-35.0": 3,
+          "-33.0": 1,
+          "-31.0": 1,
+          "-30.0": 1,
+          "-26.0": 1,
+          "-17.0": 1,
+          "-16.0": 2,
+          "-14.0": 1,
+          "-13.0": 2,
+          "-12.0": 1,
+          "-10.0": 2,
+          "-9.0": 1,
+          "-8.0": 2,
+          "-7.0": 1,
+          "-6.0": 2,
+          "-5.0": 3,
+          "-4.0": 4,
+          "-3.0": 5,
+          "-2.0": 9,
+          "-1.0": 21,
+          "0.0": 118488
+        },
+        "abs_diff_gt_1": 122,
+        "total_synapses_authors": 2190257,
+        "total_synapses_brainir": 2196924,
+        "only_authors_our_raw_count_hist": {
+          "0": 159,
+          "1": 34,
+          "2": 15,
+          "3": 22,
+          "4": 10
+        },
+        "only_brainir_count_hist": {
+          "5.0": 363,
+          "6.0": 274,
+          "7.0": 150,
+          "8.0": 122,
+          "9.0": 66,
+          "10.0": 45,
+          "11.0": 50,
+          "12.0": 35,
+          "13.0": 25,
+          "14.0": 20,
+          "15.0": 20,
+          "16.0": 19,
+          "17.0": 12,
+          "18.0": 9,
+          "19.0": 8,
+          "20.0": 7,
+          "21.0": 10,
+          "22.0": 6,
+          "23.0": 8,
+          "24.0": 5
+        }
+      },
+      "signs": {
+        "paper_rule_on_authors_consensusNt": {
+          "rows_compared": 4068,
+          "agree": 4068,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_consensus": {
+          "rows_compared": 4068,
+          "agree": 4068,
+          "fraction": 1.0
+        },
+        "brainir.sign.conventional-v1 on nt_body_prediction": {
+          "rows_compared": 4068,
+          "agree": 4040,
+          "fraction": 0.9931
+        }
+      }
+    }
+  ],
+  "authors_networks": {
+    "t1_2025-08-13": {
+      "neurons": 4604,
+      "pairs": 196535,
+      "total_synapses": 3817772,
+      "predictedNt": {
+        "acetylcholine": 2419,
+        "glutamate": 1095,
+        "gaba": 1077,
+        "unknown": 9,
+        "unclear": 4
+      }
+    },
+    "full_2025-10-06": {
+      "neurons": 23532,
+      "pairs": 1372404,
+      "total_synapses": 24149548
+    },
+    "mcns_t1_2026-02-10": {
+      "neurons": 4310,
+      "pairs": 118920,
+      "total_synapses": 2190257
+    }
+  }
+}

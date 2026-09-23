@@ -1,7 +1,8 @@
 {
-  "manifest_schema_version": "1.0",
+  "manifest_schema_version": "1.1",
   "dataset": "male-cns",
   "version": "v1.0",
+  "source_version": "v1.0",
   "neuprint_dataset": "male-cns:v1.0",
   "neuprint_server": "https://neuprint.janelia.org",
   "animal": {
@@ -9,6 +10,14 @@
     "sex": "male",
     "n_animals": 1,
     "cns_coverage": "entire CNS: central brain, both optic lobes, ventral nerve cord (VNC)"
+  },
+  "coordinates": {
+    "space": "male-cns v1.0 EM space",
+    "voxel_size_nm": [
+      8.0,
+      8.0,
+      8.0
+    ]
   },
   "release": {
     "date": "2026-06-08",
@@ -953,7 +962,8 @@
           }
         ]
       }
-    ]
+    ],
+    "secondary_sources": []
   },
   "definitions": {
     "neuron": "body with non-null superclass (Berg et al. Methods: 'Bodies in the dataset are defined as neurons if they have a superclass. Bodies without one are fragments of neurons.')",
@@ -971,7 +981,7 @@
     },
     {
       "step": "neuropils",
-      "code_ref": "brainir.ingest.malecns.build_neuropils",
+      "code_ref": "brainir.ingest.common.build_neuropils",
       "description": "ROI catalogue from the neuPrint :Meta roiHierarchy/roiInfo; primary ROIs = neuPrint primaryRois."
     },
     {
@@ -991,7 +1001,7 @@
     },
     {
       "step": "connections",
-      "code_ref": "brainir.ingest.malecns.scan_connections",
+      "code_ref": "brainir.ingest.common.scan_connections",
       "description": "neuPrint :ConnectsTo table filtered to neuron->neuron pairs; weight -> synapse_count, weightHP -> synapse_count_hp; weightHR dropped only if identical to weight (validated). Autapses kept and flagged. Edge roiInfo (postsynaptic location) exploded to primary ROIs with an '<unassigned>' remainder so per-edge neuropil counts sum exactly to synapse_count."
     },
     {
@@ -1001,8 +1011,8 @@
     },
     {
       "step": "validate",
-      "code_ref": "brainir.ingest.malecns (checks) + brainir.validation",
-      "description": "IDs, uniqueness, duplicates, referential integrity, edge values, type/schema conformance, annotation coverage, directionality (exact edge-sum conservation + biological polarity), graph statistics, provenance, cross-source agreement (flat vs neuPrint exports), synapse-level recomputation on a seeded random neuron sample."
+      "code_ref": "brainir.ingest.common (checks) + adapter checks + brainir.validation",
+      "description": "IDs, uniqueness, duplicates, referential integrity, edge values, type/schema conformance, annotation coverage, directionality (exact edge-sum conservation + biological polarity), graph statistics, provenance, cross-source agreement between independent official exports, synapse-level recomputation on a seeded random neuron sample."
     },
     {
       "step": "write",
@@ -1013,8 +1023,8 @@
   "processed_outputs": {
     "neurons": {
       "path": "$DATA/processed/male-cns/v1.0/neurons.parquet",
-      "size_bytes": 8700596,
-      "sha256": "adc6b994a39d1d1e9a07cdea770a680e9a300934261d9f0f6a82b9a5dd2d79a8",
+      "size_bytes": 8700949,
+      "sha256": "b12ad0028356880d5946daa99008678d748783182b2857d2930f518552ea267f",
       "rows": 166700,
       "schema": [
         {
@@ -1177,16 +1187,16 @@
         {
           "name": "is_traced",
           "type": "bool",
-          "nullable": false,
+          "nullable": true,
           "evidence": "derived_anatomy",
-          "description": "status == 'Traced' (statusLabel >= 'Leaves')."
+          "description": "status == 'Traced' (statusLabel >= 'Leaves'). Null when the source build carries no proofreading status (MANC v1.2.x annotation snapshots)."
         },
         {
           "name": "neuprint_neuron_label",
           "type": "bool",
-          "nullable": false,
+          "nullable": true,
           "evidence": "curated_annotation",
-          "description": "Body carries the neuPrint :Neuron label (neuPrint's own, broader node criterion)."
+          "description": "Body carries the neuPrint :Neuron label (neuPrint's own, broader node criterion). Null when the build was not made from a neuPrint export."
         },
         {
           "name": "n_pre",
@@ -1365,7 +1375,7 @@
     "connections": {
       "path": "$DATA/processed/male-cns/v1.0/connections.parquet",
       "size_bytes": 105805005,
-      "sha256": "fd2a1054b76bdb34253be3538f6c4138460d307b73a030bba1d1ae0855ce8dea",
+      "sha256": "741860dbdc2730d05bf878851ef2b5198ba94c3a23f9112edc3d0d85918b073e",
       "rows": 25582938,
       "schema": [
         {
@@ -1433,7 +1443,7 @@
     "connection_neuropils": {
       "path": "$DATA/processed/male-cns/v1.0/connection_neuropils.parquet",
       "size_bytes": 94067666,
-      "sha256": "6b99353d0260cb43325d2407ac3bfb07cbbc4fe02a1495f443afbcad4004dc21",
+      "sha256": "34022607b453edad974c39ad526eaebc29bd70a958d8b68f023ad6e2a110647a",
       "rows": 29456389,
       "schema": [
         {
@@ -1470,7 +1480,7 @@
     "neuron_neuropils": {
       "path": "$DATA/processed/male-cns/v1.0/neuron_neuropils.parquet",
       "size_bytes": 2955258,
-      "sha256": "27abfe38f276068ba77436b4e7317275d295597aa98edb0fc6634b0953a57788",
+      "sha256": "5658e72f20fd565c510bd1b7319ad97d1da2e1e53d4fea3d59e64d0239fe0689",
       "rows": 661997,
       "schema": [
         {
@@ -1508,7 +1518,7 @@
     "neuropils": {
       "path": "$DATA/processed/male-cns/v1.0/neuropils.parquet",
       "size_bytes": 63861,
-      "sha256": "1bb013b47d4c89493679a6b99626d1b4a3506b834e0dddf9ba4311d59495bd0f",
+      "sha256": "1f9eb8887ea34891c875373fe0c853a9bcf6f5c740c2edee1abb06603830dd87",
       "rows": 5632,
       "schema": [
         {
@@ -2030,24 +2040,26 @@
     "pipeline": "brainir.ingest.malecns",
     "pipeline_version": "1.0.0",
     "brainir_version": "0.0.1",
-    "schema_version": "0.1.0",
+    "schema_version": "0.2.0",
     "config": {
       "synapse_checks": true,
       "synapse_sample_neurons": 300,
       "seed": 20260922
     },
     "git": {
-      "commit": "3c4ad5eaaad3fe7169f518396a13c9b263e5c4ef",
-      "src_dirty": false,
+      "commit": "b5d956511449c325b0c8e2b15fa4f6ab92b0b54b",
+      "src_dirty": true,
       "pipeline_code": {
-        "combined_sha256": "b665bb38429e1f3ee534f2a920e6721a0e0bb9fd0b698ce1791119cee96f836c",
+        "combined_sha256": "85ce8c98694bef0d76b30ed0d776f0efb8e1f7c09c862d16615b61bb035b2924",
         "files": {
-          "ingest/malecns.py": "6b6a70a6315cf372463201b60db674364d489f499476d9d2edbe48facca8bdbb",
+          "ingest/common.py": "12630e70eb3bfad0b984ec9eead6a6d5089ed55a579d34644cf043501a3b7bb1",
+          "ingest/malecns.py": "35ea4d371889c774758e3be86e205b7bb42cf4ce0e2afc5b3a2430734567e4df",
+          "ingest/manc.py": "18dc22a57906787a39f019f34d5b13e71b724c70db040185aad842e314a59379",
           "io.py": "caef03300a0021f9f05eee4bef7d06b935d1a3d45b2d26d365def931f127d91c",
-          "schema/tables.py": "7e4106787ce340ebcac23fbbbd2e2c06924415bc8f4bc3bf8748343a819a3574",
-          "schema/vocab.py": "9769f006836800d04b9c00aabe9daaa50bb830edf6e6843d4385b462737fcc76",
+          "schema/tables.py": "98dc8ae7dc0b6dcb9789388df4d2a96923ab244b7a1376d2a5c1dbf5d56b7652",
+          "schema/vocab.py": "b6aa8e69db0db034c8bb4b904b2089b3287340352f5fa218d25e62314d2d4ce0",
           "schema/evidence.py": "ea3ec89660d7154d5c4182a10ef48d270e9ead8ad8fc05c03f137ed237bf0407",
-          "sources/registry.py": "bdd55f759c93893bce7993c0bd789a419a5989ebc369c313b524dcadeefbbd6a",
+          "sources/registry.py": "60757139d8433b21b8c0ae7f3aa79a6705e1df23bbeb3d320d8fb090dda9a1d5",
           "validation.py": "2c16125a8ad1ceb30dd6c3e0bd0ac2b807e2eb5be4c5397df8e8d0ffc9773f61",
           "paths.py": "d1605ad6a2a90398bcac987703f3854601f7b57bfb15d600d0419836d3ca1c42"
         }
@@ -2062,19 +2074,19 @@
       "numpy": "2.5.3"
     },
     "timings_s": {
-      "acquisition_check": 0.01,
+      "acquisition_check": 0.0,
       "meta_neuropils": 0.06,
-      "annotations": 0.32,
-      "neurotransmitters": 0.78,
-      "neuprint_neurons_scan": 13.26,
-      "neuron_crosschecks": 1.75,
-      "neuron_neuropils": 2.81,
-      "connections": 253.19,
-      "flat_crosscheck": 49.25,
-      "synapse_checks": 40.72,
-      "assemble_validate": 11.62,
-      "write_outputs": 40.4
+      "annotations": 0.27,
+      "neurotransmitters": 0.71,
+      "neuprint_neurons_scan": 11.77,
+      "neuron_crosschecks": 0.87,
+      "neuron_neuropils": 1.76,
+      "connections": 180.18,
+      "flat_crosscheck": 41.21,
+      "synapse_checks": 21.5,
+      "assemble_validate": 7.13,
+      "write_outputs": 23.46
     },
-    "total_s": 425.8
+    "total_s": 296.1
   }
 }

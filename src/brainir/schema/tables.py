@@ -22,7 +22,7 @@ import pyarrow as pa
 
 from .evidence import EvidenceKind as E
 
-SCHEMA_VERSION = "0.1.0"
+SCHEMA_VERSION = "0.2.0"  # 0.2.0: is_traced / neuprint_neuron_label nullable (MANC v1.2.x builds); 'unknown' NT value
 
 
 @dataclass(frozen=True)
@@ -99,9 +99,12 @@ NEURONS = TableSpec(
         Col("animal_sex", DSTR, E.PROVENANCE, "Sex of the imaged animal (dataset-level fact).", False),
         Col("status", DSTR, E.CURATED_ANNOTATION, "neuPrint proofreading status (Traced/Anchor/Orphan/Assign/...)."),
         Col("status_label", DSTR, E.CURATED_ANNOTATION, "Fine-grained DVID status label (e.g. 'Roughly traced')."),
-        Col("is_traced", pa.bool_(), E.DERIVED_ANATOMY, "status == 'Traced' (statusLabel >= 'Leaves').", False),
+        Col("is_traced", pa.bool_(), E.DERIVED_ANATOMY,
+            "status == 'Traced' (statusLabel >= 'Leaves'). Null when the source build carries no proofreading status "
+            "(MANC v1.2.x annotation snapshots)."),
         Col("neuprint_neuron_label", pa.bool_(), E.CURATED_ANNOTATION,
-            "Body carries the neuPrint :Neuron label (neuPrint's own, broader node criterion).", False),
+            "Body carries the neuPrint :Neuron label (neuPrint's own, broader node criterion). Null when the build was "
+            "not made from a neuPrint export."),
         Col("n_pre", pa.int32(), E.EM_RECONSTRUCTION, "Presynaptic sites (T-bars) with confidence >= threshold.", unit="count"),
         Col("n_post", pa.int32(), E.EM_RECONSTRUCTION, "Postsynaptic densities (PSDs) with confidence >= threshold.", unit="count"),
         Col("n_downstream", pa.int64(), E.EM_RECONSTRUCTION, "Outgoing synaptic connections (T-bar->PSD pairs) to ANY segment.", unit="count"),

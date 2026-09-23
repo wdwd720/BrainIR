@@ -1,0 +1,1205 @@
+{
+  "title": "BrainIR ingestion validation - manc:v1.0",
+  "summary": {
+    "pass": 48,
+    "fail": 0,
+    "warn": 3,
+    "info": 26
+  },
+  "context": {
+    "dataset": "manc",
+    "version": "v1.0",
+    "pipeline": "brainir.ingest.manc@1.0.0",
+    "git": {
+      "commit": "b5d956511449c325b0c8e2b15fa4f6ab92b0b54b",
+      "src_dirty": true,
+      "pipeline_code": {
+        "combined_sha256": "85ce8c98694bef0d76b30ed0d776f0efb8e1f7c09c862d16615b61bb035b2924",
+        "files": {
+          "ingest/common.py": "12630e70eb3bfad0b984ec9eead6a6d5089ed55a579d34644cf043501a3b7bb1",
+          "ingest/malecns.py": "35ea4d371889c774758e3be86e205b7bb42cf4ce0e2afc5b3a2430734567e4df",
+          "ingest/manc.py": "18dc22a57906787a39f019f34d5b13e71b724c70db040185aad842e314a59379",
+          "io.py": "caef03300a0021f9f05eee4bef7d06b935d1a3d45b2d26d365def931f127d91c",
+          "schema/tables.py": "98dc8ae7dc0b6dcb9789388df4d2a96923ab244b7a1376d2a5c1dbf5d56b7652",
+          "schema/vocab.py": "b6aa8e69db0db034c8bb4b904b2089b3287340352f5fa218d25e62314d2d4ce0",
+          "schema/evidence.py": "ea3ec89660d7154d5c4182a10ef48d270e9ead8ad8fc05c03f137ed237bf0407",
+          "sources/registry.py": "60757139d8433b21b8c0ae7f3aa79a6705e1df23bbeb3d320d8fb090dda9a1d5",
+          "validation.py": "2c16125a8ad1ceb30dd6c3e0bd0ac2b807e2eb5be4c5397df8e8d0ffc9773f61",
+          "paths.py": "d1605ad6a2a90398bcac987703f3854601f7b57bfb15d600d0419836d3ca1c42"
+        }
+      }
+    }
+  },
+  "checks": [
+    {
+      "check_id": "provenance.acquisition_dataset",
+      "category": "provenance",
+      "description": "Acquisition log dataset/version match the registry.",
+      "status": "pass",
+      "observed": [
+        "manc",
+        "v1.0"
+      ],
+      "expected": [
+        "manc",
+        "v1.0"
+      ],
+      "details": {}
+    },
+    {
+      "check_id": "provenance.raw_inputs_verified",
+      "category": "provenance",
+      "description": "Every raw input exists, has the pinned size, and its recorded checksums match registry pins (CRC32C for all, MD5 where available, GCS generation).",
+      "status": "pass",
+      "observed": "all ok",
+      "expected": true,
+      "details": {
+        "inputs": [
+          "neuprint_meta",
+          "neuron_properties",
+          "neuprint_neurons",
+          "neuprint_connections",
+          "traced_neurons",
+          "traced_connections",
+          "traced_connections_per_roi",
+          "syn_partners"
+        ]
+      }
+    },
+    {
+      "check_id": "provenance.meta_dataset_tag",
+      "category": "provenance",
+      "description": "neuPrint :Meta dataset/tag equal the expected dataset/version (no cross-version mixing).",
+      "status": "pass",
+      "observed": [
+        "manc",
+        "v1.0"
+      ],
+      "expected": [
+        "manc",
+        "v1.0"
+      ],
+      "details": {}
+    },
+    {
+      "check_id": "provenance.meta_identity",
+      "category": "provenance",
+      "description": "neuPrint snapshot identity (DVID uuid, mutation id, last edit).",
+      "status": "info",
+      "observed": {
+        "uuid": "59b37970bc7a4341b9a3a965a0d6b402",
+        "latestMutationId": 1000097500,
+        "lastDatabaseEdit": "2023-05-02 23:54:01"
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "provenance.synapse_thresholds",
+      "category": "provenance",
+      "description": "Synapse confidence thresholds declared by the neuPrint Meta (informational; the effective rule is inferred from the data, see synapses.inferred_count_rule).",
+      "status": "info",
+      "observed": {
+        "postHighAccuracyThreshold": 0.4,
+        "preHPThreshold": 0.7,
+        "postHPThreshold": 0.7
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "neuropils.hierarchy_is_dag",
+      "category": "uniqueness",
+      "description": "ROIs listed under more than one parent in the source hierarchy (merged into one row each; 'parent' = roiInfo parent, 'all_parents' keeps every parent).",
+      "status": "info",
+      "observed": 0,
+      "expected": null,
+      "details": {
+        "multi_parent_rois": {}
+      }
+    },
+    {
+      "check_id": "neuropils.top_level_region_consistent",
+      "category": "uniqueness",
+      "description": "Every ROI has a single top-level region across all its hierarchy paths.",
+      "status": "pass",
+      "observed": {},
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "neuropils.roiinfo_parent_aliases",
+      "category": "referential",
+      "description": "roiInfo 'parent' values that are misspellings of hierarchy names in the source (mapped by alias).",
+      "status": "info",
+      "observed": {
+        "ventral nerve core": "ventral nerve cord"
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "neuropils.roiinfo_parent_consistent",
+      "category": "referential",
+      "description": "The roiInfo 'parent' of each ROI is one of its hierarchy parents.",
+      "status": "pass",
+      "observed": {},
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "referential.primary_rois_in_hierarchy",
+      "category": "referential",
+      "description": "Primary ROIs absent from the source roiHierarchy, and hierarchy names without roiInfo statistics. Known source inconsistency (stale hierarchy); roiInfo/primaryRois are taken as authoritative and hierarchy-only names are not included in the catalogue.",
+      "status": "warn",
+      "observed": {
+        "primary_not_in_hierarchy": [
+          "LegNp(T1)(L)",
+          "LegNp(T1)(R)",
+          "LegNp(T2)(L)",
+          "LegNp(T2)(R)",
+          "LegNp(T3)(L)",
+          "LegNp(T3)(R)",
+          "Ov(L)",
+          "Ov(R)"
+        ],
+        "hierarchy_only": [
+          "AMNp(L)",
+          "AMNp(R)",
+          "IntNp(T1)(L)",
+          "IntNp(T1)(R)",
+          "IntNp(T2)(L)",
+          "IntNp(T2)(R)",
+          "IntNp(T3)(L)",
+          "IntNp(T3)(R)"
+        ]
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "neuropils.stats_only_rois",
+      "category": "referential",
+      "description": "ROIs with statistics in roiInfo but absent from the hierarchy (kept, in_hierarchy=False).",
+      "status": "info",
+      "observed": 8,
+      "expected": null,
+      "details": {
+        "rois": [
+          "LegNp(T1)(L)",
+          "LegNp(T1)(R)",
+          "LegNp(T2)(L)",
+          "LegNp(T2)(R)",
+          "LegNp(T3)(L)",
+          "LegNp(T3)(R)",
+          "Ov(L)",
+          "Ov(R)"
+        ]
+      }
+    },
+    {
+      "check_id": "ids.neuropils.unique",
+      "category": "uniqueness",
+      "description": "ROI names are unique in the output catalogue.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "coverage.primary_roi_synapse_fraction",
+      "category": "coverage",
+      "description": "Fraction of all T-bars / PSDs located inside some primary ROI (rest -> '<unassigned>').",
+      "status": "info",
+      "observed": {
+        "pre": 0.995316,
+        "post": 0.996989
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "rows.raw.neuron_properties",
+      "category": "ingestion",
+      "description": "Rows (bodies) in the v1.0 per-body property export.",
+      "status": "info",
+      "observed": 102369,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "ids.properties.non_null_positive",
+      "category": "ids",
+      "description": "bodyId non-null and positive.",
+      "status": "pass",
+      "observed": null,
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "duplicates.properties.bodyId",
+      "category": "duplicates",
+      "description": "No duplicate bodyId rows in the property export.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "types.properties_float_ids_integral",
+      "category": "types",
+      "description": "Float-encoded integer columns (group, serial, subcluster) are integral and < 2^53 (lossless int64 cast).",
+      "status": "pass",
+      "observed": [
+        "group",
+        "serial",
+        "subcluster"
+      ],
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "types.properties_placeholders",
+      "category": "types",
+      "description": "String placeholders ('None', 'TBD', 'NA', '~') converted to null (per column).",
+      "status": "info",
+      "observed": {
+        "hemilineage": 3238,
+        "somaNeuromere": 11,
+        "class": 61
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "types.status_label_vocabulary",
+      "category": "types",
+      "description": "All statusLabel values are known DVID labels.",
+      "status": "pass",
+      "observed": [],
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "types.nt_vocabulary",
+      "category": "types",
+      "description": "All predictedNt labels are in the controlled vocabulary.",
+      "status": "pass",
+      "observed": [],
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.nt_confidence_range",
+      "category": "edge_values",
+      "description": "NT probabilities lie in [0, 1].",
+      "status": "pass",
+      "observed": {
+        "ntGabaProb": [
+          2.605764216868315e-14,
+          1.0
+        ],
+        "predictedNtProb": [
+          0.2753386283783536,
+          0.9999980926513672
+        ],
+        "ntUnknownProb": [
+          1.6557399283920281e-18,
+          0.9998484253883362
+        ],
+        "ntAcetylcholineProb": [
+          7.377669467613906e-29,
+          1.0
+        ],
+        "ntGlutamateProb": [
+          7.440417347416171e-16,
+          1.0
+        ]
+      },
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "consistency.nt_prediction_is_argmax",
+      "category": "cross_source",
+      "description": "predictedNt equals the argmax over the four body-level class probabilities (ACh/GABA/Glu/unknown).",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "rows.raw.neuprint_neurons",
+      "category": "ingestion",
+      "description": "Synaptic segments in neuPrint and how many carry the :Neuron label.",
+      "status": "info",
+      "observed": {
+        "n_segments": 24522126,
+        "n_neuron_label": 102369
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "duplicates.neuprint_neurons.id",
+      "category": "duplicates",
+      "description": "No duplicate segment IDs in the neuPrint neuron table.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "ids.neuprint_neurons.id_consistent",
+      "category": "ids",
+      "description": ":ID(Body-ID) equals bodyId for every segment, no nulls.",
+      "status": "pass",
+      "observed": [
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0
+      ],
+      "details": {}
+    },
+    {
+      "check_id": "consistency.upstream_equals_post",
+      "category": "directionality",
+      "description": "Total upstream connections == total PSDs (each PSD has exactly one presynaptic partner).",
+      "status": "pass",
+      "observed": 74456993,
+      "expected": 74456993,
+      "details": {}
+    },
+    {
+      "check_id": "rows.neurons",
+      "category": "ingestion",
+      "description": "Neurons = neuPrint :Neuron bodies with status 'Traced' (see definitions).",
+      "status": "info",
+      "observed": 23514,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "ids.neurons.unique",
+      "category": "uniqueness",
+      "description": "Neuron IDs unique.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "coverage.typed_bodies_outside_neuron_set",
+      "category": "coverage",
+      "description": ":Neuron bodies with a cell type but a status other than 'Traced' (excluded from the neuron table; e.g. PRT Orphan).",
+      "status": "info",
+      "observed": 244,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "referential.properties_are_neuprint_neurons",
+      "category": "referential",
+      "description": "The per-body property export and the neuPrint :Neuron-labelled bodies are the same set.",
+      "status": "pass",
+      "observed": [
+        102369,
+        102369,
+        102369
+      ],
+      "expected": [
+        102369,
+        102369,
+        102369
+      ],
+      "details": {}
+    },
+    {
+      "check_id": "cross_source.properties_vs_neuprint",
+      "category": "cross_source",
+      "description": "Annotation fields agree between the per-body property export (2023-06-05) and the neuPrint neuron table (2023-06-12) (count of mismatching bodies per field). Status differences are analysed separately.",
+      "status": "pass",
+      "observed": {
+        "type": 0,
+        "instance": 0,
+        "class": 0,
+        "subclass": 0,
+        "status": 314,
+        "statusLabel": 0,
+        "hemilineage": 0,
+        "somaSide": 0,
+        "rootSide": 0,
+        "somaNeuromere": 0,
+        "predictedNt": 0,
+        "group": 0,
+        "serial": 0,
+        "pre": 0,
+        "post": 0,
+        "size": 0
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "cross_source.status_remap_between_exports",
+      "category": "cross_source",
+      "description": "Bodies whose proofreading status differs between the two official exports (e.g. 'RT Orphan' in the 2023-06-05 property export is 'Traced' in the 2023-06-12 neuPrint database).",
+      "status": "info",
+      "observed": [
+        {
+          "properties_status": "RT Orphan",
+          "neuprint_status": "Traced",
+          "bodies": 314
+        }
+      ],
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "consistency.neuron_neuropils_not_exceeding_totals",
+      "category": "coverage",
+      "description": "Per-neuron primary-ROI pre/post counts never exceed the neuron's totals.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "rows.raw.neuprint_connections",
+      "category": "ingestion",
+      "description": "Rows in the raw neuPrint connection table (segment pairs).",
+      "status": "info",
+      "observed": 42770212,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.no_nulls",
+      "category": "edge_values",
+      "description": "No null IDs/weights in raw connections.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.no_negative",
+      "category": "edge_values",
+      "description": "No negative weights in raw connections.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.zero_weight_rows",
+      "category": "edge_values",
+      "description": "Connection rows with weight 0 (pairs supported only by synapses below the database confidence threshold; weightHR > 0). Expected for sources that keep a high-recall tier.",
+      "status": "info",
+      "observed": 5666874,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.hp_le_weight",
+      "category": "edge_values",
+      "description": "weightHP <= weight for every row.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.weight_hr_ge_weight",
+      "category": "edge_values",
+      "description": "weightHR >= weight for every row (the high-recall tier adds lower-confidence synapses; BrainIR stores weight and weightHP only).",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.weight_hr_summary",
+      "category": "edge_values",
+      "description": "Rows where weightHR differs from weight, and the two totals.",
+      "status": "info",
+      "observed": {
+        "rows_hr_ne_weight": 10276388,
+        "sum_weight": 74456993,
+        "sum_weight_hr": 86952391
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "consistency.total_weight_equals_psds",
+      "category": "cross_source",
+      "description": "Sum of connection weights equals neuPrint totalPostCount (the Meta counts PSDs above the database confidence threshold; the high-recall total is larger).",
+      "status": "pass",
+      "observed": 74456993,
+      "expected": 74456993,
+      "details": {
+        "sum_weight_hr": 86952391
+      }
+    },
+    {
+      "check_id": "autapses.raw",
+      "category": "autapses",
+      "description": "Self-connections (pre == post) in the raw table: kept, flagged is_autapse.",
+      "status": "info",
+      "observed": {
+        "rows": 6,
+        "synapses": 29
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "referential.raw_edges_reference_segments",
+      "category": "referential",
+      "description": "Every endpoint of every raw connection exists in the neuPrint segment table.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "duplicates.raw_connections.pair",
+      "category": "duplicates",
+      "description": "Each (pre, post) segment pair appears at most once in the raw connection table.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "rows.connections_zero_weight_dropped",
+      "category": "ingestion",
+      "description": "Neuron->neuron pairs whose neuPrint weight is 0 (only high-recall/low-confidence synapses); excluded from connections because synapse_count follows neuPrint 'weight'.",
+      "status": "info",
+      "observed": 739081,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "duplicates.connections.pair",
+      "category": "duplicates",
+      "description": "Neuron->neuron edges are unique.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "rows.connections",
+      "category": "ingestion",
+      "description": "Neuron->neuron edges retained (both endpoints are neurons).",
+      "status": "info",
+      "observed": 5275519,
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "consistency.connection_neuropils_not_exceeding_weight",
+      "category": "coverage",
+      "description": "Per-edge primary-neuropil counts never exceed the edge weight.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "coverage.connection_unassigned",
+      "category": "coverage",
+      "description": "Edges with synapses outside primary ROIs (stored as neuropil '<unassigned>').",
+      "status": "info",
+      "observed": {
+        "edges": 15860,
+        "synapses": 23966
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "consistency.segment_totals_equal_edge_totals",
+      "category": "directionality",
+      "description": "Sum over all segments of neuPrint 'downstream' and of 'upstream' each equal the total weight of the connection table (conservation: every counted pair has an existing pre and post segment).",
+      "status": "pass",
+      "observed": [
+        74456993,
+        74456993
+      ],
+      "expected": [
+        74456993,
+        74456993
+      ],
+      "details": {}
+    },
+    {
+      "check_id": "cross_source.traced_neuron_set",
+      "category": "cross_source",
+      "description": "Neuron set vs the independent neuprint-python traced-neuron export (2023-06-02; proofreading continued until the 2023-06-12 database export).",
+      "status": "pass",
+      "observed": {
+        "neurons": 23514,
+        "traced_csv": 23188,
+        "only_in_csv": 0,
+        "only_in_ours": 326
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "cross_source.traced_connections_csv",
+      "category": "cross_source",
+      "description": "Edges between traced-CSV neurons: agreement of weights with the independent traced-connections.csv export (dates differ by 10 days; small differences reflect continued proofreading).",
+      "status": "pass",
+      "observed": {
+        "only_ours": 0,
+        "only_csv": 0,
+        "weight_differs": 0,
+        "compared": 5243574
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "cross_source.traced_connections_per_roi_csv",
+      "category": "cross_source",
+      "description": "Per-edge neuropil counts vs traced-connections-per-roi.csv ('NotPrimary' == '<unassigned>').",
+      "status": "pass",
+      "observed": {
+        "only_ours": 0,
+        "only_csv": 0,
+        "count_differs": 0
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "provenance.syn_partners_decompressed",
+      "category": "provenance",
+      "description": "bzip2 partner table decompressed into the cache (derived, disposable; keyed by the SHA-256 of the compressed input, which the acquisition check verified).",
+      "status": "info",
+      "observed": {
+        "cache_path": "$DATA/cache/manc_v1.0/117eaecf66a1a2e2_manc-synapse-partners-2023-05-03-215e08-minconf-0.0.feather",
+        "size_bytes": 1798818042,
+        "input_sha256": "117eaecf66a1a2e238b32d5f909c56fc4336636affe496f603b286f4bca83a25"
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "synapses.raw_partner_table",
+      "category": "synapses",
+      "description": "Raw partner rows (T-bar->PSD pairs at minconf 0.0), minimum confidences, rows touching body 0, distinct T-bars.",
+      "status": "info",
+      "observed": {
+        "rows": 86952391,
+        "min_conf_pre": 0.75,
+        "min_conf_post": 0.20000000298023224,
+        "rows_body_zero": 0,
+        "distinct_tbars": 10343391
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "synapses.total_pairs_equal_weight_hr",
+      "category": "synapses",
+      "description": "Raw partner rows == total neuPrint weightHR (the high-recall tier counts every pair of the minconf-0.0 table; one presynaptic partner per PSD).",
+      "status": "pass",
+      "observed": 86952391,
+      "expected": 86952391,
+      "details": {}
+    },
+    {
+      "check_id": "synapses.distinct_tbars_equal_meta_pre",
+      "category": "synapses",
+      "description": "Distinct T-bar coordinates in the partner table == Meta totalPreCount.",
+      "status": "pass",
+      "observed": 10343391,
+      "expected": 10343391,
+      "details": {}
+    },
+    {
+      "check_id": "synapses.inferred_count_rule",
+      "category": "synapses",
+      "description": "Confidence rules (conf_pre >= a AND conf_post >= b over a grid) that reproduce neuPrint weight, weightHR and weightHP exactly from the raw minconf-0.0 partner table for every pair of the sampled neurons (HR-only pairs included). Several equivalent rules match when no synapse falls between two grid values; the chosen rule prefers the Meta's declared threshold, else the loosest matching one.",
+      "status": "pass",
+      "observed": {
+        "exact_rules": {
+          "weight": [
+            {
+              "conf_pre_min": 0.0,
+              "conf_post_min": 0.4
+            },
+            {
+              "conf_pre_min": 0.3,
+              "conf_post_min": 0.4
+            },
+            {
+              "conf_pre_min": 0.4,
+              "conf_post_min": 0.4
+            },
+            {
+              "conf_pre_min": 0.5,
+              "conf_post_min": 0.4
+            },
+            {
+              "conf_pre_min": 0.6,
+              "conf_post_min": 0.4
+            },
+            {
+              "conf_pre_min": 0.7,
+              "conf_post_min": 0.4
+            }
+          ],
+          "weightHR": [
+            {
+              "conf_pre_min": 0.0,
+              "conf_post_min": 0.0
+            },
+            {
+              "conf_pre_min": 0.3,
+              "conf_post_min": 0.0
+            },
+            {
+              "conf_pre_min": 0.4,
+              "conf_post_min": 0.0
+            },
+            {
+              "conf_pre_min": 0.5,
+              "conf_post_min": 0.0
+            },
+            {
+              "conf_pre_min": 0.6,
+              "conf_post_min": 0.0
+            },
+            {
+              "conf_pre_min": 0.7,
+              "conf_post_min": 0.0
+            }
+          ],
+          "weightHP": [
+            {
+              "conf_pre_min": 0.0,
+              "conf_post_min": 0.7
+            },
+            {
+              "conf_pre_min": 0.3,
+              "conf_post_min": 0.7
+            },
+            {
+              "conf_pre_min": 0.4,
+              "conf_post_min": 0.7
+            },
+            {
+              "conf_pre_min": 0.5,
+              "conf_post_min": 0.7
+            },
+            {
+              "conf_pre_min": 0.6,
+              "conf_post_min": 0.7
+            },
+            {
+              "conf_pre_min": 0.7,
+              "conf_post_min": 0.7
+            }
+          ]
+        },
+        "chosen": {
+          "conf_pre_min": 0.0,
+          "conf_post_min": 0.4,
+          "hp_conf_pre_min": 0.0,
+          "hp_conf_post_min": 0.7,
+          "basis": "inferred on this build's sampled neurons"
+        },
+        "best": {
+          "weight": {
+            "conf_pre_min": 0.0,
+            "conf_post_min": 0.4,
+            "mismatching_pairs": 0
+          },
+          "weightHR": {
+            "conf_pre_min": 0.0,
+            "conf_post_min": 0.0,
+            "mismatching_pairs": 0
+          },
+          "weightHP": {
+            "conf_pre_min": 0.0,
+            "conf_post_min": 0.7,
+            "mismatching_pairs": 0
+          }
+        },
+        "n_pairs_compared": 80620
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "synapses.count_rule_matches_default",
+      "category": "synapses",
+      "description": "The rule inferred here equals DEFAULT_COUNT_RULE, the rule the v1.2.x builds apply to their partner table.",
+      "status": "pass",
+      "observed": {
+        "conf_pre_min": 0.0,
+        "conf_post_min": 0.4,
+        "hp_conf_pre_min": 0.0,
+        "hp_conf_post_min": 0.7,
+        "basis": "inferred on this build's sampled neurons"
+      },
+      "expected": {
+        "conf_pre_min": 0.0,
+        "conf_post_min": 0.4,
+        "hp_conf_pre_min": 0.0,
+        "hp_conf_post_min": 0.7,
+        "basis": "inferred on manc:v1.0 (neuPrint weight/weightHP vs raw partner counts)"
+      },
+      "details": {}
+    },
+    {
+      "check_id": "synapses.recomputed_edge_neuropils",
+      "category": "synapses",
+      "description": "Per-edge neuropil counts recomputed from synapse roi_post under the count rule match connection_neuropils (sampled neurons' outgoing edges).",
+      "status": "warn",
+      "observed": {
+        "only_synapses": 1,
+        "only_table": 1,
+        "count_differs": 0
+      },
+      "expected": {
+        "only_synapses": 0,
+        "only_table": 0,
+        "count_differs": 0
+      },
+      "details": {}
+    },
+    {
+      "check_id": "synapses.tbar_psd_roi_span",
+      "category": "synapses",
+      "description": "T-bars (of sampled neurons) whose PSDs lie in more than one primary ROI. Quantifies the approximation used by the v1.2.x builds, where a T-bar's neuropil is taken from its PSDs.",
+      "status": "info",
+      "observed": {
+        "tbars": 117197,
+        "tbars_spanning_multiple_rois": 705,
+        "fraction": 0.006016
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "synapses.recomputed_neuron_totals",
+      "category": "synapses",
+      "description": "For sampled neurons, synapse-level counts under the count rule reproduce neuPrint downstream/upstream, and T-bars with partners never exceed neuPrint 'pre'.",
+      "status": "warn",
+      "observed": {
+        "downstream": 0,
+        "upstream": 2,
+        "pre_tbars_gt_neuprint_pre": 0
+      },
+      "expected": {
+        "downstream": 0,
+        "upstream": 0,
+        "pre_tbars_gt_neuprint_pre": 0
+      },
+      "details": {
+        "detail": {
+          "downstream": 0,
+          "upstream": 2,
+          "pre_tbars_gt_neuprint_pre": 0,
+          "pre_tbars_eq_neuprint_pre": 283,
+          "n": 300
+        }
+      }
+    },
+    {
+      "check_id": "referential.edges_reference_neurons",
+      "category": "referential",
+      "description": "Every edge endpoint is a neuron.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.connections_positive",
+      "category": "edge_values",
+      "description": "All retained edges have synapse_count >= 1.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "edge_values.connections_hp_le_count",
+      "category": "edge_values",
+      "description": "synapse_count_hp <= synapse_count.",
+      "status": "pass",
+      "observed": 0,
+      "expected": 0,
+      "details": {}
+    },
+    {
+      "check_id": "directionality.edge_sums_match_neuron_totals",
+      "category": "directionality",
+      "description": "For every neuron, sum of outgoing edge weights (all partners) == source 'downstream' and incoming == 'upstream'. A pre/post swap anywhere would break this.",
+      "status": "pass",
+      "observed": [
+        0,
+        0
+      ],
+      "expected": [
+        0,
+        0
+      ],
+      "details": {}
+    },
+    {
+      "check_id": "directionality.dn_an_polarity",
+      "category": "directionality",
+      "description": "VNC-only volume: descending neurons are output-dominated (fraction of synaptic connections that are outgoing > 0.5 for > 80% of DNs; judged only with >= 10 DNs). Ascending neurons: informational.",
+      "status": "pass",
+      "observed": {
+        "descending": {
+          "n": 1328,
+          "median_output_fraction": 0.9567114819925595,
+          "fraction_output_dominated": 0.9984939759036144,
+          "expectation": "output_dominated"
+        },
+        "ascending": {
+          "n": 1863,
+          "median_output_fraction": 0.6023188405797102,
+          "fraction_output_dominated": 0.7112184648416533,
+          "expectation": "none (informational)"
+        }
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "directionality.sensory_motor_polarity",
+      "category": "directionality",
+      "description": "Sensory neurons are output-dominated (median output fraction > 0.5) and motor neurons input-dominated (roles from ROLE_RULE_ID).",
+      "status": "pass",
+      "observed": {
+        "vnc_sensory": {
+          "n": 5755,
+          "median_output_fraction": 0.8560975609756097
+        },
+        "vnc_motor": {
+          "n": 737,
+          "median_output_fraction": 0.03234050919099577
+        }
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "graph.basic_statistics",
+      "category": "graph_stats",
+      "description": "Basic statistics of the neuron->neuron graph.",
+      "status": "info",
+      "observed": {
+        "n_neurons": 23514,
+        "n_edges": 5275519,
+        "total_synapses": 30808321,
+        "density": 0.009541401336000453,
+        "weight": {
+          "min": 1,
+          "median": 2.0,
+          "mean": 5.83986542366732,
+          "p99": 64.0,
+          "max": 1080,
+          "n_weight_1": 2188507,
+          "n_weight_ge_5": 1365504
+        },
+        "out_degree": {
+          "mean": 224.35651101471464,
+          "median": 163.0,
+          "max": 4742
+        },
+        "in_degree": {
+          "mean": 224.35651101471464,
+          "median": 173.0,
+          "max": 2467
+        },
+        "reciprocity_edges": 0.3038296159086618,
+        "autapses": {
+          "edges": 3,
+          "synapses": 21
+        },
+        "weakly_connected_components": 90,
+        "largest_wcc": 23425,
+        "strongly_connected_components": 159,
+        "largest_scc": 23354,
+        "isolated_neurons": 89
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "coverage.annotation_fields",
+      "category": "coverage",
+      "description": "Fraction of neurons with each annotation populated.",
+      "status": "info",
+      "observed": {
+        "cell_type": 0.9298,
+        "instance": 1.0,
+        "cell_class": 0.0,
+        "sub_class": 0.9838,
+        "hemilineage_ito_lee": 0.0,
+        "hemilineage_truman": 0.5942,
+        "side": 0.9904,
+        "soma_neuromere": 0.6746,
+        "soma_x": 0.6705,
+        "nt_consensus": 0.0,
+        "nt_literature_label": 0.0,
+        "group_id": 0.787,
+        "flywire_type": 0.0,
+        "manc_type": 0.0,
+        "hemibrain_type": 0.0,
+        "synonyms": 0.098,
+        "nt_consensus_not_unclear": 0.0,
+        "is_traced": 1.0
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "coverage.by_superclass",
+      "category": "coverage",
+      "description": "Per-superclass neuron count, fraction typed, fraction with a known (non-unclear) consensus NT.",
+      "status": "info",
+      "observed": [
+        {
+          "super_class": "<NA>",
+          "typed": 0.0,
+          "nt_known": 0.0,
+          "n": 25
+        },
+        {
+          "super_class": "Glia",
+          "typed": 0.0,
+          "nt_known": 0.0,
+          "n": 7
+        },
+        {
+          "super_class": "Interneuron_TBD",
+          "typed": 0.0,
+          "nt_known": 0.0,
+          "n": 98
+        },
+        {
+          "super_class": "ascending_neuron",
+          "typed": 0.8215,
+          "nt_known": 0.0,
+          "n": 1866
+        },
+        {
+          "super_class": "descending_neuron",
+          "typed": 1.0,
+          "nt_known": 0.0,
+          "n": 1328
+        },
+        {
+          "super_class": "efferent_ascending",
+          "typed": 0.75,
+          "nt_known": 0.0,
+          "n": 8
+        },
+        {
+          "super_class": "efferent_neuron",
+          "typed": 0.7128,
+          "nt_known": 0.0,
+          "n": 94
+        },
+        {
+          "super_class": "intrinsic_neuron",
+          "typed": 0.9116,
+          "nt_known": 0.0,
+          "n": 13057
+        },
+        {
+          "super_class": "motor_neuron",
+          "typed": 1.0,
+          "nt_known": 0.0,
+          "n": 737
+        },
+        {
+          "super_class": "sensory_ascending",
+          "typed": 0.9944,
+          "nt_known": 0.0,
+          "n": 539
+        },
+        {
+          "super_class": "sensory_neuron",
+          "typed": 0.9997,
+          "nt_known": 0.0,
+          "n": 5755
+        }
+      ],
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "coverage.nt_consensus_distribution",
+      "category": "coverage",
+      "description": "Distribution of consensus NT over neurons.",
+      "status": "info",
+      "observed": {
+        "None": 23514
+      },
+      "expected": null,
+      "details": {}
+    },
+    {
+      "check_id": "types.schema_conformance.neurons",
+      "category": "types",
+      "description": "neurons.parquet schema equals the canonical schema (names, types, nullability).",
+      "status": "pass",
+      "observed": "['neuron_uid', 'dataset', 'dataset_version', 'source_id', 'cell_type']...",
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "types.schema_conformance.connections",
+      "category": "types",
+      "description": "connections.parquet schema equals the canonical schema (names, types, nullability).",
+      "status": "pass",
+      "observed": "['pre_id', 'post_id', 'synapse_count', 'synapse_count_hp', 'is_autapse']...",
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "types.schema_conformance.connection_neuropils",
+      "category": "types",
+      "description": "connection_neuropils.parquet schema equals the canonical schema (names, types, nullability).",
+      "status": "pass",
+      "observed": "['pre_id', 'post_id', 'neuropil', 'synapse_count']...",
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "types.schema_conformance.neuron_neuropils",
+      "category": "types",
+      "description": "neuron_neuropils.parquet schema equals the canonical schema (names, types, nullability).",
+      "status": "pass",
+      "observed": "['source_id', 'neuropil', 'n_pre', 'n_post']...",
+      "expected": true,
+      "details": {}
+    },
+    {
+      "check_id": "types.schema_conformance.neuropils",
+      "category": "types",
+      "description": "neuropils.parquet schema equals the canonical schema (names, types, nullability).",
+      "status": "pass",
+      "observed": "['name', 'parent', 'all_parents', 'depth', 'in_hierarchy']...",
+      "expected": true,
+      "details": {}
+    }
+  ]
+}

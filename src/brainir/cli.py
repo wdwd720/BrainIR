@@ -42,18 +42,17 @@ def cmd_acquire(args: argparse.Namespace) -> int:
 
 
 def cmd_ingest(args: argparse.Namespace) -> int:
-    from .ingest.malecns import IngestAborted, IngestConfig, build
+    from .ingest import build_dataset
+    from .ingest.common import IngestAborted, IngestConfig
     from .manifest import write_manifest
-    from .sources import get_source
+    from .sources.registry import resolve_build
 
-    source = get_source(args.dataset, args.version)
-    if source.dataset != "male-cns":
-        raise SystemExit(f"no ingestion pipeline registered for {source.dataset}")
-    cfg = IngestConfig(source=source, synapse_checks=not args.no_synapse_checks,
+    source, build_version = resolve_build(args.dataset, args.version)
+    cfg = IngestConfig(source=source, build_version=build_version, synapse_checks=not args.no_synapse_checks,
                        synapse_sample_neurons=args.sample, seed=args.seed, threads=args.threads,
                        duckdb_memory_limit=args.memory, out_dir=args.out_dir)
     try:
-        res = build(cfg)
+        res = build_dataset(cfg)
     except IngestAborted as exc:
         print(f"ABORTED: {exc}")
         return 2

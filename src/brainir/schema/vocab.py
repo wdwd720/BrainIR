@@ -17,7 +17,9 @@ NT_CLASSES: tuple[str, ...] = (
 )
 NT_UNCLEAR = "unclear"
 """Source reports a prediction but it is ambiguous. Distinct from null (= no prediction)."""
-NT_VALUES: frozenset[str] = frozenset((*NT_CLASSES, NT_UNCLEAR))
+NT_UNKNOWN = "unknown"
+"""The classifier's explicit 'unknown/other' class won (MANC predictedNt). Distinct from 'unclear' and from null."""
+NT_VALUES: frozenset[str] = frozenset((*NT_CLASSES, NT_UNCLEAR, NT_UNKNOWN))
 
 
 @dataclass(frozen=True)
@@ -48,6 +50,7 @@ SIGN_RULES: dict[str, SignRule] = {r.nt: r for r in (
     SignRule("serotonin", None, "modulatory", "Metabotropic neuromodulator (5-HT7 etc. aside); no fast sign."),
     SignRule("octopamine", None, "modulatory", "Metabotropic neuromodulator; no fast sign."),
     SignRule(NT_UNCLEAR, None, "unknown", "Neurotransmitter prediction ambiguous."),
+    SignRule(NT_UNKNOWN, None, "unknown", "Classifier assigned the 'unknown' class."),
 )}
 
 
@@ -94,8 +97,8 @@ def status_label_rank(label: str | None) -> int | None:
 # ---------------------------------------------------------------------------
 # Sides / hemispheres
 # ---------------------------------------------------------------------------
-SIDES = frozenset({"L", "R", "M"})
-"""L/R = left/right from the animal's perspective; M = midline (unpaired)."""
+SIDES = frozenset({"L", "R", "M", "B"})
+"""L/R = left/right from the animal's perspective; M = midline (unpaired); B = bilateral (MANC root side 'BIL')."""
 
 
 def normalize_side(value: str | None) -> str | None:
@@ -104,8 +107,62 @@ def normalize_side(value: str | None) -> str | None:
     v = str(value).strip()
     if v in SIDES:
         return v
-    return {"left": "L", "right": "R", "center": "M", "centre": "M", "midline": "M"}.get(v.lower())
+    # MaleCNS uses L/R/M; MANC uses LHS/RHS/Midline (and BIL/MID for bilateral/midline sensory roots)
+    return {"left": "L", "right": "R", "center": "M", "centre": "M", "midline": "M",
+            "lhs": "L", "rhs": "R", "mid": "M", "bil": "B"}.get(v.lower())
 
 
 UNASSIGNED_NEUROPIL = "<unassigned>"
 """Synapses that fall outside every primary neuropil ROI."""
+
+
+# ---------------------------------------------------------------------------
+# Coarse functional role (cross-dataset normalisation of the source's superclass / class vocabulary)
+# ---------------------------------------------------------------------------
+ROLE_RULE_ID = "brainir.role.v1"
+"""Identifier of the superclass -> role_class mapping below. Roles are a *relabeling* of curated source
+classes (same evidence kind), used so that datasets with different vocabularies (MaleCNS 'superclass',
+MANC 'class') can be compared and checked with one set of rules."""
+
+ROLE_CLASSES: tuple[str, ...] = (
+    "descending", "ascending", "sensory_ascending", "sensory_descending", "efferent", "endocrine",
+    "vnc_intrinsic", "vnc_motor", "vnc_sensory",
+    "cb_intrinsic", "cb_motor", "cb_sensory", "ol_intrinsic", "ol_sensory", "visual_projection", "visual_centrifugal",
+    "glia", "unknown",
+)
+
+_ROLE_MAP: dict[str, str] = {
+    # MaleCNS superclass vocabulary
+    "descending_neuron": "descending", "ascending_neuron": "ascending",
+    "sensory_ascending": "sensory_ascending", "sensory_descending": "sensory_descending",
+    "vnc_intrinsic": "vnc_intrinsic", "vnc_motor": "vnc_motor", "vnc_sensory": "vnc_sensory",
+    "vnc_efferent": "efferent", "cb_efferent": "efferent", "efferent_ascending": "efferent",
+    "efferent_descending": "efferent", "vnc_endocrine": "endocrine", "cb_endocrine": "endocrine", "ENS": "endocrine",
+    "cb_intrinsic": "cb_intrinsic", "cb_motor": "cb_motor", "cb_sensory": "cb_sensory",
+    "ol_intrinsic": "ol_intrinsic", "ol_sensory": "ol_sensory",
+    "visual_projection": "visual_projection", "visual_centrifugal": "visual_centrifugal",
+    # MANC class vocabulary (v1.0 uses spaces, v1.2.x tags use underscores; both normalised to underscores)
+    "intrinsic_neuron": "vnc_intrinsic", "motor_neuron": "vnc_motor", "neck_motor_neuron": "vnc_motor",
+    "sensory_neuron": "vnc_sensory", "efferent_neuron": "efferent",
+    "glia": "glia", "interneuron_tbd": "unknown", "sensory_tbd": "unknown", "tbd": "unknown",
+}
+
+
+def normalize_class_label(value: str | None) -> str | None:
+    """Source class label with spaces -> underscores (MANC v1.0 'descending neuron' == v1.2.x 'descending_neuron')."""
+    if value is None or (isinstance(value, float) and value != value):
+        return None
+    v = str(value).strip().replace(" ", "_")
+    return v or None
+
+
+def role_class_for(super_class: str | None) -> str | None:
+    """Apply ROLE_RULE_ID. Returns None when the source has no class; 'unknown' for TBD-style labels.
+    MaleCNS '<class>_tbc' ('to be confirmed') labels map like their base class."""
+    v = normalize_class_label(super_class)
+    if v is None:
+        return None
+    key = v.lower() if v != "ENS" else v
+    if key.endswith("_tbc"):
+        key = key[:-4]
+    return _ROLE_MAP.get(key, "unknown")

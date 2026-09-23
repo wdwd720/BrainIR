@@ -29,6 +29,16 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
 | D18 | 2026-09-22 | Individual synapses are extracted on demand (`brainir synapses`, `brainir.synapses`) rather than materialised (312M rows) | The raw Arrow file is the store; pyarrow predicate scans take ~20–60 s |
 | D19 | 2026-09-22 | Leakage guard extended to "clean docs" (README, CLAUDE.md, docs/, research ecosystem notes, LOG) | The guard caught an answer-key body ID in a CLI docstring example written by me. Scrubbed, and the answer-bearing files are now listed in the benchmark README |
 | D20 | 2026-09-22 | Graph layer loads nullable integer columns as pandas `Int*` dtypes | pyarrow's default `to_pandas()` turned integer columns containing nulls (IDs, counts, soma coordinates) into float64. No value was corrupted (all < 2^53), but APIs returned float IDs. Regression test added |
+| D21 | 2026-09-22 | **MANC comes in two raw lineages and three processed builds.** Raw `manc:v1.0` = the complete neuPrint bulk export (`gs://flyem-manc-exports/v1.0/`); raw `manc:v1.2` = the v1.2 segmentation's synapse-partner table + neuroglancer annotation snapshots (`gs://manc-seg-v1p2/`). Processed builds: `manc:v1.0`, `manc:v1.2.1` (v1.2 synapses + the 2024-09-27 annotation snapshot) and `manc:v1.2.3` (+ the 2025-10-26 snapshot). Build version ≠ raw version (`registry.BUILD_VERSIONS`). | No neuPrint bulk export exists for v1.2.x; the paper's MANC front-leg network is neuPrint `manc:v1.2.1` (types agree with the v1.2.1 snapshot for 4600/4604 bodies, 4593 with v1.2.3; its full-VNC table is v1.2.3). Rebuilding from the public partner table reproduced the authors' matrices exactly (see §3.11) |
+| D22 | 2026-09-22 | Dataset **adapter architecture**: `ingest/common.py` (generic steps, validation, deterministic writing), `ingest/malecns.py`, `ingest/manc.py`; `ingest.build_dataset()` dispatches | MaleCNS outputs unchanged in content (graph statistics, coverage and every check identical after the refactor; bytes differ only through the schema-version metadata) |
+| D23 | 2026-09-22 | **MANC v1.0 neuron = neuPrint :Neuron body with status `Traced`** in the neuPrint neuron table (23,514). **MANC v1.2.x neuron = body listed in the annotation snapshot** (24,143 / 23,665); status/is_traced/neuprint_neuron_label are null there | The per-body property export (2023-06-05) labels 314 of the Traced bodies `RT Orphan`; the 2023-06-12 database maps them to Traced. The traced-adjacency export (2023-06-02) has 23,188. All three are recorded as cross-source checks |
+| D24 | 2026-09-22 | **Count rule for MANC = conf_post ≥ 0.4 (weight), conf_post ≥ 0.7 (weightHP), every pair (weightHR)**, inferred on v1.0 from the raw minconf-0.0 partner table against the neuPrint weights (exact for all sampled pairs) and applied unchanged to the v1.2 partner table | Confirmed independently by flyem-snapshot's docstring ("for MANC we used 0.4") and by the v1.2.3 snapshot's per-neuron `syn_pre/syn_post/syn_downstream`, which the rule reproduces for 23,665/23,665 neurons. neuPrint keeps rows with weight 0 (HR-only pairs: 5,666,874 in v1.0); they are dropped and counted |
+| D25 | 2026-09-22 | v1.2.x builds **carry body-level NT predictions (and nothing else) from the v1.0 property export by body ID**; type-level NT from the v1.2.3 `celltypePredictedNt` tag; sizes are NOT carried (null) | Every v1.2.x neuron exists in v1.0 by ID; the paper's own v1.2.1 table has `predictedNtProb` identical to v1.0 for all 4604/23,532 bodies. Its `predictedNt` *labels* differ for 72/4604 (398/23,532) bodies (§3.12) |
+| D26 | 2026-09-22 | ROI catalogue for MANC taken from roiInfo/primaryRois (61 ROIs); the Meta `roiHierarchy` is not authoritative; `top_level_region` = VNC for every ROI; T-bar ROIs in v1.2.x approximated by the ROI of their PSDs | The v1.0 Meta hierarchy lists `IntNp(T*)`/`AMNp` instead of `LegNp(T*)`/`Ov` and misspells the root as "ventral nerve core"; the v1.2 partner table carries `roi_post` only. 0.54% of sampled T-bars have PSDs in >1 primary ROI |
+| D27 | 2026-09-22 | Schema 0.2.0: `is_traced` and `neuprint_neuron_label` nullable; NT vocabulary gains `unknown` (the classifier's own class, distinct from `unclear`); sides gain `B` (MANC `BIL`); cross-dataset `role_class` (rule `brainir.role.v1`) derived on load, not stored; `sign_hypothesis(basis="auto")` = consensus → type-level → body-level | MANC publishes no status for v1.2.x, no consensus NT, and uses a different class vocabulary |
+| D28 | 2026-09-22 | Directionality sanity checks are expressed in role classes; in VNC-only volumes only descending neurons carry an expectation (output-dominated) | MANC ascending neurons are output-dominated *inside the VNC* (median output fraction 0.60), so the MaleCNS-style AN expectation is wrong there |
+| D29 | 2026-09-23 | Simulator = independent NumPy/SciPy re-implementation of the published rate model (`brainir.sim`), float64, RK45 at the authors' tolerances, integrated segment-wise at pulse edges; model parameters never enter anatomy tables | The authors' JAX/Diffrax float32 GPU runs cannot be reproduced bit-exactly (their own code comments say so); distributional reproduction is the target |
+| D30 | 2026-09-23 | Rhythm metric suite = the published score reproduced exactly + amplitude gate + envelope-persistence gate + inter-peak regularity (`RhythmResult.is_sustained_rhythm`) | The published score is min-max normalised (amplitude-blind: a 2e-4 Hz ripple scores 1.0) and cannot separate a damped transient from a sustained oscillation over the window (damped test signal scores 0.83) |
 
 ## 2. Performance measurements (this machine: Ryzen 9 6900HX 8C/16T, 30 GB RAM, NVMe, ~7 MB/s internet)
 - **Downloads.** Single-stream GCS runs at ~4.6 MB/s. Parallel ranged downloads barely help (5–8 MB/s), so the link
@@ -90,6 +100,28 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
 10. **ROI metadata.**
    - The hierarchy is a DAG: 9 ROIs have two parents (CA, IB, ICL, PED, SCL).
    - 4 ROIs have statistics but are absent from the hierarchy (`AL-unspecified(L/R)`, `gL-unspecified(L/R)`).
+11. **Pugliese et al. MANC matrices vs BrainIR rebuilds** (`benchmarks/dng100_walking_cpg/manc_reproduction.md`).
+    Front-leg network (4604 neurons, 2025-08-13) vs `manc:v1.2.1`: all 196,535 pairs present with identical counts
+    (3,817,772 synapses); the single extra pair in ours is an autapse (the authors zeroed the diagonal). Full-VNC
+    network (23,532 neurons, 2025-10-06) vs `manc:v1.2.3`: all 1,372,404 pairs identical; 8 extra autapses in ours.
+    Recounting the front-leg network from the raw v1.2 partner table matches only at `conf_post ≥ 0.4` (0.5 misses
+    18,537 pairs). Against `manc:v1.0`: 22 of the 4604 bodies do not exist and 515 pairs are missing.
+12. **MANC NT labels changed between v1.0 and neuPrint v1.2.x.** `predictedNtProb` is identical, but `predictedNt`
+    differs for 72/4604 front-leg neurons (mostly `unknown`/`gaba`/`acetylcholine` → `glutamate`, 31 of them motor
+    neurons) and 398/23,532 full-VNC neurons; the changed labels are not the argmax of the published probabilities,
+    so the rule that produced them is unknown. Using the v1.0 labels reproduces the paper's row signs for 99.44% of
+    presynaptic rows; the paper's own labels are available for a "faithful" network variant (nt_override).
+13. **Two official MANC v1.0 exports disagree on status**: 314 bodies are `RT Orphan` in the property export and
+    `Traced` in the neuPrint database; the traced-adjacency export lists 23,188 traced neurons, the database 23,514.
+14. **MANC v1.0 Meta roiHierarchy is stale** (`IntNp(T*)`, `AMNp` vs `LegNp(T*)`, `Ov` everywhere else; root misspelt
+    "ventral nerve core"). Documented in `research/manc_release_notes.md` §7.
+15. **v1.2.1 vs v1.2.3 annotation snapshots**: 24,143 vs 23,665 bodies; 22 bodies typed only in v1.2.3; 29 retyped
+    (incl. `MNfl10` → `INXXX471`, `IN19A006` → `IN19A018`); v1.2.1 counts are unfiltered synapse counts, v1.2.3
+    counts are the threshold-filtered neuPrint counts. Motor-neuron class: the paper's Aug-2025 table distinguishes 4
+    `neck motor neuron`s that both snapshots label `motor_neuron`.
+16. **Residual synapse-level mismatches in MANC v1.0** (300 sampled neurons): 2 neurons have one more counted PSD in
+    the raw partner table than neuPrint `upstream`; 1 of ~70k sampled edges has a PSD in `GF(R)` per neuPrint but
+    `<unspecified>` in the partner table. Recorded as WARN, not resolved.
 
 ## 4. Biological caveats (carry into every analysis)
 - **`synapse_count` is not strength.**
@@ -136,6 +168,17 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
   hidden runtime download.
 - **Benchmark difficulty.** A greedy-baseline analysis exists in `benchmarks/dng100_walking_cpg/SPEC.md` §6. That
   file is answer-bearing: do not copy its specifics into clean docs.
+- **Cache keys must be content-addressed.** The MANC bz2 partner table is decompressed into `data/cache`; a
+  synthetic fixture with the same file name silently picked up the *real* 87M-row table until the cache path was
+  keyed by the input's SHA-256.
+- **Set iteration order is not deterministic across processes** (hash randomisation): exploding tag prefixes into
+  columns via `set()` produced different column orders in two builds of the same data (caught by the byte-identity
+  check). Always sort.
+- **Bash heredocs mangle backslashes** (again): a patch script containing `\'` failed to parse. Write patch scripts
+  with the Write tool.
+- pandas 3 string columns hold `NaN`, not `None`, for nulls: tests must use `pd.isna`.
+- The paper's `set_sizes` takes the median *before* replacing zero sizes; a test written from the description
+  (median without zeros) was wrong, the code was right.
 
 ## 6. Failed / abandoned approaches
 - Remote column-projected reads over GCS (`IpcReadOptions(included_fields)`) work, but at ~1.5 s per batch they
@@ -167,6 +210,13 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
    - an unreleased revision exists (repo commit 10e7661 "new revision", 2026-09-15).
 5. The per-synapse NT table (`tbar-neurotransmitters`) is acquired but not yet used. Per-edge NT evidence could
    refine sign hypotheses later.
+6. **MANC (Phase 1).** Which rule produced the changed `predictedNt` labels in neuPrint v1.2.x (§3.12)? Which
+   confidence rule the live `manc:v1.2.x` Meta declares (login needed)? Whether v1.1 / v1.2.2 ever existed (no
+   public trace). Origin of the one `GF(R)` / `<unspecified>` ROI disagreement and the two +1 PSD counts (§3.16).
+7. **Pugliese et al. procedures not determinable from their repository** (see
+   `research/literature/pugliese_model_spec_from_code.md` §12): engine (sync vs streaming) and code revision per
+   published run; how the 13 `unknown`/`unclear` rows kept zero outputs; the Dirichlet screen (no code); the
+   "lower bound of 10 active neurons" for the type-level screen.
 
 ## 9. Important assumptions made in Phase 0
 - The flat and neuPrint-input files published under `v1.0/` constitute "MaleCNS v1.0". They were verified to be
@@ -183,3 +233,17 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
   - Acquired 18.72 GB; ran the builds (pass 1 without synapse checks, then the final build).
   - Two research agents surveyed the walking-CPG paper (with code and data) and the connectome ecosystem.
   - Verified the DNg100 benchmark in v1.0: exact reproduction of the paper's MaleCNS circuit counts.
+- **2026-09-22 23:00 – 2026-09-23 01:30 (session 2, Phase 1 start).**
+  - Re-verified Phase 0 (86 tests; every raw/processed file re-hashed against the manifests).
+  - Pinned the MANC version question by comparing the authors' tables with the v1.0 export and the v1.2.1/v1.2.3
+    annotation snapshots (D21); registered `manc:v1.0` (14 files) and `manc:v1.2` (18 files); acquired 5 GB.
+  - Refactored ingestion into adapters (D22); wrote the MANC v1.0 and v1.2.x adapters, a MANC synthetic fixture
+    derived from the MaleCNS fixture, and 13 MANC fixture tests; rebuilt MaleCNS under schema 0.2.0 (content
+    identical).
+  - Built `manc:v1.0`, `manc:v1.2.1`, `manc:v1.2.3` (0 validation failures; second builds byte-identical).
+  - Reproduced the paper's MANC connectivity matrices exactly from the rebuilt datasets (§3.11).
+  - Delegated: model-spec extraction from the authors' code (`research/literature/pugliese_model_spec_from_code.md`),
+    MANC provenance verification (`research/manc_release_notes.md`), synthetic signals/circuits fixtures.
+  - Implemented the simulator (`brainir.sim`) and rhythm metrics (`brainir.metrics`); 47 tests against the
+    independent reference integrator and labelled signals. First 4 DNg100 replicates on the rebuilt MANC network:
+    scores 0.89–1.00, 2–3 active front-leg MNs, 10–12 Hz (paper: mean 0.974, median 3 MNs, ~11 Hz).
