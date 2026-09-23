@@ -80,7 +80,13 @@ each section. Dates are absolute. "Phase 0" = the data/research foundation (spec
    Now all match.
 8. **Curated-label quirks.** 112 typed neurons have an `instance` that does not start with their `type`
    (e.g. `CB4248` / `CB4175_R`; `PEN_a(PEN1)` / `PEN_a(PB06a)_L3`). The source's curated labels are kept verbatim.
-9. **ROI metadata.**
+9. **Skeletons vs connectome snapshot.**
+   - Official SWC skeletons exist; checked for 10056, 10045 and 10001, both raw and mirrored, uploaded 2026-05-05.
+   - Their headers name DVID node `86f3689d…` at mutation 1006540662. The connectome snapshot is at mutation
+     1006591300.
+   - Skeletons of recently edited neurons may therefore lag the connectivity slightly. `MorphologyRef.verified_exists`
+     is False until checked per neuron.
+10. **ROI metadata.**
    - The hierarchy is a DAG: 9 ROIs have two parents (CA, IB, ICL, PED, SCL).
    - 4 ROIs have statistics but are absent from the hierarchy (`AL-unspecified(L/R)`, `gL-unspecified(L/R)`).
 

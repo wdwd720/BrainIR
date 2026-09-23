@@ -12,7 +12,7 @@ import pytest
 
 from brainir import paths
 from brainir.acquire import IntegrityError, _verify, check_pins, file_digests
-from brainir.manifest import build_manifest
+from brainir.manifest import build_manifest, dataset_version_record
 from brainir.sources.registry import MALECNS_V1_0, RemoteFile
 
 TIERS = {"metadata", "core", "synapses", "optional"}
@@ -90,6 +90,8 @@ def test_manifest_structure_from_synthetic_build(synthetic_build):
     for rec in m["processed_outputs"].values():
         assert {"path", "sha256", "size_bytes", "rows", "schema"} <= set(rec)
     json.dumps(m)  # serialisable
+    dv = dataset_version_record(m)  # the typed DatasetVersion model validates from a manifest
+    assert dv.key == "male-cns:v1.0" and dv.animal_sex == "male" and dv.voxel_size_nm == (8.0, 8.0, 8.0)
 
 
 REAL_MANIFEST = paths.manifests_dir() / "male-cns_v1.0.manifest.json"
@@ -109,3 +111,6 @@ def test_committed_manifest_is_consistent_with_registry():
         assert "v1.0" in rec["remote_url"] and not rec["local_path"].startswith(("C:", "/"))
     assert m["validation"]["summary"]["fail"] == 0
     assert m["build"]["git"]["commit"], "manifest must record the code commit that produced it"
+    dv = dataset_version_record(m)
+    assert len(dv.checksums) == len(m["acquisition"]["files"]) and all(len(c.sha256) == 64 for c in dv.checksums)
+    assert dv.synapse_confidence_threshold == 0.5 and dv.synapse_confidence_threshold_hp == 0.7

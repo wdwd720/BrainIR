@@ -149,3 +149,34 @@ def write_manifest(source: DatasetSource, build_info: dict, report_dict: dict, o
         if src.exists():
             shutil.copyfile(src, mdir / f"{stem}.validation.{ext}")
     return path
+
+
+def dataset_version_record(manifest: dict):
+    """Typed :class:`~brainir.schema.models.DatasetVersion` built from a manifest dict."""
+    from .schema.models import DatasetVersion, FileChecksum, Transformation
+
+    snap = (manifest.get("release") or {}).get("neuprint_snapshot") or {}
+    files = manifest.get("acquisition", {}).get("files", [])
+    return DatasetVersion(
+        dataset=manifest["dataset"], version=manifest["version"],
+        release_date=(manifest.get("release") or {}).get("date"),
+        animal_sex=manifest["animal"]["sex"], n_animals=manifest["animal"]["n_animals"],
+        cns_coverage=manifest["animal"]["cns_coverage"],
+        acquisition_source=manifest["official_source"]["bucket"],
+        acquisition_method=manifest["acquisition"]["method"],
+        acquired_at_utc=manifest["acquisition"].get("first_acquired_utc"),
+        access_urls={k: v for k, v in {"landing_page": manifest["official_source"].get("landing_page"),
+                                       "download_page": manifest["official_source"].get("download_page"),
+                                       "neuprint": manifest.get("neuprint_server")}.items() if v},
+        checksums=[FileChecksum(path=f["local_path"], size_bytes=f["size_bytes"], sha256=f["sha256"],
+                                crc32c_b64=f.get("crc32c_b64"), md5_b64=f.get("md5_b64")) for f in files],
+        transformations=[Transformation(step=t["step"], description=t["description"], code_ref=t["code_ref"])
+                         for t in manifest.get("transformations", [])],
+        synapse_confidence_threshold=snap.get("postHighAccuracyThreshold"),
+        synapse_confidence_threshold_hp=snap.get("postHPThreshold"),
+        coordinate_space=f"{manifest['dataset']} {manifest['version']} EM space",
+        voxel_size_nm=(8.0, 8.0, 8.0) if manifest["dataset"] == "male-cns" else None,
+        citation=manifest.get("citation", {}), license=manifest.get("license", {}),
+        documentation_urls=manifest.get("documentation_urls", []),
+        notes=[f"{k}: {v}" for k, v in (manifest.get("definitions") or {}).items()],
+    )

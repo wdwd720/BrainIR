@@ -86,7 +86,10 @@ authors' snapshot and v1.0.
   redundant.
 - Adding ≤ 10% synaptic-count noise leaves rhythms intact.
 - Removing size normalisation abolishes robust oscillation.
-- Frequency rises with DNg100 drive in the full network (~9.6 → 12.7 Hz), but not in the isolated 3-neuron core.
+- Frequency rises with DNg100 drive in the full network, but not in the isolated 3-neuron core.
+  - The paper states this qualitatively (Fig. 2g; ED Fig. 4a).
+  - Median values recomputed by the research agent from the authors' figure CSVs, **not quoted from the paper**:
+    ~9.6 → 12.7 Hz for I = 220 → 340.
 - A second pathway, DNb08, drives rhythm via E4 (IN03A006) and E5 (INXXX464) onto the same core. This works in
   3 of 4 datasets; it fails in BANC.
 

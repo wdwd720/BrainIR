@@ -313,6 +313,12 @@ class Connectome:
         return out
 
     # ------------------------------------------------------------------ typed records
+    def dataset_version(self):
+        """DatasetVersion record from the committed manifest (data/manifests/<dataset>_<version>.manifest.json)."""
+        from .manifest import dataset_version_record
+        p = paths.manifests_dir() / f"{self.dataset}_{self.version}.manifest.json"
+        return dataset_version_record(json.loads(p.read_text(encoding="utf-8")))
+
     def provenance(self) -> Provenance:
         bi = self.build_info
         return Provenance(source_dataset=self.dataset, source_version=self.version,

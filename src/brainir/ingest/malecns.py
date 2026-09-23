@@ -153,15 +153,30 @@ def _arrow(rel) -> pa.Table:
     return t.read_all() if isinstance(t, pa.RecordBatchReader) else t
 
 
+# Source files whose content determines the processed outputs (hashed into build_info as a code fingerprint).
+PIPELINE_SOURCES = ("ingest/malecns.py", "io.py", "schema/tables.py", "schema/vocab.py", "schema/evidence.py",
+                    "sources/registry.py", "validation.py", "paths.py")
+
+
+def _code_fingerprint() -> dict:
+    """SHA-256 of each pipeline source file (LF-normalised) + a combined digest; exact even if git is dirty."""
+    import hashlib
+
+    base = Path(__file__).resolve().parents[1]
+    files = {rel: hashlib.sha256((base / rel).read_bytes().replace(b"\r\n", b"\n")).hexdigest() for rel in PIPELINE_SOURCES}
+    combined = hashlib.sha256("".join(f"{k}:{v}\n" for k, v in sorted(files.items())).encode()).hexdigest()
+    return {"combined_sha256": combined, "files": files}
+
+
 def _git_state() -> dict:
     root = paths.repo_root()
     try:
         commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True).stdout.strip()
         dirty = bool(subprocess.run(["git", "status", "--porcelain", "--", "src"], cwd=root, capture_output=True,
                                     text=True, check=True).stdout.strip())
-        return {"commit": commit, "src_dirty": dirty}
+        return {"commit": commit, "src_dirty": dirty, "pipeline_code": _code_fingerprint()}
     except (OSError, subprocess.CalledProcessError):
-        return {"commit": None, "src_dirty": None}
+        return {"commit": None, "src_dirty": None, "pipeline_code": _code_fingerprint()}
 
 
 def _float_to_int64(s: pd.Series, name: str) -> pd.Series:
