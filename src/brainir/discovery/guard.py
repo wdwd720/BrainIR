@@ -89,6 +89,10 @@ def truth_guard(*roots: Path | str | None) -> Iterator[None]:
     """Refuse file access to ``roots`` (and to any ``truth`` directory) inside the ``with`` block."""
     _install()
     added = [r for r in (_norm(x) for x in roots if x is not None) if r]
+    pkg = _norm(Path(__file__).resolve().parents[1])  # the brainir package: a guarded root must never contain it
+    for r in added:
+        if pkg == r or (pkg or "").startswith(r.rstrip("\\/") + os.sep):
+            raise ValueError(f"truth guard: root {r!r} contains the brainir package (a mis-parsed path?)")
     with _LOCK:
         _STATE["roots"] = list(_STATE["roots"]) + added
         _STATE["depth"] += 1

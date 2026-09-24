@@ -166,7 +166,10 @@ def _pair_job(method, mode, inst_dir, seed, budget_a, budget_b, config, truth_pa
         base_mode = mode[: -len("_null")]
         b = null_correspondence(b, a, seed=int(seed) + 99)
     t0 = time.time()
-    with count_real_simulations() as counter, truth_guard(truth_path.parent):
+    # remotely the truth is only in memory; the local truth path means nothing on the worker (a Windows path parsed on Linux has
+    # parent ".", i.e. the worker's working directory, which holds the package itself)
+    guard_root = None if truth_bytes is not None else truth_path.parent
+    with count_real_simulations() as counter, truth_guard(guard_root):
         if base_mode == "independent_pooled":
             res = independent_pooled(a, b, method, budget_a=budget_a, budget_b=budget_b, seed=seed, config=config)
         else:

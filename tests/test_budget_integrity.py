@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import ast
 import json
+from pathlib import Path
 
 import numpy as np
 import pytest
@@ -234,6 +235,36 @@ def test_truth_is_unreachable_while_a_method_runs(tiny):
         assert is_denied(tp) and is_denied(root / "truth_backup" / "x.json") and is_denied(root / "BUILD_REPORT.json")
         assert not is_denied(d / "networks" / "main" / "edges.parquet")
     tp.read_text(encoding="utf-8")  # outside the guard nothing is refused
+    # a root that contains the package itself (e.g. a Windows truth path parsed on a Linux worker -> parent ".") is refused
+    import brainir
+
+    pkg_dir = Path(brainir.__file__).resolve().parent
+    for bad in (pkg_dir, pkg_dir.parent):
+        with pytest.raises(ValueError, match="contains the brainir package"):
+            with truth_guard(bad):
+                pass
+    assert not guard_active()
+
+
+def test_remote_pair_job_with_a_foreign_truth_path(tmp_path):
+    """Remote pair jobs keep the truth in memory; the local truth path must not become a guarded root on the worker."""
+    from brainir.discovery.pair_tournament import pair_job
+    from brainir.discovery.problem import pack_bundle
+    from brainir.discovery.synthetic_pairs import PairSpec, build_pair, export_pair, verify_pair
+
+    for s in range(6):
+        pair = build_pair(PairSpec("ei_pair_oscillator", 40, 44, 50 + s, n_readout=8))
+        ver = verify_pair(pair, seeds=[0, 1])
+        if ver["verified"]:
+            break
+    export_pair(pair, ver, tmp_path, salt="t")
+    name = pair.spec.label
+    d = tmp_path / "instances" / name
+    packs = {name: {**pack_bundle(d, "a"), **pack_bundle(d, "b")}, f"truth/{name}": (tmp_path / "truth" / f"{name}.json").read_bytes()}
+    rec = pair_job(("greedy_reference", "independent", f"/nonexistent/instances/{name}", 0, 120, 120, {"method_config": {"k": 2, "pool": 8}},
+                    "truth.json", packs))  # a bare file name: its parent is the working directory
+    assert "error" not in rec, rec.get("error")
+    assert "score" in rec
 
 
 TRUTH_BEARING_MODULES = ("brainir.discovery.synthetic", "brainir.discovery.synthetic_pairs", "brainir.discovery.suite_audit",
