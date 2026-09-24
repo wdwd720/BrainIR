@@ -109,7 +109,44 @@ method's own two outputs measure self-agreement, which joint discovery maximises
 reported as evidence. The controlled comparison on harder held-out pairs, with pooled-budget and null-correspondence
 arms (protocol §7), is reported in §10.
 
-## 7. BrainIR v1 (*pending*: composed from the selection evidence; `research/phase2/BRAINIR_V1_METHOD.md`)
+## 7. BrainIR v1 (`src/brainir/methods/brainir_v1.py`, `research/phase2/BRAINIR_V1_METHOD.md`)
+
+A fresh oracle-free agent composed BrainIR v1 in the clean room. It worked from the candidates' code and documents and the
+aggregate selection results. The design:
+
+1. **Restriction.** Exact structural reachability and signs, then an activity filter verified by one simulation decision.
+2. **Canonical order.** A permutation-equivariant structural relevance order replaces a random or index-based order.
+3. **Group elimination.** Adaptive group testing over keep-only sets in that fixed order. Every accept/reject decision
+   is a sequential strict majority over working parameter replicates, extended when the replicates disagree.
+4. **Validation and necessity.** Fresh-replicate validation with add-back, then two necessity tests in the intact
+   network: single silencing of every member (essential claims) and a group-silencing screen for context members.
+5. **Alternatives.** A deterministic enumeration of other sufficient sets.
+6. **Selection.** The canonical set is replaced only by a decisively better set: better fresh-seed validation; else
+   Occam, unless the intact network relies decisively more per member on the larger set; else robustness between equal
+   sizes. Equally supported sets share the probability mass.
+7. **Outputs.** A minimality certificate, a size–error curve, fidelity, evidence-class inclusion probabilities, generic
+   roles and intervention predictions.
+8. **Cross-connectome step.** It runs after the core is final and spends from the same budget pool (at most 25 % of the
+   budget). The core is carried to the other connectome and verified there. Identity claims are emitted only for a
+   verified, complete link, with a calibrated probability. Otherwise only a role-level alignment is reported.
+
+**What was kept from the candidates:**
+- from greedy_plus: the restriction, group elimination and the essential screen;
+- from group_probe: the canonical-order idea;
+- from joint (as fixed after review E): the verified transfer.
+
+**What was dropped:** the surrogate model, random restarts and orders, cross-entropy sampling, the evolutionary Pareto
+search and group_probe's posterior bookkeeping. Each drop is justified by selection-suite evidence (method doc
+sections 5–7).
+
+**What is new in v1:**
+- deterministic, order-invariant search;
+- adaptive replication and pooled necessity tests;
+- selection by reliance;
+- a budget-pooled, verified cross-connectome step.
+
+v1 contains no dataset name, neuron identifier, cell type, mechanism size or instance-specific threshold. This is checked
+by review, by `tests/test_leakage_guard.py` and by the static rules of `tests/test_budget_integrity.py`.
 
 ## 8. Confirmation on an untouched suite (*pending*)
 

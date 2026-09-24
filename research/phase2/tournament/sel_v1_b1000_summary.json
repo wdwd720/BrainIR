@@ -1,0 +1,173 @@
+{
+ "label": "sel_v1_b1000",
+ "suite": "mechanisms_v1_heldout",
+ "suite_sha256": "6194872a4f9090f4619cc7998bab9c34137622840f251747bc4550c66093847b",
+ "methods": [
+  "brainir_v1"
+ ],
+ "n_jobs": 342,
+ "budget": 1000,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "robust": true,
+ "wall_s": 277.3,
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 342,
+  "wall_time_s": 267.2,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 200,
+   "app": "brainir-phase1",
+   "shared_payload_key": "7982695622633300866a916caa1e6ad2",
+   "shared_payload_bytes": 2171803,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 3.9192
+ },
+ "code": {
+  "commit": "691c0d6592c82de9cb4d121180f0146284c1fa65",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "26c90500645ad704e0d6d6e4755f8d0391ae1690263a4b6cc1feebda5155b28d",
+  "sim_code_version": "ea23e96d196a3d25",
+  "launched_utc": "2026-09-24T05:17:55Z"
+ },
+ "environments": [
+  {
+   "implementation": "cpython",
+   "machine": "x86_64",
+   "packages": {
+    "networkx": "3.7",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "pydantic": "2.13.5",
+    "scipy": "1.18.1"
+   },
+   "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+   "python": "3.12.10",
+   "sim_code_version": "ea23e96d196a3d25",
+   "source_tree_sha256": "26c90500645ad704e0d6d6e4755f8d0391ae1690263a4b6cc1feebda5155b28d"
+  }
+ ],
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 342,
+   "n_scored": 342,
+   "n_failed": 0,
+   "failures": [],
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9473684210526315,
+   "functional_success_rate": 0.9122807017543859,
+   "functional_success_ci95": [
+    0.8801169590643275,
+    0.9415204678362573
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9956140350877193,
+   "functional_robust_mean": 0.9210526315789473,
+   "calls_median": 84.0,
+   "calls_mean": 105.7280701754386,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9166666666666666,
+   "brier_mean": 0.003886987424203658,
+   "essential_accuracy_mean": 0.9992283950617284,
+   "removable_fraction": 0.08771929824561403,
+   "simulated_seconds_median": 93.0,
+   "identity_consistency": {
+    "n_instances": 57,
+    "pairwise_jaccard_mean": 0.968421052631579,
+    "identical_fraction": 0.9473684210526315,
+    "n_empty_cores": 0
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 108.0
+    },
+    "ei_pair_oscillator": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 62.0
+    },
+    "feedforward_driver": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 116.0
+    },
+    "integrator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 45.0
+    },
+    "memory_switch": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 38.0
+    },
+    "negative_feedback_controller": {
+     "n": 24,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 78.0
+    },
+    "redundant_oscillator": {
+     "n": 42,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 112.0
+    },
+    "ring_oscillator": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 103.0
+    },
+    "two_implementations": {
+     "n": 48,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 181.0
+    },
+    "winner_take_all": {
+     "n": 30,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 64.0
+    }
+   }
+  }
+ },
+ "n_records": 342,
+ "full_records": "sel_v1_b1000.json.gz"
+}

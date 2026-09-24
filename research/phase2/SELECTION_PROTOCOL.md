@@ -103,8 +103,13 @@ already been measured.
    (its cross-connectome calls included, since spawned simulators share the budget), seeds 0, 1, 2. The runs use
    `pairs_v1_heldout` and `pairs_v2_heldout` before the freeze, and `pairs_v2_final` once after it.
    - **Interpretation rule (fixed now):** its identity claims are called reliable only if, on `pairs_v2_final`, the
-     pooled precision is at least 0.8, null pairs receive at most 5 % of all claims, and the Brier score beats the
-     constant predictor at the observed precision.
+     pooled precision is at least 0.8, null pairs receive at most 5 % of all claims, and the confidence is calibrated
+     in the large: the mean claim confidence is within 0.10 of the observed precision.
+   - *Correction, 2026-09-23, before any confirmation run.* The first version of this rule required the Brier score to
+     beat the constant predictor at the observed precision. That condition cannot be met when every claim is correct:
+     the constant predictor at 1.0 then has a Brier score of 0, so any confidence below 1 would fail. It was replaced by
+     calibration in the large; the Brier score and the reliability diagram are still reported. The error was noticed
+     when the held-out (selection-role) pair results showed a precision of 1.00. No confirmation data existed then.
    - Otherwise the report treats v1's cross-connectome claims, including their hidden-benchmark score, as unreliable.
      No tuning follows either way.
 4. **Joint discovery against its controls** (review E finding 4). The comparison uses `pairs_v1_heldout` and

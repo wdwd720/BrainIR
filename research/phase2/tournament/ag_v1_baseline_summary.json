@@ -1,0 +1,170 @@
+{
+ "label": "ag_v1_baseline",
+ "suite": "mechanisms_v1_heldout",
+ "suite_sha256": "b3a3a768b9dab844760997f27b6e27e7aa7efc0be50886486c72aac885f7740f",
+ "methods": [
+  "brainir_v1"
+ ],
+ "n_jobs": 47,
+ "budget": 1000,
+ "seeds": [
+  0
+ ],
+ "networks": [
+  "main"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "robust": false,
+ "wall_s": 171.7,
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 47,
+  "wall_time_s": 169.6,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 150,
+   "app": "brainir-phase1",
+   "shared_payload_key": "991aefa602942711b484e7cce6bf55a2",
+   "shared_payload_bytes": 172454,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 0.5846
+ },
+ "code": {
+  "commit": "98568a756ddad9dff6c2954b55e703000dd69185",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "7e59f6a701cc9cec5f04a2c55afcb113fd593e5a9386f832aed63c87aee405d2",
+  "sim_code_version": "ea23e96d196a3d25",
+  "launched_utc": "2026-09-24T05:26:05Z"
+ },
+ "environments": [
+  {
+   "implementation": "cpython",
+   "machine": "x86_64",
+   "packages": {
+    "networkx": "3.7",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "pydantic": "2.13.5",
+    "scipy": "1.18.1"
+   },
+   "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+   "python": "3.12.10",
+   "sim_code_version": "ea23e96d196a3d25",
+   "source_tree_sha256": "7e59f6a701cc9cec5f04a2c55afcb113fd593e5a9386f832aed63c87aee405d2"
+  }
+ ],
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 47,
+   "n_scored": 47,
+   "n_failed": 0,
+   "failures": [],
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9574468085106383,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.8085106382978723,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": null,
+   "calls_median": 77.0,
+   "calls_mean": 91.65957446808511,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9111111111111111,
+   "brier_mean": 0.004851795553815472,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 77.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null,
+    "n_empty_cores": 0
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 107.0
+    },
+    "ei_pair_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 58.0
+    },
+    "feedforward_driver": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 66.0
+    },
+    "integrator": {
+     "n": 2,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 43.0
+    },
+    "memory_switch": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 38.0
+    },
+    "negative_feedback_controller": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 78.0
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 112.0
+    },
+    "ring_oscillator": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 77.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 165.5
+    },
+    "winner_take_all": {
+     "n": 5,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 64.0
+    }
+   }
+  }
+ },
+ "n_records": 47,
+ "full_records": "ag_v1_baseline.json.gz"
+}
