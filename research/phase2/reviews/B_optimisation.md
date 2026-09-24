@@ -1,6 +1,6 @@
 # Review B — optimisation: search, objective and budget of BrainIR v1
 
-Independent reviewer B (optimisation), oracle-free, 2026-09-23 22:00 to 2026-09-24 10:15. I worked only in `C:\Dev\BrainIR_p2clean`
+Independent reviewer B (optimisation), oracle-free, 2026-09-23 22:00 to 2026-09-24 10:45. I worked only in `C:\Dev\BrainIR_p2clean`
 and in my own scratch folder (`<session scratchpad>\review_B_opt\`). Every experiment used synthetic instances I generated myself (truth
 known only to me) or ran oracle-free on the public blind bundle. I modified no repository code; this file is the only file I wrote in the
 clean room.
@@ -12,6 +12,9 @@ clean room.
 last change could affect. Problems I had found in the intermediate version and that the final code fixed are recorded in §7.2, with the
 numbers that show the fixes work.
 
+**Note added at 10:41.** At 10:38 `brainir_v1.py` changed again, to version 1.2.0 (sha256 `25494c8a…`), which starts implementing the
+findings of a first draft of this review (it cites B1, B2 and B7). I have not reviewed 1.2.0; everything below is about `94ea1f8e`.
+
 ## Summary
 
 - **The search is correct and efficient; keep it.** It consists of the exact restriction, the canonical relevance order and adaptive
@@ -21,7 +24,7 @@ numbers that show the fixes work.
     ratio 1.00, maximum 1.78): 2x fewer elimination calls than single deletion on small pools, 16x fewer on n = 500 pools.
   - Every core returned at 1,000 calls (612 runs over the three versions) was sufficient and causally 1-minimal on 16 fresh parameter
     draws.
-  - No run of 4,000+ exceeded its budget or let `BudgetExhausted` escape. Results are bit-identical across interpreters for v1.0 and
+  - No run of 4,620 exceeded its budget or let `BudgetExhausted` escape. Results are bit-identical across interpreters for v1.0 and
     the intermediate v1.1 (12/12 digests each); I did not re-run the digests on the final code (incomplete, §6).
 - **The final v1.1 fixed the two largest problems I had measured in the intermediate v1.1** (§7.2).
   - The necessity screen is now selective: on n = 500 it costs 63 calls per run instead of 336, and at n = 3,000 102–114 calls instead
@@ -44,9 +47,8 @@ numbers that show the fixes work.
   - At 50–100 calls the final v1.1 is the best or tied arm: causal success +0.103 [+0.024, +0.190] over greedy_plus at 50 calls and
     +0.16 to +0.29 over single deletion, tied with group_probe; the same core in both node orders for 92–94 % of the instances, against
     70–75 % for greedy_plus.
-- **Incomplete (time box).** On the final code I did not re-run the determinism digests or the budget sweep, the hyper-parameter
-  check covers 6 of its 11 instances, and the two efficiency fixes were measured on one instance of the intermediate code only. Every
-  place this matters says so.
+- **Incomplete (time box).** On the final code I did not re-run the determinism digests or the budget sweep, and the two efficiency
+  fixes were measured on one instance of the intermediate code only. Every place this matters says so.
 - **Findings: 0 blockers, 1 major (B2), 8 minor (B1, B3–B9).** Verdict (§10): keep the search and the final code's structure; fix B2 (or
   report the MANC choice as a tie) before the lock; record the code hash in every result (B1).
 
@@ -57,8 +59,9 @@ numbers that show the fixes work.
 | assigned (2026-09-23) | v1.0: `brainir_v1.py` 1,479 lines (I did not hash it); `BRAINIR_V1_METHOD.md` of 21:56 | 1,229 runs (1,000 / 100 / 50 calls, lean and node-order variants, baselines), determinism 12/12 |
 | 2026-09-24 01:02 | library extended (graded rates, `SimQuery.remove_edges`, new scorer fields); `SELECTION_PROTOCOL.md` §8 | v1.0 determinism re-run under the new library: identical cores and calls in 12 of 12 cases |
 | 01:15–01:58 | `brainir_v1.py` rewritten; at 01:58 sha256 `05876be0…`, 2,063 lines — **v1.1-intermediate** | pinned copy at 02:06; 2,582 runs (1,000 calls, 50/100 calls, 987 hyper-parameter runs, 216-run budget sweep, n = 3,000, real bundle), determinism 12/12 |
-| 06:14 | sha256 `94ea1f8e…`, 2,203 lines, still `version = "1.1"` — **v1.1-final** | pinned copy at 08:16; about 600 runs (1,000 calls in both orders, real bundle including `decisive` = 0.975 on MANC, n = 3,000, 50/100 calls, part of the hyper-parameter check); no determinism digests or budget sweep (incomplete) |
+| 06:14 | sha256 `94ea1f8e…`, 2,203 lines, still `version = "1.1"` — **v1.1-final** | pinned copy at 08:16; 783 runs (1,000 calls in both orders, real bundle including `decisive` = 0.975 on MANC, n = 3,000, 50/100 calls, 399 hyper-parameter runs); no determinism digests or budget sweep (incomplete) |
 | 08:08 and 09:40 | `BRAINIR_V1_METHOD.md` rewritten for v1.1 (§7 declares `94ea1f8e` frozen); seven placeholders at 08:08, filled at 09:40 | 08:08 version read in full; the sections filled at 09:40 read |
+| 10:38 | `brainir_v1.py` version 1.2.0, sha256 `25494c8a…` (responds to this review's first draft) | not reviewed |
 
 - **Unchanged since v1.0** (evidence from all versions pooled): restriction, relevance order, `eliminate`, `Prober.decide`, the pooled
   necessity test, the enumeration of alternatives, the seed layout, the phase reserves.
@@ -241,11 +244,10 @@ with hubs, winner-take-all with a backup copy, controller with a backup copy, we
   the n = 500 instance); every other parameter 0.98–1.02.
 - **v1.1-final, the 9 defaults whose role the final change touched** (`decisive`, `max_validation_seeds`, `validation_seeds`,
   `n_seeds_per_decision`, `max_decision_seeds`, `screen_singles_fraction`, `screen_min_singles`, `screen_singles_per_member`,
-  `necessity_screen_fraction`; 194 perturbed runs, 6 of the 11 instances runs): no perturbation changed a returned core (0 of 194), including `decisive` = 0.975 on `mem60_d25`/main: its
+  `necessity_screen_fraction`; 378 perturbed runs): no perturbation changed a returned core (0 of 378), including `decisive` = 0.975 on `mem60_d25`/main: its
   fidelity exclusion (0.961 at n = 4) is extended to 5 replicates and holds at 0.988. The cost moved with decision replication
-  (`n_seeds_per_decision` 0.82 / 1.18 of the default calls) and validation (`validation_seeds` 0.95 / 1.12, `max_validation_seeds`
-  0.98 / 1.03); the screen parameters moved the calls by at most 1 %. **Incomplete:** the runs on the other five instances (`red50_d9`,
-  `red60_d36`, `two50_d12`, `wta60_d48`, `ring60_d4`) and part of `nfc60_d42` had not finished when I wrote this.
+  (`n_seeds_per_decision` 0.85 / 1.18 of the default calls) and validation (`validation_seeds` 0.95 / 1.12,
+  `max_validation_seeds` 0.98 / 1.03); the screen parameters moved the calls by at most 1 %.
 - **Interpretation.** The search and the screen are insensitive to their constants. The selection is sensitive exactly where a paired
   posterior sits near the decisiveness threshold (the sequential extension protects a key that can still grow its sample, as on `mem60_d25`, but not one already at the 12-replicate cap; on the real MANC network 0.954, B2).
 
@@ -352,7 +354,7 @@ cases per version, including three budget-limited runs (37, 61 and 90 calls) and
 v1.1-intermediate 12/12, v1.1-final not re-run (incomplete: the final code's new loops are deterministic by construction — no random number generator, fixed seed offsets — but I did not verify it with digests).** The seed-to-block map has period 16 (B7).
 
 **Budget exhaustion.**
-- No run of 4,400+ exceeded its budget, `BudgetExhausted` never escaped `discover`, and no run raised an error. Every finishing phase
+- No run of 4,620 exceeded its budget, `BudgetExhausted` never escaped `discover`, and no run raised an error. Every finishing phase
   is guarded (lines 96–105: exhaustion ends the phase; any other exception is recorded in `diagnostics["errors"]`, which stayed empty in
   every final run), and the elimination returns its current passing set.
 - Intermediate sweep (8 instances x 27 budgets from 1 to 500 calls, 216 runs): below about 20 calls the result is a verified superset
@@ -613,7 +615,7 @@ In `C:\Dev\BrainIR_p2clean` only:
   `research/phase2/selection_results/*.md`; `research/phase2/methods_review.md` §1.
 - `src/brainir/methods/brainir_v1.py`: v1.0 (1,479 lines) and v1.1-intermediate `05876be0` in full; v1.1-final `94ea1f8e` through its
   complete diff against `05876be0` plus `_Run.__init__`, `necessity`, `execute` (validation, add-back, phase reserves), `select`,
-  `reliance`, `compare`, `alternatives`, `certify`, `eliminate` and `guarded`; its sha256 re-checked at the end of the review.
+  `reliance`, `compare`, `alternatives`, `certify`, `eliminate` and `guarded`. (Version 1.2.0 of 10:38: only its diff header, to identify it.)
 - `tests/test_method_brainir_v1.py` (v1.0 version).
 - `src/brainir/methods/greedy_plus.py`, `group_probe.py`, `__init__.py`.
 - `src/brainir/discovery/`: `simulator.py`, `interventions.py`, `criteria.py`, `interface.py`, `guard.py`, `problem.py`, `run.py`,
@@ -635,12 +637,11 @@ uv run --no-sync python %RB%\rb_run.py --campaign v12main --workers 2           
 uv run --no-sync python %RB%\rb_run.py --campaign v12low --workers 2                   # 50 / 100 calls
 uv run --no-sync python %RB%\rb_run.py --campaign v12large --workers 2                 # n = 3,000
 uv run --no-sync python %RB%\rb_run.py --campaign v12hyper --workers 2                 # +-50 % of 9 defaults
-uv run --no-sync python %RB%\rb_run.py --campaign v12sweep --workers 2                 # budget sweep
 uv run --no-sync python %RB%\rb_real.py --method v1_timed --network manc_v1.2.1 --tag v12 [--config "{\"decisive\": 0.975}"]
-PYTHONHASHSEED=1 / 987: uv run --no-sync python %RB%\rb_determinism.py --tag v12a / v12b; then --compare v12a v12b
+# defined but not run on the final code (incomplete): --campaign v12sweep, v12fixes; rb_determinism.py --tag v12a / v12b
 uv run --no-sync python %RB%\rb_analyze.py results/main1000.jsonl results/v11main.jsonl results/v12main.jsonl --seeds 0 --pairs v1:v12,greedy_plus:default
 uv run --no-sync python %RB%\rb_v12cmp.py | rb_intact.py | rb_v11diag.py results/v12main.jsonl --label v12 | rb_hyper_analyze.py results/v12hyper.jsonl
-uv run --no-sync python %RB%\rb_sweep_analyze.py results/v12sweep.jsonl | rb_real_show.py v12 v12_dec0975
+uv run --no-sync python %RB%\rb_real_show.py v12 v12_dec0975
 ```
 Campaign definitions are in `rb_run.py` and `rb_v11.py`; every record carries the instance, node order, seed, budget, calls, the scorer's
 metrics, the method's diagnostics and the 16-draw population check.
@@ -687,7 +688,7 @@ versions.
 ## 10. Verdict
 
 - **Search: correct, efficient, keep.** The canonical group elimination gives the same answer as plain single deletion at 2–16x fewer
-  calls, is bit-identical given the seed, is stable across node orders up to exact symmetry, and never broke a budget in 4,400+ runs.
+  calls, is bit-identical given the seed, is stable across node orders up to exact symmetry, and never broke a budget in 4,620 runs.
   At 50–100 calls it is the best or tied search in this comparison.
 - **Objective: sound as a filter, heuristic as a chooser.** Admissibility (validated, participating, containing every neuron measured
   essential) is well founded, and the final code enforces it at a reasonable cost. Choosing among several admissible 1-minimal sets
