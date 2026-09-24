@@ -109,6 +109,20 @@ method's own two outputs measure self-agreement, which joint discovery maximises
 reported as evidence. The controlled comparison on harder held-out pairs, with pooled-budget and null-correspondence
 arms (protocol §7), is reported in §10.
 
+**BrainIR v1 on the same held-out suite** was run after composition, under the section 2 conditions (342 runs, 0
+errors; `research/phase2/tournament/sel_v1_b1000.md`). The paired comparisons use the same instances, node orders and
+seeds (`cmp_sel_v1_*.md`; 95 % CIs resample instances):
+
+| v1 vs | structural success | causal functional | identity Jaccard / identical | calls | robust (sd ×2 / weight noise) |
+|---|---|---|---|---|---|
+| greedy_reference | 1.00 vs 0.74, +0.26 [+0.15, +0.37] | 1.00 vs 0.20 | 0.97 / 0.95 vs 0.83 / 0.63 | 106 vs 304, 198 fewer [141, 261] | +0.22 / +0.18 |
+| greedy_plus | equal (1.00) | +0.003 | +0.086 [+0.033, +0.146] / +0.19 [+0.09, +0.30] | equal | −0.01 / −0.02 (n.s.) |
+| group_probe | equal | +0.047 [+0.006, +0.102] | +0.021 (n.s.) / +0.088 | 36 fewer [9, 71] | equal |
+| cem_search | equal | +0.003 | +0.058 [+0.011, +0.110] / +0.14 | 9 fewer (n.s.) | equal |
+
+v1's planted-set success is lower than greedy_plus's: 0.947 vs 0.988. On a few feed-forward instances v1 returns an
+unplanted but valid sufficient set, such as a hub, which the truth audit lists.
+
 ## 7. BrainIR v1 (`src/brainir/methods/brainir_v1.py`, `research/phase2/BRAINIR_V1_METHOD.md`)
 
 A fresh oracle-free agent composed BrainIR v1 in the clean room. It worked from the candidates' code and documents and the
@@ -179,6 +193,38 @@ null is 20 random interneuron sets per run with the same size and sign compositi
 These transfers show functional sufficiency of the carried-over set in the other connectome against a matched null. They
 do not show neuron identity (review E finding 9).
 
+**Synthetic pairs: does joint discovery help?** This is the pre-registered comparison of protocol §7.4, run after the
+review E fixes. The base methods are greedy_plus and greedy_reference, with 3 seeds and 1,000 + 1,000 calls. Pairs are
+matched on instance and seed (`research/phase2/tournament/cmp_arms_pairs_{v1h,v2h}.md`). The table gives calls saved by
+the joint arm against the null arm, whose simulations are identical but whose cross-network cues are destroyed; success
+is for both networks.
+
+| pair design | base method | success: joint / independent / null | calls saved by joint vs null [95 % CI] |
+|---|---|---|---|
+| easy (v1 design, 26 pairs) | greedy_plus | 0.96 / 0.96 / 0.96 | +54 [+39, +68] |
+| easy | greedy_reference | 0.72 / 0.72 / 0.73 | +121 [+66, +178] |
+| hard (v2 design, 27 pairs) | greedy_plus | 1.00 / 1.00 / 1.00 | +14 [−0.1, +30] |
+| hard | greedy_reference | 0.65 / 0.63 / 0.63 | +7 [−29, +45] |
+
+- **Success.** Joint discovery raises success in no case.
+- **Easy pairs.** Joint discovery saves calls, and the saving comes from the correspondence: the null arm does not save.
+- **Hard pairs.** The saving is not distinguishable from zero. Hard pairs have blank hemilineage, noisy anchors,
+  homologous backgrounds, rewired motifs, structural decoys and null pairs.
+- **Earlier numbers.** The success gain seen before the fix (greedy_reference 0.71 → 0.96) came from adopting the other
+  network's mechanism by agreement. Review E showed that adoption to be unjustified, and it is gone.
+- **Identity claims.** Every claim the fixed joint mode made was correct (107 and 25 claims), except one on a null pair
+  with the cues destroyed.
+
+**BrainIR v1's own cross-connectome step** runs on network a of each held-out pair within the same 1,000-call budget
+(`sel_v1_pairs_{v1h,v2h}.md`):
+
+| pair design | runs with claims | identity claims (correct) | false claims on shift / null / structural-decoy pairs |
+|---|---|---|---|
+| easy (v1 design) | 42 of 78 | 90 (90) | 0 / 0 / 0 |
+| hard (v2 design) | 12 of 81 | 18 (18) | 0 / 0 / 0 |
+
+On the hard design v1 is conservative. It claims rarely, and when it does it is right.
+
 BrainIR v1's own transfer experiments and the hidden-oracle scoring of its cross-connectome claims: *pending*.
 
 ## 11. Ablations, anti-gaming checks, nulls
@@ -192,8 +238,41 @@ candidate is invariant to five changes (0 runs lost, 0 gained):
 - appended sink-only distractors;
 - doubled parameter spread.
 
-greedy_reference gains one run with sink distractors. BrainIR v1's anti-gaming checks, ablations and matched random
-nulls: *pending*.
+greedy_reference gains one run with sink distractors.
+
+**BrainIR v1, anti-gaming** (`research/phase2/tournament/ag_v1_summary.md`, same 47 instances): invariant to all five
+transforms (0 runs lost, 0 gained).
+
+**BrainIR v1, budget curve** (`sel_curve_v1_curve.md`; seed 0, both node orders, 54 held-out instances with n ≤ 600):
+structural success is 1.00 at every budget from 50 to 2,000 calls. Mean calls used are 49 at a budget of 50 and 68 at 100,
+levelling off at about 100.
+
+| method | causal functional (50 calls) | identical cores (50 calls) | causal functional (100 calls) | identical cores (100 calls) |
+|---|---|---|---|---|
+| brainir_v1 | 0.95 | 0.93 | 1.00 | 0.94 |
+| group_probe | 0.95 | 0.91 | 0.95 | 0.91 |
+| greedy_plus | 0.96 | 0.69 | 1.00 | 0.80 |
+| cem_search | 0.77 | 0.65 | 0.97 | 0.80 |
+| greedy_reference | 0.00 | 0.72 | 0.00 | 0.74 |
+
+**BrainIR v1, ablations** (`abl_v1_summary.md`): each component is switched off alone, on the same 54 instances, 2 node
+orders and seed 0 (108 paired runs per variant). Structural success stays 1.00 in every variant.
+
+| switched off | effect (paired difference to the default, 95 % CI) |
+|---|---|
+| group testing (one candidate per probe) | +105 calls [+69, +143] |
+| canonical structural order (seeded random order instead) | +18 calls [+14, +24]; identity Jaccard 0.944 → 0.920 |
+| minimality cleanup | causal functional success −0.065 [−0.111, −0.019]; cores +0.18 neurons |
+| adaptive replication | identity Jaccard 0.944 → 0.926 |
+| alternatives enumeration | −30 calls; cores +0.17 neurons (the alternatives let the smaller valid set win) |
+| essentiality tests of members | −30 calls; the essential claims are lost |
+| necessity screen | −6 calls; context members are lost (cores −0.09 neurons) |
+| structural / activity pruning, active chunk sizes, reliance, robust objective | small call changes (−6 to +4); no success or consistency change |
+| decisions on 1 replicate instead of 3 | −36 calls with no loss on this suite |
+| evidence-class uncertainty model (point estimate instead) | Brier 0.004 → 0.000: on these instances v1's probabilities are under-confident |
+
+The replication and the uncertainty model are insurance that this suite does not reward. The real-network sweeps
+(section 9) test the replication.
 
 ## 12. Blind evaluation (*pending*; after the lock)
 
