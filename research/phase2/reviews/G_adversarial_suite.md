@@ -70,8 +70,9 @@ node field in that network's public positions.
 
 | field | meaning |
 |---|---|
-| `mechanism` | the set(s) the intact network actually uses |
-| `acceptable` | the cores that count as correct (exact match). Empty for `distributed_drive`, where no compact core exists. `alternatives_positions` (the regular tournament scorer's field) is set to `acceptable`, or to `mechanism` if empty. |
+| `mechanism` | the set(s) the intact network actually uses: the designed set joined with every measured-essential node (section 3a) |
+| `acceptable` | the cores that count as correct (exact match): the designed core joined with every measured-essential node (section 3a). Empty for `distributed_drive`, where no compact core exists. `alternatives_positions` and `core_positions` (the regular tournament scorer's fields) follow `acceptable`, or `mechanism` if it is empty. |
+| `acceptable_designed`, `mechanism_designed`, `definition` | the sets as the trap was designed, before the essential rule; and the name of the rule applied (`acceptable-contains-essential/v2`) |
 | `essential` / `non_essential` / `ambiguous` | measured single-silencing pass ≤ 0.2 / ≥ 0.8 / in between. Measured for the mechanism and the contested nodes only (at most 40 nodes). |
 | `silence_pass`, `rates_hz` | measured silencing pass fraction, and median intact mean rate, of those nodes |
 | `latent_backups`, `silent_members` | keep-only-sufficient sets the intact network does not use, and their silent nodes |
@@ -82,6 +83,52 @@ node field in that network's public positions.
 | `targets` | each contested node's membership target for calibration: 1 member, 0 non-member, a frequency for interchangeable relays, `None` where undefined |
 | `exchangeable` | groups of functionally interchangeable nodes |
 | `params`, `checks`, `verified` | at the top level of the truth file |
+
+## 3a. Decision: every acceptable core contains every measured-essential node
+
+Decided 2026-09-24 on the coordinator's question.
+
+**The rule** (`DEFINITION = "acceptable-contains-essential/v2"`), the same for every trap:
+- Every acceptable core and every mechanism set is the designed set joined with every node whose single silencing breaks the intact
+  function (measured silencing pass ≤ `FAIL_MAX` = 0.2 on the verification seeds), whatever that node's role in the trap.
+- Every essential node is a calibration target 1.
+- For a degenerate instance (no acceptable core), a correct result must also contain every essential node, besides flagging
+  degeneracy. This is vacuous in the current design, because no relay is essential.
+
+**Why.**
+- These traps define the mechanism *of the intact network*. A neuron whose silencing alone destroys the function is part of that
+  mechanism, whatever it does: it may drive the function, or it may keep something else from disrupting it.
+- The rule is not new:
+  - `masked_gate` already put its essential gate S into the acceptable core;
+  - the public generator's winner-take-all truth includes its context inhibitor;
+  - v1 defines context members E = {x : σ({x}) < 1/2} as part of a candidate mechanism;
+  - review G finding 1 recommends that a candidate lacking an essential neuron be inadmissible.
+- The first definition applied that principle to `masked_gate` but not to `identical_decoy`. There, releasing the decoy copy of a
+  negative-feedback controller overdrives the band's upper edge, so the gate and latch that hold the copy down are essential. The truth
+  listed them as essential yet left them out of the acceptable core.
+- Under that first definition, a method that followed the essential-consistency principle was scored wrong, and `confident_wrong` when
+  confident. The harness's generic `success_intact` accepted the same answer. The two now agree.
+
+**Scope.** I measured which nodes fall outside the designed core, over 88 builds (all 22 variants × 4 seeds, n = 60):
+- **Essential:** the gate and latch of `identical_decoy/nfc_band` (4 of 4 builds). No other variant had any.
+- **Ambiguous** (0.2 < σ < 0.8): no variant had any.
+
+The rule therefore changes the acceptable core of `identical_decoy/nfc_band` only. For every other variant it is a no-op on these
+builds, but it is applied everywhere.
+
+**What changed**
+- **Generator.** `verify_adversarial` applies the rule after measuring essentiality; the designed sets are kept, so re-verification is
+  idempotent.
+- **Migration.** `normalize_truth_network(truth_network)` migrates an entry exported before the rule, in public positions:
+  - it is pure and idempotent, and keeps other alternatives (for example ones added by a suite audit) after the migrated ones;
+  - on my 13 old end-to-end truth files it changed exactly the `identical_decoy/nfc_band` entry, in both node orders.
+- **Scorer.** `score_adversarial` applies the migration to every truth it scores, so old and new truths are scored identically.
+
+**Not changed.**
+- Latent backups, silent members, fragile alternatives and every trap's design are unchanged.
+- Ambiguous nodes are neither required nor accepted. None occurred outside a core in the 88 builds. If one does, a result that includes
+  it is not an exact match, and the scorer reports it in `extra_members`. A harness that wants tolerance can accept extras that belong
+  to `ambiguous`.
 
 ## 4. Traps
 
@@ -245,7 +292,9 @@ is the benchmark for any claimed fidelity.
 
 **Checks.** intact ≥ 0.8; ko(planted) ≥ 0.8; ko(decoy) ≥ 0.8; decoy silent.
 
-**Correct.** The planted motif. The decoy is a latent backup. A calibrated method gives it a low probability.
+**Correct.** The planted motif, plus every essential node (section 3a). In `nfc_band` those are the gate and the latch: releasing the
+decoy overdrives the band's upper edge, so they are essential there. The decoy is a latent backup, and a calibrated method gives it a low
+probability.
 
 ### 4.6 `fragile_vs_robust`
 
@@ -288,7 +337,7 @@ relies on the robust one: silencing it fails on some draws, while silencing the 
 
 | field | definition |
 |---|---|
-| `correct` | the core equals an acceptable core. For a degenerate instance, the result must flag degeneracy. |
+| `correct` | the core equals an acceptable core, which contains every essential node (section 3a). For a degenerate instance, the result must flag degeneracy and contain every essential node. The scorer first migrates the truth with `normalize_truth_network`, so truths exported before section 3a are scored the same way. |
 | `exact`, `contains_mechanism`, `extra_members`, `missing_members` | lenient variants of `correct` |
 | `latent_backup_returned` | a latent backup is a subset of the core |
 | `latent_members_in_core` | silent trap nodes in the core |
@@ -350,7 +399,8 @@ A build with verification takes 30–160 s at this size, on one CPU.
   `score_adversarial(result, truth_network, problem, seeds=5500–5503)`.
 - v1 is the code reviewed in `G_adversarial.md` (sha256 `9ca36c4d…`), before its promised fixes.
 
-**Results.** 3 of 13 correct, and 8 of 13 confident and wrong.
+**Results.** 4 of 13 correct, and 8 of 13 confident and wrong, under the section 3a definition. Under the first definition it was 3 of
+13 correct: the `identical_decoy/nfc_band` run was then scored wrong.
 
 | trap | outcome |
 |---|---|
@@ -358,7 +408,7 @@ A build with verification takes 30–160 s at this size, on one CPU.
 | masked_gate (nfc_band, integrator_ramp, memory_persistence) | 3/3 confident and wrong. The gate was missed; essential recall 0.5–0.67. |
 | distributed_drive/identical | not flagged, so wrong; exchangeable gap 0.87 |
 | subset_of_draws | ei_rhythm: one copy returned at high confidence; its true keep-only pass was 0.25 against a claimed 1.0 (`fidelity_error` 0.75). latch_persistence: wrong, not confident. |
-| identical_decoy | ei_rhythm correct; nfc_band wrong (a 4-member core), not confident |
+| identical_decoy | both correct. For nfc_band, v1 returned motif ∪ {gate, latch}, the section 3a core; the first definition had scored it wrong. |
 | fragile_vs_robust | two_impl_rhythm correct. **band confident and wrong: v1 returned the fragile relay.** Its true pass was 0.75 against a claimed 1.0. |
 
 **Pooled reliability.** Probabilities ≥ 0.85 were right 54 % of the time (n = 28). Probabilities around 0.15 were attached to members
@@ -368,7 +418,12 @@ A build with verification takes 30–160 s at this size, on one CPU.
 
 ## 8. Tests
 
-`uv run --no-sync pytest tests/test_adversarial.py -q`: **18 passed in 21 s.** The tests cover:
+`uv run --no-sync pytest tests/test_adversarial.py -q`: **27 passed in 22 s.** The tests cover:
+- the section 3a rule, for every trap in both node orders, plus `identical_decoy/nfc_band`: acceptable cores and mechanism sets contain
+  every essential node, essential targets are 1, and exported truth is a fixed point of the migration;
+- the reported case: motif ∪ {gate, latch} is correct, and the motif alone is confident and wrong;
+- `normalize_truth_network` on an old-style entry: pure, idempotent, migrated correctly, audit-added alternatives kept, and old and new
+  truths scored identically;
 - every trap building, verifying and exporting, with the public files free of truth and of the trap name;
 - truth consistency in both node orders;
 - parameters within their documented ranges, a fresh seed giving a different network, and knobs pinning one parameter;

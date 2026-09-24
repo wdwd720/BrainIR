@@ -267,10 +267,12 @@ def adversarial_view(tnet: dict) -> dict:
     """For a trap instance of the adversarial suite, the generic truth fields are those of the base generator motif; replace them
     by the trap truth so that the generic metrics agree with it: sufficient sets = the acceptable cores (else the mechanism),
     essential = the measured trap essentials, latent backups = the trap's. Other truth networks are returned unchanged."""
-    adv = tnet.get("adversarial")
-    if not adv:
+    if not tnet.get("adversarial"):
         return tnet
-    t = dict(tnet)
+    from .adversarial import normalize_truth_network
+
+    t = normalize_truth_network(tnet)  # the generator author's current definition (acceptable cores contain every essential node)
+    adv = t["adversarial"]
     sets = [sorted(int(p) for p in a) for a in (adv.get("acceptable") or adv.get("mechanism") or [])]
     if sets:
         t["alternatives_positions"] = sets

@@ -27,8 +27,10 @@ Traps (``TRAPS``; variants in ``VARIANTS``; design note: research/phase2/reviews
 
 Truth (``inst.truth["adversarial"]`` in canonical nodes; ``truth["networks"][name]["adversarial"]`` in public positions after export)
 
-    mechanism          the set(s) the intact network actually uses
-    acceptable         the cores that count as correct (exact match); empty for distributed_drive (no compact core exists)
+    mechanism          the set(s) the intact network actually uses: the designed set joined with every measured-essential node
+    acceptable         the cores that count as correct (exact match): the designed core joined with every measured-essential node
+                       (DEFINITION; the designed sets stay in ``acceptable_designed`` / ``mechanism_designed``); empty for
+                       distributed_drive (no compact core exists)
     essential          nodes whose single silencing breaks the intact function (measured: silencing pass fraction <= FAIL_MAX)
     latent_backups     keep-only-sufficient sets that the intact network does not use; ``silent_members`` = their silent nodes
     degenerate         {"flag", "min_set_size", "fraction_needed", "membership_frequency"} (distributed_drive)
@@ -41,6 +43,7 @@ The module imports no method and reads no benchmark data. It is truth-bearing: m
 
 from __future__ import annotations
 
+import copy
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -126,6 +129,10 @@ VERIFY_SEEDS = tuple(range(8))
 CALIBRATION_SEEDS = tuple(range(1000, 1012))  # builder-side threshold calibration (distributed_drive, fragile_vs_robust band)
 SCORE_SEEDS = tuple(range(5500, 5508))        # scorer default: outside every method namespace (< 5000) and the tournament's 5000-5003
 DEGENERATE_FLAGS = ("degenerate", "distributed", "no_compact_mechanism")
+DEFINITION = "acceptable-contains-essential/v2"
+"""Truth definition: every acceptable core and every mechanism set contains every measured-essential node (single-silencing pass
+<= FAIL_MAX), whatever its role in the trap; essential nodes are membership targets 1. Exported truths from before this rule carry no
+``definition`` field; :func:`normalize_truth_network` migrates them and :func:`score_adversarial` applies it to every truth it scores."""
 _SALT = {"variant": 11, "params": 23, "nodes": 37, "calibration": 41}
 
 
@@ -284,6 +291,8 @@ class _Builder:
         adv = {"suite": SUITE_ID, "trap": spec.trap, "variant": spec.variant, "base_family": spec.base_family, "params": dict(self.D.params),
                "latent_backups": [], "silent_members": [], "fragile_alternatives": [], "exchangeable": [],
                "degenerate": {"flag": False}, "subset_of_draws": {"flag": False}, **adv}
+        adv["acceptable_designed"] = [sorted(map(int, a)) for a in adv["acceptable"]]  # before the essential rule (verify_adversarial)
+        adv["mechanism_designed"] = [sorted(map(int, a)) for a in adv["mechanism"]]
         adv.setdefault("targets", {})
         for p in {p for a in adv["acceptable"] for p in a} | {p for a in adv["mechanism"] for p in a}:
             adv["targets"].setdefault(int(p), 1.0)
@@ -675,19 +684,22 @@ def verify_adversarial(inst: BuiltInstance, seeds=None, *, max_silenced: int = 4
         thr, op = ck["threshold"], ck["op"]
         ok = (val >= thr) if op == ">=" else (val <= thr) if op == "<=" else (thr[0] <= val <= thr[1])
         checks[ck["name"]] = {"value": round(float(val), 6), "op": op, "threshold": thr, "ok": bool(ok), "kind": ck["kind"], "nodes": nodes}
-    mech_nodes = sorted({p for a in adv["mechanism"] for p in a})
+    mech_nodes = sorted({p for a in adv.get("mechanism_designed", adv["mechanism"]) for p in a})
     to_silence = list(dict.fromkeys([*mech_nodes, *sorted(adv["contested"].values())]))[:max_silenced]
     sigma = {int(p): pf(runs(("sil", int(p)), _sil([p]))) for p in to_silence}
+    adv["silence_pass"] = {int(p): round(v, 4) for p, v in sigma.items()}
+    adv["essential"] = sorted(p for p, v in sigma.items() if v <= FAIL_MAX)
+    adv["non_essential"] = sorted(p for p, v in sigma.items() if v >= PASS_MIN)
+    adv["ambiguous"] = sorted(p for p, v in sigma.items() if FAIL_MAX < v < PASS_MIN)
+    _apply_essential_rule(adv, set(adv["essential"]))  # every acceptable core and mechanism set contains every measured-essential node
+    inst.truth["alternatives"] = [list(a) for a in (adv["acceptable"] or adv["mechanism"])]
+    inst.truth["core"] = list(inst.truth["alternatives"][0])
     acc0 = adv["acceptable"][0] if adv["acceptable"] else []
     necessary = {int(p): pf(runs(("ko", *[q for q in acc0 if q != p]), _ko(inst, [q for q in acc0 if q != p]))) <= FAIL_MAX for p in acc0}
     alts = []
     for a in inst.truth["alternatives"]:
         outs = runs(("ko", *a), _ko(inst, a))
         alts.append({"nodes": list(map(int, a)), "keep_only_pass": pf(outs), "keep_only_score": float(np.mean([o["score"] for o in outs]))})
-    adv["silence_pass"] = {int(p): round(v, 4) for p, v in sigma.items()}
-    adv["essential"] = sorted(p for p, v in sigma.items() if v <= FAIL_MAX)
-    adv["non_essential"] = sorted(p for p, v in sigma.items() if v >= PASS_MIN)
-    adv["ambiguous"] = sorted(p for p, v in sigma.items() if FAIL_MAX < v < PASS_MIN)
     adv["rates_hz"] = {int(p): round(float(rates[p]), 6) for p in sorted({*mech_nodes, *adv["contested"].values()})}
     adv["intact_pass"] = pf(intact)
     if adv["subset_of_draws"].get("flag"):
@@ -698,6 +710,26 @@ def verify_adversarial(inst: BuiltInstance, seeds=None, *, max_silenced: int = 4
             "intact_score": float(np.mean([o["score"] for o in intact])), "alternatives": alts,
             "essential": {int(p): bool(v <= FAIL_MAX) for p, v in sigma.items()}, "silence_pass": adv["silence_pass"],
             "necessary_within_core": necessary, "rates_hz": adv["rates_hz"], "criterion": _crit_spec(inst)}
+
+
+def _require(sets, essential: set[int]) -> list[list[int]]:
+    """Each set joined with the essential nodes, duplicates removed, order kept."""
+    out: list[list[int]] = []
+    for a in sets:
+        s = sorted({int(p) for p in a} | {int(p) for p in essential})
+        if s not in out:
+            out.append(s)
+    return out
+
+
+def _apply_essential_rule(adv: dict, essential: set[int]) -> None:
+    """The definition (DEFINITION): every acceptable core and every mechanism set contains every measured-essential node, and every
+    essential node is a membership target 1. Recomputed from the designed sets, so applying it again is a no-op."""
+    adv["acceptable"] = _require(adv.get("acceptable_designed", adv["acceptable"]), essential)
+    adv["mechanism"] = _require(adv.get("mechanism_designed", adv["mechanism"]), essential)
+    for p in essential:
+        adv["targets"][int(p)] = 1.0
+    adv["definition"] = DEFINITION
 
 
 def build_verified(spec: AdversarialSpec, *, seeds=None, max_tries: int = 8, seed_step: int = 1) -> tuple[BuiltInstance, dict, AdversarialSpec]:
@@ -726,7 +758,9 @@ def _map_truth(adv: dict, inv: np.ndarray) -> dict:
     deg = dict(adv["degenerate"])
     if deg.get("membership_frequency"):
         deg["membership_frequency"] = {m(p): f for p, f in deg["membership_frequency"].items()}
-    out = {"trap": adv["trap"], "variant": adv["variant"], "mechanism": sets(adv["mechanism"]), "acceptable": sets(adv["acceptable"]),
+    out = {"trap": adv["trap"], "variant": adv["variant"], "definition": adv.get("definition"), "mechanism": sets(adv["mechanism"]),
+           "acceptable": sets(adv["acceptable"]), "mechanism_designed": sets(adv.get("mechanism_designed", adv["mechanism"])),
+           "acceptable_designed": sets(adv.get("acceptable_designed", adv["acceptable"])),
            "essential": sorted(m(p) for p in adv["essential"]), "non_essential": sorted(m(p) for p in adv.get("non_essential", [])),
            "ambiguous": sorted(m(p) for p in adv.get("ambiguous", [])), "silence_pass": {m(p): v for p, v in adv.get("silence_pass", {}).items()},
            "latent_backups": sets(adv["latent_backups"]), "silent_members": sorted(m(p) for p in adv["silent_members"]),
@@ -796,6 +830,38 @@ def _int_keys(d) -> dict:
     return {int(k): v for k, v in (d or {}).items()}
 
 
+def normalize_truth_network(truth_network: dict) -> dict:
+    """A migrated copy of one exported truth network entry (``truth['networks'][name]``, public positions); the input is not changed.
+
+    Applies the current definition (DEFINITION) to entries exported under any earlier one:
+    * every acceptable core and every mechanism set is joined with the measured-essential nodes (``adversarial.essential``);
+    * every essential node gets membership target 1;
+    * the regular scorer's ``alternatives_positions`` and ``core_positions`` follow the new acceptable cores (or, when there is no
+      compact core, the mechanism); other alternatives already listed there (e.g. added by a suite audit) are kept after them;
+    * the sets as designed are kept in ``acceptable_designed`` / ``mechanism_designed``, and ``definition`` records the rule.
+    Idempotent. An entry without an ``adversarial`` part is returned as an unchanged copy."""
+    tn = copy.deepcopy(truth_network)
+    adv = tn.get("adversarial")
+    if adv is None:
+        return tn
+    old = [sorted(int(p) for p in a) for a in (adv.get("acceptable") or adv.get("mechanism") or [])]
+    adv["acceptable_designed"] = [sorted(int(p) for p in a) for a in adv.get("acceptable_designed", adv.get("acceptable", []))]
+    adv["mechanism_designed"] = [sorted(int(p) for p in a) for a in adv.get("mechanism_designed", adv.get("mechanism", []))]
+    essential = {int(p) for p in adv.get("essential", [])}
+    targets = adv.get("targets") or {}
+    str_keys = any(isinstance(k, str) for k in targets)  # JSON-loaded truths carry string keys: keep the representation
+    adv["targets"] = {int(k): v for k, v in targets.items()}
+    _apply_essential_rule(adv, essential)
+    if str_keys:
+        adv["targets"] = {str(k): v for k, v in adv["targets"].items()}
+    new = adv["acceptable"] or adv["mechanism"]
+    if new:
+        rest = [a for a in tn.get("alternatives_positions", []) if sorted(int(p) for p in a) not in old + new]
+        tn["alternatives_positions"] = [list(a) for a in new] + rest
+        tn["core_positions"] = list(new[0])
+    return tn
+
+
 def _flagged_degenerate(diag: dict) -> bool:
     diag = diag or {}
     if any(bool(diag.get(k)) for k in DEGENERATE_FLAGS):
@@ -829,7 +895,11 @@ def score_adversarial(result, truth_network: dict, problem=None, seeds=None, *, 
     ``problem`` (the network's DiscoveryProblem) and ``seeds`` (default SCORE_SEEDS) enable the simulation-based fields. Definitions
     (research/phase2/reviews/G_adversarial_suite.md):
 
-    * ``correct``: the core equals an acceptable core; for a degenerate instance (no compact core) the result must flag degeneracy.
+    The truth is first brought to the current definition (:func:`normalize_truth_network`: every acceptable core contains every
+    measured-essential node), so truths exported before that rule are scored the same way as new ones.
+
+    * ``correct``: the core equals an acceptable core; for a degenerate instance (no compact core) the result must flag degeneracy
+      (and, as everywhere, contain every essential node).
     * ``contains_mechanism``: some acceptable core (degenerate: the whole mechanism) is a subset of the core.
     * ``latent_backup_returned``: a latent backup is a subset of the core; ``latent_members_in_core``: silent trap nodes in the core.
     * ``essential_recall``: fraction of the truth-essential nodes in the core.
@@ -843,9 +913,9 @@ def score_adversarial(result, truth_network: dict, problem=None, seeds=None, *, 
     * ``exchangeable_gap``: largest probability difference inside a group of interchangeable nodes.
     * ``essential_claims``: the result's essential claims against the measured silencing pass fractions (ambiguous nodes excluded)."""
     res = result.to_dict() if hasattr(result, "to_dict") else dict(result)
-    adv = truth_network.get("adversarial")
-    if adv is None:
+    if truth_network.get("adversarial") is None:
         raise ValueError("truth network has no 'adversarial' entry (not an adversarial instance)")
+    adv = normalize_truth_network(truth_network)["adversarial"]
     core = sorted({int(p) for p in res.get("core") or []})
     cs = set(core)
     P = {int(k): float(v) for k, v in (res.get("inclusion_probability") or {}).items()}
@@ -859,7 +929,7 @@ def score_adversarial(result, truth_network: dict, problem=None, seeds=None, *, 
     flagged = _flagged_degenerate(res.get("diagnostics") or {})
     exact = frozenset(cs) in {frozenset(a) for a in acceptable}
     contains = any(a <= cs for a in (acceptable or mechanism)) if cs else False
-    correct = flagged if degenerate else exact
+    correct = (flagged and essential <= cs) if degenerate else exact  # acceptable cores already contain every essential node
     best = max(acceptable, key=lambda a: len(a & cs) / max(1, len(a | cs))) if acceptable else set()
     member = set().union(*acceptable) if acceptable else set().union(*mechanism) if mechanism else set()
     nodes = sorted(set(map(int, adv["contested"].values())) | member | cs)

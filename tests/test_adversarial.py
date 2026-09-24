@@ -5,6 +5,7 @@ Fast: one small verified instance per trap, four verification seeds, no discover
 from __future__ import annotations
 
 import ast
+import copy
 import json
 from pathlib import Path
 
@@ -27,16 +28,21 @@ FAST = {  # one quick variant per trap for the build / verify / export fixture (
 }
 
 
+EXTRA = {"identical_decoy/nfc_band": ("identical_decoy", "nfc_band")}  # releasing its decoy overdrives the band: gate and latch essential
+KEYS = [*FAST, *EXTRA]
+
+
 @pytest.fixture(scope="module")
 def built(tmp_path_factory):
     root = tmp_path_factory.mktemp("adversarial_suite")
     out = {}
-    for k, (trap, (variant, knobs)) in enumerate(FAST.items()):
+    jobs = [(trap, trap, variant, knobs) for trap, (variant, knobs) in FAST.items()] + [(key, t, v, {}) for key, (t, v) in EXTRA.items()]
+    for k, (key, trap, variant, knobs) in enumerate(jobs):
         spec = A.AdversarialSpec(trap, variant, n_total=50, seed=10 + 20 * k, knobs=knobs)
         inst, ver, used = A.build_verified(spec, seeds=FAST_SEEDS, max_tries=8)
         info = A.export_adversarial(inst, ver, root, salt="test-salt")
         truth = json.loads((root / "truth" / f"{used.label}.json").read_text(encoding="utf-8"))
-        out[trap] = {"inst": inst, "ver": ver, "spec": used, "dir": Path(info["dir"]), "truth": truth, "root": root}
+        out[key] = {"inst": inst, "ver": ver, "spec": used, "dir": Path(info["dir"]), "truth": truth, "root": root}
     return out
 
 
@@ -103,6 +109,64 @@ def test_truth_is_consistent_in_every_node_order(built, trap):
             assert [sorted(int(perm[p]) for p in s) for s in ta[key]] == [sorted(s) for s in adv[key]], key
         assert sorted(int(perm[p]) for p in ta["essential"]) == sorted(adv["essential"])
         assert tnet["alternatives_positions"] == (ta["acceptable"] or ta["mechanism"])
+
+
+@pytest.mark.parametrize("key", KEYS)
+def test_every_acceptable_core_contains_every_essential_node(built, key):
+    """The truth definition (A.DEFINITION), the same for every trap: every acceptable core and every mechanism set contains every
+    measured-essential node, essential nodes are membership targets 1, and the exported truth is a fixed point of the migration."""
+    b = built[key]
+    adv = b["inst"].truth["adversarial"]
+    E = set(adv["essential"])
+    assert adv["definition"] == A.DEFINITION
+    assert all(E <= set(a) for a in adv["acceptable"]) and all(E <= set(m) for m in adv["mechanism"])
+    assert all(adv["targets"][p] == 1.0 for p in E)
+    assert all(set(d) <= set(a) for d, a in zip(adv["acceptable_designed"], adv["acceptable"]))
+    for net in ("main", "order1"):
+        tn = b["truth"]["networks"][net]
+        ta = tn["adversarial"]
+        assert ta["definition"] == A.DEFINITION and all(set(ta["essential"]) <= set(a) for a in ta["acceptable"] + ta["mechanism"])
+        assert all(ta["targets"][str(p)] == 1.0 for p in ta["essential"])
+        assert A.normalize_truth_network(tn) == tn  # already in the current definition
+
+
+def test_reported_case_gate_and_latch_are_part_of_the_correct_core(built):
+    tn = built["identical_decoy/nfc_band"]["truth"]["networks"]["main"]
+    ta = tn["adversarial"]
+    gate, latch = ta["contested"]["gate"], ta["contested"]["latch"]
+    assert {gate, latch} <= set(ta["essential"]) and ta["silence_pass"][str(gate)] <= A.FAIL_MAX
+    motif = ta["acceptable_designed"][0]
+    full = ta["acceptable"][0]
+    assert set(full) == set(motif) | set(ta["essential"]) and {gate, latch} <= set(full)
+    principled = A.score_adversarial(_result(full, {p: 0.95 for p in full}), tn)
+    assert principled["correct"] and not principled["confident_wrong"] and principled["essential_recall"] == 1.0
+    motif_only = A.score_adversarial(_result(motif, {p: 0.95 for p in motif}), tn)
+    assert not motif_only["correct"] and motif_only["confident_wrong"] and set(motif_only["essential_missed"]) >= {gate, latch}
+
+
+def test_normalize_truth_network_migrates_an_old_entry(built):
+    new = built["identical_decoy/nfc_band"]["truth"]["networks"]["main"]
+    na = new["adversarial"]
+    old = copy.deepcopy(new)  # the same entry as exported before the definition: designed sets only, gate and latch targets 0
+    oa = old["adversarial"]
+    for k in ("acceptable_designed", "mechanism_designed", "definition"):
+        oa.pop(k)
+    oa["acceptable"], oa["mechanism"] = copy.deepcopy(na["acceptable_designed"]), copy.deepcopy(na["mechanism_designed"])
+    for name in ("gate", "latch"):
+        oa["targets"][str(oa["contested"][name])] = 0.0
+    extra = [10 ** 6]  # an alternative added by someone else (e.g. a suite audit) is kept after the migrated ones
+    old["alternatives_positions"] = [list(a) for a in oa["acceptable"]] + [extra]
+    old["core_positions"] = list(oa["acceptable"][0])
+    snapshot = json.dumps(old, sort_keys=True)
+    norm = A.normalize_truth_network(old)
+    assert json.dumps(old, sort_keys=True) == snapshot  # pure: the input is unchanged
+    for k in ("acceptable", "mechanism", "acceptable_designed", "mechanism_designed", "definition", "targets", "essential"):
+        assert norm["adversarial"][k] == na[k], k
+    assert norm["alternatives_positions"] == new["alternatives_positions"] + [extra] and norm["core_positions"] == new["core_positions"]
+    assert A.normalize_truth_network(norm) == norm  # idempotent
+    result = _result(na["acceptable"][0], {p: 0.95 for p in na["acceptable"][0]})
+    assert A.score_adversarial(result, old)["correct"] and A.score_adversarial(result, old) == A.score_adversarial(result, new)
+    assert A.normalize_truth_network({"perm": [0, 1]}) == {"perm": [0, 1]}  # not adversarial: an unchanged copy
 
 
 def test_parameters_come_from_the_seed_within_documented_ranges():
