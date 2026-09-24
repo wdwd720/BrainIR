@@ -1,0 +1,207 @@
+{
+ "label": "sel_v11_pairs_v2h",
+ "suite": "pairs_v2_heldout",
+ "suite_sha256": "bd836ff9b43aeefef8f8b416620fdc77e07ed5579cd75a24bd9fcb43a949d77f",
+ "methods": [
+  "brainir_v1"
+ ],
+ "n_jobs": 81,
+ "budget": 1000,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "networks": [
+  "a"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "robust": true,
+ "wall_s": 586.5,
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 81,
+  "wall_time_s": 578.3,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 150,
+   "app": "brainir-phase1",
+   "shared_payload_key": "2876cdde19c95131c1d176e2db1dff35",
+   "shared_payload_bytes": 1422617,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 3.4349
+ },
+ "code": {
+  "commit": "e22db1f58cf9abb8e3cfad61cd442e8db7288e9c",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "e868ae1dfeca096ec22c7a1a1fbdda3d8b3d1525f068bac8f64424b29a6d88f8",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T16:53:45Z"
+ },
+ "environments": [
+  {
+   "implementation": "cpython",
+   "machine": "x86_64",
+   "packages": {
+    "networkx": "3.7",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "pydantic": "2.13.5",
+    "scipy": "1.18.1"
+   },
+   "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+   "python": "3.12.10",
+   "sim_code_version": "2bb1ae6e62fe65a9",
+   "source_tree_sha256": "e868ae1dfeca096ec22c7a1a1fbdda3d8b3d1525f068bac8f64424b29a6d88f8"
+  }
+ ],
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 81,
+   "n_scored": 81,
+   "n_failed": 0,
+   "failures": [],
+   "success_rate": 0.9629629629629629,
+   "success_ci95": [
+    0.9135802469135802,
+    1.0
+   ],
+   "success_planted_rate": 0.9629629629629629,
+   "functional_success_rate": 0.8888888888888888,
+   "functional_success_ci95": [
+    0.8148148148148148,
+    0.9506172839506173
+   ],
+   "functional_success_causal_rate": 0.9629629629629629,
+   "success_or_functional_rate": 0.9629629629629629,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": 0.9629629629629629,
+   "calls_median": 244.0,
+   "calls_mean": 266.320987654321,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9615384615384616,
+   "brier_mean": 0.0017780170011154834,
+   "essential_accuracy_mean": 0.9814814814814815,
+   "removable_fraction": 0.1111111111111111,
+   "simulated_seconds_median": 148.0,
+   "identity_consistency": {
+    "n_instances": 27,
+    "pairwise_jaccard_mean": 1.0,
+    "identical_fraction": 1.0,
+    "n_empty_cores": 0
+   },
+   "success_intact_rate": 0.9629629629629629,
+   "essential_recall_mean": 1.0,
+   "missed_essential_rate": 0.0,
+   "latent_backup_rate": 0.0,
+   "silent_core_rate": 0.0,
+   "silence_core_pass_mean": 0.28703703703703703,
+   "brier_contested_mean": 0.05411065811286174,
+   "brier_contested_any_alternative_mean": 0.13674986526636085,
+   "essential_accuracy_unambiguous_mean": 0.9814814814814815,
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 9,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 349.0
+    },
+    "ei_pair_oscillator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 218.0
+    },
+    "feedforward_driver": {
+     "n": 9,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 242.0
+    },
+    "integrator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 213.5
+    },
+    "memory_switch": {
+     "n": 9,
+     "success_rate": 0.6666666666666666,
+     "functional_success_rate": 0.6666666666666666,
+     "calls_median": 157.0
+    },
+    "negative_feedback_controller": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 271.0
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 321.0
+    },
+    "ring_oscillator": {
+     "n": 12,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 260.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 455.5
+    },
+    "winner_take_all": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 249.0
+    }
+   }
+  }
+ },
+ "cross_claims": {
+  "brainir_v1": {
+   "n_runs": 81,
+   "claims_total": 18,
+   "claims_correct": 18,
+   "precision_pooled": 1.0,
+   "false_shift": 0,
+   "false_null": 0,
+   "false_structural_decoy": 0,
+   "claims_on_null_pairs": 0,
+   "runs_with_claims": 12,
+   "recall_core_mean": 0.1722222222222222,
+   "brier_pooled": 0.002279096666666666,
+   "reliability": [
+    {
+     "bin": [
+      0.8,
+      1.0
+     ],
+     "n": 18,
+     "mean_confidence": 0.9638777777777778,
+     "observed": 1.0
+    }
+   ]
+  }
+ },
+ "n_records": 81,
+ "full_records": "sel_v11_pairs_v2h.json.gz"
+}

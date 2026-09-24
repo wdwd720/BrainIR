@@ -1,0 +1,209 @@
+{
+ "name": "adv_h_v11",
+ "config": {
+  "methods": [
+   "brainir_v1"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "networks": [
+   "main",
+   "order1"
+  ],
+  "configs": {},
+  "instances": [
+   "a037e07945024",
+   "a0409249d6292",
+   "a07e2103726fe",
+   "a082067abc2e6",
+   "a091d5327500b",
+   "a0c21906b5d08",
+   "a0dd84812cef2",
+   "a14d05aaceca8",
+   "a19e9ac70f52b",
+   "a1e8a993766b3",
+   "a22044eea76b0",
+   "a22707664eabf",
+   "a256602a88fcb",
+   "a278a42dbba05",
+   "a292fbedcfbfb",
+   "a2de119b11a9e",
+   "a35342c649882",
+   "a3c61f3571df7",
+   "a486ccfa35c93",
+   "a4965a6882514",
+   "a4d2275afbd91",
+   "a4fa8286d7a2f",
+   "a51ad48c478b3",
+   "a521afe0e9a3d",
+   "a551e1a4f9974",
+   "a578ac615c63f",
+   "a626029b4e685",
+   "a628b62c2ba03",
+   "a6336037d9f8e",
+   "a64f443dd99e3",
+   "a66f38e9d4a0e",
+   "a69e20b657f24",
+   "a73584935d56a",
+   "a78006974360f",
+   "a79972391a8b8",
+   "a79afe2ea5854",
+   "a7ed3b0bd8958",
+   "a812cec02b2f3",
+   "a85e422f2aae0",
+   "a8852133b63ce",
+   "a8971b4610e85",
+   "a8ea27f2654e5",
+   "a921e0aef72e9",
+   "a9262a8538881",
+   "a957b96e51f55",
+   "a96c7b57858b2",
+   "a96f3b6c0e7b5",
+   "a97483e685339",
+   "a9827fcf888d3",
+   "a9977120e8ac4",
+   "a9f3c7ac22604",
+   "aa62004c6e56c",
+   "aac3a4c8c6088",
+   "ab50fdd739e22",
+   "abe7f07c06c48",
+   "ac23c483d8725",
+   "ac54e0285ff70",
+   "acf23c3621a20",
+   "ad30c4764f7fd",
+   "ada0e56e7315f",
+   "adafa92cb5fc2",
+   "ae661cd478850",
+   "aeacb2242fdd6",
+   "af0622221bfa8",
+   "afb68fa060cfb",
+   "aff11967ca13a"
+  ],
+  "score_seeds": [
+   5000,
+   5001,
+   5002,
+   5003
+  ],
+  "robust": true
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "suite": "adversarial_heldout",
+  "suite_sha256": "a75fbadefb31c6f7f2427ca18d9d3228232632d23e9e881af009f1f7e6248ad7",
+  "n_instances": 66,
+  "jobs_hash": "7f409dc14f69e7d1f3ea278abcccc22810a4e250a259a349b835e43b8939ef2c",
+  "source_tree_sha256": "e868ae1dfeca096ec22c7a1a1fbdda3d8b3d1525f068bac8f64424b29a6d88f8",
+  "launched_utc": "2026-09-24T16:53:15Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 396,
+  "wall_time_s": 710.1,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 200,
+   "app": "brainir-phase1",
+   "shared_payload_key": "000b141bab3c1a561ab80789f467f32a",
+   "shared_payload_bytes": 5741779,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 10.4146
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/adv_h_v11.json",
+   "sha256": "0b82902b2f4ff90da2ef7ee5a92d72525fcf3cf7c00e2b4fbd15d8f5b5266d93",
+   "size_bytes": 10268142
+  }
+ },
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 396,
+   "n_scored": 396,
+   "n_failed": 0,
+   "success_rate": 0.8914141414141414,
+   "success_ci95": [
+    0.8585858585858586,
+    0.9191919191919192
+   ],
+   "success_planted_rate": 0.8914141414141414,
+   "functional_success_rate": 0.4722222222222222,
+   "functional_success_ci95": [
+    0.42424242424242425,
+    0.5227272727272727
+   ],
+   "functional_success_causal_rate": 0.8358585858585859,
+   "success_or_functional_rate": 0.9040404040404041,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9501262626262627,
+   "functional_robust_mean": 0.92739898989899,
+   "calls_median": 187.0,
+   "calls_mean": 246.31313131313132,
+   "size_median": 3.0,
+   "role_accuracy_mean": 0.9507575757575758,
+   "brier_mean": 0.002558439828685306,
+   "essential_accuracy_mean": null,
+   "removable_fraction": 0.49747474747474746,
+   "simulated_seconds_median": 194.25,
+   "identity_consistency": {
+    "n_instances": 66,
+    "pairwise_jaccard_mean": 0.9600273046311849,
+    "identical_fraction": 0.8181818181818182,
+    "n_empty_cores": 0
+   },
+   "success_intact_rate": 0.8914141414141414,
+   "essential_recall_mean": 0.9922480620155039,
+   "missed_essential_rate": 0.007751937984496124,
+   "latent_backup_rate": 0.0,
+   "silent_core_rate": 0.0,
+   "silence_core_pass_mean": 0.44002525252525254,
+   "brier_contested_mean": 0.03310325576922283,
+   "brier_contested_any_alternative_mean": 0.03310325576922283,
+   "essential_accuracy_unambiguous_mean": null
+  }
+ },
+ "notes": "",
+ "run_id": "63a090b9705e2698",
+ "created_utc": "2026-09-24T17:05:17Z",
+ "code": {
+  "commit": "e22db1f58cf9abb8e3cfad61cd442e8db7288e9c",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "e868ae1dfeca096ec22c7a1a1fbdda3d8b3d1525f068bac8f64424b29a6d88f8",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T16:53:15Z"
+ },
+ "environment": {
+  "remote": [
+   {
+    "implementation": "cpython",
+    "machine": "x86_64",
+    "packages": {
+     "networkx": "3.7",
+     "numpy": "2.5.3",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "scipy": "1.18.1"
+    },
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "python": "3.12.10",
+    "sim_code_version": "2bb1ae6e62fe65a9",
+    "source_tree_sha256": "e868ae1dfeca096ec22c7a1a1fbdda3d8b3d1525f068bac8f64424b29a6d88f8"
+   }
+  ]
+ }
+}
