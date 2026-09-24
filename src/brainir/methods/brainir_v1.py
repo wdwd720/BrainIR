@@ -1,9 +1,9 @@
 """brainir_v1 — order-invariant canonical group elimination, enumerated alternatives and an admissibility-first causal selection
-(version 1.1).
+(version 1.2.0).
 
 BrainIR v1 is ONE algorithm (research/phase2/BRAINIR_V1_METHOD.md has the formulation, the evidence behind every component, the
-experiments, and what version 1.1 changed after reviews A and G). Objective: return the mechanism the INTACT network uses — a set
-M that is
+experiments, and what versions 1.1 and 1.2 changed after reviews A, G and B). Objective: return the mechanism the INTACT network
+uses — a set M that is
 
  (i)   sufficient: keep-only of M passes the functional criterion on the parameter replicates on which the intact network passes,
        validated sequentially until the posterior of that pass rate is decisive about 1/2 (else "undecided");
@@ -12,9 +12,11 @@ M that is
        silencing breaks the intact function, wherever in the run it was measured (measured necessity is a hard constraint);
  (iii) faithful: its keep-only dynamics reproduce the intact network's readout statistics on the same replicates as well as any
        other admissible candidate, within noise (paired test) — checked before size;
- (iv)  used: no other remaining candidate is relied on decisively more by the intact network (paired test on the readout change
-       caused by silencing each candidate's distinctive members, per member, at every size); then the simplest; then the most
-       robust; a key inside its noise band is a tie and the tied sets share the probability mass;
+ (iv)  used: no other remaining candidate is relied on decisively more by the intact network (silencing each pair's distinctive
+       members in the intact network: function failures as paired discordant counts, graded readout changes per member as a paired
+       test against the noise band, at every size); then the simplest; then the most robust; the winner is the candidate no other
+       candidate beats decisively (a round robin, independent of the candidate order); a key inside its noise band, or a posterior
+       within a factor of two of the decisiveness threshold's error rate, is a tie and the tied sets share the probability mass;
  (v)   independent of the node order and of arbitrary search choices.
 
 Pipeline (every simulation goes through the given BudgetedSimulator; ``default_config`` switches every component):
@@ -33,10 +35,13 @@ Pipeline (every simulation goes through the given BudgetedSimulator; ``default_c
     of the most relevant ones, then group silencing in two independent partitions (a neuron is cleared only if both of its groups pass).
  7. Alternatives, enumerated deterministically (disjoint sets, per-member replacements); every member of every alternative gets
     the pooled single-silencing test. Every candidate is completed with every neuron found essential anywhere.
- 8. Admissibility-first selection (validated, participating, faithful), then reliance, Occam and robustness with paired tests;
-    exchangeable copies that are each only marginally sufficient are merged when their union validates decisively better.
- 9. Minimality certificate; degeneracy (no compact mechanism) and jointly necessary groups; final fidelity on reserved fresh
-    seeds that the selection never saw (unconditional and conditional sufficiency, intact pass rate).
+ 8. Admissibility-first selection (validated, participating, faithful), then a round robin of pairwise comparisons (reliance,
+    Occam, robustness with paired tests; stress probes only for equal-size pairs reliance leaves tied); exchangeable copies that
+    are each only marginally sufficient are merged when their union validates decisively better.
+ 9. Minimality certificate (a removal stands only if the reduced core validates decisively); degeneracy (no compact mechanism) and
+    jointly necessary groups; final fidelity on reserved fresh seeds that the selection never saw (unconditional and conditional
+    sufficiency, intact pass rate). The certificate's calls are reserved before the screen and the enumeration run; every phase the
+    budget cut is listed in diagnostics["budget_limited_phases"].
 10. Uncertainty from the evidence counts: candidate weights from validation posteriors, participation and the confidence of the
     deciding comparison; member probabilities averaged over the candidates, with measured necessity as a floor and silent /
     cleared evidence as a ceiling; roles conditioned on the interventions; intervention predictions backed by simulations
@@ -63,10 +68,13 @@ from scipy.sparse.csgraph import connected_components
 from scipy.stats import beta as _beta_dist
 from scipy.stats import t as _t_dist
 
-from ..discovery.interface import GENERIC_ROLES, DiscoveryMethod, DiscoveryResult, MethodRegistry
+from ..discovery.interface import GENERIC_ROLES, DiscoveryMethod, DiscoveryResult, MethodInfo, MethodRegistry
 from ..discovery.interventions import intact, keep_only, silence
 from ..discovery.problem import DiscoveryProblem, same_animal
 from ..discovery.simulator import BudgetedSimulator, BudgetExhausted, Outcome, SimQuery
+from ._brainir_v1_sha256 import METHOD_FILE_SHA256
+
+VERSION = "1.2.0"
 
 P_MAX = 0.99             # no inclusion probability reaches 1: every verdict rests on finitely many replicates
 P_UNTESTED = 0.60        # member of a passing set never tested individually (the budget ran out)
@@ -226,6 +234,8 @@ class Prober:
         self.tried: list[int] = []
         self.working: list[int] = []
         self.intact_outcomes: dict[int, Outcome] = {}
+        self.budget_hits: set[str] = set()
+        """phases in which a simulation was refused because the budget (or the calls reserved for later phases) ran out."""
 
     # ------------------------------------------------------------------ simulation
     def intervention(self, kept: frozenset[int], noise_sd: float = 0.0, noise_seed: int | None = None):
@@ -244,11 +254,13 @@ class Prober:
         if key in self.outcomes:
             return self.outcomes[key]
         if self.sim.remaining - 1 < self.reserve:
+            self.budget_hits.add(self.phase)
             raise _OutOfBudget(f"{self.sim.remaining} calls left, {self.reserve} reserved")
         iv = self.intervention(kept, noise_sd, int(seed) if noise_sd > 0 else None)
         try:
             out = self.sim.run(SimQuery(iv, int(seed), t_end=self.t_end, cfg_override=dict(cfg_override or {}), remove_edges=edges))
         except BudgetExhausted as e:  # pragma: no cover - the pre-check above normally prevents this
+            self.budget_hits.add(self.phase)
             raise _OutOfBudget(str(e)) from e
         if not out.cached:
             self.calls_by_phase[self.phase] = self.calls_by_phase.get(self.phase, 0) + 1
@@ -441,15 +453,20 @@ class Elimination:
     path: list[frozenset[int]] = field(default_factory=list)
     """passing kept sets along the search (for the size-error curve)."""
     n_decisions: int = 0
+    minimality_verified: bool | None = None
+    """True: the last 1-minimality round removed nothing; False: the round cap was reached while rounds still removed members;
+    None: no 1-minimality rounds (switched off) or the budget ended the search."""
 
 
 def eliminate(prober: Prober, kept: frozenset[int], seeds: tuple[int, ...], order: list[int], *, max_seeds: int = 0,
               protected: frozenset[int] = frozenset(), initial_chunk_fraction: float = 0.25, group: bool = True, adaptive: bool = True,
-              minimality_rounds: int = 3) -> Elimination:
+              minimality_rounds: int | None = None) -> Elimination:
     """Adaptive group elimination from a passing set ``kept`` to a 1-minimal passing set, in the given (canonical) order.
 
     ``group=False``: one candidate per probe (backward elimination). ``adaptive=False``: fixed chunk size and no activity queue.
     ``protected`` members skip the group phase (they are believed necessary) but are tested in the 1-minimality rounds.
+    ``minimality_rounds``: None repeats the leave-one-out rounds until one removes nothing, at most |kept| rounds (a round that still
+    removed a member at the cap leaves ``minimality_verified=False``); 0 switches them off.
     Never raises on budget exhaustion: returns the current passing set with ``complete=False``."""
     res = Elimination(kept=kept, path=[kept])
     rank = {p: i for i, p in enumerate(order)}
@@ -507,8 +524,11 @@ def eliminate(prober: Prober, kept: frozenset[int], seeds: tuple[int, ...], orde
             unresolved = leftovers + unresolved
             if adaptive and group:
                 chunk = max(1, chunk // 2)
-        # 1-minimality: every member (protected ones included) must be individually necessary in the final set
-        for _round in range(max(0, int(minimality_rounds))):
+        # 1-minimality: every member (protected ones included) must be individually necessary in the final set; the rounds repeat until
+        # one removes nothing (a removal can make another member unnecessary), at most |kept| rounds
+        n_rounds = len(res.kept) if minimality_rounds is None else max(0, int(minimality_rounds))
+        removed_any = False
+        for _round in range(n_rounds):
             removed_any = False
             for v in [p for p in order if p in res.kept] + sorted(p for p in res.kept if p not in rank):
                 if v not in res.kept:
@@ -525,6 +545,7 @@ def eliminate(prober: Prober, kept: frozenset[int], seeds: tuple[int, ...], orde
                     res.necessary[v] = d
             if not removed_any:
                 break
+        res.minimality_verified = (not removed_any) if n_rounds > 0 else None
         res.necessary = {v: d for v, d in res.necessary.items() if v in res.kept}
     except (_OutOfBudget, MemoryError) as e:  # budget, or a resource failure: keep the current passing set
         res.complete = False
@@ -636,11 +657,11 @@ def infer_roles(problem: DiscoveryProblem, core: list[int], *, extra: dict[int, 
 @MethodRegistry.register
 class BrainIRv1(DiscoveryMethod):
     """BrainIR v1: order-invariant canonical group elimination with enumerated alternatives, admissibility-first causal selection
-    (participation, measured necessity, dynamics fidelity; then reliance, Occam and robustness with paired tests), evidence-based
-    uncertainty, simulated intervention predictions and verified cross-connectome transfer. See the module docstring."""
+    (participation, measured necessity, dynamics fidelity; then a round robin on reliance, Occam and robustness with paired tests),
+    evidence-based uncertainty, simulated intervention predictions and verified cross-connectome transfer. See the module docstring."""
 
     name = "brainir_v1"
-    version = "1.1"
+    version = VERSION
     default_config = {
         # decisions
         "n_seeds_per_decision": 3,        # working seeds per accept/reject decision (sequential strict majority)
@@ -681,10 +702,13 @@ class BrainIRv1(DiscoveryMethod):
         "fidelity_check": True,           # dynamics fidelity (paired, keep-only vs intact readout statistics) before size
         "reliance_tiebreak": True,        # the intact network's reliance on each candidate's distinctive members enters the selection
         "robust_objective": True,         # stress probes (sd x2 / weight noise) enter the selection
+        "stress_only_for_ties": True,     # stress probes only for equal-size pairs that reliance leaves tied (the only pairs they decide)
         "stress_probes": 4,
         "stress_noise_sd": 0.2,
         "stress_sd_factor": 2.0,
-        "decisive": 0.95,                 # posterior probability that makes a paired key (fidelity, reliance, validation) decisive
+        "decisive": 0.95,                 # posterior probability that makes a validation verdict or a certificate decision decisive
+        "decisive_margin": 2.0,           # a paired comparison decides only if its tail mass is below (1 - decisive) / margin; a
+                                          # posterior whose tail is within this factor of 1 - decisive is a tie (after extension)
         "decisive_stress": 0.99,          # stress probes are high-variance: only 4/4 against 0/4 is decisive
         "occam_factor": 0.5,              # prior odds per extra member when the evidence keys cannot separate two admissible sets
         "union_repair": True,             # exchangeable copies, each marginally sufficient, are merged when their union validates better
@@ -719,6 +743,12 @@ class BrainIRv1(DiscoveryMethod):
                 _cross_connectome(self, problem, sim, result, int(seed), cfg)
         result.budget = {**sim.report(), "wall_s": round(time.time() - t0, 1)}
         return result
+
+    def method_info(self, problem: DiscoveryProblem, sim: BudgetedSimulator, seed: int, config: dict, *, wall_s: float,
+                    code_commit: str | None = None, extra: dict | None = None) -> MethodInfo:
+        """The library's method info plus the method file's sha256 (review B finding B1), so a prediction names its code."""
+        return super().method_info(problem, sim, seed, config, wall_s=wall_s, code_commit=code_commit,
+                                   extra={**(extra or {}), "method_file_sha256": METHOD_FILE_SHA256, "method_version": VERSION})
 
 
 # ---------------------------------------------------------------------------- one single-network run
@@ -758,11 +788,25 @@ class _Run:
         self.n_fid = min(MAX_FIDELITY_SEEDS, max(1, int(cfg.get("fidelity_seeds", 4))))
         self.D = float(cfg.get("decisive", 0.95))
         self.DS = float(cfg.get("decisive_stress", 0.99))
+        # paired comparisons: decisive only if the tail mass is below (1 - D) / margin; a posterior whose tail mass lies within the
+        # factor `margin` of 1 - D (0.90-0.975 at the defaults) could be reversed by an equally conventional threshold -> a tie
+        f = max(1.0, float(cfg.get("decisive_margin", 2.0)))
+        self.D_hi = 1.0 - (1.0 - self.D) / f
+        self.D_lo = max(0.5, 1.0 - (1.0 - self.D) * f)
+        self.DS_hi = 1.0 - (1.0 - self.DS) / f
         self.fin_reserve = int(min(2 * self.n_fid + 2, max(0, self.budget0 // 10)))
+        self.cert_reserve = 0
         self.prober = Prober(problem, sim, self.U, base_seed=self.base,
                              max_seed_trials=min(MAX_SEED_TRIALS, max(int(cfg["max_seed_trials"]), self.m, self.M)), t_end=cfg.get("t_end"))
         self.diag: dict = {"phases": [], "n_candidates": len(self.U), "seed": seed, "budget": self.budget0, "prior_used": self.prior is not None,
-                           "config": {k: v for k, v in cfg.items() if k != "prior"}, "flags": []}
+                           "config": {k: v for k, v in cfg.items() if k != "prior"}, "flags": [],
+                           "code": {"method": "brainir_v1", "version": VERSION, "method_file_sha256": METHOD_FILE_SHA256},
+                           "decisive": {"decisive": self.D, "margin_factor": f, "paired_decisive_above": round(self.D_hi, 6),
+                                        "tie_band": [round(self.D_lo, 6), round(self.D_hi, 6)]}}
+        if int(seed) >= SEED_BLOCKS or int(seed) < 0:  # review B finding B7
+            self.diag.setdefault("warnings", []).append(
+                f"seed {int(seed)} uses the parameter-replicate block of seed {int(seed) % SEED_BLOCKS} (the seed-to-replicate map has period "
+                f"{SEED_BLOCKS}): runs with seeds that agree modulo {SEED_BLOCKS} are the same run")
         self.prob: dict[int, float] = {}
         self.ess_tests: dict[int, dict] = {}
         self.cleared_all: set[int] = set()
@@ -933,9 +977,20 @@ class _Run:
             self.diag["noise_band"] = {"readout_change_between_draws": round(between, 4), "band": round(self._band, 4), "n_intact_outcomes": len(outs)}
         return self._band
 
-    def gray(self, conf: float) -> bool:
-        """A paired key whose posterior is neither decisive for nor decisive against: more replicates are needed."""
-        return 1.0 - self.D < conf < self.D
+    def decides(self, conf: float | None, *, stress: bool = False) -> bool:
+        """A paired comparison is decisive only when its posterior's tail mass is below (1 - decisive) / margin (P > 0.975 at the
+        defaults): a posterior in the tie band [1 - margin (1 - decisive), that value] could be reversed by an equally conventional
+        threshold (review B finding B2) and does not decide."""
+        return conf is not None and conf > (self.DS_hi if stress else self.D_hi)
+
+    def undecided(self, conf: float | None) -> bool:
+        """A paired key that is neither decisive for nor decisive against: more replicates may decide it (extended up to the cap; a key
+        still undecided at the cap is a tie)."""
+        return conf is not None and 1.0 - self.D_hi < conf <= self.D_hi
+
+    def in_tie_band(self, conf: float | None) -> bool:
+        """A posterior at the edge of the threshold (reported: the comparison is a tie because of the margin, not for lack of effect)."""
+        return conf is not None and self.D_lo <= conf <= self.D_hi
 
     def cand_rank(self, c: frozenset[int]) -> tuple:
         """Canonical tie-break between candidate sets (node-order independent up to exact automorphisms)."""
@@ -1011,7 +1066,7 @@ class _Run:
         self.order = order
         # ---------------------------------------------------------------- 4. canonical group elimination
         elim_kw = {"max_seeds": self.M, "initial_chunk_fraction": float(cfg["initial_chunk_fraction"]), "group": bool(cfg["use_group_testing"]),
-                   "adaptive": bool(cfg["use_active_selection"]), "minimality_rounds": 3 if cfg["minimality_cleanup"] else 0}
+                   "adaptive": bool(cfg["use_active_selection"]), "minimality_rounds": None if cfg["minimality_cleanup"] else 0}
         self.elim_kw = elim_kw
         self.phase("elimination", self.n_val + 4)
         elim = eliminate(prober, K0, self.seeds, order, **elim_kw)
@@ -1048,9 +1103,15 @@ class _Run:
             with guarded(diag, "essentiality"):
                 for p in sorted(M1, key=lambda q: key[q], reverse=True):
                     self.necessity(p)
+        # the certificate is evidence about the returned core; the screen and the enumeration select among alternatives: the
+        # certificate's calls (about validation_seeds + 1 fresh keep-only runs per non-essential member) are reserved before them
+        if cfg["minimality_cleanup"]:
+            n_open = sum(1 for p in M1 if not self.ess_tests.get(p, {}).get("essential"))
+            self.cert_reserve = int(min(max(0, self.budget0 // 5), (self.n_val + 1) * n_open))
+        diag["reserves"] = {"final_fidelity": self.fin_reserve, "certificate": self.cert_reserve}
         screen = Screen()
         if cfg["necessity_screen"] and M1:
-            self.phase("necessity_screen", self.fin_reserve + 2)
+            self.phase("necessity_screen", self.fin_reserve + self.cert_reserve + 2)
             pool = sorted(K0 - M1, key=lambda q: (key[q], q), reverse=True)  # most relevant first
             with guarded(diag, "necessity_screen"):
                 screen = self.screen(pool, M1)
@@ -1064,7 +1125,7 @@ class _Run:
         alts, alt_info = self.alternatives(M1)
         diag["alternatives"] = alt_info
         if cfg["necessity_of_alternatives"] and cfg["member_essentiality"] and alts:
-            self.phase("essentiality_alternatives", self.fin_reserve + 2)
+            self.phase("essentiality_alternatives", self.fin_reserve + self.cert_reserve + 2)
             with guarded(diag, "essentiality_alternatives"):
                 todo = sorted({p for a in alts for p in a if p not in self.ess_tests}, key=lambda q: (not self.participates(q), tuple(-x for x in key[q])))
                 for p in todo:
@@ -1080,24 +1141,28 @@ class _Run:
                 cands.append(c)
                 kinds.append(info["kind"])
                 self.alt_of[c] = a
-        self.phase("selection", self.fin_reserve)
+        self.canonical_cand = cands[0]
+        self.cands, self.kinds = cands, kinds
+        self.phase("selection", self.fin_reserve + self.cert_reserve)
         sel = None
         with guarded(diag, "selection"):  # an unexpected failure of the selection must not discard the canonical mechanism
             sel = self.select(cands, kinds)
         if sel is None:
             self.flag("selection_failed")
             sel = {"ev": {c: {"kind": k} for c, k in zip(cands, kinds)}, "winner": cands[0], "tied": [], "losers": [], "filtered": {},
-                   "not_minimal": [], "trace": [], "mode": "selection_failed"}
+                   "not_minimal": [], "trace": [], "pairs": [], "mode": "selection_failed"}
         winner = sel["winner"]
+        self.selection_winner = winner  # before the union repair and the certificate (introspection)
+        self.sel_record = {"tied": list(sel.get("tied", [])), "losers": list(sel.get("losers", []))}
         # exchangeable copies, each only marginally sufficient: their union (subset of parameter draws)
         self.union_members: frozenset[int] = frozenset()
         if winner is not None and cfg["union_repair"]:
             with guarded(diag, "union_repair"):
-                self.phase("union_repair", self.fin_reserve)
+                self.phase("union_repair", self.fin_reserve + self.cert_reserve)
                 winner = self.union_repair(winner, cands, kinds, sel)
         if winner is not None and cfg["member_essentiality"]:
             with guarded(diag, "essentiality_of_selected_core"):
-                self.phase("essentiality", self.fin_reserve)
+                self.phase("essentiality", self.fin_reserve + self.cert_reserve)
                 for p in sorted(winner, key=lambda q: key[q], reverse=True):
                     self.necessity(p)
         # no compact mechanism (distributed drive)
@@ -1109,6 +1174,7 @@ class _Run:
                 for f in ("degenerate", "distributed", "no_compact_mechanism"):
                     self.flag(f)
         diag["selection"] = self.selection_diag(cands, kinds, sel, winner)
+        diag["reliance_pairs"] = sel.get("pairs", [])
         core_set = winner if winner is not None else frozenset()
         # ---------------------------------------------------------------- 9. minimality certificate, joint necessity
         cert_info: dict = {}
@@ -1118,6 +1184,10 @@ class _Run:
                 core_set, cert_info = self.certify(core_set)
         diag["minimality_certificate"] = cert_info
         self.cert_info = cert_info
+        # the elimination's 1-minimality rounds (and the certificate's) must end with a round that removed nothing (review B finding B8)
+        used = [self.elim] + [self.elims[self.alt_of[c]] for c in ([winner] if winner is not None else []) if self.alt_of.get(c) in self.elims]
+        if any(e.minimality_verified is False for e in used) or cert_info.get("minimality_verified") is False:
+            self.flag("minimality_unverified")
         core = sorted(core_set)
         diag["participation"].update(core_member_rates_hz={int(p): round(float(self.rates[p]), 4) for p in core},
                                      core_participates=bool(all(self.participates(p) for p in core)))
@@ -1142,7 +1212,7 @@ class _Run:
         self.probabilities(core_set, cands, sel, degenerate)
         diag["posterior"] = getattr(self, "weights", None)
         ev = sel["ev"]
-        comp_alts = [c for c in sel["tied"]] + [c for c, _k, _c in sel["losers"]]
+        comp_alts = [c for c in sel["tied"]] + [lo[0] for lo in sel["losers"]]
         alt_out = [sorted(c) for c in comp_alts if c != core_set]
         extra_roles: dict[int, str] = {}
         for c in comp_alts:
@@ -1166,6 +1236,15 @@ class _Run:
                                   for c, k in zip(cands, kinds) if not ev.get(c, {}).get("participating", True)]
         diag["prober"] = {"tests": prober.n_tests, "extended_decisions": prober.n_extended, "calls_by_phase": dict(prober.calls_by_phase),
                           "budget_exhausted": not self.elim.complete, "working_seeds": list(self.seeds)}
+        # review B finding B6: which phases the budget (or a phase's call cap) cut short — a budget-limited answer is visibly so
+        limited = set(prober.budget_hits) | set(diag.get("out_of_budget_phases", []))
+        if not self.elim.complete:
+            limited.add("elimination")
+        if not screen.complete:
+            limited.add("necessity_screen")
+        diag["budget_limited_phases"] = sorted(limited)
+        if limited:
+            self.flag("budget_limited")
         intact_outs = [prober.intact_outcomes[s] for s in prober.tried]  # every seed tried in order (unbiased), extensions included
         passing = [o for o in intact_outs if o.passed]
         freqs = [o.frequency_hz for o in passing if o.frequency_hz is not None]
@@ -1341,7 +1420,7 @@ class _Run:
         if n_max <= 0 or not M1 or not self.elim.complete:
             return found, info
         n_stress = int(cfg["stress_probes"]) if cfg["robust_objective"] else 0
-        eval_reserve = (n_max + 1) * (self.n_val + n_stress + self.m) + 2 + self.fin_reserve
+        eval_reserve = (n_max + 1) * (self.n_val + n_stress + self.m) + 2 + self.fin_reserve + self.cert_reserve
         self.phase("alternatives", eval_reserve + int(self.sim.remaining * (1.0 - float(cfg["alternatives_budget_fraction"]))))
 
         def run_elim(start: frozenset[int], protected: frozenset[int] = frozenset()) -> Elimination | None:
@@ -1395,16 +1474,28 @@ class _Run:
         return found, info
 
     # ------------------------------------------------------------------ 8. selection
+    def order_key(self, c: frozenset[int]) -> tuple:
+        """Order-independent rank of a candidate: the canonical candidate first, then the canonical rank of its members."""
+        return (c != getattr(self, "canonical_cand", None), self.cand_rank(c))
+
     def select(self, cands: list[frozenset[int]], kinds: list[str]) -> dict:
-        """Admissibility before optimality. Every candidate is validated sequentially on the same fresh seeds and checked for
-        participation. Admissible: validated and participating (if none is, the undecided participating ones, flagged; if none of those,
-        no validated mechanism). Among the admissible minimal sets: dynamics fidelity (paired, keep-only against the intact network on
-        the same seeds; candidates decisively worse than the best drop out); then pairwise, the canonical candidate first, a challenger
-        replaces the incumbent only if it is decisively better on the first key that separates them — reliance of the intact network on
-        the distinctive members (paired t, per member, every size), Occam, stress robustness; otherwise they tie."""
+        """Admissibility before optimality, then a round robin. Every candidate is validated sequentially on the same fresh seeds and
+        checked for participation. Admissible: validated and participating (if none is, the undecided participating ones, flagged; if
+        none of those, no validated mechanism). Among the admissible minimal sets: dynamics fidelity (paired, keep-only against the
+        intact network on the same seeds; candidates decisively worse than the best drop out). Then every pair of the remaining
+        candidates is compared on the first key that separates them: reliance of the intact network on the pair's own distinctive
+        members (function failures as paired discordant counts, graded readout change per member as a paired test against the noise
+        band; at every size), Occam, stress robustness (only for equal-size pairs that reliance leaves tied). A paired posterior decides
+        only beyond the tie band (review B finding B2); inside it, a later key that disagrees with the way the evidence leans leaves the
+        pair tied. The winner is a candidate that no other candidate beats decisively — the
+        canonical one if it is among them, else the one with the most wins minus defeats, then the canonical rank; the other undefeated
+        candidates are tied with it; a defeated candidate keeps the weight of its strongest defeat. A cycle of decisive comparisons
+        keeps the canonical candidate and ties everything (flag ``selection_cycle``). Nothing depends on the order of the candidate list
+        (review B finding B9)."""
         cfg = self.cfg
         ev: dict[frozenset[int], dict] = {c: {"kind": k} for c, k in zip(cands, kinds)}
-        out: dict = {"ev": ev, "winner": None, "tied": [], "losers": [], "filtered": {}, "not_minimal": [], "trace": [], "mode": "none"}
+        out: dict = {"ev": ev, "winner": None, "tied": [], "losers": [], "filtered": {}, "not_minimal": [], "trace": [], "pairs": [],
+                     "mode": "none"}
         if not cands:
             return out
         with guarded(self.diag, "selection_validation"):
@@ -1438,16 +1529,16 @@ class _Run:
             self.flag("no_validated_mechanism")
             self.diag["no_validated_mechanism"] = True
             # the best available set is reported at low probability: participating first, then by validation evidence
-            pool = sorted(cands, key=lambda c: (not ev[c]["participating"], -(ev[c].get("val") or {}).get("p_valid", 0.0), cands.index(c)))
+            pool = sorted(cands, key=lambda c: (not ev[c]["participating"], -(ev[c].get("val") or {}).get("p_valid", 0.0), self.order_key(c)))
             out["winner"] = pool[0]
             return out
         minimal = [c for c in adm if not any(o < c for o in adm)]
         out["not_minimal"] = [c for c in adm if c not in minimal]
-        comp = minimal
+        comp = sorted(minimal, key=self.order_key)
         # fidelity before size: (1) conditional sufficiency on the same replicates (discordant replicates) and (2) dynamics — the relative
         # difference of the readout statistics from the intact network on the replicates where both candidates reproduce the function.
-        # Sequential: while a comparison is neither decisive for nor against (gray), the best candidate and the gray ones are validated on
-        # 4 more common replicates, up to the validation cap.
+        # Sequential: while a comparison is undecided, the best candidate and the undecided ones are validated on 4 more common
+        # replicates, up to the validation cap; a comparison still undecided there is not an exclusion.
         if cfg["fidelity_check"] and len(comp) >= 2:
             for _round in range(4):
                 mism = {c: self.mismatch(ev[c]["val"]) for c in comp}
@@ -1455,7 +1546,7 @@ class _Run:
                     ev[c]["mismatch"] = round(float(np.mean(list(mism[c].values()))), 4) if mism[c] else None
                     ev[c]["mismatch_per_seed"] = {int(x): round(float(v), 4) for x, v in mism[c].items()}
                 best = min(comp, key=lambda c: (-(ev[c]["val"].get("pass_fraction") or 0.0), ev[c]["mismatch"] if ev[c]["mismatch"] is not None else 1.0,
-                                                len(c), comp.index(c)))
+                                                len(c), self.cand_rank(c)))
                 out["filtered"] = {}
                 gray: list[frozenset[int]] = []
                 for c in comp:
@@ -1465,13 +1556,13 @@ class _Run:
                     conf_s, n10, n01 = self.paired_validation(ev[best]["val"], ev[c]["val"])
                     common = sorted(set(mism[c]) & set(mism[best]))
                     m, conf_d, n = paired_confidence([mism[c][x] - mism[best][x] for x in common], band=self.noise_band())
-                    ev[c]["fidelity_vs_best"] = {"sufficiency_discordant": [n10, n01], "confidence_less_sufficient": round(conf_s, 4),
-                                                 "dynamics_mean_difference": round(m, 4), "confidence_worse_dynamics": round(conf_d, 4), "n": n,
-                                                 "band": round(self.noise_band(), 4)}
-                    conf = max(conf_s, conf_d if n >= 3 else 0.0)
-                    if conf >= self.D:
-                        out["filtered"][c] = conf
-                    elif (n >= 3 and self.gray(conf_d)) or (n10 + n01 >= 1 and self.gray(conf_s)):
+                    ev[c]["fidelity_vs_best"] = {"best": sorted(best), "sufficiency_discordant": [n10, n01],
+                                                 "confidence_less_sufficient": round(conf_s, 4), "dynamics_mean_difference": round(m, 4),
+                                                 "confidence_worse_dynamics": round(conf_d, 4), "n": n, "band": round(self.noise_band(), 4)}
+                    s_ok = n10 + n01 >= 1
+                    if (s_ok and self.decides(conf_s)) or (n >= 3 and self.decides(conf_d)):
+                        out["filtered"][c] = max(conf_s if s_ok else 0.0, conf_d if n >= 3 else 0.0)
+                    elif (n >= 3 and self.undecided(conf_d)) or (s_ok and self.undecided(conf_s)):
                         gray.append(c)
                 n_now = max(int(ev[x]["val"]["n"]) for x in [best, *gray]) if gray else self.n_val_max
                 if not gray or n_now >= self.n_val_max:
@@ -1482,31 +1573,54 @@ class _Run:
                     for x in [best, *gray]:
                         ev[x]["val"] = self.validate(x, n_min=n_next)
             comp = [c for c in comp if c not in out["filtered"]]
-        # reliance and robustness among the remaining candidates
+        W = comp[0]
         if len(comp) >= 2:
+            pairs: dict[tuple[frozenset[int], frozenset[int]], dict] = {}
             if cfg["reliance_tiebreak"]:
                 with guarded(self.diag, "reliance"):
-                    self.reliance(comp, ev)
-            if cfg["robust_objective"]:
-                with guarded(self.diag, "stress"):
+                    self.reliance_pairs(comp, pairs)
+            self.phase("stress", self.fin_reserve + self.cert_reserve)
+            if cfg["robust_objective"] and not cfg.get("stress_only_for_ties", True):
+                with guarded(self.diag, "stress"):  # every compared candidate (v1.1); by default only equal-size pairs left tied (lazy)
                     for c in comp:
                         ev[c].update(self.stress(c))
-        inc = comp[0]
-        for c in comp[1:]:
-            r, keyname, conf = self.compare(c, inc, ev)
-            out["trace"].append({"challenger": sorted(c), "incumbent": sorted(inc), "result": r, "key": keyname,
-                                 "confidence": None if conf is None else round(conf, 4)})
-            if r > 0:
-                inc = c
-        for c in comp:
-            if c == inc:
-                continue
-            r, keyname, conf = self.compare(inc, c, ev)
-            if r > 0:
-                out["losers"].append((c, keyname, conf))
-            else:
-                out["tied"].append(c)
-        out["winner"] = inc
+            res: dict[tuple[frozenset[int], frozenset[int]], tuple[int, str, float | None]] = {}
+            for i, a in enumerate(comp):
+                for b in comp[i + 1:]:
+                    r, keyname, conf = self.compare(a, b, ev, pairs.get((a, b)))
+                    res[(a, b)] = (r, keyname, conf)
+                    out["trace"].append({"a": sorted(a), "b": sorted(b), "result": r, "key": keyname,
+                                         "confidence": None if conf is None else round(conf, 4)})
+            for (a, b), rec in pairs.items():
+                e = self.reliance_evidence(rec)
+                out["pairs"].append({"a": sorted(a), "b": sorted(b), "distinctive_a": sorted(rec["Da"]), "distinctive_b": sorted(rec["Db"]),
+                                     **{k: v for k, v in e.items() if k != "verdict"}, "decision": e["verdict"][0], "key": e["verdict"][1],
+                                     "confidence": None if e["verdict"][2] is None else round(e["verdict"][2], 4)})
+
+            def beats(x: frozenset[int], y: frozenset[int]) -> tuple[bool, str | None, float | None]:
+                if (x, y) in res:
+                    r, k, cf = res[(x, y)]
+                    return r > 0, k, cf
+                r, k, cf = res[(y, x)]
+                return r < 0, k, cf
+
+            defeats = {c: [(o, *beats(o, c)[1:]) for o in comp if o != c and beats(o, c)[0]] for c in comp}
+            wins = {c: sum(1 for o in comp if o != c and beats(c, o)[0]) for c in comp}
+            score = {c: wins[c] - len(defeats[c]) for c in comp}
+            undefeated = [c for c in comp if not defeats[c]]
+            if undefeated:
+                W = self.canonical_cand if self.canonical_cand in undefeated else min(undefeated, key=lambda c: (-score[c], self.cand_rank(c)))
+                out["tied"] = [c for c in undefeated if c != W]
+                for c in comp:
+                    if defeats[c]:
+                        by, keyname, conf = min(defeats[c], key=lambda d: self.defeat_weight(c, d[0], d[1], d[2]))
+                        out["losers"].append((c, keyname, conf, by))
+            else:  # a cycle of decisive comparisons: no candidate is undefeated; the canonical one is kept and everything is tied
+                self.flag("selection_cycle")
+                W = self.canonical_cand if self.canonical_cand in comp else min(comp, key=lambda c: (-score[c], self.cand_rank(c)))
+                out["tied"] = [c for c in comp if c != W]
+            out["round_robin"] = [{"members": sorted(c), "wins": wins[c], "defeats": len(defeats[c])} for c in comp]
+        out["winner"] = W
         # the winner is validated on the replicates of every participating candidate (paired weights), and on the full validation cap when
         # the intact network itself fails on some draws (the replicates on which the winner fails although the intact network works are
         # the union repair's evidence)
@@ -1514,87 +1628,144 @@ class _Run:
             not ip for c in cands for ip in ((ev[c].get("val") or {}).get("intact_passed") or []))
         n_all = max([int((ev[c].get("val") or {}).get("n", 0)) for c in cands if ev[c]["participating"]]
                     + ([self.n_val_max] if intact_fails else []))
-        if int(ev[inc]["val"]["n"]) < n_all:
+        if int(ev[W]["val"]["n"]) < n_all:
             with guarded(self.diag, "selection_validation"):
-                ev[inc]["val"] = self.validate(inc, n_min=n_all)
+                ev[W]["val"] = self.validate(W, n_min=n_all)
         return out
 
-    def reliance(self, comp: list[frozenset[int]], ev: dict) -> None:
-        """Per working replicate: (1[the function fails] + relative readout change) when the candidate's distinctive members (those not
-        in every competing candidate) are silenced together in the intact network, per distinctive member (Occam-neutral), paired across
-        candidates on the same replicates."""
-        self.phase("reliance", self.fin_reserve)
-        common = frozenset.intersection(*comp)
+    def defeat_weight(self, c: frozenset[int], by: frozenset[int], keyname: str | None, conf: float | None) -> float:
+        """Preference weight a decisive defeat leaves the defeated candidate: occam_factor per extra member for Occam, else 1 - the
+        confidence of the deciding test."""
+        if keyname == "size":
+            return float(self.cfg.get("occam_factor", 0.5)) ** max(1, len(c) - len(by))
+        return max(0.0, 1.0 - float(conf or 0.0))
+
+    def reliance_pairs(self, comp: list[frozenset[int]], pairs: dict) -> None:
+        """Reliance of the intact network, pair by pair on the pair's OWN distinctive members (a - b and b - a), so that adding an
+        unrelated candidate cannot change a comparison (review B finding B9): per replicate, whether silencing each side's distinctive
+        members in the intact network breaks the function, and the relative readout change it causes. The working replicates first (up
+        to max_decision_seeds); then, for every pair that is still undecided with part of its evidence in the undecided zone,
+        intact-passing validation replicates, 4 at a time, up to the validation cap."""
+        self.phase("reliance", self.fin_reserve + self.cert_reserve)
         rseeds = list(self.seeds)
         if self.M > len(rseeds):
             try:
                 rseeds += [s for s in self.prober.collect_working(self.M) if s not in set(rseeds)][: self.M - len(rseeds)]
             except _OutOfBudget:
                 pass
-        dist = {c: c - common for c in comp if c - common}
-        vals: dict[frozenset[int], list[float]] = {c: [] for c in dist}
+        for i, a in enumerate(comp):
+            for b in comp[i + 1:]:
+                pairs[(a, b)] = {"Da": a - b, "Db": b - a, "seeds": [], "fail_a": [], "fail_b": [], "chg_a": [], "chg_b": []}
 
-        def measure(seeds: list[int]) -> None:  # replicate-major, so an exhausted budget leaves equal-length lists
+        def measure(keys: list, seeds: list[int]) -> None:  # replicate-major: an exhausted budget leaves each pair's lists aligned
             for s in seeds:
-                row = {}
-                for c, D in dist.items():
-                    o0 = self.prober.run(self.U, s)
-                    o = self.prober.run(self.U - D, s)
-                    row[c] = ((0.0 if o.passed else 1.0) + readout_change(o0, o)) / len(D)
-                for c, x in row.items():
-                    vals[c].append(x)
-
-        def any_gray() -> bool:
-            cs = list(vals)
-            for i, a in enumerate(cs):
-                for b in cs[i + 1:]:
-                    d = [x - y for x, y in zip(vals[a], vals[b])]
-                    if len(d) >= 3 and (self.gray(paired_confidence(d, band=self.noise_band())[1])
-                                        or self.gray(paired_confidence([-x for x in d], band=self.noise_band())[1])):
-                        return True
-            return False
+                o0 = self.prober.run(self.U, s)
+                for k in keys:
+                    rec = pairs[k]
+                    oa = self.prober.run(self.U - rec["Da"], s)
+                    ob = self.prober.run(self.U - rec["Db"], s)
+                    rec["seeds"].append(int(s))
+                    rec["fail_a"].append(not oa.passed)
+                    rec["fail_b"].append(not ob.passed)
+                    rec["chg_a"].append(readout_change(o0, oa))
+                    rec["chg_b"].append(readout_change(o0, ob))
 
         try:
-            measure(rseeds)
-            # sequential: while a pairwise reliance comparison is neither decisive for nor against, add intact-passing validation
-            # replicates (4, then up to the validation cap)
-            while len(rseeds) < self.n_val_max and any_gray():
-                add = self.intact_passing_validation_seeds(min(4, self.n_val_max - len(rseeds)), exclude=rseeds)
+            measure(list(pairs), rseeds)
+            used = list(rseeds)
+            while len(used) < self.n_val_max:
+                open_keys = [k for k, rec in pairs.items() if self.reliance_open(rec)]
+                if not open_keys:
+                    break
+                add = self.intact_passing_validation_seeds(min(4, self.n_val_max - len(used)), exclude=used)
                 if not add:
                     break
-                self.diag.setdefault("sequential_extensions", []).append({"key": "reliance", "to_n": len(rseeds) + len(add), "candidates": len(dist)})
-                measure(add)
-                rseeds += add
+                self.diag.setdefault("sequential_extensions", []).append({"key": "reliance", "to_n": len(used) + len(add), "pairs": len(open_keys)})
+                measure(open_keys, add)
+                used += add
         except _OutOfBudget:
             pass
-        n_eq = min((len(v) for v in vals.values()), default=0)
-        for c, v in vals.items():
-            v = v[:n_eq]
-            if not v:
-                continue
-            ev[c]["reliance_per_seed"] = [round(x, 4) for x in v]
-            ev[c]["reliance"] = round(float(np.mean(v)), 4)
 
-    def compare(self, a: frozenset[int], b: frozenset[int], ev: dict) -> tuple[int, str, float | None]:
-        """+1: a decisively better than b; -1: b decisively better; 0: tied. Keys in order: reliance (paired t over the working
-        replicates, every size), Occam (fewer neurons), stress (independent binomials); a key inside its noise band does not decide."""
-        ra, rb = ev[a].get("reliance_per_seed"), ev[b].get("reliance_per_seed")
-        if self.cfg["reliance_tiebreak"] and ra and rb and len(ra) == len(rb):
-            band = self.noise_band()
-            _m, conf_a, n = paired_confidence([x - y for x, y in zip(ra, rb)], band=band)
-            _m, conf_b, _n = paired_confidence([y - x for x, y in zip(ra, rb)], band=band)
-            if n >= 3 and conf_a >= self.D:
-                return 1, "reliance", conf_a
-            if n >= 3 and conf_b >= self.D:
-                return -1, "reliance", conf_b
+    def reliance_evidence(self, rec: dict) -> dict:
+        """The two parts of a pair's reliance (review B finding B2), each tested as what it is:
+        failures — replicates on which silencing a's distinctive members breaks the function and silencing b's does not, and the reverse
+        (paired discordant counts, the rule of ``paired_validation``; a function failure is an event of the whole network, not scaled by
+        size); readout — on the replicates on which neither silencing breaks the function, the relative readout change per distinctive
+        member, as a paired test against the noise band. The failure part decides first; the readout part decides only if the failures
+        do not point the other way."""
+        fa, fb = rec["fail_a"], rec["fail_b"]
+        n_ab = sum(1 for x, y in zip(fa, fb) if x and not y)
+        n_ba = sum(1 for x, y in zip(fa, fb) if y and not x)
+        p_f = p_above_half(n_ab, n_ab + n_ba) if n_ab + n_ba else None
+        la, lb = max(1, len(rec["Da"])), max(1, len(rec["Db"]))
+        d = [ca / la - cb / lb for x, y, ca, cb in zip(fa, fb, rec["chg_a"], rec["chg_b"]) if not x and not y]
+        band = self.noise_band()
+        m_r, p_ra, n_r = paired_confidence(d, band=band)
+        _m, p_rb, _n = paired_confidence([-x for x in d], band=band)
+        if p_f is not None and self.decides(p_f):
+            verdict: tuple[int, str | None, float | None] = (1, "reliance: failures", p_f)
+        elif p_f is not None and self.decides(1.0 - p_f):
+            verdict = (-1, "reliance: failures", 1.0 - p_f)
+        elif n_r >= 3 and self.decides(p_ra) and (p_f is None or p_f >= 0.5):
+            verdict = (1, "reliance: readout", p_ra)
+        elif n_r >= 3 and self.decides(p_rb) and (p_f is None or p_f <= 0.5):
+            verdict = (-1, "reliance: readout", p_rb)
+        else:
+            verdict = (0, None, None)
+        # an undecided pair whose evidence lies in the tie band leans towards one side (same order: failures, then the readout part if
+        # the failures do not point the other way); a later preference may not overrule that lean (see compare)
+        lean = 0
+        if verdict[0] == 0:
+            if p_f is not None and self.in_tie_band(p_f):
+                lean = 1
+            elif p_f is not None and self.in_tie_band(1.0 - p_f):
+                lean = -1
+            elif n_r >= 3 and self.in_tie_band(p_ra) and (p_f is None or p_f >= 0.5):
+                lean = 1
+            elif n_r >= 3 and self.in_tie_band(p_rb) and (p_f is None or p_f <= 0.5):
+                lean = -1
+        return {"n": len(fa), "failures_a_only": n_ab, "failures_b_only": n_ba,
+                "failures_both": sum(1 for x, y in zip(fa, fb) if x and y),
+                "p_a_fails_more": None if p_f is None else round(p_f, 4), "readout_n": n_r, "readout_difference_per_member": round(m_r, 4),
+                "p_a_readout_beyond_band": round(p_ra, 4), "p_b_readout_beyond_band": round(p_rb, 4), "band": round(band, 4),
+                "in_tie_band": bool(self.in_tie_band(p_f) or self.in_tie_band(1.0 - p_f if p_f is not None else None)
+                                    or (n_r >= 3 and (self.in_tie_band(p_ra) or self.in_tie_band(p_rb)))),
+                "lean": lean, "verdict": verdict}
+
+    def reliance_open(self, rec: dict) -> bool:
+        """An undecided pair whose failure or readout evidence is in the undecided zone: more replicates may decide it."""
+        e = self.reliance_evidence(rec)
+        if e["verdict"][0] != 0:
+            return False
+        return self.undecided(e["p_a_fails_more"]) or (e["readout_n"] >= 3 and (self.undecided(e["p_a_readout_beyond_band"])
+                                                                                 or self.undecided(e["p_b_readout_beyond_band"])))
+
+    def compare(self, a: frozenset[int], b: frozenset[int], ev: dict, rec: dict | None = None) -> tuple[int, str, float | None]:
+        """+1: a decisively better than b; -1: b decisively better; 0: tied. Keys in order: reliance on the pair's distinctive members
+        (failures as paired counts, then readout change per member against the noise band; every size), Occam (fewer neurons), stress
+        (independent binomials; computed only here, for equal-size pairs reliance left tied). When the reliance evidence lies in the tie
+        band, a later key decides only if it agrees with the way that evidence leans; against it the pair is tied ("tie band"), so that
+        the answer moves from one candidate to the other through a tie as the evidence grows, never by a jump at the band's edge."""
+        lean = 0
+        if self.cfg["reliance_tiebreak"] and rec is not None and rec["fail_a"]:
+            e = self.reliance_evidence(rec)
+            r, keyname, conf = e["verdict"]
+            if r != 0 and keyname is not None:
+                return r, keyname, conf
+            lean = int(e["lean"])
         if len(a) != len(b):
-            return (1 if len(a) < len(b) else -1), "size", None
-        if ev[a].get("stress_n") and ev[b].get("stress_n"):
-            conf = binomial_confidence(ev[a]["stress_k"], ev[a]["stress_n"], ev[b]["stress_k"], ev[b]["stress_n"])
-            if conf >= self.DS:
-                return 1, "stress", conf
-            if conf <= 1.0 - self.DS:
-                return -1, "stress", 1.0 - conf
+            r = 1 if len(a) < len(b) else -1
+            return (0, "tie band", None) if lean == -r else (r, "size", None)
+        if self.cfg["robust_objective"]:
+            for c in (a, b):
+                if "stress_n" not in ev[c]:
+                    ev[c].update(self.stress(c))
+            if ev[a].get("stress_n") and ev[b].get("stress_n"):
+                conf = binomial_confidence(ev[a]["stress_k"], ev[a]["stress_n"], ev[b]["stress_k"], ev[b]["stress_n"])
+                if self.decides(conf, stress=True):
+                    return (0, "tie band", None) if lean == -1 else (1, "stress", conf)
+                if self.decides(1.0 - conf, stress=True):
+                    return (0, "tie band", None) if lean == 1 else (-1, "stress", 1.0 - conf)
         return 0, "tie", None
 
     def local_swaps(self, W: frozenset[int], cands: list[frozenset[int]], kinds: list[str]) -> dict[int, frozenset[int]]:
@@ -1624,8 +1795,8 @@ class _Run:
         draws). If the winner fails on validation replicates on which the intact network works, the intact network uses something else
         there: the same group elimination, run on those replicates with the current set protected, finds it (up to three rounds);
         together with the winner's one-for-one replacements this gives a union. The union replaces the winner only if it validates,
-        participates and validates decisively better on the same replicates (paired, discordant replicates; the comparison is extended
-        to twice the validation cap while it is close)."""
+        participates and validates decisively better on the same replicates (paired, discordant replicates, decisive beyond the tie
+        band; the comparison is extended to twice the validation cap while it is close)."""
         info: dict = {"tried": False, "rounds": []}
         self.diag["union_repair"] = info
         vW = sel["ev"].get(W, {}).get("val") or self.validate(W)
@@ -1648,7 +1819,7 @@ class _Run:
         if U == W:
             return W
         conf, n10, n01 = self.paired_validation(vU, vW)
-        if 0.8 <= conf < self.D:  # close: extend both on the same replicates (sequential paired test)
+        if 0.8 <= conf and not self.decides(conf):  # close: extend both on the same replicates (sequential paired test)
             n_ext = 2 * self.n_val_max
             vU = self.validate(U, n_min=n_ext)
             vW = self.validate(W, n_min=n_ext)
@@ -1657,10 +1828,10 @@ class _Run:
         info.update(tried=True, union=sorted(U), swaps={int(x): sorted(f) for x, f in swaps.items()}, union_status=vU["status"],
                     union_k_n=[vU["k"], vU["n"]], winner_k_n=[vW["k"], vW["n"]], discordant=[n10, n01], confidence=round(conf, 4))
         silent = sorted(p for p in U if not self.participates(p))
-        if vU["status"] == "validated" and conf >= self.D and (not silent or not self.cfg["participation_check"]):
+        if vU["status"] == "validated" and self.decides(conf) and (not silent or not self.cfg["participation_check"]):
             sel["ev"][U] = {"kind": "union_of_exchangeable", "val": vU, "silent_members": silent, "participating": True}
             sel["tied"] = []
-            sel["losers"] = [(W, "union", conf)] + [(c, k, cf) for c, k, cf in sel["losers"]]
+            sel["losers"] = [(W, "union", conf, U)] + list(sel["losers"])
             sel["winner"] = U
             sel["mode"] = "validated"
             self.union_members = U  # justified as a whole: each copy is needed on some of the draws, not on most (no leave-one-out)
@@ -1674,7 +1845,7 @@ class _Run:
         info["adopted"] = False
         if vU["status"] == "validated" and conf > 0.5 and not silent:  # no evidence against it: a larger alternative (Occam)
             sel["ev"][U] = {"kind": "union_of_exchangeable", "val": vU, "silent_members": silent, "participating": True}
-            sel["losers"].append((U, "size", None))
+            sel["losers"].append((U, "size", None, W))
         return W
 
     def degeneracy(self, W: frozenset[int], cands: list[frozenset[int]], kinds: list[str]) -> dict | None:
@@ -1722,8 +1893,10 @@ class _Run:
         and the core without it are compared on the same replicates — the working seeds, then fresh validation seeds on which the intact
         network passes, one at a time (up to the validation cap). The member is kept as soon as the core passes decisively more often
         (discordant replicates: a member needed on only part of the draws is kept); it is removed only when all fresh replicates show no
-        decisive disadvantage and the reduced set passes on at least half of the replicates (Occam); the check repeats after a removal."""
-        info: dict = {"members": {}, "removed": []}
+        decisive disadvantage, the reduced set passes on at least half of the replicates (Occam) AND the reduced set validates decisively
+        under the same sequential rule as every candidate (else the unreduced core stands; review B finding B8). The check repeats after
+        a removal until a round removes nothing (at most |core| rounds; ``minimality_verified`` False if the cap is reached)."""
+        info: dict = {"members": {}, "removed": [], "removals_rejected": {}}
         exempt = self.essential_set() | self.union_members
 
         def fresh_seeds():  # intact-passing validation seeds, simulated lazily (shared with every other validation)
@@ -1734,6 +1907,7 @@ class _Run:
                     yield s
                 s += 1
 
+        changed = False
         for _round in range(max(1, len(core))):
             changed = False
             for x in sorted(core - exempt, key=lambda q: self.key[q]):
@@ -1754,12 +1928,17 @@ class _Run:
                 info["members"][int(x)] = {"pass_fraction_without": round(kR / n, 3) if n else None, "n": n, "n_fail_without": n - kR,
                                            "discordant": [d10, d01], "p_needed": round(conf, 4), "members_without": sorted(R)}
                 if conf < self.D and n and kR / n >= 0.5:
+                    vR = self.validate(R)  # the reduced core must earn the decisive validation that admitted the core
+                    if vR["status"] != "validated":
+                        info["removals_rejected"][int(x)] = {"status": vR["status"], "k_n": [vR["k"], vR["n"]], "p_valid": vR["p_valid"]}
+                        continue
                     core = R
                     info["removed"].append(int(x))
                     changed = True
                     break
             if not changed:
                 break
+        info["minimality_verified"] = not changed
         info["members"] = {k: m for k, m in info["members"].items() if k in core}
         info["certified"] = sorted(int(k) for k, m in info["members"].items() if m["p_needed"] >= self.D)
         return core, info
@@ -1814,9 +1993,19 @@ class _Run:
                 "selection_validation": v.get("pass_fraction"), "selection_validation_status": v.get("status"),
                 "stress_pass_fraction": e.get("stress"), "robust_sd_x2_pass_fraction": e.get("stress_wide"),
                 "weight_noise_pass_fraction": e.get("stress_noise"),
-                "reliance": e.get("reliance"), "mismatch": e.get("mismatch"),
+                "reliance": self.reliance_summary(core, sel), "mismatch": e.get("mismatch"),
                 "core_frequency_hz": float(np.median(fk)) if fk else None, "intact_frequency_hz": float(np.median(fi)) if fi else None,
                 "core_n_active_readout": int(np.median([o.n_active_readout for o in ko if o.passed])) if k_all else None, "core_size": len(core)}
+
+    def reliance_summary(self, core: frozenset[int], sel: dict) -> dict | None:
+        """The returned core's pairwise reliance comparisons, compact (the full records are in diagnostics["reliance_pairs"])."""
+        me = sorted(core)
+        rows = [pr for pr in sel.get("pairs", []) if me in (pr["a"], pr["b"])]
+        if not rows:
+            return None
+        dec = [pr["decision"] if pr["a"] == me else -pr["decision"] for pr in rows]
+        return {"compared_with": len(rows), "relied_on_more": sum(1 for x in dec if x > 0), "tied": sum(1 for x in dec if x == 0),
+                "relied_on_less": sum(1 for x in dec if x < 0), "ties_in_tie_band": sum(1 for x, pr in zip(dec, rows) if x == 0 and pr["in_tie_band"])}
 
     def size_error_curve(self, core: frozenset[int], sel: dict, cert: dict) -> list[dict]:
         pts: list[dict] = []
@@ -1866,11 +2055,15 @@ class _Run:
             parts.append(f"{len(latent)} sufficient set(s) excluded as latent backups (a member does not participate in the intact network)")
         if sel.get("filtered"):
             parts.append(f"{len(sel['filtered'])} candidate(s) excluded for worse dynamics fidelity")
-        keys = sorted({k for _c, k, _cf in sel.get("losers", [])})
+        keys = sorted({lo[1] for lo in sel.get("losers", []) if lo[1]})
         if keys:
             parts.append("preferred over the other admissible candidates by " + ", ".join(keys))
         if sel.get("tied"):
-            parts.append(f"tied with {len(sel['tied'])} candidate(s) (probability shared)")
+            edge = [pr for pr in sel.get("pairs", []) if pr.get("in_tie_band") and pr.get("decision") == 0]
+            note = "; a reliance posterior within the tie band" if edge else ""
+            parts.append(f"tied with {len(sel['tied'])} candidate(s) (probability shared{note})")
+        if "selection_cycle" in self.diag.get("flags", []):
+            parts.append("the pairwise comparisons form a cycle: the canonical candidate is kept and every candidate shares the mass")
         if self.union_members:
             parts.append("union of exchangeable copies, each only marginally sufficient")
         if not parts:
@@ -1910,8 +2103,8 @@ class _Run:
             pref[W] = 1.0
             for c in sel.get("tied", []):
                 pref[c] = 1.0
-            for c, keyname, conf in sel.get("losers", []):
-                pref[c] = occam ** max(1, len(c) - len(W)) if keyname == "size" else max(0.0, 1.0 - float(conf or 0.0))
+            for c, keyname, conf, by in sel.get("losers", []):
+                pref[c] = self.defeat_weight(c, by if by is not None else W, keyname, conf)
             for c, conf in sel.get("filtered", {}).items():
                 pref[c] = max(0.0, 1.0 - float(conf))
             for c in sel.get("not_minimal", []):
@@ -1985,13 +2178,12 @@ class _Run:
                          "validation": v.get("pass_fraction"), "validation_k_n": [v.get("k"), v.get("n")], "p_valid": v.get("p_valid"),
                          "intact_pass": v.get("intact_pass_fraction"),
                          "participating": e.get("participating"), "silent_members": e.get("silent_members"), "mismatch": e.get("mismatch"),
-                         "mismatch_per_seed": e.get("mismatch_per_seed"),
-                         "fidelity_vs_best": e.get("fidelity_vs_best"), "reliance": e.get("reliance"), "reliance_per_seed": e.get("reliance_per_seed"),
-                         "stress": e.get("stress"), "stress_k_n": [e.get("stress_k"), e.get("stress_n")]})
+                         "fidelity_vs_best": e.get("fidelity_vs_best"), "stress": e.get("stress"), "stress_k_n": [e.get("stress_k"), e.get("stress_n")]})
         return {"candidates": rows, "mode": sel.get("mode"), "chosen": sorted(winner) if winner is not None else [], "trace": sel.get("trace"),
                 "tied": [sorted(c) for c in sel.get("tied", [])],
-                "decisively_worse": [{"members": sorted(c), "key": k, "confidence": None if cf is None else round(cf, 4)}
-                                     for c, k, cf in sel.get("losers", [])],
+                "decisively_worse": [{"members": sorted(c), "key": k, "confidence": None if cf is None else round(cf, 4),
+                                      "by": None if by is None else sorted(by)} for c, k, cf, by in sel.get("losers", [])],
+                "round_robin": sel.get("round_robin"),
                 "fidelity_excluded": [{"members": sorted(c), "confidence": round(cf, 4)} for c, cf in sel.get("filtered", {}).items()],
                 "not_minimal": [sorted(c) for c in sel.get("not_minimal", [])]}
 
@@ -2078,6 +2270,9 @@ class _Run:
     def empty(self, reason: str) -> DiscoveryResult:
         self.diag["error"] = reason
         self.flag("no_validated_mechanism")
+        self.diag["budget_limited_phases"] = sorted(self.prober.budget_hits)
+        if self.prober.budget_hits:
+            self.flag("budget_limited")
         intact_outs = [self.prober.intact_outcomes[s] for s in self.prober.tried]
         frac = float(np.mean([o.passed for o in intact_outs])) if intact_outs else None
         return DiscoveryResult(core=[], inclusion_probability={int(p): 0.0 for p in self.U}, roles={}, essential={}, alternatives=[], loop=[],

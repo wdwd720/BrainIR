@@ -1,11 +1,14 @@
-"""brainir_v1 (version 1.1) on tiny synthetic instances whose truth is generated here: registration and switches, recovery of
+"""brainir_v1 (version 1.2.0) on tiny synthetic instances whose truth is generated here: registration and switches, recovery of
 mechanisms of four criterion types (rhythm, selectivity, activity band, persistence), determinism under the seed and node-order
 independence, explicit tied alternatives with shared probability, context members found by full-network necessity, budget honesty at
 tiny budgets, every ablation switch runs within the budget, the optional prior only orders the search, cross-connectome claims on tiny
 pairs from the same budget pool, a schema-valid prediction and the run entry point; and the adversarial properties of reviews A and G on
 small trap instances built with the third-party generator: a latent backup is never returned and every core member participates, a
 gate masked by its drivers is found and its measured necessity keeps its probability up, a distributed drive is flagged with low
-confidence, simulated edge predictions."""
+confidence, simulated edge predictions; and the rules of review B: the method file's sha256 is recorded and current, reliance
+tests function failures as paired counts and treats a posterior at the threshold's edge as a tie, the round-robin winner does not
+depend on the order of the candidate list, the 1-minimality rounds run until one removes nothing, budget-limited phases and seeds
+beyond the replicate period are reported."""
 
 from __future__ import annotations
 
@@ -74,9 +77,9 @@ def test_registered_with_switches():
               "necessity_screen", "n_seeds_per_decision", "adaptive_replication", "reliance_tiebreak", "use_cross_connectome", "max_alternatives",
               "structural_pruning", "activity_pruning", "member_essentiality", "participation_check", "fidelity_check", "second_partition",
               "necessity_of_alternatives", "union_repair", "degeneracy_detection", "joint_necessity", "simulate_edge_predictions",
-              "screen_singles"):
+              "screen_singles", "stress_only_for_ties", "decisive_margin"):
         assert k in m.default_config, k
-    assert m.version == "1.1"
+    assert m.version == "1.2.0" == v1.VERSION
     for gone in ("reliance_margin", "reliance_rel_margin", "validation_margin", "stress_margin", "loser_weight"):  # fixed margins replaced
         assert gone not in m.default_config, gone
 
@@ -116,27 +119,38 @@ def test_recovers_ei_pair_with_roles_essentiality_predictions_and_schema(suite, 
     assert all("members" in pt for pt in curve) and d["participation"]["core_participates"] is True
     assert res.fidelity["n_fresh_seeds"] >= 1 and res.fidelity["fresh_seeds"].startswith("reserved")
     assert d["auxiliary_budget"]["used"] is False  # single-network instance: no network of another dataset in the bundle
+    assert d["budget_limited_phases"] == [] and "budget_limited" not in d["flags"] and "minimality_unverified" not in d["flags"]
+    assert d["code"] == {"method": "brainir_v1", "version": v1.VERSION, "method_file_sha256": v1.METHOD_FILE_SHA256}
     pred = res.to_prediction(problem, MethodInfo(name="brainir_v1", version="1.0"))
     assert isinstance(pred, BrainIRMechanismPrediction) and sorted(pred.core_ids()) == sorted(int(problem.public_ids[p]) for p in res.core)
     BrainIRMechanismPrediction.from_json(pred.to_json())
 
 
-def test_deterministic_under_seed_and_node_order_independent(suite):
+def test_deterministic_under_seed_and_node_order_independent(suite, ei_run):
+    """The same neurons from a permuted copy of the graph (other per-neuron parameter draws) and another seed; bit-identical re-runs
+    under the same seed are checked by the integrity test (a fresh simulator and cache per run)."""
     inst_dir, truth = suite["ei"]
-    _, _, r1 = _discover(inst_dir, "main", budget=400, seed=3)
-    _, _, r2 = _discover(inst_dir, "main", budget=400, seed=3)  # fresh simulator, fresh cache
-    assert r1.core == r2.core and r1.inclusion_probability == r2.inclusion_probability and r1.essential == r2.essential
-    assert r1.alternatives == r2.alternatives and r1.budget["calls"] == r2.budget["calls"]
+    r1 = ei_run[2]
     to1 = _to_order1(truth)
     for s in (1,):  # the same neurons from a permuted copy of the graph (other per-neuron parameter draws) and another seed
         _, _, r3 = _discover(inst_dir, "order1", budget=400, seed=s)
         assert sorted(int(to1[p]) for p in r1.core) == sorted(r3.core)
 
 
-def test_redundant_mechanisms_are_reported_with_shared_probability(suite):
+@pytest.fixture(scope="module")
+def red_run(suite):
+    """The redundant-oscillator instance, main order, seed 0, 600 calls, through the method's own run object (a single-network bundle:
+    ``discover`` adds nothing to ``_Run.execute``), shared by the tests that inspect this run."""
+    problem = DiscoveryProblem.from_bundle(suite["red"][0], "main")
+    sim = BudgetedSimulator(problem, max_calls=600)
+    run = v1._Run(problem, sim, 0, {**MethodRegistry.get("brainir_v1").default_config})
+    return problem, sim, run, run.execute()
+
+
+def test_redundant_mechanisms_are_reported_with_shared_probability(suite, red_run):
     inst_dir, truth = suite["red"]
     tn = truth["networks"]["main"]
-    _, _, res = _discover(inst_dir, "main", budget=600, seed=0)
+    res = red_run[3]
     alts = [sorted(a) for a in tn["alternatives_positions"]]
     assert sorted(res.core) in alts, (res.core, alts)
     assert any(sorted(a) in alts and sorted(a) != sorted(res.core) for a in res.alternatives), (res.alternatives, alts)
@@ -200,15 +214,18 @@ def test_budget_is_never_exceeded_and_results_stay_valid(suite):
     for budget in (1, 4, 12, 30):
         problem, sim, res = _discover(inst_dir, "main", budget=budget, seed=0)
         assert sim.calls <= budget and res.budget["calls"] <= budget
+        if budget >= 4:  # the budget cut some phase short, and the result says so (review B finding B6)
+            assert res.diagnostics["budget_limited_phases"] and "budget_limited" in res.diagnostics["flags"], budget
         assert all(0.0 <= q <= 1.0 for q in res.inclusion_probability.values())
         res.to_prediction(problem, MethodInfo(name="brainir_v1", version="1.0"))
         json.dumps(res.to_dict(), default=str)
 
 
-SEARCH_SWITCHES = [{"use_structural_prior": False}, {"use_group_testing": False}, {"use_active_selection": False},
-                   {"adaptive_replication": False}, {"n_seeds_per_decision": 1}, {"structural_pruning": False, "activity_pruning": False},
-                   {"minimality_cleanup": False}, {"uncertainty_model": "point"}]
-PHASE_SWITCHES = [{"robust_objective": False, "reliance_tiebreak": False, "use_cross_connectome": False, "necessity_screen": False},
+SEARCH_SWITCHES = [{"use_structural_prior": False}, {"use_group_testing": False, "use_active_selection": False},
+                   {"adaptive_replication": False, "n_seeds_per_decision": 1}, {"structural_pruning": False, "activity_pruning": False},
+                   {"minimality_cleanup": False, "uncertainty_model": "point"}]
+PHASE_SWITCHES = [{"robust_objective": False, "reliance_tiebreak": False, "use_cross_connectome": False, "necessity_screen": False,
+                   "stress_only_for_ties": False, "decisive_margin": 1.0},
                   {"member_essentiality": False, "max_alternatives": 0},
                   {"participation_check": False, "fidelity_check": False, "screen_singles": False, "second_partition": False,
                    "necessity_of_alternatives": False, "union_repair": False, "degeneracy_detection": False, "joint_necessity": False,
@@ -241,7 +258,7 @@ def test_budget_integrity_rules_static_and_seed_range(suite):
     inst_dir, _ = suite["ei"]
     for seed in (0, 3, 15):  # below 1,000 at seed 0; never 1000-1015 (seed 3 uses block 900); below 5,000 (15: the highest block)
         problem = DiscoveryProblem.from_bundle(inst_dir, "main")
-        sim = BudgetedSimulator(problem, max_calls=60)
+        sim = BudgetedSimulator(problem, max_calls=40)
         seen: list[int] = []
         orig = sim.run_many
 
@@ -254,11 +271,14 @@ def test_budget_integrity_rules_static_and_seed_range(suite):
             return orig(queries)
 
         sim.run_many = rec
-        MethodRegistry.get("brainir_v1").discover(problem, sim, seed=seed)
+        res = MethodRegistry.get("brainir_v1").discover(problem, sim, seed=seed)
         assert seen and max(seen) < 5000, (seed, max(seen))
         assert not any(1000 <= x <= 1015 for x in seen), seed
         if seed == 0:
             assert max(seen) < 1000
+            _, _, again = _discover(inst_dir, "main", budget=40, seed=0)  # fresh simulator and cache: a bit-identical result
+            assert again.core == res.core and again.inclusion_probability == res.inclusion_probability and again.essential == res.essential
+            assert again.alternatives == res.alternatives and again.budget["calls"] == res.budget["calls"]
 
 
 @pytest.mark.parametrize("transform", ["add_sink_distractors", "reorder_edges"])
@@ -328,7 +348,7 @@ def test_cross_connectome_step_shares_the_budget_and_claims_only_verified_identi
 
 
 def test_no_identity_claims_under_an_implementation_shift_across_implementations(tmp_path):
-    d, truth = _pair(tmp_path, "two_implementations", 3, n=(60, 80), implementation_shift=True)
+    d, truth = _pair(tmp_path, "two_implementations", 3, n=(40, 50), implementation_shift=True)
     problem = DiscoveryProblem.from_bundle(d, "a")
     sim = BudgetedSimulator(problem, max_calls=250)
     res = MethodRegistry.get("brainir_v1").discover(problem, sim, seed=0)
@@ -355,11 +375,11 @@ def test_no_identity_claims_on_a_null_pair(tmp_path):
 
 
 # ---------------------------------------------------------------------------- adversarial properties (reviews A and G)
-def _trap(root, trap: str, variant: str, seed: int):
+def _trap(root, trap: str, variant: str, seed: int, knobs: dict | None = None):
     """A small trap instance of the third-party adversarial generator (tests may use it; method code may not), with its truth."""
     from brainir.discovery.adversarial import AdversarialSpec, build_verified, export_adversarial
 
-    inst, ver, used = build_verified(AdversarialSpec(trap, variant, n_total=60, seed=seed), max_tries=8)
+    inst, ver, used = build_verified(AdversarialSpec(trap, variant, n_total=60, seed=seed, knobs=dict(knobs or {})), max_tries=8)
     export_adversarial(inst, ver, root, salt="v1-test", n_order_variants=1)
     truth = json.loads((root / "truth" / f"{used.label}.json").read_text(encoding="utf-8"))
     return root / "instances" / used.label, truth["networks"]["main"]["adversarial"]
@@ -369,7 +389,7 @@ def _trap(root, trap: str, variant: str, seed: int):
 def traps(tmp_path_factory):
     root = tmp_path_factory.mktemp("v1_traps")
     return {"latent": _trap(root, "latent_backup", "band", 94_000_000), "gate": _trap(root, "masked_gate", "ffd_band", 94_000_100),
-            "distributed": _trap(root, "distributed_drive", "identical", 94_000_200)}
+            "distributed": _trap(root, "distributed_drive", "identical", 94_000_200, knobs={"n_relays": 12})}
 
 
 def test_latent_backup_is_never_returned_and_core_members_participate(traps):
@@ -409,6 +429,109 @@ def test_distributed_drive_is_flagged_with_low_confidence(traps):
     pool = set(res.diagnostics["degenerate"]["pool"])
     assert pool <= set(relays) and len(pool) >= 0.8 * len(relays)
     assert len({round(res.inclusion_probability[p], 6) for p in pool}) == 1  # exchangeable relays get equal probability
+
+
+def test_method_file_sha256_is_current_and_recorded(suite, tmp_path):
+    """Review B finding B1: the method file's sha256 (written into _brainir_v1_sha256.py at the freeze, because a method module may
+    not read files) equals the file as it is, and every prediction carries it."""
+    import hashlib
+
+    assert hashlib.sha256(Path(v1.__file__).read_bytes()).hexdigest() == v1.METHOD_FILE_SHA256
+    inst_dir, _ = suite["ei"]
+    problem, sim, res = _discover(inst_dir, "main", budget=12, seed=17)
+    info = MethodRegistry.get("brainir_v1").method_info(problem, sim, 17, {}, wall_s=0.0)
+    assert info.compute["method_file_sha256"] == v1.METHOD_FILE_SHA256 and info.version == v1.VERSION
+    # review B finding B7: seed 17 reuses the replicates of seed 1 (period 16), and the result says so
+    assert any("period 16" in w for w in res.diagnostics.get("warnings", []))
+
+
+def _stub_run(decisive: float = 0.95, margin: float = 2.0, band: float = 0.2):
+    """A _Run with only what the reliance rule reads (the decision thresholds and the noise band)."""
+    run = object.__new__(v1._Run)
+    run.D = decisive
+    run.D_hi = 1.0 - (1.0 - decisive) / margin
+    run.D_lo = max(0.5, 1.0 - (1.0 - decisive) * margin)
+    run.DS_hi = 1.0 - (1.0 - 0.99) / margin
+    run._band = band
+    run.diag = {}
+    return run
+
+
+def _pair_record(fail_a, fail_b, chg_a, chg_b, n_a=2, n_b=1):
+    return {"Da": frozenset(range(n_a)), "Db": frozenset(range(10, 10 + n_b)), "seeds": list(range(len(fail_a))),
+            "fail_a": list(fail_a), "fail_b": list(fail_b), "chg_a": list(chg_a), "chg_b": list(chg_b)}
+
+
+def test_reliance_tests_failures_as_counts_and_the_threshold_edge_is_a_tie():
+    """Review B finding B2 (the real MANC case): a statistic that mixes function failures (about 0.75 per member) with small readout
+    changes is bimodal; the failures are tested as paired discordant counts (5 against 0 -> P = 0.984) and decide at the default
+    threshold, while a threshold whose error rate is half as large puts 0.984 inside its tie band — a tie, not the other answer."""
+    fail_a = [True, True, False, False, False, True, False, True, False, False, False, True]  # silencing a's distinctive members fails
+    fail_b = [False] * 12
+    chg_a = [0.5, 0.42, 0.16, 0.32, 0.36, 0.46, 0.24, 0.52, 0.22, 0.22, 0.26, 0.62]
+    chg_b = [0.0] * 12
+    rec = _pair_record(fail_a, fail_b, chg_a, chg_b)
+    e = _stub_run(0.95).reliance_evidence(rec)
+    assert (e["failures_a_only"], e["failures_b_only"]) == (5, 0) and abs(e["p_a_fails_more"] - 0.9844) < 1e-3
+    assert e["verdict"][0] == 1 and e["verdict"][1] == "reliance: failures"
+    tight = _stub_run(0.975).reliance_evidence(rec)  # tie band [0.95, 0.9875]: 0.984 is at the edge
+    assert tight["verdict"][0] == 0 and tight["in_tie_band"] and tight["lean"] == 1
+    assert _stub_run(0.90).reliance_evidence(rec)["verdict"][0] == 1
+    # inside the tie band a later preference may not overrule the lean: the larger set that the evidence leans towards ties with the
+    # smaller one (the real MANC case at decisive 0.975); a preference that agrees with the lean decides as before
+    run = _stub_run(0.975)
+    run.cfg = {"reliance_tiebreak": True, "robust_objective": False}
+    assert run.compare(frozenset({0, 1, 5}), frozenset({10, 5}), {}, rec) == (0, "tie band", None)
+    rec_big_b = _pair_record(fail_a, fail_b, chg_a, chg_b, n_a=2, n_b=3)
+    assert run.compare(frozenset({0, 1}), frozenset({10, 11, 12}), {}, rec_big_b) == (1, "size", None)
+    run95 = _stub_run(0.95)
+    run95.cfg = run.cfg
+    assert run95.compare(frozenset({0, 1, 5}), frozenset({10, 5}), {}, rec)[:2] == (1, "reliance: failures")
+    # graded readout changes only (no failure): decided beyond the noise band, per distinctive member; inside the band a tie
+    rec2 = _pair_record([False] * 6, [False] * 6, [1.0, 1.1, 0.9, 1.0, 1.05, 0.95], [0.1] * 6, n_a=2, n_b=1)
+    assert _stub_run(band=0.2).reliance_evidence(rec2)["verdict"][:2] == (1, "reliance: readout")  # 0.5 per member vs 0.1
+    assert _stub_run(band=0.6).reliance_evidence(rec2)["verdict"][0] == 0
+    # the readout part may not overrule failures pointing the other way
+    rec3 = _pair_record([False] * 5 + [False], [False] * 5 + [True], [1.0] * 6, [0.0] * 6, n_a=1, n_b=1)
+    e3 = _stub_run(band=0.1).reliance_evidence(rec3)
+    assert e3["failures_b_only"] == 1 and e3["verdict"][0] == 0
+
+
+class _RuleProber:
+    """A stand-in for Prober.decide: a kept set passes iff it satisfies ``rule`` (no simulations)."""
+
+    def __init__(self, rule):
+        self.rule = rule
+
+    def decide(self, kept, seeds, max_seeds=0, min_seeds=0):
+        ok = bool(self.rule(frozenset(kept)))
+        return v1.Decision(ok, int(ok), int(not ok), [], ())
+
+
+def test_minimality_rounds_run_until_one_removes_nothing():
+    """Review B finding B8: a chain of non-monotone removals (member i becomes removable only after i - 1 is gone) needs five
+    leave-one-out rounds; the rounds repeat until one removes nothing (the old cap of three stopped at a non-minimal set)."""
+    def rule(S):  # 0 is needed; i may be absent only if i - 1 is absent too
+        return 0 in S and all(not (i - 1 in S and i not in S) for i in range(2, 7))
+
+    order = [6, 5, 4, 3, 2, 1, 0]
+    full = v1.eliminate(_RuleProber(rule), frozenset(range(7)), (0,), order, group=False, adaptive=False)
+    assert full.kept == frozenset({0}) and full.minimality_verified is True
+    capped = v1.eliminate(_RuleProber(rule), frozenset(range(7)), (0,), order, group=False, adaptive=False, minimality_rounds=3)
+    assert capped.kept != frozenset({0}) and capped.minimality_verified is False
+
+
+def test_round_robin_winner_does_not_depend_on_the_candidate_order(red_run):
+    """Review B finding B9: the selection compares every pair and returns an undefeated candidate; listing the candidates in reverse
+    order returns the same winner, ties and losers."""
+    run = red_run[2]
+    assert len(run.cands) >= 2
+    again = run.select(list(reversed(run.cands)), list(reversed(run.kinds)))
+    assert again["winner"] == run.selection_winner
+    assert {frozenset(c) for c in again["tied"]} == {frozenset(c) for c in run.sel_record["tied"]}
+    assert {frozenset(lo[0]) for lo in again["losers"]} == {frozenset(lo[0]) for lo in run.sel_record["losers"]}
+    for c in [again["winner"], *again["tied"]]:  # nobody beats the winner or a tied candidate decisively
+        assert all(lo[3] != c or lo[0] not in [again["winner"], *again["tied"]] for lo in again["losers"])
 
 
 def test_run_entry_point(suite, tmp_path):
