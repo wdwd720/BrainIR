@@ -20,12 +20,14 @@ EASY = ("integrator", 1)
 """A tiny pair on which the base method alone recovers both mechanisms (so `prior` must too, whatever the method does with the prior)."""
 RESCUE = ("negative_feedback_controller", 0)
 """A tiny pair on which the base method alone misses network a's mechanism (a background set drives the readout into the band)."""
+NULL = ("integrator", 0, {"null_family": "negative_feedback_controller", "anchor_decoy": False})
+"""A tiny NULL pair: b implements another family, so no member of a has a counterpart in b (every identity claim would be false)."""
 BUDGET = 300
 
 
-def _make(root, family: str, seed: int):
+def _make(root, family: str, seed: int, kw: dict | None = None):
     for s in range(seed, seed + 10):
-        spec = PairSpec(family, 30, 36, s, n_readout=8, anchor_decoy=True)
+        spec = PairSpec(family, 30, 36, s, n_readout=8, **{"anchor_decoy": True, **(kw or {})})
         pair = build_pair(spec)
         ver = verify_pair(pair, seeds=[0, 1, 2])
         if ver["verified"]:
@@ -65,6 +67,8 @@ def test_all_modes_run_with_honest_accounting(runs):
         assert all(0.0 <= c <= 1.0 for _, _, c in pr.correspondence)
         json.dumps(pr.to_dict(), default=str)
     ind, pri, tra = runs["independent"], runs["prior"], runs["transfer"]
+    # identity claims need a verified transfer linking the two cores: the modes without one claim nothing
+    assert ind.correspondence == [] and pri.correspondence == [] and tra.correspondence == []
     # the base method on A is the same run in independent / prior / transfer (same method, seed, budget, fresh simulator)
     assert ind.result_a.core == pri.result_a.core == tra.result_a.core
     assert ind.budget["a"] == pri.budget["a"] == tra.budget["a"] <= BUDGET
@@ -101,6 +105,22 @@ def test_joint_rescues_a_network_where_the_base_method_fails(pairs):
     corr = {tuple(x) for x in truth["correspondence_positions"]}
     assert jnt.correspondence and all((x, y) in corr for x, y, _ in jnt.correspondence)
     assert all(jnt.result_a.essential.get(p) is not None for p in jnt.result_a.core)
+
+
+def test_null_pair_keeps_each_network_own_mechanism_and_claims_no_identity(tmp_path):
+    """Review E / coordinator smoke test: on a pair whose networks implement different mechanisms, joint discovery must not replace a
+    network's own mechanism by the other network's image, and no mode may claim an identity."""
+    _, truth, a, b = _make(tmp_path, *NULL)
+    for mode in ("independent", "joint"):
+        pr = discover_pair(a, b, METHOD, budget_a=BUDGET, budget_b=BUDGET, seed=0, mode=mode)
+        assert pr.correspondence == [], mode
+        assert _success(pr.result_a.core, truth["networks"]["a"]) and _success(pr.result_b.core, truth["networks"]["b"]), mode
+        assert pr.budget["total"] <= 2 * BUDGET
+        for st in pr.diagnostics.get("steps", []):
+            if st["step"] == "selection" and st["chose"] == "shared":  # a switch only on the destination's own evidence
+                assert st["rule"] != "reliance" or st["reliance"]["decisive"]
+            if st["step"] == "transfer" and st["accepted"]:  # verified: essential structure reproduced
+                assert not st.get("unmatched_essential")
 
 
 def test_deterministic_under_seed(pairs, runs):

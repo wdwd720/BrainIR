@@ -148,9 +148,16 @@ def mutual_best(a: DiscoveryProblem, b: DiscoveryProblem, positions_a, positions
 
 
 def null_match_scores(a: DiscoveryProblem, b: DiscoveryProblem, positions_a, *, n_null: int = 50, seed: int = 0, **kw) -> dict:
-    """Best-candidate score/z distribution for random A interneurons — the reference for 'is this match distinctive?'."""
+    """Best-candidate score/z distribution for random A interneurons — the reference for 'is this match distinctive?'.
+
+    The null pool is A's tokenised interneurons (opaque ``T#`` cell types) other than ``positions_a``: labelled descending,
+    ascending, sensory or motor neurons are anchors, not the kind of neuron a mechanism claim is about (review E finding 9).
+    Only when a network has no tokenised interneurons (e.g. a bundle with real labels) are all other candidates used."""
     rng = np.random.default_rng(seed)
-    pool = np.array([p for p in a.candidate_positions() if p not in set(int(x) for x in positions_a)])
+    exclude = set(int(x) for x in positions_a)
+    token = a.neurons["cell_type"].astype("string").str.startswith(TOKEN_PREFIX, na=False).to_numpy()
+    cand = [int(p) for p in a.candidate_positions() if int(p) not in exclude]
+    pool = np.array([p for p in cand if token[p]] or cand)
     picks = rng.choice(pool, size=min(n_null, len(pool)), replace=False)
     res = match_candidates(a, b, picks, k=1, **kw)["per_neuron"]
     z = np.array([v["distinctiveness"] for v in res.values()])
