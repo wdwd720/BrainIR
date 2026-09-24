@@ -406,3 +406,30 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     connectome in 3 of 3 runs per direction, with 2 destination calls, and the matched null passes 0. Joint discovery
     takes 405 total calls against 1,040–1,069 for independent discovery.
   - **Pitfall:** bash heredocs that contain some quoted Python fail with "unexpected EOF"; use Write/Edit for code.
+- **2026-09-23 22:00 – 2026-09-24 01:10 (session 3, reviews A and G).** BrainIR v1.0 imported, commit 691c0d6:
+  - composed oracle-free;
+  - the query object was renamed `Oracle` → `Prober` (no logic change);
+  - held-out selection: structural 1.00, causal functional 1.00, identity Jaccard 0.97 / identical 0.95, 106 calls;
+  - anti-gaming invariant;
+  - ablations: group testing saves 105 calls, the canonical order raises consistency, the minimality cleanup is needed.
+  Joint discovery against its controls (protocol §7.4) saves calls only on easy pairs and never raises success.
+  - **Reviews A (causal) and G (adversarial), found independently.** v1.0 returns keep-only-sufficient sets that the
+    intact network does not use (latent backups behind inhibitory gates, backup copies) and demotes neurons it measured as
+    essential. Its group-silencing screen clears essential inhibitors masked by what they gate. Its probabilities are
+    evidence-class constants whose calibration evidence was circular. Its edge predictions are topological guesses.
+  - **The tournament metrics scored all of these as successes.** Structural success accepted audited latent backups.
+    Causal-functional success checked only returned members. The Brier score used a best-overlap target and was dominated
+    by trivially excluded neurons.
+  - **Response (orchestrator):**
+    - graded activity in `Outcome` and `SimQuery.remove_edges`;
+    - a participation-aware audit (the six held-out and final suites were re-audited: only 2 latent backups among them,
+      so the generator families rarely contain these structures);
+    - `success_intact`, essential recall and a contested-neuron Brier score against a non-circular target;
+    - protocol amendment §8, written before any confirmation run;
+    - a third-party adversarial generator and scorer from review G's author (21 trap variants), wired into the harness,
+      with held-out and final adversarial suites built with secret seeds.
+  - **Method fixes (v1.1)** were assigned to the oracle-free composer.
+  - **Pitfalls:**
+    - on a Modal worker, a Windows truth path parses as a bare file name, so the truth guard blocked the worker's
+      package directory (fixed, with a guard invariant);
+    - a Git Bash path passed into `python -c` is resolved under `C:\c\...` (use Windows paths).

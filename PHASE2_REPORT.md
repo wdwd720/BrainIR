@@ -312,7 +312,33 @@ The replication and the uncertainty model are insurance that this suite does not
   - pooled-budget and null-correspondence arms;
   - the harder `synthetic-pairs-v2` design.
 
-Reviews A, B, C, D and G: *pending*.
+| A causal | done (pre-lock) | 1 blocker, 3 major, 5 minor; being fixed (v1.1) |
+| G adversarial | done (pre-lock) | 1 blocker, 6 major, 3 minor; being fixed (v1.1) |
+
+**Reviews A and G reached the same blocker independently.** BrainIR v1.0 chooses among keep-only-sufficient sets without
+asking whether the intact network uses them.
+- **Latent backup.** A backup that the intact network keeps silent behind an inhibitory gate was returned at P = 0.90.
+  The circuit that actually runs was demoted to 0.15, including neurons v1 itself had measured as essential. This
+  happened in 17 of 22 runs on review G's traps, and in 6 of 6 runs on a generator instance with a backup copy.
+- **Masked gate.** The group-silencing screen misses an essential inhibitor when it is silenced together with what it
+  gates. This happened in 28 of 28 runs at n ≥ 150.
+
+**The v1.0 metrics were blind to both failure modes.** The tournament's structural and causal-functional success scored
+every one of these runs as a success. The Brier score was also computed against a target chosen by overlap with the
+method's own core, and neurons that were trivially excluded dominated it.
+
+**Response:**
+- a participation-aware audit and new metrics: `success_intact`, essential recall, latent backups, contested-neuron
+  Brier;
+- graded activity and edge-removal queries in the library;
+- an adversarial trap suite built by a third party (review G's author);
+- protocol amendment §8;
+- method fixes by the oracle-free composer (v1.1).
+
+The v1.0 selection numbers in section 6 stand as measured, but the metrics they rest on cannot see these failure modes.
+The confirmation uses the amended metrics and the adversarial suites.
+
+Reviews B, C and D: *pending*.
 
 ## 14. Compute and cost
 
