@@ -1,0 +1,301 @@
+{
+ "name": "adv_h_comparators",
+ "config": {
+  "methods": [
+   "greedy_plus",
+   "group_probe",
+   "greedy_reference"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "networks": [
+   "main",
+   "order1"
+  ],
+  "configs": {},
+  "instances": [
+   "a037e07945024",
+   "a0409249d6292",
+   "a07e2103726fe",
+   "a082067abc2e6",
+   "a091d5327500b",
+   "a0c21906b5d08",
+   "a0dd84812cef2",
+   "a14d05aaceca8",
+   "a19e9ac70f52b",
+   "a1e8a993766b3",
+   "a22044eea76b0",
+   "a22707664eabf",
+   "a256602a88fcb",
+   "a278a42dbba05",
+   "a292fbedcfbfb",
+   "a2de119b11a9e",
+   "a35342c649882",
+   "a3c61f3571df7",
+   "a486ccfa35c93",
+   "a4965a6882514",
+   "a4d2275afbd91",
+   "a4fa8286d7a2f",
+   "a51ad48c478b3",
+   "a521afe0e9a3d",
+   "a551e1a4f9974",
+   "a578ac615c63f",
+   "a626029b4e685",
+   "a628b62c2ba03",
+   "a6336037d9f8e",
+   "a64f443dd99e3",
+   "a66f38e9d4a0e",
+   "a69e20b657f24",
+   "a73584935d56a",
+   "a78006974360f",
+   "a79972391a8b8",
+   "a79afe2ea5854",
+   "a7ed3b0bd8958",
+   "a812cec02b2f3",
+   "a85e422f2aae0",
+   "a8852133b63ce",
+   "a8971b4610e85",
+   "a8ea27f2654e5",
+   "a921e0aef72e9",
+   "a9262a8538881",
+   "a957b96e51f55",
+   "a96c7b57858b2",
+   "a96f3b6c0e7b5",
+   "a97483e685339",
+   "a9827fcf888d3",
+   "a9977120e8ac4",
+   "a9f3c7ac22604",
+   "aa62004c6e56c",
+   "aac3a4c8c6088",
+   "ab50fdd739e22",
+   "abe7f07c06c48",
+   "ac23c483d8725",
+   "ac54e0285ff70",
+   "acf23c3621a20",
+   "ad30c4764f7fd",
+   "ada0e56e7315f",
+   "adafa92cb5fc2",
+   "ae661cd478850",
+   "aeacb2242fdd6",
+   "af0622221bfa8",
+   "afb68fa060cfb",
+   "aff11967ca13a"
+  ],
+  "score_seeds": [
+   5000,
+   5001,
+   5002,
+   5003
+  ],
+  "robust": true
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "suite": "adversarial_heldout",
+  "suite_sha256": "a75fbadefb31c6f7f2427ca18d9d3228232632d23e9e881af009f1f7e6248ad7",
+  "n_instances": 66,
+  "jobs_hash": "8bc536493f6bcf8b0ba8b1aaedd8ebcb362aac88319e5a738f0488dcb12e82ad",
+  "source_tree_sha256": "b45a2bdb425822930db113d3f202143a6063ea895e455d85d3692bd893538bc6",
+  "launched_utc": "2026-09-24T08:16:01Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 1188,
+  "wall_time_s": 1482.1,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 200,
+   "app": "brainir-phase1",
+   "shared_payload_key": "000b141bab3c1a561ab80789f467f32a",
+   "shared_payload_bytes": 5741779,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 21.737
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/adv_h_comparators.json",
+   "sha256": "5056d64e3dc38df7ab6114cf5f1a4aee78170c143ad7b9a8fa958083c13b0a42",
+   "size_bytes": 16244026
+  }
+ },
+ "summary": {
+  "greedy_plus": {
+   "n_runs": 396,
+   "n_scored": 396,
+   "n_failed": 0,
+   "success_rate": 0.7348484848484849,
+   "success_ci95": [
+    0.6943813131313131,
+    0.7777777777777778
+   ],
+   "success_planted_rate": 0.7348484848484849,
+   "functional_success_rate": 0.5429292929292929,
+   "functional_success_ci95": [
+    0.494949494949495,
+    0.5909090909090909
+   ],
+   "functional_success_causal_rate": 0.8582278481012658,
+   "success_or_functional_rate": 0.8484848484848485,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9141414141414141,
+   "functional_robust_mean": 0.8955696202531646,
+   "calls_median": 146.0,
+   "calls_mean": 214.71212121212122,
+   "size_median": 3.0,
+   "role_accuracy_mean": 0.9331223628691984,
+   "brier_mean": 0.009102143526996212,
+   "essential_accuracy_mean": null,
+   "removable_fraction": 0.3949367088607595,
+   "simulated_seconds_median": 142.2,
+   "identity_consistency": {
+    "n_instances": 66,
+    "pairwise_jaccard_mean": 0.8242437846531494,
+    "identical_fraction": 0.5303030303030303,
+    "n_empty_cores": 1
+   },
+   "success_intact_rate": 0.7272727272727273,
+   "essential_recall_mean": 0.8924418604651163,
+   "missed_essential_rate": 0.17829457364341086,
+   "latent_backup_rate": 0.03282828282828283,
+   "silent_core_rate": 0.03535353535353535,
+   "silence_core_pass_mean": 0.4740506329113924,
+   "brier_contested_mean": 0.12493589425227365,
+   "brier_contested_any_alternative_mean": 0.12493589425227365,
+   "essential_accuracy_unambiguous_mean": null
+  },
+  "greedy_reference": {
+   "n_runs": 396,
+   "n_scored": 396,
+   "n_failed": 0,
+   "success_rate": 0.19444444444444445,
+   "success_ci95": [
+    0.15404040404040403,
+    0.23232323232323232
+   ],
+   "success_planted_rate": 0.19444444444444445,
+   "functional_success_rate": 0.12121212121212122,
+   "functional_success_ci95": [
+    0.08838383838383838,
+    0.15404040404040403
+   ],
+   "functional_success_causal_rate": 0.16776315789473684,
+   "success_or_functional_rate": 0.24494949494949494,
+   "recall_best_alt_median": 0.5,
+   "precision_best_alt_median": 0.2,
+   "functional_nominal_mean": 0.6205808080808081,
+   "functional_robust_mean": 0.5984848484848485,
+   "calls_median": 244.0,
+   "calls_mean": 394.92676767676767,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.2197592025726084,
+   "essential_accuracy_mean": null,
+   "removable_fraction": 0.6907894736842105,
+   "simulated_seconds_median": 244.0,
+   "identity_consistency": {
+    "n_instances": 66,
+    "pairwise_jaccard_mean": 0.7781893242319435,
+    "identical_fraction": 0.4090909090909091,
+    "n_empty_cores": 0
+   },
+   "success_intact_rate": 0.11363636363636363,
+   "essential_recall_mean": 0.40374677002583975,
+   "missed_essential_rate": 0.8217054263565892,
+   "latent_backup_rate": 0.1994949494949495,
+   "silent_core_rate": 0.6161616161616161,
+   "silence_core_pass_mean": 0.46085858585858586,
+   "brier_contested_mean": 0.7260728680796905,
+   "brier_contested_any_alternative_mean": 0.7260728680796905,
+   "essential_accuracy_unambiguous_mean": null
+  },
+  "group_probe": {
+   "n_runs": 396,
+   "n_scored": 396,
+   "n_failed": 0,
+   "success_rate": 0.6515151515151515,
+   "success_ci95": [
+    0.6060606060606061,
+    0.696969696969697
+   ],
+   "success_planted_rate": 0.6515151515151515,
+   "functional_success_rate": 0.4393939393939394,
+   "functional_success_ci95": [
+    0.39141414141414144,
+    0.48737373737373735
+   ],
+   "functional_success_causal_rate": 0.8607594936708861,
+   "success_or_functional_rate": 0.8181818181818182,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9217171717171717,
+   "functional_robust_mean": 0.8873417721518987,
+   "calls_median": 193.0,
+   "calls_mean": 272.30808080808083,
+   "size_median": 3.0,
+   "role_accuracy_mean": 0.8322878927275994,
+   "brier_mean": 0.014095013478441934,
+   "essential_accuracy_mean": null,
+   "removable_fraction": 0.5088607594936709,
+   "simulated_seconds_median": 192.1,
+   "identity_consistency": {
+    "n_instances": 66,
+    "pairwise_jaccard_mean": 0.8155333423898884,
+    "identical_fraction": 0.5606060606060606,
+    "n_empty_cores": 1
+   },
+   "success_intact_rate": 0.6515151515151515,
+   "essential_recall_mean": 0.9657622739018088,
+   "missed_essential_rate": 0.046511627906976744,
+   "latent_backup_rate": 0.14898989898989898,
+   "silent_core_rate": 0.15151515151515152,
+   "silence_core_pass_mean": 0.4240506329113924,
+   "brier_contested_mean": 0.1961323219625203,
+   "brier_contested_any_alternative_mean": 0.1961323219625203,
+   "essential_accuracy_unambiguous_mean": null
+  }
+ },
+ "notes": "",
+ "run_id": "8880d356b3d13892",
+ "created_utc": "2026-09-24T08:40:53Z",
+ "code": {
+  "commit": "8d0ef4e25a458bf54fceba5fd22788e4661496e5",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "b45a2bdb425822930db113d3f202143a6063ea895e455d85d3692bd893538bc6",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T08:16:01Z"
+ },
+ "environment": {
+  "remote": [
+   {
+    "implementation": "cpython",
+    "machine": "x86_64",
+    "packages": {
+     "networkx": "3.7",
+     "numpy": "2.5.3",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "scipy": "1.18.1"
+    },
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "python": "3.12.10",
+    "sim_code_version": "2bb1ae6e62fe65a9",
+    "source_tree_sha256": "b45a2bdb425822930db113d3f202143a6063ea895e455d85d3692bd893538bc6"
+   }
+  ]
+ }
+}
