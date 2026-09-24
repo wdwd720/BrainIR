@@ -238,7 +238,7 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
     if truth_json is not None or (truth_path is not None and truth_path.exists()):
         ts = time.time()
         truth = json.loads(truth_json.decode("utf-8") if truth_json is not None else truth_path.read_text(encoding="utf-8"))
-        tnet = truth["networks"][network]
+        tnet = adversarial_view(truth["networks"][network])
         rec["structure"] = score_structure(result, tnet)
         rec["function"] = score_function(problem, result, seeds=score_seeds, workers=workers, robust=robust)
         rec["intact"] = score_intact(problem, result, tnet, seeds=score_seeds, workers=workers)
@@ -254,9 +254,32 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         rec["core_canonical"] = sorted(int(perm[int(p)]) for p in result.core if 0 <= int(p) < len(perm))
         if "correspondence_positions" in truth or "identity_positions" in truth:
             rec.update(score_cross_claims(truth, network, result))
+        if "adversarial" in tnet:  # a trap instance of the adversarial suite (third-party scorer; its own score seeds 5500-5507)
+            from .adversarial import score_adversarial
+
+            rec["adversarial"] = score_adversarial(result, tnet, problem)
         rec["scoring_wall_s"] = round(time.time() - ts, 2)
     rec["result"] = compact_result(rec["result"])
     return rec
+
+
+def adversarial_view(tnet: dict) -> dict:
+    """For a trap instance of the adversarial suite, the generic truth fields are those of the base generator motif; replace them
+    by the trap truth so that the generic metrics agree with it: sufficient sets = the acceptable cores (else the mechanism),
+    essential = the measured trap essentials, latent backups = the trap's. Other truth networks are returned unchanged."""
+    adv = tnet.get("adversarial")
+    if not adv:
+        return tnet
+    t = dict(tnet)
+    sets = [sorted(int(p) for p in a) for a in (adv.get("acceptable") or adv.get("mechanism") or [])]
+    if sets:
+        t["alternatives_positions"] = sets
+        t["core_positions"] = sets[0]
+        t["unplanted_alternatives_positions"] = []
+    t["essential_positions"] = {int(p): True for p in adv.get("essential", [])}
+    t["essential_pass_fraction_positions"] = {int(k): float(v) for k, v in (adv.get("silence_pass") or {}).items()}
+    t["latent_backups_positions"] = [sorted(int(p) for p in a) for a in adv.get("latent_backups", [])]
+    return t
 
 
 def score_cross_claims(truth: dict, network: str, result: DiscoveryResult) -> dict:
@@ -567,6 +590,19 @@ def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str]
            "backend": bstats, "code": code, "environments": [json.loads(e) for e in sorted(envs)], "summary": summary, "records": records}
     if any("cross_claims" in r for r in records):  # a pair suite: the identity claims each method made about the other network
         out["cross_claims"] = summarize_cross_claims(records)
+    if any("adversarial" in r for r in records):  # the adversarial suite: correct / confident-wrong / latent backups per trap
+        from .adversarial import summarize_adversarial
+
+        out["adversarial"] = {}
+        for m in methods:
+            rs = [r for r in records if r.get("method") == m]
+            scored = [r["adversarial"] for r in rs if "adversarial" in r]
+            s = summarize_adversarial(scored) if scored else {"per_trap": {}, "n_runs": 0}
+            n_failed = sum(1 for r in rs if "adversarial" not in r)
+            s["n_failed"] = n_failed  # failed runs count as not correct (and not confident)
+            if scored:
+                s["correct_incl_failures"] = float(s["correct"] * len(scored) / (len(scored) + n_failed))
+            out["adversarial"][m] = s
     if out_dir is not None:
         out_dir.mkdir(parents=True, exist_ok=True)
         p = out_dir / f"{label}.json"
@@ -625,6 +661,22 @@ def to_markdown(t: dict) -> str:
                          f"{fmt(s.get('latent_backup_rate'))} | {fmt(s.get('silent_core_rate'))} | {fmt(s.get('silence_core_pass_mean'))} | "
                          f"{fmt(s.get('brier_contested_mean'))} / {fmt(s.get('brier_contested_any_alternative_mean'))} | "
                          f"{fmt(s.get('essential_accuracy_unambiguous_mean'))} |")
+    if t.get("adversarial"):
+        fmt2 = lambda v: "–" if v is None else f"{v:.2f}"  # noqa: E731
+        lines += ["", "## Adversarial traps (third-party scorer, review G)", "",
+                  "correct = the core is an acceptable core (degenerate instances: the result flags that no compact mechanism exists); "
+                  "confident-wrong = every core member at P >= 0.85 and not correct.", "",
+                  "| method | runs (failed) | correct | confident-wrong | contested Brier | per trap: correct / confident-wrong / latent backup / essential recall |",
+                  "|---|---|---|---|---|---|"]
+        for m, a in t["adversarial"].items():
+            per = "; ".join(f"{tr} {fmt2(v['correct'])}/{fmt2(v['confident_wrong'])}/{fmt2(v['latent_backup_returned'])}/{fmt2(v['essential_recall'])}"
+                            for tr, v in (a.get("per_trap") or {}).items())
+            lines.append(f"| {m} | {a.get('n_runs', 0)} ({a.get('n_failed', 0)}) | {fmt2(a.get('correct_incl_failures', a.get('correct')))} | "
+                         f"{fmt2(a.get('confident_wrong'))} | {fmt2(a.get('brier_contested'))} | {per} |")
+        lines += ["", "Reliability (pooled calibration items: bin -> mean p / observed / n):", ""]
+        for m, a in t["adversarial"].items():
+            rel = "; ".join(f"[{b['bin'][0]:.2f}, {b['bin'][1]:.2f}) {b['mean_p']:.2f}/{b['observed']:.2f}/{b['n']}" for b in a.get("reliability") or [])
+            lines.append(f"- {m}: {rel or '–'}")
     lines += ["", "## By family (success rate / median calls)", ""]
     fams = sorted({f for s in t["summary"].values() for f in s["by_family"]})
     lines += ["| family | " + " | ".join(t["summary"]) + " |", "|---|" + "---|" * len(t["summary"])]

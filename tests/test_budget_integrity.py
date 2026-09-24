@@ -269,7 +269,8 @@ def test_remote_pair_job_with_a_foreign_truth_path(tmp_path):
 
 TRUTH_BEARING_MODULES = ("brainir.discovery.synthetic", "brainir.discovery.synthetic_pairs", "brainir.discovery.suite_audit",
                          "brainir.discovery.tournament", "brainir.discovery.pair_tournament", "brainir.discovery.reliability",
-                         "brainir.discovery.perturb", "brainir.discovery.guard", "brainir.testing", "gc", "inspect", "ctypes", "pickle")
+                         "brainir.discovery.perturb", "brainir.discovery.guard", "brainir.discovery.adversarial", "brainir.testing", "gc", "inspect",
+                         "ctypes", "pickle")
 FILE_READ_ATTRS = {"read_text", "read_bytes", "read_parquet", "read_csv", "read_json", "read_table", "read_feather", "listdir",
                    "scandir", "iterdir", "glob", "rglob", "walk", "fromfile", "loadtxt", "genfromtxt", "import_module", "__import__",
                    "from_bundle"}  # other networks only through problem.load_network (other datasets; never a same-animal sibling)
