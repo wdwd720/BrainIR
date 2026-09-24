@@ -1,0 +1,138 @@
+{
+ "label": "sel_curve_part2_b1000",
+ "suite": "mechanisms_v1_heldout",
+ "methods": [
+  "evo_pareto"
+ ],
+ "n_jobs": 108,
+ "budget": 1000,
+ "seeds": [
+  0
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "wall_s": 336.0,
+ "backend": {
+  "backend": "modal",
+  "n_items": 108,
+  "wall_time_s": 335.4,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "25348ce0f222691cedbc1c075896de07",
+   "shared_payload_bytes": 742291,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 2.4593
+ },
+ "summary": {
+  "evo_pareto": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9629629629629629,
+   "functional_success_rate": 0.8796296296296297,
+   "functional_success_ci95": [
+    0.8148148148148148,
+    0.9351851851851852
+   ],
+   "functional_success_causal_rate": 0.9722222222222222,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 800.0,
+   "calls_mean": 747.2222222222222,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9519230769230769,
+   "brier_mean": 0.004451703040557367,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.12037037037037036,
+   "simulated_seconds_median": 769.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.8692480359147026,
+    "identical_fraction": 0.8518518518518519
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.8571428571428571,
+     "calls_median": 907.0
+    },
+    "ei_pair_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 741.0
+    },
+    "feedforward_driver": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 701.5
+    },
+    "integrator": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 523.5
+    },
+    "memory_switch": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 502.5
+    },
+    "negative_feedback_controller": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 710.5
+    },
+    "redundant_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.9285714285714286,
+     "calls_median": 910.5
+    },
+    "ring_oscillator": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 698.0
+    },
+    "two_implementations": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 912.0
+    },
+    "winner_take_all": {
+     "n": 10,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 688.0
+    }
+   }
+  }
+ },
+ "n_records": 108,
+ "full_records": "sel_curve_part2_b1000.json.gz"
+}

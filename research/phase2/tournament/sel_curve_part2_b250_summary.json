@@ -1,0 +1,138 @@
+{
+ "label": "sel_curve_part2_b250",
+ "suite": "mechanisms_v1_heldout",
+ "methods": [
+  "evo_pareto"
+ ],
+ "n_jobs": 108,
+ "budget": 250,
+ "seeds": [
+  0
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "wall_s": 165.0,
+ "backend": {
+  "backend": "modal",
+  "n_items": 108,
+  "wall_time_s": 163.6,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "25348ce0f222691cedbc1c075896de07",
+   "shared_payload_bytes": 742291,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 1.1998
+ },
+ "summary": {
+  "evo_pareto": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9537037037037037,
+   "functional_success_rate": 0.7870370370370371,
+   "functional_success_ci95": [
+    0.7037037037037037,
+    0.8611111111111112
+   ],
+   "functional_success_causal_rate": 0.9047619047619048,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 210.5,
+   "calls_mean": 205.07407407407408,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9115384615384615,
+   "brier_mean": 0.012033888049742501,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.19047619047619047,
+   "simulated_seconds_median": 212.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.7876471147992014,
+    "identical_fraction": 0.7037037037037037
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.5714285714285714,
+     "calls_median": 233.0
+    },
+    "ei_pair_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.9285714285714286,
+     "calls_median": 215.0
+    },
+    "feedforward_driver": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 194.0
+    },
+    "integrator": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 158.5
+    },
+    "memory_switch": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 175.5
+    },
+    "negative_feedback_controller": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 207.0
+    },
+    "redundant_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.8571428571428571,
+     "calls_median": 212.0
+    },
+    "ring_oscillator": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.875,
+     "calls_median": 214.5
+    },
+    "two_implementations": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.7857142857142857,
+     "calls_median": 214.5
+    },
+    "winner_take_all": {
+     "n": 10,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 199.5
+    }
+   }
+  }
+ },
+ "n_records": 108,
+ "full_records": "sel_curve_part2_b250.json.gz"
+}

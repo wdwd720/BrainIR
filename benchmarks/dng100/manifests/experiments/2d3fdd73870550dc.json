@@ -1,0 +1,166 @@
+{
+ "name": "transfer_xfer_greedy_plus",
+ "config": {
+  "method": "greedy_plus",
+  "a": "male-cns_v1.0",
+  "b": "manc_v1.2.1",
+  "modes": [
+   "independent",
+   "transfer",
+   "prior",
+   "joint"
+  ],
+  "budget_a": 1000,
+  "budget_b": 1000,
+  "config": {}
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle": "public_blind"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 24,
+  "wall_time_s": 683.0,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 4096,
+   "timeout_s": 7200,
+   "max_containers": 30,
+   "app": "brainir-phase1",
+   "shared_payload_key": "3ca193bd5fc2f7f182844a73062332a0",
+   "shared_payload_bytes": 1869349,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 1.3114
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/transfer/xfer_greedy_plus.json",
+   "sha256": "48ae382dd01419ab89b594326cf1b5205d19f82105daf7549bf8643e7608cd9a",
+   "size_bytes": 53668
+  }
+ },
+ "summary": {
+  "male-cns_v1.0->manc_v1.2.1/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 177.33333333333334,
+   "calls_adaptation": 0.0,
+   "calls_total": 425.6666666666667,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 250.33333333333334,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": 0.0
+  },
+  "male-cns_v1.0->manc_v1.2.1/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 132.66666666666666,
+   "calls_adaptation": 0.0,
+   "calls_total": 381.0,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 0.0,
+   "calls_adaptation": 19.333333333333332,
+   "calls_total": 267.6666666666667,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 0.8888888888888888,
+   "calls_src": 177.33333333333334,
+   "calls_dst": 248.33333333333334,
+   "calls_adaptation": 0.0,
+   "calls_total": 425.6666666666667,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 0.6666666666666666,
+   "dst_pass_fraction_mean": 0.6666666666666666,
+   "calls_src": 177.33333333333334,
+   "calls_dst": 2.0,
+   "calls_adaptation": 21.333333333333332,
+   "calls_total": 200.66666666666666,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": 0.0
+  },
+  "manc_v1.2.1->male-cns_v1.0/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 177.33333333333334,
+   "calls_dst": 137.66666666666666,
+   "calls_adaptation": 0.0,
+   "calls_total": 315.0,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 0.8888888888888888,
+   "calls_src": 0.0,
+   "calls_dst": 248.33333333333334,
+   "calls_adaptation": 19.333333333333332,
+   "calls_total": 267.6666666666667,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": null
+  }
+ },
+ "notes": "",
+ "run_id": "2d3fdd73870550dc",
+ "created_utc": "2026-09-23T23:30:32Z",
+ "code": {
+  "commit": "d0b5c4b92846529b65a4764fb46876d8dbf1951c",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

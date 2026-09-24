@@ -1,0 +1,138 @@
+{
+ "label": "sel_curve_part3_b500",
+ "suite": "mechanisms_v1_heldout",
+ "methods": [
+  "cem_search"
+ ],
+ "n_jobs": 108,
+ "budget": 500,
+ "seeds": [
+  0
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "wall_s": 72.0,
+ "backend": {
+  "backend": "modal",
+  "n_items": 108,
+  "wall_time_s": 71.4,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "25348ce0f222691cedbc1c075896de07",
+   "shared_payload_bytes": 742291,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 0.5234
+ },
+ "summary": {
+  "cem_search": {
+   "n_runs": 108,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9444444444444444,
+   "functional_success_rate": 0.9074074074074074,
+   "functional_success_ci95": [
+    0.8518518518518519,
+    0.9629629629629629
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9930555555555556,
+   "functional_robust_mean": null,
+   "calls_median": 73.0,
+   "calls_mean": 88.43518518518519,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9313725490196079,
+   "brier_mean": 0.005557772249630461,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.09259259259259259,
+   "simulated_seconds_median": 78.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.8703703703703703,
+    "identical_fraction": 0.8703703703703703
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 83.5
+    },
+    "ei_pair_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 58.5
+    },
+    "feedforward_driver": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 137.0
+    },
+    "integrator": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 34.0
+    },
+    "memory_switch": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 34.5
+    },
+    "negative_feedback_controller": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 67.5
+    },
+    "redundant_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 88.5
+    },
+    "ring_oscillator": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 81.5
+    },
+    "two_implementations": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 112.5
+    },
+    "winner_take_all": {
+     "n": 10,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 52.0
+    }
+   }
+  }
+ },
+ "n_records": 108,
+ "full_records": "sel_curve_part3_b500.json.gz"
+}

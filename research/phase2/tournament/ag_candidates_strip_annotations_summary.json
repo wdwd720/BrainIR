@@ -1,0 +1,521 @@
+{
+ "label": "ag_candidates_strip_annotations",
+ "suite": "strip_annotations",
+ "methods": [
+  "greedy_reference",
+  "greedy_plus",
+  "cem_search",
+  "group_probe",
+  "surrogate_search"
+ ],
+ "n_jobs": 235,
+ "budget": 1000,
+ "seeds": [
+  0
+ ],
+ "networks": [
+  "main"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "wall_s": 76.1,
+ "backend": {
+  "backend": "modal",
+  "n_items": 235,
+  "wall_time_s": 73.6,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "ed2ccab06dc465714d0481c4b227d4a1",
+   "shared_payload_bytes": 176376,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 0.5398
+ },
+ "summary": {
+  "cem_search": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9361702127659575,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.8085106382978723,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": null,
+   "calls_median": 75.0,
+   "calls_mean": 85.97872340425532,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9111111111111111,
+   "brier_mean": 0.00562648390573605,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 81.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 83.5
+    },
+    "ei_pair_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 61.5
+    },
+    "feedforward_driver": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 55.0
+    },
+    "integrator": {
+     "n": 2,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 42.5
+    },
+    "memory_switch": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 37.0
+    },
+    "negative_feedback_controller": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 80.0
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 108.0
+    },
+    "ring_oscillator": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 81.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 128.0
+    },
+    "winner_take_all": {
+     "n": 5,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 61.0
+    }
+   }
+  },
+  "greedy_plus": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9787234042553191,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.7872340425531915,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": null,
+   "calls_median": 64.0,
+   "calls_mean": 87.12765957446808,
+   "size_median": 2.0,
+   "role_accuracy_mean": 1.0,
+   "brier_mean": 0.000925431068234373,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 70.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 94.0
+    },
+    "ei_pair_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 58.0
+    },
+    "feedforward_driver": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 54.0
+    },
+    "integrator": {
+     "n": 2,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 34.0
+    },
+    "memory_switch": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 33.0
+    },
+    "negative_feedback_controller": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 74.0
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 115.0
+    },
+    "ring_oscillator": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 78.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 170.0
+    },
+    "winner_take_all": {
+     "n": 5,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 61.0
+    }
+   }
+  },
+  "greedy_reference": {
+   "n_runs": 47,
+   "success_rate": 0.7872340425531915,
+   "success_ci95": [
+    0.6808510638297872,
+    0.8936170212765957
+   ],
+   "success_planted_rate": 0.6595744680851063,
+   "functional_success_rate": 0.2127659574468085,
+   "functional_success_ci95": [
+    0.10638297872340426,
+    0.3404255319148936
+   ],
+   "functional_success_causal_rate": 0.21739130434782608,
+   "success_or_functional_rate": 0.8085106382978723,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.5,
+   "functional_nominal_mean": 0.824468085106383,
+   "functional_robust_mean": null,
+   "calls_median": 206.0,
+   "calls_mean": 207.04255319148936,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.22593788389059824,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.6304347826086957,
+   "simulated_seconds_median": 214.4,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 6,
+     "success_rate": 0.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 50.0
+    },
+    "ei_pair_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 254.0
+    },
+    "feedforward_driver": {
+     "n": 3,
+     "success_rate": 0.3333333333333333,
+     "functional_success_rate": 0.0,
+     "calls_median": 46.0
+    },
+    "integrator": {
+     "n": 2,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 66.0
+    },
+    "memory_switch": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 129.0
+    },
+    "negative_feedback_controller": {
+     "n": 4,
+     "success_rate": 0.75,
+     "functional_success_rate": 0.25,
+     "calls_median": 303.0
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 256.0
+    },
+    "ring_oscillator": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 246.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 258.0
+    },
+    "winner_take_all": {
+     "n": 5,
+     "success_rate": 0.8,
+     "functional_success_rate": 0.0,
+     "calls_median": 206.0
+    }
+   }
+  },
+  "group_probe": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9574468085106383,
+   "functional_success_rate": 0.851063829787234,
+   "functional_success_ci95": [
+    0.7446808510638298,
+    0.9361702127659575
+   ],
+   "functional_success_causal_rate": 0.9574468085106383,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": null,
+   "calls_median": 88.0,
+   "calls_mean": 93.17021276595744,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.8442028985507247,
+   "brier_mean": 0.003543716438676073,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.14893617021276595,
+   "simulated_seconds_median": 88.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 94.0
+    },
+    "ei_pair_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 87.0
+    },
+    "feedforward_driver": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 74.0
+    },
+    "integrator": {
+     "n": 2,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 44.0
+    },
+    "memory_switch": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 50.0
+    },
+    "negative_feedback_controller": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.75,
+     "calls_median": 86.5
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 97.0
+    },
+    "ring_oscillator": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 92.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.8333333333333334,
+     "calls_median": 125.0
+    },
+    "winner_take_all": {
+     "n": 5,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 67.0
+    }
+   }
+  },
+  "surrogate_search": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9574468085106383,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.8085106382978723,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": null,
+   "calls_median": 77.0,
+   "calls_mean": 83.57446808510639,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9347826086956522,
+   "brier_mean": 0.006320986294791223,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 77.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 105.5
+    },
+    "ei_pair_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 73.5
+    },
+    "feedforward_driver": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 86.0
+    },
+    "integrator": {
+     "n": 2,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 42.0
+    },
+    "memory_switch": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 57.5
+    },
+    "negative_feedback_controller": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 84.5
+    },
+    "redundant_oscillator": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 75.5
+    },
+    "ring_oscillator": {
+     "n": 3,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 106.0
+    },
+    "two_implementations": {
+     "n": 6,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 106.0
+    },
+    "winner_take_all": {
+     "n": 5,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 68.0
+    }
+   }
+  }
+ },
+ "n_records": 235,
+ "full_records": "ag_candidates_strip_annotations.json.gz"
+}

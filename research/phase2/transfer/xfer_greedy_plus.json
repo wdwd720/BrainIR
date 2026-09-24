@@ -1,0 +1,3475 @@
+{
+ "label": "xfer_greedy_plus",
+ "method": "greedy_plus",
+ "a": "male-cns_v1.0",
+ "b": "manc_v1.2.1",
+ "modes": [
+  "independent",
+  "transfer",
+  "prior",
+  "joint"
+ ],
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "budget_a": 1000,
+ "budget_b": 1000,
+ "config": {},
+ "wall_s": 686.5,
+ "backend": {
+  "backend": "modal",
+  "n_items": 24,
+  "wall_time_s": 683.0,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 4096,
+   "timeout_s": 7200,
+   "max_containers": 30,
+   "app": "brainir-phase1",
+   "shared_payload_key": "3ca193bd5fc2f7f182844a73062332a0",
+   "shared_payload_bytes": 1869349,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 1.3114
+ },
+ "summary": {
+  "male-cns_v1.0->manc_v1.2.1/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 177.33333333333334,
+   "calls_adaptation": 0.0,
+   "calls_total": 425.6666666666667,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 250.33333333333334,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": 0.0
+  },
+  "male-cns_v1.0->manc_v1.2.1/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 132.66666666666666,
+   "calls_adaptation": 0.0,
+   "calls_total": 381.0,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 248.33333333333334,
+   "calls_dst": 0.0,
+   "calls_adaptation": 19.333333333333332,
+   "calls_total": 267.6666666666667,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer_vs_independent_jaccard": 0.5777777777777778,
+  "manc_v1.2.1->male-cns_v1.0/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 0.8888888888888888,
+   "calls_src": 177.33333333333334,
+   "calls_dst": 248.33333333333334,
+   "calls_adaptation": 0.0,
+   "calls_total": 425.6666666666667,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 0.6666666666666666,
+   "dst_pass_fraction_mean": 0.6666666666666666,
+   "calls_src": 177.33333333333334,
+   "calls_dst": 2.0,
+   "calls_adaptation": 21.333333333333332,
+   "calls_total": 200.66666666666666,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": 0.0
+  },
+  "manc_v1.2.1->male-cns_v1.0/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 177.33333333333334,
+   "calls_dst": 137.66666666666666,
+   "calls_adaptation": 0.0,
+   "calls_total": 315.0,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 0.8888888888888888,
+   "calls_src": 0.0,
+   "calls_dst": 248.33333333333334,
+   "calls_adaptation": 19.333333333333332,
+   "calls_total": 267.6666666666667,
+   "size_src": 3.6666666666666665,
+   "size_dst": 3.6666666666666665,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer_vs_independent_jaccard": 0.5777777777777778
+ },
+ "rows": [
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "independent",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 235.1,
+   "budget": {
+    "a": 288,
+    "b": 157,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 445,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 288,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 157,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 288
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 157
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2948
+   ],
+   "core_dst": [
+    499,
+    2825,
+    2973
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2948,
+     499,
+     0.9532
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2948
+     ],
+     "b": [
+      499
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "independent",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 471.0,
+   "budget": {
+    "a": 268,
+    "b": 186,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 454,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 268,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 186,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 268
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 186
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    3262,
+    3861,
+    4196
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 5,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 0.6666666666666666,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9591
+    ],
+    [
+     1052,
+     2973,
+     0.9572
+    ],
+    [
+     3262,
+     3310,
+     0.9428
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3262,
+      3861
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052,
+      4196
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "independent",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 440.6,
+   "budget": {
+    "a": 189,
+    "b": 189,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 378,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    1126,
+    1220,
+    2825,
+    2973
+   ],
+   "n_src": 3,
+   "n_dst": 4,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 18
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9119
+    ],
+    [
+     2152,
+     1126,
+     0.875
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      1126
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      1220,
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "transfer",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 292.9,
+   "budget": {
+    "a": 288,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 290,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 288,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 288
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2948
+   ],
+   "core_dst": [
+    499,
+    2825,
+    2973
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2948,
+     499,
+     0.9532
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2948
+     ],
+     "b": [
+      499
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "transfer",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 307.9,
+   "budget": {
+    "a": 268,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 270,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 268,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 268
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    3262,
+    3861,
+    4196
+   ],
+   "core_dst": [
+    272,
+    1410,
+    2825,
+    2973,
+    3036
+   ],
+   "n_src": 5,
+   "n_dst": 5,
+   "check_src": {
+    "pass_fraction": 0.6666666666666666,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "n_correspondence_claims": 5,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9949
+    ],
+    [
+     1052,
+     2973,
+     0.9947
+    ],
+    [
+     3262,
+     272,
+     0.9896
+    ],
+    [
+     3861,
+     3036,
+     0.9133
+    ],
+    [
+     4196,
+     1410,
+     0.9947
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3262,
+      3861
+     ],
+     "b": [
+      272,
+      3036
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052,
+      4196
+     ],
+     "b": [
+      1410,
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "transfer",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 220.7,
+   "budget": {
+    "a": 189,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 191,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "prior",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 525.4,
+   "budget": {
+    "a": 288,
+    "b": 159,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 447,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 288,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 159,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 288
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 159
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2948
+   ],
+   "core_dst": [
+    499,
+    2825,
+    2973
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2948,
+     499,
+     0.9532
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2948
+     ],
+     "b": [
+      499
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "prior",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 544.3,
+   "budget": {
+    "a": 268,
+    "b": 157,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 425,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 268,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 157,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 268
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 157
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    3262,
+    3861,
+    4196
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 5,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 0.6666666666666666,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9591
+    ],
+    [
+     1052,
+     2973,
+     0.9572
+    ],
+    [
+     3262,
+     3310,
+     0.9428
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3262,
+      3861
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052,
+      4196
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "prior",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 370.0,
+   "budget": {
+    "a": 189,
+    "b": 82,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 271,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 82,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 82
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "joint",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 289.2,
+   "budget": {
+    "a": 288,
+    "b": 0,
+    "adaptation": 16,
+    "adaptation_a": 0,
+    "adaptation_b": 16,
+    "total": 304,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 288,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 288
+     },
+     {
+      "net": "b",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2948
+   ],
+   "core_dst": [
+    499,
+    2825,
+    2973
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2948,
+     499,
+     0.9532
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2948
+     ],
+     "b": [
+      499
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "joint",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 330.4,
+   "budget": {
+    "a": 268,
+    "b": 0,
+    "adaptation": 26,
+    "adaptation_a": 0,
+    "adaptation_b": 26,
+    "total": 294,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 268,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 26,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 268
+     },
+     {
+      "net": "b",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 26
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    3262,
+    3861,
+    4196
+   ],
+   "core_dst": [
+    272,
+    1410,
+    2825,
+    2973,
+    3036
+   ],
+   "n_src": 5,
+   "n_dst": 5,
+   "check_src": {
+    "pass_fraction": 0.6666666666666666,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "n_correspondence_claims": 5,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9949
+    ],
+    [
+     1052,
+     2973,
+     0.9947
+    ],
+    [
+     3262,
+     272,
+     0.9896
+    ],
+    [
+     3861,
+     3036,
+     0.9133
+    ],
+    [
+     4196,
+     1410,
+     0.9947
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3262,
+      3861
+     ],
+     "b": [
+      272,
+      3036
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052,
+      4196
+     ],
+     "b": [
+      1410,
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "joint",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 144.9,
+   "budget": {
+    "a": 189,
+    "b": 0,
+    "adaptation": 16,
+    "adaptation_a": 0,
+    "adaptation_b": 16,
+    "total": 205,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "independent",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 488.4,
+   "budget": {
+    "a": 157,
+    "b": 288,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 445,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 157,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 288,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 157
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 288
+     }
+    ]
+   },
+   "core_src": [
+    499,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2948
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     499,
+     2948,
+     0.9532
+    ],
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      499
+     ],
+     "b": [
+      2948
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "independent",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 623.9,
+   "budget": {
+    "a": 186,
+    "b": 268,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 454,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 186,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 268,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 186
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 268
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    3262,
+    3861,
+    4196
+   ],
+   "n_src": 3,
+   "n_dst": 5,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 0.6666666666666666,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     3262,
+     0.9428
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      3262,
+      3861
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052,
+      4196
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "independent",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 502.7,
+   "budget": {
+    "a": 189,
+    "b": 189,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 378,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     }
+    ]
+   },
+   "core_src": [
+    1126,
+    1220,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 4,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 18
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     1126,
+     2152,
+     0.875
+    ],
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9119
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      1126
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      1220,
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "transfer",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 205.1,
+   "budget": {
+    "a": 157,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 159,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 157,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 157
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    499,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2948
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     499,
+     2948,
+     0.9532
+    ],
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      499
+     ],
+     "b": [
+      2948
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "transfer",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 202.5,
+   "budget": {
+    "a": 186,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 188,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 186,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 186
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     2152,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "transfer",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 258.3,
+   "budget": {
+    "a": 189,
+    "b": 2,
+    "adaptation": 64,
+    "adaptation_a": 0,
+    "adaptation_b": 64,
+    "total": 255,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 64,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 66,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 64
+      }
+     }
+    ]
+   },
+   "core_src": [
+    1126,
+    1220,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    347,
+    484,
+    653,
+    1052
+   ],
+   "n_src": 4,
+   "n_dst": 4,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 18
+   },
+   "check_dst": {
+    "pass_fraction": 0.0,
+    "passed": false,
+    "removable": null,
+    "check_calls": 6
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     1220,
+     484,
+     0.9222
+    ],
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9119
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      1126
+     ],
+     "b": [
+      347
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      1220,
+      2825,
+      2973
+     ],
+     "b": [
+      484,
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 0.3333333333333333
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "prior",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 319.3,
+   "budget": {
+    "a": 157,
+    "b": 89,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 246,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 157,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 89,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 157
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 89
+     }
+    ]
+   },
+   "core_src": [
+    499,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2948
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     499,
+     2948,
+     0.9532
+    ],
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      499
+     ],
+     "b": [
+      2948
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "prior",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 381.9,
+   "budget": {
+    "a": 186,
+    "b": 100,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 286,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 186,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 100,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 186
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 100
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2948
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     2948,
+     0.9375
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2948
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "prior",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 455.1,
+   "budget": {
+    "a": 189,
+    "b": 224,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 413,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 224,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 224
+     }
+    ]
+   },
+   "core_src": [
+    1126,
+    1220,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2948
+   ],
+   "n_src": 4,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 18
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     1126,
+     2948,
+     0.875
+    ],
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9119
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      1126
+     ],
+     "b": [
+      2948
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      1220,
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "joint",
+   "seed": 0,
+   "method": "greedy_plus",
+   "wall_s": 163.6,
+   "budget": {
+    "a": 0,
+    "b": 288,
+    "adaptation": 16,
+    "adaptation_a": 16,
+    "adaptation_b": 0,
+    "total": 304,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 288,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 288
+     },
+     {
+      "net": "a",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    499,
+    2825,
+    2973
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2948
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     499,
+     2948,
+     0.9532
+    ],
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      499
+     ],
+     "b": [
+      2948
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "joint",
+   "seed": 1,
+   "method": "greedy_plus",
+   "wall_s": 347.7,
+   "budget": {
+    "a": 0,
+    "b": 268,
+    "adaptation": 26,
+    "adaptation_a": 26,
+    "adaptation_b": 0,
+    "total": 294,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 26,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 268,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 268
+     },
+     {
+      "net": "a",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 26
+     }
+    ]
+   },
+   "core_src": [
+    272,
+    1410,
+    2825,
+    2973,
+    3036
+   ],
+   "core_dst": [
+    653,
+    1052,
+    3262,
+    3861,
+    4196
+   ],
+   "n_src": 5,
+   "n_dst": 5,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "check_dst": {
+    "pass_fraction": 0.6666666666666666,
+    "passed": true,
+    "removable": [],
+    "check_calls": 21
+   },
+   "n_correspondence_claims": 5,
+   "correspondence": [
+    [
+     272,
+     3262,
+     0.9896
+    ],
+    [
+     1410,
+     4196,
+     0.9947
+    ],
+    [
+     2825,
+     653,
+     0.9949
+    ],
+    [
+     2973,
+     1052,
+     0.9947
+    ],
+    [
+     3036,
+     3861,
+     0.9133
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      272,
+      3036
+     ],
+     "b": [
+      3262,
+      3861
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      1410,
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052,
+      4196
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "joint",
+   "seed": 2,
+   "method": "greedy_plus",
+   "wall_s": 263.3,
+   "budget": {
+    "a": 0,
+    "b": 189,
+    "adaptation": 16,
+    "adaptation_a": 16,
+    "adaptation_b": 0,
+    "total": 205,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 189,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 189
+     },
+     {
+      "net": "a",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9559
+    ],
+    [
+     3310,
+     2152,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ]
+  }
+ ]
+}

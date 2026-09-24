@@ -1,0 +1,279 @@
+{
+ "name": "ag_candidates_add_sink_distractors",
+ "config": {
+  "methods": [
+   "greedy_reference",
+   "greedy_plus",
+   "cem_search",
+   "group_probe",
+   "surrogate_search"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0
+  ],
+  "networks": [
+   "main"
+  ],
+  "configs": {},
+  "instances": [
+   "h05d19a2775e2",
+   "h08cf70ca61d5",
+   "h0917890668b3",
+   "h0c02a4b6d066",
+   "h155f16e50568",
+   "h16c726db0232",
+   "h19c5316c0779",
+   "h1c36d673ac06",
+   "h2471b8fd0135",
+   "h264f754cd30e",
+   "h3fdad918827e",
+   "h41aa4c5a3318",
+   "h4295cf292883",
+   "h45573a4375a5",
+   "h4c1f023117b5",
+   "h4e2d5323ed0a",
+   "h4ecc100c0018",
+   "h5231e2579fe6",
+   "h5554eb0e92b8",
+   "h5a092d1ee53e",
+   "h5a3633e0e3c4",
+   "h5c096c200eee",
+   "h66a4fb84cf9c",
+   "h6ab7d00f7871",
+   "h722e4c720982",
+   "h835b3841bf30",
+   "h853b896b231f",
+   "h8885f53d9c24",
+   "h902b54116e87",
+   "h9297aba17982",
+   "h92f3d32d67d8",
+   "h9b867bd5abd5",
+   "ha610594ea140",
+   "hac81906e12d1",
+   "hacb17f220959",
+   "had9ecf24d29d",
+   "hb04d5d9894ba",
+   "hb237455fd9c7",
+   "hb373ec40f084",
+   "hb9a017ba5436",
+   "hbadc0bb431f7",
+   "hc32e8cd0a48c",
+   "hc6c0a7f0c2f6",
+   "hea247d65e787",
+   "hedc7f7933643",
+   "hee42a9855afe",
+   "hffe35092e434"
+  ]
+ },
+ "seeds": [
+  0
+ ],
+ "inputs": {
+  "suite": "add_sink_distractors",
+  "n_instances": 47,
+  "jobs_hash": "86bdff6f571ab22e94893bc3cec736155ee7ec656da9cbb466853b1be39bbeef"
+ },
+ "backend": {
+  "backend": "modal",
+  "n_items": 235,
+  "wall_time_s": 145.8,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 100,
+   "app": "brainir-phase1",
+   "shared_payload_key": "bc3b73d02cd989455fa281865ba0c3db",
+   "shared_payload_bytes": 195336,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 1.0695
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/ag_candidates_add_sink_distractors.json",
+   "sha256": "b6db5c1a566ffdf6382db23cdc694e6aeb38826432822dd4c509da063ea594c5",
+   "size_bytes": 1809685
+  }
+ },
+ "summary": {
+  "cem_search": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9361702127659575,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.8085106382978723,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9840425531914894,
+   "functional_robust_mean": null,
+   "calls_median": 75.0,
+   "calls_mean": 86.02127659574468,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9333333333333333,
+   "brier_mean": 0.004468397375627516,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 81.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   }
+  },
+  "greedy_plus": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9787234042553191,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.7872340425531915,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9840425531914894,
+   "functional_robust_mean": null,
+   "calls_median": 64.0,
+   "calls_mean": 87.55319148936171,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9347826086956522,
+   "brier_mean": 0.0007560453652622937,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 70.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   }
+  },
+  "greedy_reference": {
+   "n_runs": 47,
+   "success_rate": 0.8085106382978723,
+   "success_ci95": [
+    0.7021276595744681,
+    0.9148936170212766
+   ],
+   "success_planted_rate": 0.6595744680851063,
+   "functional_success_rate": 0.19148936170212766,
+   "functional_success_ci95": [
+    0.0851063829787234,
+    0.2978723404255319
+   ],
+   "functional_success_causal_rate": 0.1956521739130435,
+   "success_or_functional_rate": 0.8297872340425532,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 0.3333333333333333,
+   "functional_nominal_mean": 0.8191489361702128,
+   "functional_robust_mean": null,
+   "calls_median": 236.0,
+   "calls_mean": 238.70212765957447,
+   "size_median": 3.0,
+   "role_accuracy_mean": null,
+   "brier_mean": 0.20090887143436015,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.6521739130434783,
+   "simulated_seconds_median": 246.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   }
+  },
+  "group_probe": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9574468085106383,
+   "functional_success_rate": 0.8723404255319149,
+   "functional_success_ci95": [
+    0.7659574468085106,
+    0.9574468085106383
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9840425531914894,
+   "functional_robust_mean": null,
+   "calls_median": 93.0,
+   "calls_mean": 100.85106382978724,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9782608695652174,
+   "brier_mean": 0.0016055338493746285,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.1276595744680851,
+   "simulated_seconds_median": 96.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   }
+  },
+  "surrogate_search": {
+   "n_runs": 47,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9574468085106383,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.8085106382978723,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9840425531914894,
+   "functional_robust_mean": null,
+   "calls_median": 85.0,
+   "calls_mean": 92.61702127659575,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9333333333333333,
+   "brier_mean": 0.004929709012997187,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 87.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null
+   }
+  }
+ },
+ "notes": "",
+ "run_id": "63d46b4725a20f16",
+ "created_utc": "2026-09-23T23:26:53Z",
+ "code": {
+  "commit": "d0b5c4b92846529b65a4764fb46876d8dbf1951c",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}
