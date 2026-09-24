@@ -115,13 +115,54 @@ Frozen `greedy_prune_sim`, unchanged, 8 salted node orders × 3 seeds per networ
 
 BrainIR v1 under identical orders and seeds: *pending*.
 
-## 10. Cross-connectome transfer (*pending*)
+## 10. Cross-connectome transfer
 
-## 11. Ablations, anti-gaming checks, nulls (*pending*)
+Real public networks, oracle-free (`research/phase2/transfer/xfer_greedy_plus.md`): base method greedy_plus, 3 seeds,
+1,000 calls per network. A mechanism is judged by keep-only sufficiency on 6 fresh parameter draws of its own network. The
+null is 20 random interneuron sets per run with the same size and sign composition.
+
+| direction | independent: both sufficient / total calls | transfer only: destination sufficient (dest. calls) | null | joint: both sufficient / total calls |
+|---|---|---|---|---|
+| MaleCNS → MANC v1.2.1 | 3/3 / 426 | 3/3 (2 calls) | 0.00 | 3/3 / 268 |
+| MANC v1.2.1 → MaleCNS | 3/3 / 426 | 2/3 (2 + 21 adaptation calls) | 0.00 | 3/3 / 268 |
+
+BrainIR v1's own transfer experiments and the hidden-oracle scoring of its cross-connectome claims: *pending*.
+
+## 11. Ablations, anti-gaming checks, nulls
+
+Anti-gaming, candidates (`research/phase2/tournament/ag_candidates_summary.md`; 47 held-out instances, seed 0): every
+candidate is invariant to five changes (0 runs lost, 0 gained):
+
+- reordered edge rows;
+- re-salted interneuron tokens;
+- stripped side / neuromere / hemilineage annotations;
+- appended sink-only distractors;
+- doubled parameter spread.
+
+greedy_reference gains one run with sink distractors. BrainIR v1's anti-gaming checks, ablations and matched random
+nulls: *pending*.
 
 ## 12. Blind evaluation (*pending*; after the lock)
 
-## 13. Independent reviews (*pending*)
+## 13. Independent reviews
+
+| review | status | outcome |
+|---|---|---|
+| F computational | done (pre-lock) | 1 blocker, 7 major, 11 minor; all resolved (`research/phase2/reviews/F_resolution.md`) |
+
+- **Blocker:** failed runs had dropped out of the success denominators. No selection run had failed, so no reported number
+  changed.
+- **Majors:**
+  - the call budget had not been enforced against bypass (now guarded at runtime and statically);
+  - unseeded weight noise had been cached under one key;
+  - the Modal environment was unpinned;
+  - provenance recorded the commit at registration time;
+  - node-order reliability is confounded with parameter draws (renamed and documented; both compared methods face it
+    equally);
+  - the hidden-evaluation gate was not bound to the locked method;
+  - one tie-break was unstable.
+
+Reviews A, B, C, D, E and G: *pending*.
 
 ## 14. Compute and cost
 
