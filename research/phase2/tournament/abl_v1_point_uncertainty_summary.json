@@ -1,0 +1,171 @@
+{
+ "label": "abl_v1_point_uncertainty",
+ "suite": "mechanisms_v1_heldout",
+ "suite_sha256": "6159b4930c632e76cf0157aab445e69e51c6d51dd0df780e9000d8fbe1ed3861",
+ "methods": [
+  "brainir_v1"
+ ],
+ "n_jobs": 108,
+ "budget": 1000,
+ "seeds": [
+  0
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "robust": true,
+ "wall_s": 68.9,
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 108,
+  "wall_time_s": 67.8,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 150,
+   "app": "brainir-phase1",
+   "shared_payload_key": "25348ce0f222691cedbc1c075896de07",
+   "shared_payload_bytes": 742291,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 0.5366
+ },
+ "code": {
+  "commit": "500cf6cc54c218da6c9901785cdb39a5d1957a2c",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "7e59f6a701cc9cec5f04a2c55afcb113fd593e5a9386f832aed63c87aee405d2",
+  "sim_code_version": "ea23e96d196a3d25",
+  "launched_utc": "2026-09-24T06:35:00Z"
+ },
+ "environments": [
+  {
+   "implementation": "cpython",
+   "machine": "x86_64",
+   "packages": {
+    "networkx": "3.7",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "pydantic": "2.13.5",
+    "scipy": "1.18.1"
+   },
+   "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+   "python": "3.12.10",
+   "sim_code_version": "ea23e96d196a3d25",
+   "source_tree_sha256": "7e59f6a701cc9cec5f04a2c55afcb113fd593e5a9386f832aed63c87aee405d2"
+  }
+ ],
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 108,
+   "n_scored": 108,
+   "n_failed": 0,
+   "failures": [],
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 0.9444444444444444,
+   "functional_success_rate": 0.9074074074074074,
+   "functional_success_ci95": [
+    0.8518518518518519,
+    0.9629629629629629
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9953703703703703,
+   "functional_robust_mean": 0.9166666666666666,
+   "calls_median": 82.5,
+   "calls_mean": 99.91666666666667,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9117647058823529,
+   "brier_mean": 0.0,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.09259259259259259,
+   "simulated_seconds_median": 93.0,
+   "identity_consistency": {
+    "n_instances": 54,
+    "pairwise_jaccard_mean": 0.9444444444444444,
+    "identical_fraction": 0.9444444444444444,
+    "n_empty_cores": 0
+   },
+   "by_family": {
+    "delayed_inhibitory_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 108.0
+    },
+    "ei_pair_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 62.0
+    },
+    "feedforward_driver": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 116.0
+    },
+    "integrator": {
+     "n": 4,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 43.0
+    },
+    "memory_switch": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 38.0
+    },
+    "negative_feedback_controller": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 78.0
+    },
+    "redundant_oscillator": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 112.0
+    },
+    "ring_oscillator": {
+     "n": 8,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 90.0
+    },
+    "two_implementations": {
+     "n": 14,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 181.0
+    },
+    "winner_take_all": {
+     "n": 10,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.0,
+     "calls_median": 64.0
+    }
+   }
+  }
+ },
+ "n_records": 108,
+ "full_records": "abl_v1_point_uncertainty.json.gz"
+}
