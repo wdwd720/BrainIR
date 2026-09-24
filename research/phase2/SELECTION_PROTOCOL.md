@@ -122,3 +122,43 @@ already been measured.
    - A success gain is claimed only if joint beats both `independent_pooled` and `joint_null` in the same way.
    - Agreement between a method's own two outputs, such as role-graph similarity a↔b or claim precision on easy pairs,
      is not reported as evidence.
+
+## 8. Amendment after reviews A and G (written 2026-09-24, before any confirmation run)
+
+Reviews A (causal) and G (adversarial) showed that the section 3 metrics count two wrong kinds of answer as successes:
+- a keep-only-sufficient set that the intact network keeps silent (a latent backup);
+- a core that omits a neuron whose single silencing breaks the intact function (for example an inhibitor masked by what it
+  gates).
+
+They also showed that the Brier score was computed against a target chosen by overlap with the method's own core, and that
+it was dominated by trivially excluded neurons. This amendment adds evaluation and changes nothing that has already been
+measured. It was written before any confirmation data existed.
+
+1. **Participation-aware truth.** Before use, the confirmation and held-out suites are re-audited
+   (`scripts/reclassify_suite.py`). An unplanted sufficient set whose members are near-silent in the intact network moves to
+   `latent_backups`. The threshold is a mean rate below max(0.05 Hz, 1 % of the planted core's median). Every node of a
+   planted alternative gets its silencing pass fraction σ.
+2. **New per-run metrics** (`tournament.score_structure`, `tournament.score_intact`):
+   - `success_intact`: structural success, every core member participates in the intact network, and the core contains
+     every truth-essential neuron;
+   - essential recall;
+   - runs that miss an essential neuron;
+   - runs that return a latent backup;
+   - runs with a silent core member;
+   - the pass fraction of the intact network with the core (and the core ∪ reported alternatives) silenced;
+   - the Brier score over contested neurons, against the best-matching set and against "member of any listed sufficient
+     set";
+   - essential accuracy over unambiguous truth only (σ < 0.2 or σ ≥ 0.5).
+3. **Decision rule (section 5, condition a)** now requires success not lower than greedy_reference's on BOTH structural
+   success and `success_intact`. Condition (b) is unchanged.
+4. **Adversarial evidence.** A third party (the author of review G, not the composer) builds a generic adversarial generator
+   with its own scorer. Its traps are latent backups, masked gates, distributed drive, function on a subset of parameter draws,
+   identical decoys, and a fragile set next to a robust one.
+   - `adversarial_heldout` and `adversarial_final` are built from it with secret seeds; neither enters the clean room.
+   - BrainIR v1 and the comparators greedy_plus, group_probe and greedy_reference run on both, under the section 2 conditions.
+   - Reported: correct answers, latent backups returned, essential recall, the confident-wrong rate (all core members at
+     P ≥ 0.85 and the answer wrong) and the contested-neuron Brier score.
+   - **Interpretation rule (fixed now).** v1's high-confidence answers are called warranted only if at least 90 % of them are
+     correct on `adversarial_final`. Otherwise the report says that v1's confidence cannot be taken at face value.
+5. **Method fixes.** Findings of reviews A, B and G that change BrainIR v1 are fixed by an oracle-free agent before the freeze.
+   The selection-role suites are then re-run. The confirmation-role suites (`*_final`) are run once, after the freeze.

@@ -47,9 +47,14 @@ PER_RUN = {
     "robust_weight_noise": lambda r: (r.get("function") or {}).get("weight_noise_0.2"),
     "nominal_pass": lambda r: (r.get("function") or {}).get("nominal"),
     "core_size": lambda r: float(len(r["result"]["core"])),
+    # reviews A / G: the mechanism the intact network uses
+    "success_intact": lambda r: None if "success_intact" not in r["structure"] else float(bool(r["structure"]["success_intact"])),
+    "essential_recall": lambda r: r["structure"].get("essential_recall"),
+    "latent_backup_returned": lambda r: None if "latent_backup_returned" not in r["structure"] else float(bool(r["structure"]["latent_backup_returned"])),
 }
 FAILED = {"structural_success": 0.0, "causal_functional_success": 0.0, "functional_success_preregistered": 0.0, "planted_success": 0.0,
-          "robust_sd_x2": 0.0, "robust_weight_noise": 0.0, "nominal_pass": 0.0, "core_size": None}
+          "robust_sd_x2": 0.0, "robust_weight_noise": 0.0, "nominal_pass": 0.0, "core_size": None, "success_intact": 0.0, "essential_recall": 0.0,
+          "latent_backup_returned": None}
 
 
 def _value(r: dict, metric: str):
@@ -141,8 +146,10 @@ def compare(recs: list[dict], budgets: dict, a: str, b: str, *, n_boot: int = 40
                                              "ci95": [float(np.percentile(boots["identical"], 2.5)), float(np.percentile(boots["identical"], 97.5))]}
     M = out["metrics"]
     above = lambda k: k in M and M[k]["ci95"][0] > 0  # noqa: E731
+    not_lower = lambda k: k not in M or M[k]["ci95"][1] >= 0  # noqa: E731
     out["decision_rule"] = {
-        "a_success_not_lower": bool("structural_success" in M and M["structural_success"]["ci95"][1] >= 0),
+        # structural success and, when scored, success_intact (SELECTION_PROTOCOL section 8)
+        "a_success_not_lower": bool("structural_success" in M and not_lower("structural_success") and not_lower("success_intact")),
         "b_better_reliability": bool(above("identity_jaccard") or above("identical_cores")),
         "b_better_efficiency": bool(above("calls")),
         "b_better_robustness": bool(above("robust_sd_x2") or above("robust_weight_noise")),

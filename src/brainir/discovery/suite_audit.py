@@ -6,7 +6,12 @@ readout into the band alone; under a selectivity criterion keep-only removes the
 backup copy can stand in for the member it copies. Scoring against the planted sets alone would punish a method for a correct
 answer. The audit tests, on the true simulator and the verification seed ensemble, (1) every single candidate with a direct
 synapse onto the readout, (2) every complication node and the complication sets, (3) every planted alternative with one member
-replaced by its backup copy; each passing set is reduced to a 1-minimal subset and recorded as an unplanted alternative.
+replaced by its backup copy; each passing set is reduced to a 1-minimal subset.
+
+A passing set is an unplanted ALTERNATIVE only if it participates in the intact network: every member's mean rate in the
+analysis window of the intact runs is at least ``participation_threshold`` (max(0.05 Hz, 1 % of the planted core's median
+rate)). A keep-only-sufficient set that the intact network keeps (near-)silent — e.g. a backup held off by an inhibitory gate —
+is recorded as a LATENT BACKUP instead: sufficient in isolation, not the mechanism the network uses (review G finding 6).
 The audit can only find what it tests: the tournament's functional-success metric covers sufficient sets it did not try.
 """
 
@@ -24,6 +29,26 @@ from .simulator import BudgetedSimulator
 
 AUDIT_SEEDS = (0, 1, 2, 3)
 PASS_THRESHOLD = 0.8
+PARTICIPATION_MIN_HZ = 0.05
+PARTICIPATION_REL = 0.01
+
+
+def intact_mean_rates(problem: DiscoveryProblem, sim: BudgetedSimulator, seeds) -> np.ndarray:
+    """Per-neuron mean rate in the analysis window, averaged over the intact runs that pass the criterion (all runs if none
+    passes)."""
+    outs = sim.evaluate(None, list(seeds))
+    use = [o for o in outs if o.passed] or outs
+    return np.mean([np.asarray(o.mean_rate_hz, dtype=float) for o in use], axis=0)
+
+
+def participation_threshold(rates: np.ndarray, planted_core) -> float:
+    core = [int(p) for p in planted_core]
+    ref = float(np.median(rates[core])) if core else 0.0
+    return max(PARTICIPATION_MIN_HZ, PARTICIPATION_REL * ref)
+
+
+def participates(rates: np.ndarray, members, threshold: float) -> bool:
+    return bool(len(members) == 0 or float(np.min(rates[[int(p) for p in members]])) >= threshold)
 
 
 def _complications(comp: dict) -> tuple[set[int], list[frozenset[int]], dict | None]:
@@ -86,8 +111,13 @@ def find_unplanted_alternatives(problem: DiscoveryProblem, truth_net: dict, *, s
         fm = frozenset(m)
         if fm not in found and fm not in planted:
             found.append(fm)
-    return {"tested": tested, "found": [sorted(int(x) for x in f) for f in found], "seeds": list(seeds), "pass_threshold": pass_threshold,
-            "n_singles": len(singles), "calls": sim.calls}
+    rates = intact_mean_rates(problem, sim, seeds)
+    thr = participation_threshold(rates, truth_net["core_positions"])
+    valid = [f for f in found if participates(rates, f, thr)]
+    latent = [f for f in found if f not in valid]
+    return {"tested": tested, "found": [sorted(int(x) for x in f) for f in valid], "latent_backups": [sorted(int(x) for x in f) for f in latent],
+            "seeds": list(seeds), "pass_threshold": pass_threshold, "n_singles": len(singles), "calls": sim.calls,
+            "participation_threshold_hz": thr, "planted_participation": [participates(rates, a, thr) for a in planted]}
 
 
 def apply_audit(truth_net: dict, audit: dict) -> dict:
@@ -98,8 +128,49 @@ def apply_audit(truth_net: dict, audit: dict) -> dict:
     unplanted = [a for a in audit["found"] if tuple(a) not in {tuple(p) for p in planted}]
     t["alternatives_positions"] = planted + unplanted
     t["unplanted_alternatives_positions"] = unplanted
-    t["alternatives_audit"] = {k: audit[k] for k in ("tested", "seeds", "pass_threshold", "n_singles", "calls")}
+    t["latent_backups_positions"] = [a for a in audit.get("latent_backups", []) if tuple(a) not in {tuple(p) for p in planted}]
+    t["alternatives_audit"] = {k: audit[k] for k in ("tested", "seeds", "pass_threshold", "n_singles", "calls", "participation_threshold_hz",
+                                                        "planted_participation") if k in audit}
     return t
+
+
+def reclassify_participation(problem: DiscoveryProblem, truth_net: dict, *, seeds=AUDIT_SEEDS) -> dict:
+    """Upgrade an ALREADY-audited truth network entry without searching again: move unplanted alternatives that do not
+    participate in the intact network to ``latent_backups_positions``, and add the silencing pass fraction (sigma) of every node
+    of a planted alternative where it is missing (``essential_pass_fraction_positions``; the verification recorded only
+    sigma < 0.2). Returns the new entry plus a small report."""
+    from .interventions import silence
+
+    t = dict(truth_net)
+    sim = BudgetedSimulator(problem, max_calls=10 ** 9)
+    rates = intact_mean_rates(problem, sim, seeds)
+    thr = participation_threshold(rates, t["core_positions"])
+    unplanted = [sorted(int(p) for p in a) for a in t.get("unplanted_alternatives_positions", [])]
+    keep = [a for a in unplanted if participates(rates, a, thr)]
+    latent = [a for a in unplanted if a not in keep] + [a for a in t.get("latent_backups_positions", []) if a not in unplanted]
+    planted = [sorted(int(p) for p in a) for a in t["alternatives_positions"] if sorted(int(p) for p in a) not in unplanted]
+    t["alternatives_positions"] = planted + keep
+    t["unplanted_alternatives_positions"] = keep
+    t["latent_backups_positions"] = latent
+    if not t.get("essential_pass_fraction_positions"):
+        nodes = sorted({int(p) for a in planted for p in a})
+        t["essential_pass_fraction_positions"] = {p: sim.pass_fraction(silence([p]), list(seeds)) for p in nodes}
+    audit = dict(t.get("alternatives_audit") or {})
+    audit.update(participation_threshold_hz=thr, planted_participation=[participates(rates, a, thr) for a in planted],
+                 reclassified=True, reclassify_seeds=list(seeds))
+    t["alternatives_audit"] = audit
+    return {"truth_net": t, "moved_to_latent": [a for a in unplanted if a not in keep], "threshold_hz": thr, "calls": sim.calls}
+
+
+def reclassify_job(args) -> dict:
+    """(instance_dir, network, truth_net, packs) -> {instance, network, result}; module-level so backends can run it."""
+    inst_dir, network, truth_net, packs = args
+    inst_dir = Path(inst_dir)
+    name = path_basename(inst_dir)
+    if not inst_dir.exists() and packs is not None:
+        inst_dir = unpack_bundle(packs[name], Path(tempfile.mkdtemp(prefix="brainir_reclass_")) / name)
+    problem = DiscoveryProblem.from_bundle(inst_dir, network)
+    return {"instance": name, "network": network, "result": reclassify_participation(problem, truth_net)}
 
 
 def audit_job(args) -> dict:

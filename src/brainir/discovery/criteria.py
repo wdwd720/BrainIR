@@ -60,9 +60,13 @@ def criterion_from_spec(spec: dict) -> Criterion:
 def _common(traj, readout_mask, t0: float, active_rate_hz: float) -> dict:
     win, _ = _window(traj, t0)
     peak = win.max(axis=0) if len(win) else np.zeros(traj.r.shape[1])
+    mean = win.mean(axis=0) if len(win) else np.zeros(traj.r.shape[1])
     active_all = peak > active_rate_hz
+    # graded activity in the analysis window (review G finding 8): "active" (peak > active_rate_hz) cannot tell a neuron that
+    # participates from one with a decaying onset transient; the per-neuron mean and peak rates can
     return {"n_active_all": int(active_all.sum()), "n_active_readout": int((active_all & readout_mask).sum()),
             "active_positions": np.flatnonzero(active_all).astype(np.int32),
+            "mean_rate_hz": mean.astype(np.float32), "peak_rate_hz": peak.astype(np.float32),
             "readout_peak_median_hz": float(np.median(peak[readout_mask])) if readout_mask.any() else 0.0,
             "solver_success": bool(traj.info.get("success", True)) and not traj.info.get("non_finite_samples")}
 

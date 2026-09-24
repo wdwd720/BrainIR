@@ -492,6 +492,7 @@ def export_pair(pair: BuiltPair, verification: dict, root: Path, *, salt: str = 
                      "alternatives_positions": [sorted(int(inv[c]) for c in alt) for alt in inst.truth["alternatives"]],
                      "roles_positions": {int(inv[k]): r for k, r in inst.truth["roles"].items()},
                      "essential_positions": {int(inv[k]): v for k, v in ver["essential"].items()},
+                     "essential_pass_fraction_positions": {int(inv[k]): float(v) for k, v in (ver.get("essential_pass_fraction") or {}).items()},
                      "necessary_within_core_positions": {int(inv[k]): v for k, v in ver["necessary_within_core"].items()},
                      "stimulus_position": int(inv[inst.stim]), "readout_positions": sorted(int(inv[r]) for r in inst.readout),
                      "n_instance_nodes": int(inst.W.shape[0]), "n_anchor_nodes": N_SOURCE_ANCHORS + N_SINK_ANCHORS}

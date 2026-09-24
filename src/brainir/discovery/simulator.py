@@ -1,4 +1,4 @@
-"""The budgeted, cached simulator oracle every discovery method must go through.
+"""The budgeted, cached simulator every discovery method must go through.
 
 * Every simulation is one **call**; the budget (``max_calls``) is hard — exceeding it raises :class:`BudgetExhausted`.
   Simulators spawned for other networks (:meth:`BudgetedSimulator.spawn`) draw from the same budget: one pool per run.
@@ -14,8 +14,9 @@
 * Batched execution: :meth:`run_many` deduplicates queries, serves memo/store hits, and runs the rest on a
   :mod:`brainir.compute` backend (local pool or Modal) with the network as a shared payload.
 
-The oracle returns :class:`Outcome` records: the criterion's score/pass verdict plus a compact activity fingerprint
-(which neurons were active, readout statistics). No oracle information of any kind is available here.
+It returns :class:`Outcome` records: the criterion's score/pass verdict plus an activity fingerprint (which neurons were
+active, graded per-neuron mean and peak rates in the analysis window, readout statistics). Queries may also remove individual
+synapses (``SimQuery.remove_edges``). No hidden-benchmark (oracle) information of any kind is available here.
 """
 
 from __future__ import annotations
@@ -70,12 +71,17 @@ class SimQuery:
     """None = the model config's t_end."""
     cfg_override: dict = field(default_factory=dict)
     """Optional ModelConfig field overrides (e.g. widened parameter sds for robustness probes)."""
+    remove_edges: tuple = ()
+    """Synapses removed for this simulation, as (post, pre) position pairs (an edge-removal intervention: the entry W[post, pre]
+    is zeroed; applied on top of ``intervention``). One call per replicate, like any query (review G finding 5)."""
 
     def key(self, problem_hash: str, criterion_spec: dict) -> str:
         payload = {"net": problem_hash, "seed": int(self.seed), "iv": canonical(self.intervention),
                    "stim": None if self.stimulus is None else [list(self.stimulus.indices), list(self.stimulus.currents), self.stimulus.pulse_start,
                                                                self.stimulus.pulse_end],
                    "t_end": self.t_end, "cfg": dict(sorted(self.cfg_override.items())), "criterion": criterion_spec, "code": sim_code_version()}
+        if self.remove_edges:
+            payload["removed_edges"] = [list(e) for e in self.remove_edges]
         return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
 
 
@@ -92,6 +98,10 @@ class Outcome:
     wall_s: float
     extra: dict = field(default_factory=dict)
     cached: bool = False
+    mean_rate_hz: np.ndarray | None = None
+    """Per-neuron mean rate in the criterion's analysis window (read-only; graded participation, review G finding 8)."""
+    peak_rate_hz: np.ndarray | None = None
+    """Per-neuron peak rate in the analysis window (read-only; ``active_positions`` = peak above the criterion's threshold)."""
 
     def to_dict(self) -> dict:
         return {"score": self.score, "passed": self.passed, "frequency_hz": self.frequency_hz, "n_active_readout": self.n_active_readout,
@@ -350,7 +360,18 @@ class BudgetedSimulator:
         stim = q.stimulus
         if stim is not None and stim == self.problem.stimulus():
             stim = None
-        return SimQuery(iv, int(q.seed), stim, t_end, override)
+        edges: tuple = ()
+        if q.remove_edges:
+            n = self.problem.n
+            pairs = set()
+            for e in q.remove_edges:
+                post, pre = (int(x) for x in e)
+                if not (0 <= post < n and 0 <= pre < n):
+                    raise ValueError(f"remove_edges: ({post}, {pre}) is outside the network")
+                if self.problem.W[post, pre] != 0:  # removing an absent synapse is a no-op: the query is the unmodified one
+                    pairs.add((post, pre))
+            edges = tuple(sorted(pairs))
+        return SimQuery(iv, int(q.seed), stim, t_end, override, edges)
 
     def run_many(self, queries: list[SimQuery]) -> list[Outcome]:
         queries = [self._normalize(q) for q in queries]
@@ -364,7 +385,7 @@ class BudgetedSimulator:
                                   + (" (pooled with the parent run)" if self._parent is not None else ""))
         for q in queries:
             c = canonical(q.intervention)
-            self._interventions.add(json.dumps(c, sort_keys=True))
+            self._interventions.add(json.dumps({**c, "removed_edges": [list(e) for e in q.remove_edges]} if q.remove_edges else c, sort_keys=True))
             self._param_seeds.add(int(q.seed))
             if c.get("keep_only") is not None:
                 self._keep_only_sets.add(tuple(sorted(int(x) for x in c["keep_only"])))
@@ -378,7 +399,9 @@ class BudgetedSimulator:
                 if self.backend is not None:
                     from ..compute.backend import Shared, split_failures
                     shared = {"W": self.problem.W, "sizes": self.problem.sizes, "readout": self.problem.readout_mask}
-                    sjobs = [(Shared("W"), Shared("sizes"), *j[2:9], Shared("readout")) for j in jobs]
+                    # a query with removed synapses carries its own matrix; every other query shares the network's
+                    sjobs = [((j[0] if q.remove_edges else Shared("W")), Shared("sizes"), *j[2:9], Shared("readout"))
+                             for j, q in zip(jobs, compute.values())]
                     results, failed = split_failures(self.backend.map(_simulate_query, sjobs, shared=shared))
                     if failed:
                         raise RuntimeError(f"{len(failed)} simulations failed on {self.backend.name}: {failed[0]}")
@@ -403,7 +426,8 @@ class BudgetedSimulator:
                     self._store_hits += 1
                 if self.log is not None:
                     self.log.append({"key": k[:16], "seed": q.seed, "intervention": canonical(q.intervention), "score": res["score"],
-                                     "passed": res["passed"], "from_store": k not in computed})
+                                     "passed": res["passed"], "from_store": k not in computed,
+                                     **({"removed_edges": [list(e) for e in q.remove_edges]} if q.remove_edges else {})})
             self._wall_seconds += time.time() - t0
             self._n_batches += 1
         out = []
@@ -417,19 +441,33 @@ class BudgetedSimulator:
 
     def _job(self, q: SimQuery):
         stim = q.stimulus if q.stimulus is not None else self.problem.stimulus()
-        return (self.problem.W, self.problem.sizes, self.problem.model_cfg.to_dict(), stim, q.intervention, int(q.seed), q.t_end,
+        W = self.problem.W
+        if q.remove_edges:
+            W = W.tolil(copy=True)
+            for post, pre in q.remove_edges:
+                W[post, pre] = 0.0
+            W = W.tocsr()
+            W.eliminate_zeros()
+        return (W, self.problem.sizes, self.problem.model_cfg.to_dict(), stim, q.intervention, int(q.seed), q.t_end,
                 dict(q.cfg_override), self._crit, self.problem.readout_mask)
 
     @staticmethod
     def _outcome(res: dict) -> Outcome:
         known = {"score", "passed", "frequency_hz", "n_active_readout", "n_active_all", "active_positions", "readout_peak_median_hz",
-                 "solver_success", "wall_s", "cpu_s"}
+                 "solver_success", "wall_s", "cpu_s", "mean_rate_hz", "peak_rate_hz"}
         active = np.array(res["active_positions"], dtype=np.int32)
         active.setflags(write=False)  # memo hits share this array: callers must not be able to alter later answers
+        rates = {}
+        for k in ("mean_rate_hz", "peak_rate_hz"):
+            if res.get(k) is not None:
+                a = np.array(res[k], dtype=np.float32)
+                a.setflags(write=False)
+                rates[k] = a
         return Outcome(score=float(res["score"]), passed=bool(res["passed"]), frequency_hz=res.get("frequency_hz"),
                        n_active_readout=int(res["n_active_readout"]), n_active_all=int(res["n_active_all"]),
                        active_positions=active, readout_peak_median_hz=float(res["readout_peak_median_hz"]),
-                       solver_success=bool(res["solver_success"]), wall_s=float(res["wall_s"]), extra={k: v for k, v in res.items() if k not in known})
+                       solver_success=bool(res["solver_success"]), wall_s=float(res["wall_s"]), extra={k: v for k, v in res.items() if k not in known},
+                       **rates)
 
     # ------------------------------------------------------------------ convenience
     def evaluate(self, intervention: Intervention | None, seeds: list[int], **kw) -> list[Outcome]:

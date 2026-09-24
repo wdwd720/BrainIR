@@ -72,12 +72,75 @@ def score_structure(result: DiscoveryResult, truth_net: dict) -> dict:
             ess_n += 1
             ess_hits += int(bool(v) == bool(ess[key]))
     smallest = min((len(a) for a in alts), default=len(truth_net["core_positions"]))
+    # ---- review A / G: causal completeness and non-circular calibration
+    truly_essential = {int(p) for p, v in ess.items() if v}
+    essential_recall = (len(core & truly_essential) / len(truly_essential)) if truly_essential else None
+    sigma = {int(p): float(v) for p, v in (truth_net.get("essential_pass_fraction_positions") or {}).items()}
+    ess_u_hits, ess_u_n = 0, 0  # essential accuracy on unambiguous truth only (sigma < 0.2 or >= 0.5): the two definitions agree there
+    for p, v in result.essential.items():
+        key = str(p)
+        if v is None or key not in ess:
+            continue
+        s = sigma.get(int(p))
+        if s is not None and 0.2 <= s < 0.5:
+            continue
+        ess_u_n += 1
+        ess_u_hits += int(bool(v) == bool(ess[key]))
+    latent = [set(int(p) for p in a) for a in truth_net.get("latent_backups_positions", [])]
+    any_member = set().union(*alts) if alts else set(int(p) for p in truth_net["core_positions"])
+    contested = set(any_member) | core | {int(p) for a in latent for p in a} | {int(p) for a in result.alternatives for p in a}
+    contested |= {int(p) for p, q in (probs or {}).items() if float(q) >= 0.1}
+    comp = truth_net.get("complication_positions") or {}
+    for v in comp.values():
+        if isinstance(v, dict):
+            contested |= {int(x) for x in v.values() if isinstance(x, (int, np.integer))}
+        elif isinstance(v, (list, tuple)):
+            contested |= {int(x) for x in v}
+        elif isinstance(v, (int, np.integer)):
+            contested.add(int(v))
+
+    def _brier(target: set[int], pool: set[int]) -> float | None:
+        vals = [(float((probs or {}).get(p, (probs or {}).get(str(p), 0.0))) - (1.0 if p in target else 0.0)) ** 2 for p in pool]
+        return float(np.mean(vals)) if vals else None
+
     return {"vs_core": vs_core, "vs_best_alternative": best, "best_alternative_index": best_i, "success": bool(success),
             "success_planted": bool(success_planted), "n_unplanted_alternatives": len(unplanted),
             "role_accuracy": (role_hits / role_n) if role_n else None, "n_roles_scored": role_n,
             "essential_accuracy": (ess_hits / ess_n) if ess_n else None, "n_essential_claims": ess_n,
+            "essential_accuracy_unambiguous": (ess_u_hits / ess_u_n) if ess_u_n else None,
+            "essential_recall": essential_recall, "n_truly_essential": len(truly_essential),
+            "latent_backup_returned": bool(any(a and a <= core for a in latent)),
             "size_ratio_vs_smallest_sufficient": (len(core) / smallest) if smallest else None, "brier_inclusion": brier,
+            # calibration on the neurons actually in question, against the best-matching set (as brier_inclusion) and against the
+            # non-circular target "member of ANY sufficient set the truth lists" (review A finding 4)
+            "brier_contested": _brier(alts[best_i] if alts else set(truth_net["core_positions"]), contested) if probs else None,
+            "brier_contested_any_alternative": _brier(any_member, contested) if probs else None, "n_contested": len(contested),
             "n_alternatives_claimed": len(result.alternatives)}
+
+
+def score_intact(problem: DiscoveryProblem, result: DiscoveryResult, truth_net: dict, *, seeds: list[int], workers: int = 1) -> dict:
+    """Does the returned core describe the mechanism the INTACT network uses (reviews A and G)?
+
+    * participation: every core member's mean rate in the intact runs' analysis window reaches the audit's participation
+      threshold (max(0.05 Hz, 1 % of the planted core's median rate)); a core with a near-silent member is a latent backup;
+    * silencing the core, and the core together with every alternative the method reported, in the intact network: the pass
+      fraction (high = the network does not need what was returned).
+    Charged to the scorer, never to the method."""
+    from .suite_audit import intact_mean_rates, participation_threshold
+
+    sim = BudgetedSimulator(problem, max_calls=10 ** 9, workers=workers)
+    core = [int(p) for p in result.core]
+    rates = intact_mean_rates(problem, sim, seeds)
+    thr = participation_threshold(rates, truth_net["core_positions"])
+    silent = [p for p in core if float(rates[p]) < thr]
+    out = {"participation_threshold_hz": round(thr, 4), "core_min_rate_hz": round(float(min((rates[p] for p in core), default=0.0)), 4),
+           "silent_core_members": silent, "core_participates": bool(core) and not silent}
+    if core:
+        out["silence_core_pass"] = sim.pass_fraction(silence(core), seeds)
+        union = sorted(set(core) | {int(p) for a in result.alternatives for p in a})
+        out["silence_core_and_alternatives_pass"] = sim.pass_fraction(silence(union), seeds) if len(union) > len(core) else out["silence_core_pass"]
+    out["scoring_calls"] = sim.calls
+    return out
 
 
 MINIMALITY_MAX_CORE = 40
@@ -178,6 +241,11 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         tnet = truth["networks"][network]
         rec["structure"] = score_structure(result, tnet)
         rec["function"] = score_function(problem, result, seeds=score_seeds, workers=workers, robust=robust)
+        rec["intact"] = score_intact(problem, result, tnet, seeds=score_seeds, workers=workers)
+        st, it = rec["structure"], rec["intact"]
+        # success_intact (reviews A, G): a listed sufficient set that the intact network uses — its members participate and it
+        # contains every neuron whose single silencing breaks the intact function
+        rec["structure"]["success_intact"] = bool(st["success"] and it["core_participates"] and st["essential_recall"] in (None, 1.0))
         rec["truth_family"] = truth["spec"]["family"]
         rec["truth_complications"] = truth["spec"].get("complications")
         perm = truth["networks"][network]["perm"]
@@ -350,6 +418,18 @@ def summarize(records: list[dict]) -> dict:
                                               float(r["function"]["minimality"]["n_removable"] > 0)),
                   "simulated_seconds_median": _median(rs, lambda r: r["result"]["budget"].get("simulated_seconds")),
                   "identity_consistency": identity_consistency(rs),
+                  # reviews A / G: does the answer describe the mechanism the intact network uses?
+                  "success_intact_rate": (float(np.mean([float(r["structure"]["success_intact"]) for r in rs] + zeros))
+                                          if any("success_intact" in r["structure"] for r in rs) else None),
+                  "essential_recall_mean": _mean(rs, lambda r: r["structure"].get("essential_recall")),
+                  "missed_essential_rate": _mean(rs, lambda r: None if r["structure"].get("essential_recall") is None
+                                                 else float(r["structure"]["essential_recall"] < 1.0)),
+                  "latent_backup_rate": _mean(rs, lambda r: float(bool(r["structure"].get("latent_backup_returned")))),
+                  "silent_core_rate": _mean(rs, lambda r: None if "intact" not in r else float(not r["intact"]["core_participates"])),
+                  "silence_core_pass_mean": _mean(rs, lambda r: (r.get("intact") or {}).get("silence_core_pass")),
+                  "brier_contested_mean": _mean(rs, lambda r: r["structure"].get("brier_contested")),
+                  "brier_contested_any_alternative_mean": _mean(rs, lambda r: r["structure"].get("brier_contested_any_alternative")),
+                  "essential_accuracy_unambiguous_mean": _mean(rs, lambda r: r["structure"].get("essential_accuracy_unambiguous")),
                   "by_family": _by_family(rs)}
     return out
 
@@ -530,6 +610,21 @@ def to_markdown(t: dict) -> str:
               "structural success = the core contains a sufficient set listed in the truth (planted, or unplanted but found by the suite "
               "audit); functional success (pre-registered) = the core is sufficient on fresh seeds and 1-minimal under keep-only; causal "
               "functional (clarified) = sufficient and every member is keep-only-necessary or essential when silenced in the intact network."]
+    if any(s.get("success_intact_rate") is not None for s in t["summary"].values()):
+        fmt = lambda v: "–" if v is None else f"{v:.2f}"  # noqa: E731
+        lines += ["", "## Is the answer the mechanism the intact network uses? (reviews A, G)", "",
+                  "success_intact = structural success AND every core member participates in the intact network AND the core contains every "
+                  "neuron whose single silencing breaks the intact function (truth-essential). Brier (contested) scores the inclusion "
+                  "probabilities only on neurons in question (truth sufficient sets, latent backups, complications, the method's core and "
+                  "alternatives, anything given >= 0.1), against the best-matching set and against 'member of any listed sufficient set'.", "",
+                  "| method | success_intact | essential recall | runs missing an essential | latent backup returned | silent core member | "
+                  "intact passes with core silenced | Brier contested (best / any) | essential acc. (unambiguous) |",
+                  "|---|---|---|---|---|---|---|---|---|"]
+        for m, s in t["summary"].items():
+            lines.append(f"| {m} | {fmt(s.get('success_intact_rate'))} | {fmt(s.get('essential_recall_mean'))} | {fmt(s.get('missed_essential_rate'))} | "
+                         f"{fmt(s.get('latent_backup_rate'))} | {fmt(s.get('silent_core_rate'))} | {fmt(s.get('silence_core_pass_mean'))} | "
+                         f"{fmt(s.get('brier_contested_mean'))} / {fmt(s.get('brier_contested_any_alternative_mean'))} | "
+                         f"{fmt(s.get('essential_accuracy_unambiguous_mean'))} |")
     lines += ["", "## By family (success rate / median calls)", ""]
     fams = sorted({f for s in t["summary"].values() for f in s["by_family"]})
     lines += ["| family | " + " | ".join(t["summary"]) + " |", "|---|" + "---|" * len(t["summary"])]

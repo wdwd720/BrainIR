@@ -418,15 +418,18 @@ def verify_instance(inst: BuiltInstance, seeds: list[int] | None = None) -> dict
     core = inst.truth["core"]
     essential = {}
     necessary_in_core = {}
+    essential_pass: dict[int, float] = {}
     for v in sorted(set(x for alt in inst.truth["alternatives"] for x in alt)):
         f_sil, _ = frac(Intervention(silence=(v,)))
         essential[v] = f_sil < 0.2
+        essential_pass[v] = f_sil  # sigma: pass fraction with v silenced (0.2 <= sigma < 0.5 is ambiguous; review G finding 6)
     for v in core:
         f_wo, _ = frac(Intervention(keep_only=tuple(x for x in core if x != v), always_keep=always))
         necessary_in_core[v] = f_wo < 0.2
     ok = intact_f >= 0.8 and all(a["keep_only_pass"] >= 0.8 for a in alts)
     return {"seeds": seeds, "intact_pass": intact_f, "intact_score": intact_s, "alternatives": alts,
             "essential": {int(k): bool(v) for k, v in essential.items()},
+            "essential_pass_fraction": {int(k): float(v) for k, v in essential_pass.items()},
             "necessary_within_core": {int(k): bool(v) for k, v in necessary_in_core.items()}, "criterion": crit_spec, "verified": bool(ok)}
 
 
@@ -510,6 +513,8 @@ def export_instance(inst: BuiltInstance, verification: dict, root: Path, *, n_or
                           "alternatives_positions": [sorted(int(inv[c]) for c in alt) for alt in inst.truth["alternatives"]],
                           "roles_positions": {int(inv[k]): r for k, r in inst.truth["roles"].items()},
                           "essential_positions": {int(inv[k]): v_ for k, v_ in verification["essential"].items()},
+                          "essential_pass_fraction_positions": {int(inv[k]): float(v_) for k, v_ in
+                                                                (verification.get("essential_pass_fraction") or {}).items()},
                           "necessary_within_core_positions": {int(inv[k]): v_ for k, v_ in verification["necessary_within_core"].items()},
                           "critical_edges_positions": [[int(inv[a]), int(inv[b])] for a, b in inst.truth["critical_edges"]],
                           "complication_positions": _remap(inst.truth["complications"], inv), "stimulus_position": int(inv[inst.stim]),
