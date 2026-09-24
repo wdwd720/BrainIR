@@ -14,7 +14,7 @@ pytestmark = [pytest.mark.modal, pytest.mark.skipif(os.environ.get("BRAINIR_TEST
 
 
 def test_local_and_modal_outcomes_agree(tmp_path):
-    from brainir.compute import get_backend
+    from brainir.discovery.remote import get_discovery_backend as get_backend  # the pinned image every Phase 2 campaign uses
 
     spec = InstanceSpec("ei_pair_oscillator", 40, 3, n_readout=8)
     inst = build_instance(spec)
