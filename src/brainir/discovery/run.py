@@ -37,15 +37,30 @@ def _parse_kv(items: list[str]) -> dict:
 
 def run_method(method_name: str, bundle_root: Path | str, network: str, *, budget: int, seed: int, config: dict | None = None,
                workers: int = 1, backend=None, code_commit: str | None = None) -> tuple[BrainIRMechanismPrediction, DiscoveryResult]:
+    from .provenance import source_tree_hash
+    from .simulator import BudgetExhausted, BudgetViolation, count_real_simulations
+
     problem = DiscoveryProblem.from_bundle(bundle_root, network)
     sim = BudgetedSimulator(problem, max_calls=budget, workers=workers, backend=backend)
     method = MethodRegistry.get(method_name)
     cfg = {**method.default_config, **(config or {})}
-    t0 = time.time()
-    result = method.discover(problem, sim, seed=seed, config=cfg)
-    wall = time.time() - t0
+    exhausted = False
+    with count_real_simulations() as counter:
+        t0 = time.time()
+        try:
+            result = method.discover(problem, sim, seed=seed, config=cfg)
+        except BudgetExhausted:  # one policy on every path: an empty, explicitly flagged prediction (review F finding 11)
+            exhausted = True
+            result = DiscoveryResult(core=[], diagnostics={"error": "budget exhausted before a result"})
+        wall = time.time() - t0
+    if workers == 1 and backend is None and counter["n"] != sim.total_computed_calls():
+        raise BudgetViolation(f"{counter['n']} real simulations but {sim.total_computed_calls()} charged")
+    if sim.calls > budget:
+        raise BudgetViolation(f"{sim.calls} calls exceed the budget {budget}")
     result.budget = {**sim.report(), "wall_s": round(wall, 2)}
-    info = method.method_info(problem, sim, seed, cfg, wall_s=wall, code_commit=code_commit)
+    info = method.method_info(problem, sim, seed, cfg, wall_s=wall, code_commit=code_commit,
+                              extra={"budget_exhausted": exhausted, "source_tree_sha256": source_tree_hash(),
+                                     "integrity": {"real_simulations": counter["n"], "charged_computed": sim.total_computed_calls()}})
     return result.to_prediction(problem, info), result
 
 

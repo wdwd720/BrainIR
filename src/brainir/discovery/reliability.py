@@ -83,26 +83,23 @@ def make_permuted_bundle(src_root: Path, network: str, seed: int | None, dest_ro
             if k in c:
                 c[k] = [int(inv[p]) for p in c[k]]
         (d / "criterion.json").write_text(json.dumps(c, indent=1) + "\n", encoding="utf-8", newline="\n")
-    info = json.loads((src / "network.json").read_text(encoding="utf-8"))
-    info["order_variant_seed"] = None if seed is None else int(seed)
-    (d / "network.json").write_text(json.dumps(info, indent=1) + "\n", encoding="utf-8", newline="\n")
+    # nothing inside the variant reveals the permutation or the seed that produced it (review F finding 14)
+    shutil.copyfile(src / "network.json", d / "network.json")
     for f in ("model_config.json", "README.md"):
         if (Path(src_root) / f).exists():
             shutil.copyfile(Path(src_root) / f, Path(dest_root) / f)
-    # a fresh manifest (the variant's files differ from the source's) that records where it came from
     src_manifest_path = Path(src_root) / "manifest.json"
     src_manifest = json.loads(src_manifest_path.read_text(encoding="utf-8")) if src_manifest_path.exists() else {}
-    header = {k: v for k, v in src_manifest.items() if k not in ("files", "bundle_sha256", "networks")}
+    header = {k: v for k, v in src_manifest.items() if k not in ("files", "bundle_sha256", "networks", "node_order_variant")}
     header["networks"] = [x for x in src_manifest.get("networks", []) if isinstance(x, dict) and x.get("name") == network]
-    header["node_order_variant"] = {"derived_from_bundle_sha256": src_manifest.get("bundle_sha256"), "network": network,
-                                    "seed": None if seed is None else int(seed)}
     write_bundle_manifest(dest_root, header)
-    # the permutation is kept OUTSIDE the variant bundle: a method reading its bundle must not be able to undo the reordering
-    priv = Path(private_dir) if private_dir is not None else Path(dest_root).parent / "_private"
+    # the permutation (and its provenance) is kept in a separate private tree, never inside or next to the variant
+    priv = Path(private_dir) if private_dir is not None else Path(dest_root).parent.parent / f"{Path(dest_root).parent.name}__private"
     priv.mkdir(parents=True, exist_ok=True)
     (priv / f"perm_{Path(dest_root).name}_{network}.json").write_text(
-        json.dumps({"seed": None if seed is None else int(seed), "perm": [int(x) for x in perm]}) + "\n", encoding="utf-8", newline="\n")
-    return {"dir": str(dest_root), "perm": perm, "positional": positional}
+        json.dumps({"seed": None if seed is None else int(seed), "derived_from_bundle_sha256": src_manifest.get("bundle_sha256"),
+                    "perm": [int(x) for x in perm]}) + "\n", encoding="utf-8", newline="\n")
+    return {"dir": str(dest_root), "perm": perm, "positional": positional, "private_dir": str(priv)}
 
 
 def prediction_to_common_frame(pred: BrainIRMechanismPrediction, perm: np.ndarray, positional: bool) -> dict:
@@ -142,11 +139,21 @@ def run_frozen_baseline(script: Path, bundle: Path, network: str, out: Path, see
 
 
 def sweep_job(args) -> dict:
-    """One reliability run (module-level so backends can import it).
+    """One reliability run (module-level so backends can import it); failures are returned as records, never raised.
 
     ``args`` = dict(method, variant_dir, network, seed, budget, config, perm, positional, frozen_args, frozen_script, packs).
     On a remote worker the variant directory is rebuilt from ``packs[variant name]`` (a :func:`pack_bundle` dict) and the frozen
     script is written from ``frozen_script`` (its source text); predictions are returned in the result instead of on disk."""
+    try:
+        return _sweep_job(args)
+    except Exception as e:  # noqa: BLE001 - review F findings 1 and 11: identical failure semantics locally and remotely
+        import traceback
+        return {"seed": int(args["seed"]), "variant": path_basename(args["variant_dir"]), "error": f"{type(e).__name__}: {e}"[:500],
+                "traceback": traceback.format_exc()[-2000:]}
+
+
+def _sweep_job(args) -> dict:
+    from .provenance import runtime_env
     from .run import run_method
 
     method, network, seed = args["method"], args["network"], int(args["seed"])
@@ -156,9 +163,9 @@ def sweep_job(args) -> dict:
     remote = not variant_dir.exists()
     if remote:
         tmp = Path(tempfile.mkdtemp(prefix="brainir_rel_"))
-        variant_dir = unpack_bundle(packs[variant_name], tmp / variant_name)
-    # outputs live next to the variant, never inside it (a method must not see other runs' predictions in its bundle)
-    run_dir = variant_dir.parent / "_runs" / variant_name
+        variant_dir = unpack_bundle(packs[variant_name], tmp / "variants" / variant_name)
+    # outputs live in a separate tree, never inside or next to the variant (a method must not see other runs' predictions)
+    run_dir = variant_dir.parent.parent / f"{variant_dir.parent.name}__runs" / variant_name
     run_dir.mkdir(parents=True, exist_ok=True)
     out = run_dir / f"pred_{method}_s{seed}.json"
     t0 = time.time()
@@ -184,7 +191,7 @@ def sweep_job(args) -> dict:
     rec = {"seed": seed, "variant": variant_name, "core_common": to_common_frame(pred, perm_arr, positional), "core_public": pred.core_ids(),
            "n_core": len(pred.core_ids()), "calls": calls, "wall_s": round(time.time() - t0, 1), "prediction_sha256": pred.digest(),
            "compute": pred.method.compute, "result_budget": (result.budget if result is not None else None), "prediction": json.loads(pred.to_json()),
-           "prediction_common_frame": common}
+           "prediction_common_frame": common, "env": runtime_env()}
     fidelity_seeds = args.get("fidelity_seeds")
     if fidelity_seeds:  # oracle-free functional fidelity, computed where the run happened (keep-only in the variant's own frame)
         problem = DiscoveryProblem.from_bundle(variant_dir, network)
@@ -192,7 +199,7 @@ def sweep_job(args) -> dict:
         core_pos = [pos_of[int(i)] for i in pred.core_ids() if int(i) in pos_of]
         rec["functional_fidelity"] = functional_fidelity(problem, core_pos, list(fidelity_seeds), workers=1)
     if remote:
-        shutil.rmtree(variant_dir.parent, ignore_errors=True)
+        shutil.rmtree(variant_dir.parent.parent, ignore_errors=True)
     return rec
 
 
@@ -205,7 +212,7 @@ def consistency(cores: list[list[int]]) -> dict:
     sets = [frozenset(c) for c in cores]
     if not sets:
         return {}
-    pair = [len(a & b) / len(a | b) if (a | b) else 1.0 for a, b in combinations(sets, 2)]
+    pair = [len(a & b) / len(a | b) if (a | b) else 0.0 for a, b in combinations(sets, 2)]  # empty cores agree with nothing
     freq: dict[int, int] = {}
     for s in sets:
         for p in s:

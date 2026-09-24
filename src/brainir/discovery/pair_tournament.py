@@ -51,26 +51,45 @@ def score_pair(truth: dict, a: DiscoveryProblem, b: DiscoveryProblem, res) -> di
 
 
 def pair_job(args) -> dict:
-    """(method, mode, instance_dir, seed, budget_a, budget_b, config, truth_path, packs) -> scored record."""
-    from .joint import discover_pair
-
+    """(method, mode, instance_dir, seed, budget_a, budget_b, config, truth_path, packs) -> scored record (or a failure record)."""
     method, mode, inst_dir, seed, budget_a, budget_b, config, truth_path, packs = args
+    name = path_basename(inst_dir)
+    try:
+        return _pair_job(method, mode, inst_dir, seed, budget_a, budget_b, config, truth_path, packs)
+    except Exception as e:  # noqa: BLE001 - scored as a failure, identical locally and remotely (review F finding 1)
+        import traceback
+        return {"method": method, "mode": mode, "instance": name, "seed": seed, "error": f"{type(e).__name__}: {e}"[:500],
+                "traceback": traceback.format_exc()[-2000:]}
+
+
+def _pair_job(method, mode, inst_dir, seed, budget_a, budget_b, config, truth_path, packs) -> dict:
+    from .joint import discover_pair
+    from .provenance import runtime_env
+    from .simulator import count_real_simulations
+
     inst_dir, truth_path = Path(inst_dir), Path(truth_path)
     name = path_basename(inst_dir)
     if not inst_dir.exists() and packs is not None:
         tmp = Path(tempfile.mkdtemp(prefix="brainir_pair_"))
-        unpack_bundle(packs[name], tmp / name)
-        inst_dir = tmp / name
-        (tmp / "truth.json").write_bytes(packs[f"truth/{name}"])
-        truth_path = tmp / "truth.json"
+        unpack_bundle(packs[name], tmp / "inst" / name)
+        inst_dir = tmp / "inst" / name
+        (tmp / "scorer").mkdir()
+        (tmp / "scorer" / "truth.json").write_bytes(packs[f"truth/{name}"])
+        truth_path = tmp / "scorer" / "truth.json"
     a = DiscoveryProblem.from_bundle(inst_dir, "a")
     b = DiscoveryProblem.from_bundle(inst_dir, "b")
     t0 = time.time()
-    res = discover_pair(a, b, method, budget_a=budget_a, budget_b=budget_b, seed=seed, mode=mode, config=config, workers=1)
-    truth = json.loads(truth_path.read_text(encoding="utf-8"))
+    with count_real_simulations() as counter:
+        res = discover_pair(a, b, method, budget_a=budget_a, budget_b=budget_b, seed=seed, mode=mode, config=config, workers=1)
+    total = int((res.budget or {}).get("total", -1))
     rec = {"method": method, "mode": mode, "instance": name, "seed": seed, "budget_a": budget_a, "budget_b": budget_b,
-           "wall_s": round(time.time() - t0, 1), "family": truth["spec"]["family"], "shift": bool(truth["spec"].get("implementation_shift")),
-           "decoy": bool(truth["spec"].get("anchor_decoy")), "correspondence": res.correspondence, "role_alignment": res.role_alignment}
+           "wall_s": round(time.time() - t0, 1), "integrity": {"real_simulations": counter["n"], "ledger_total": total}, "env": runtime_env()}
+    if counter["n"] != total or total > budget_a + budget_b:
+        rec["error"] = f"budget integrity: {counter['n']} real simulations, ledger {total}, limit {budget_a + budget_b}"
+        return rec
+    truth = json.loads(truth_path.read_text(encoding="utf-8"))
+    rec.update({"family": truth["spec"]["family"], "shift": bool(truth["spec"].get("implementation_shift")),
+                "decoy": bool(truth["spec"].get("anchor_decoy")), "correspondence": res.correspondence, "role_alignment": res.role_alignment})
     rec["score"] = score_pair(truth, a, b, res)
     rec["result_a"] = compact_result(res.result_a.to_dict())
     rec["result_b"] = compact_result(res.result_b.to_dict())
@@ -86,17 +105,21 @@ def _mean_of(rs: list[dict], f) -> float | None:
 def summarize_pairs(records: list[dict]) -> dict:
     out: dict = {}
     rng = np.random.default_rng(0)
-    keys = sorted({(r["method"], r["mode"]) for r in records if "score" in r})
+    keys = sorted({(r["method"], r["mode"]) for r in records if "method" in r and "mode" in r})
     for m, mode in keys:
         rs = [r for r in records if r.get("method") == m and r.get("mode") == mode and "score" in r]
-        both = np.array([r["score"]["both_success"] for r in rs], dtype=float)
+        failed = [r for r in records if r.get("method") == m and r.get("mode") == mode and "score" not in r]
+        zeros = [0.0] * len(failed)  # failed runs are unsuccessful on both networks (review F finding 1)
+        both = np.array([r["score"]["both_success"] for r in rs] + zeros, dtype=float)
         boot = [rng.choice(both, len(both)).mean() for _ in range(2000)] if len(both) > 1 else [both.mean()]
 
         def mean_of(f, rs=rs):
             return _mean_of(rs, f)
 
-        out[f"{m}/{mode}"] = {"n_runs": len(rs), "success_a": mean_of(lambda r: r["score"]["a"]["success"]),
-                              "success_b": mean_of(lambda r: r["score"]["b"]["success"]), "both_success": float(both.mean()),
+        succ_a = float(np.mean([float(r["score"]["a"]["success"]) for r in rs] + zeros)) if (rs or failed) else None
+        succ_b = float(np.mean([float(r["score"]["b"]["success"]) for r in rs] + zeros)) if (rs or failed) else None
+        out[f"{m}/{mode}"] = {"n_runs": len(rs) + len(failed), "n_failed": len(failed), "success_a": succ_a,
+                              "success_b": succ_b, "both_success": float(both.mean()),
                               "both_ci95": [float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))],
                               "corr_precision": mean_of(lambda r: (r["score"]["correspondence"] or {}).get("precision")),
                               "corr_recall": mean_of(lambda r: (r["score"]["correspondence"] or {}).get("recall")),
@@ -125,7 +148,8 @@ def pairs_markdown(out: dict) -> str:
 
     for k, v in s.items():
         ci = f"[{v['both_ci95'][0]:.2f}, {v['both_ci95'][1]:.2f}]"
-        lines.append(f"| {k} | {v['n_runs']} | {f(v['success_a'])} | {f(v['success_b'])} | {f(v['both_success'])} {ci} | "
+        runs = f"{v['n_runs']}" + (f" ({v['n_failed']} failed)" if v.get("n_failed") else "")
+        lines.append(f"| {k} | {runs} | {f(v['success_a'])} | {f(v['success_b'])} | {f(v['both_success'])} {ci} | "
                      f"{f(v['corr_precision'])}/{f(v['corr_recall'])} | {f(v['role_alignment_accuracy'])} | {f(v['role_graph_similarity_ab'])} | "
                      f"{f(v['calls_a'])}/{f(v['calls_b'])}/{f(v['calls_adaptation'])}/{f(v['calls_total'])} |")
     lines += ["", "by family (both-success rate):", ""]

@@ -18,7 +18,7 @@ from pathlib import Path
 
 import numpy as np
 
-from brainir.compute import get_backend
+from brainir.discovery.remote import get_discovery_backend as get_backend
 from brainir.discovery.tournament import run_tournament, select_instances
 
 ROOT = Path(__file__).resolve().parents[1]

@@ -76,6 +76,10 @@ def main(argv=None) -> int:
     if not _tag_lock_matches(method_lock.TAG):
         print(f"refusing: tag {method_lock.TAG} is missing or holds a different METHOD_LOCK.json")
         return 1
+    fz = subprocess.run([sys.executable, str(ROOT / "benchmarks" / "dng100" / "freeze.py"), "--check"], cwd=ROOT, capture_output=True, text=True)
+    if fz.returncode != 0 or '"ok": true' not in fz.stdout:
+        print("refusing: the frozen benchmark does not verify (benchmarks/dng100/freeze.py --check)")
+        return 1
     lock = json.loads(method_lock.LOCK_PATH.read_text(encoding="utf-8"))
     prev = [a for a in _previous_attempts() if a.get("lock_sha256") == lock["lock_sha256"] and not a.get("dry_run")]
     if prev and not args.new_attempt:
@@ -114,6 +118,11 @@ def main(argv=None) -> int:
         return 0
     if not preds:
         return 1
+    # tamper evidence: the freeze (prediction hashes) is logged BEFORE the evaluator runs (review F finding 19)
+    with open(LOG, "a", encoding="utf-8", newline="\n") as fh:
+        fh.write(f"| {_now()} | FROZEN before evaluation, attempt {k} | `{lock['method']['name']}` {lock['method']['version']} | "
+                 f"{', '.join(rp['networks'])} | {len(preds)} | FROZEN.json sha256 `{_sha(att / 'FROZEN.json')}`; predictions "
+                 f"{', '.join(f'{net} `{v['sha256'][:16]}`' for net, v in frozen['predictions'].items())} | {args.reason} |\n")
     ev_dir = att / "eval"
     ev_dir.mkdir()
     ecmd = [sys.executable, str(EVALUATOR), *[str(p) for p in preds.values()], "--bundle", str(ROOT / rp["bundle"]), "--out",

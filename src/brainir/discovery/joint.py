@@ -150,7 +150,7 @@ class _Ledger:
 
     def open(self, net: str, kind: str, cap: float) -> BudgetedSimulator:
         for e in self.entries:
-            e["sim"].max_calls = e["sim"].calls
+            e["sim"].close()
         allowance = int(max(0, min(int(cap), self.left())))
         sim = BudgetedSimulator(self.problems[net], max_calls=allowance, workers=self.workers, cache=self.cache[net])
         self.entries.append({"net": net, "kind": kind, "sim": sim, "split": None, "allowance": allowance})

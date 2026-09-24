@@ -23,8 +23,9 @@ from pathlib import Path
 
 import numpy as np
 
-from brainir.compute import ExperimentRecord, artifact_record, get_backend, register_run
+from brainir.compute import ExperimentRecord, artifact_record, register_run
 from brainir.discovery.problem import pack_bundle
+from brainir.discovery.remote import get_discovery_backend as get_backend
 from brainir.discovery.transfer import transfer_experiment_job
 
 ROOT = Path(__file__).resolve().parents[1]

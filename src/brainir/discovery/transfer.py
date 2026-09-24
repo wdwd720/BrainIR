@@ -124,14 +124,26 @@ def sufficiency_check(problem: DiscoveryProblem, core: list[int], seeds=FRESH_SE
 
 def transfer_experiment_job(args) -> dict:
     """One real-network transfer experiment (module-level so remote backends can import it); see scripts/transfer_experiments.py.
+    Failures are returned as records (review F finding 1).
 
     ``args`` = (bundle, net_src, net_dst, method, mode, seed, budget_src, budget_dst, config, n_null, packs)."""
+    try:
+        return _transfer_experiment_job(args)
+    except Exception as e:  # noqa: BLE001
+        import traceback
+        return {"direction": f"{args[1]}->{args[2]}", "mode": args[4], "seed": args[5], "method": args[3], "error": f"{type(e).__name__}: {e}"[:500],
+                "traceback": traceback.format_exc()[-2000:]}
+
+
+def _transfer_experiment_job(args) -> dict:
     import tempfile
     import time
     from pathlib import Path
 
     from .joint import discover_pair
     from .problem import path_basename, unpack_bundle
+    from .provenance import runtime_env
+    from .simulator import count_real_simulations
 
     bundle, net_src, net_dst, method, mode, seed, budget_src, budget_dst, config, n_null, packs = args
     bundle = Path(bundle)
@@ -141,14 +153,19 @@ def transfer_experiment_job(args) -> dict:
     src = DiscoveryProblem.from_bundle(bundle, net_src)
     dst = DiscoveryProblem.from_bundle(bundle, net_dst)
     t0 = time.time()
-    res = discover_pair(src, dst, method, budget_a=budget_src, budget_b=budget_dst, seed=seed, mode=mode, config=config, workers=1)
+    with count_real_simulations() as counter:
+        res = discover_pair(src, dst, method, budget_a=budget_src, budget_b=budget_dst, seed=seed, mode=mode, config=config, workers=1)
     wall = time.time() - t0
+    total = int((res.budget or {}).get("total", -1))
+    if counter["n"] != total or total > budget_src + budget_dst:
+        return {"direction": f"{net_src}->{net_dst}", "mode": mode, "seed": seed, "method": method,
+                "error": f"budget integrity: {counter['n']} real simulations, ledger {total}"}
     core_src, core_dst = [int(p) for p in res.result_a.core], [int(p) for p in res.result_b.core]
     out = {"direction": f"{net_src}->{net_dst}", "mode": mode, "seed": seed, "method": method, "wall_s": round(wall, 1), "budget": res.budget,
            "core_src": core_src, "core_dst": core_dst, "n_src": len(core_src), "n_dst": len(core_dst),
            "check_src": sufficiency_check(src, core_src), "check_dst": sufficiency_check(dst, core_dst),
            "n_correspondence_claims": len(res.correspondence), "correspondence": res.correspondence, "role_alignment": res.role_alignment,
-           "diagnostics_keys": sorted((res.diagnostics or {}).keys())}
+           "diagnostics_keys": sorted((res.diagnostics or {}).keys()), "env": runtime_env()}
     if mode == "transfer" and core_src:
         sim_null = BudgetedSimulator(dst, max_calls=10 ** 9)
         out["null"] = null_transfer(src, dst, core_src, sim_null, seeds=list(FRESH_SEEDS[:3]), n_null=n_null, seed=seed)

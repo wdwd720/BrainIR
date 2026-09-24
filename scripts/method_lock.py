@@ -32,7 +32,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LOCK_PATH = ROOT / "research" / "phase2" / "METHOD_LOCK.json"
 ENTRY = "scripts/cleanroom_entry/brainir_discovery_entry.py"
-LOCKED_GLOBS = ("src/brainir/**/*.py", ENTRY, "pyproject.toml", "uv.lock")
+LOCKED_GLOBS = ("src/brainir/**/*.py", ENTRY, "pyproject.toml", "uv.lock", "scripts/method_lock.py", "scripts/blind_eval.py")
+"""The method's code and its gatekeepers (the lock and blind-evaluation tools themselves; review F finding 19)."""
 PACKAGES = ("numpy", "scipy", "pandas", "pyarrow", "pydantic", "networkx", "duckdb")
 TAG = "brainir-v1-preblind"
 
@@ -168,6 +169,16 @@ def check(lock_path: Path = LOCK_PATH, verbose: bool = True) -> list[str]:
         man = json.loads((ROOT / "benchmarks" / "dng100" / name / "manifest.json").read_text(encoding="utf-8"))
         if man["bundle_sha256"] != b["bundle_sha256"]:
             problems.append(f"public bundle changed: {name}")
+    bench = json.loads((ROOT / "benchmarks" / "dng100" / "BENCHMARK_LOCK.json").read_text(encoding="utf-8"))
+    if bench.get("lock_sha256") != lock["benchmark"].get("lock_sha256"):
+        problems.append("BENCHMARK_LOCK.json differs from the one recorded in the method lock")
+    # the numerical environment the lock was written in (review F finding 4)
+    for p, v in (lock.get("package_versions") or {}).items():
+        now_v = md.version(p) if _installed(p) else None
+        if now_v != v:
+            problems.append(f"package version changed: {p} {v} -> {now_v}")
+    if lock.get("python") and lock["python"] != platform.python_version():
+        problems.append(f"python version changed: {lock['python']} -> {platform.python_version()}")
     if verbose:
         print("METHOD_LOCK check:", "OK" if not problems else f"{len(problems)} problem(s)")
         for p in problems[:50]:

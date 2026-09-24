@@ -19,11 +19,13 @@ The oracle returns :class:`Outcome` records: the criterion's score/pass verdict 
 
 from __future__ import annotations
 
+import contextlib
 import datetime as _dt
 import functools
 import hashlib
 import json
 import sqlite3
+import sys
 import time
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -40,7 +42,8 @@ class BudgetExhausted(RuntimeError):
     pass
 
 
-SIM_CODE_FILES = ("sim/model.py", "discovery/criteria.py", "metrics/rhythm.py")
+SIM_CODE_FILES = ("sim/model.py", "discovery/criteria.py", "metrics/rhythm.py", "discovery/simulator.py", "discovery/problem.py",
+                  "discovery/interventions.py")
 
 
 @functools.lru_cache(maxsize=1)
@@ -161,58 +164,191 @@ class CausalEffectCache:
         self._con.close()
 
 
+ALLOWED_CFG_OVERRIDES = frozenset({"tau_sd", "a_sd", "theta_sd", "r_max_sd"})
+RESERVED_SEED_FLOOR = 5000
+"""Parameter seeds >= this value are reserved for independent scoring / validation (tournament 5000-5003, weight-noise probes
+6000+, reliability fidelity 7000-7007, transfer checks 8100-8105, nulls 9100-9201); methods must query seeds below it. The frozen
+evaluator draws 1000-1015, so the blind run's seed must keep a method's seeds below 1000 as well (seed 0 does for every method
+that derives seeds as ``seed * 1000 + offset`` with offset < 1000)."""
+
+
+class BudgetViolation(RuntimeError):
+    """A run used simulations it was not charged for, or more calls than its budget."""
+
+
+@contextlib.contextmanager
+def count_real_simulations():
+    """Count every call of ``brainir.sim.model.simulate`` made in this process while the context is active (the budget-integrity
+    guard: the harness compares the count with the calls charged by the BudgetedSimulator(s) of the run). Methods that import the
+    simulator function at module import time are not seen here; a static test forbids such imports in method modules."""
+    from ..sim import model as _model
+
+    this = sys.modules[__name__]
+    orig_model, orig_here = _model.simulate, this.simulate
+    counter = {"n": 0}
+
+    def counting(*a, **k):
+        counter["n"] += 1
+        return orig_model(*a, **k)
+
+    _model.simulate = counting
+    this.simulate = counting
+    try:
+        yield counter
+    finally:
+        _model.simulate = orig_model
+        this.simulate = orig_here
+
+
 class BudgetedSimulator:
+    """The only path from a discovery method to the simulator. Accounting attributes are read-only; the budget can only be
+    tightened (:meth:`close`); simulations of another network go through :meth:`spawn` so that the harness sees them."""
+
     def __init__(self, problem: DiscoveryProblem, max_calls: int, *, workers: int = 1, backend=None, cache: dict | None = None,
                  log: list | None = None, store: CausalEffectCache | None = None):
         self.problem = problem
-        self.max_calls = int(max_calls)
+        self._max_calls = int(max_calls)
         self.workers = int(workers)
         self.backend = backend
         self.cache: dict[str, Outcome] = cache if cache is not None else {}
         self.log = log
         self.store = store
-        self.calls = 0
-        self.cache_hits = 0
-        self.store_hits = 0
-        self.computed_calls = 0
-        self.simulated_seconds = 0.0
-        self.cpu_seconds = 0.0
-        self.wall_seconds = 0.0
-        self.n_batches = 0
+        self._calls = 0
+        self._cache_hits = 0
+        self._store_hits = 0
+        self._computed_calls = 0
+        self._simulated_seconds = 0.0
+        self._cpu_seconds = 0.0
+        self._wall_seconds = 0.0
+        self._n_batches = 0
         self._interventions: set[str] = set()
         self._keep_only_sets: set[tuple[int, ...]] = set()
+        self._param_seeds: set[int] = set()
+        self._children: list[tuple[str, BudgetedSimulator]] = []
         self._hash = problem.network_hash()
         self._crit = dict(problem.criterion_spec)
+        self._t_end_default = float(problem.model_cfg.t_end)
 
-    # ------------------------------------------------------------------ accounting
+    # ------------------------------------------------------------------ accounting (read-only)
+    @property
+    def max_calls(self) -> int:
+        return self._max_calls
+
+    @property
+    def calls(self) -> int:
+        return self._calls
+
+    @property
+    def cache_hits(self) -> int:
+        return self._cache_hits
+
+    @property
+    def store_hits(self) -> int:
+        return self._store_hits
+
+    @property
+    def computed_calls(self) -> int:
+        return self._computed_calls
+
+    @property
+    def simulated_seconds(self) -> float:
+        return self._simulated_seconds
+
+    @property
+    def cpu_seconds(self) -> float:
+        return self._cpu_seconds
+
+    @property
+    def wall_seconds(self) -> float:
+        return self._wall_seconds
+
+    @property
+    def n_batches(self) -> int:
+        return self._n_batches
+
     @property
     def remaining(self) -> int:
-        return self.max_calls - self.calls
+        return self._max_calls - self._calls
+
+    def close(self) -> None:
+        """No further calls: the budget becomes what was spent (used by ledgers that hand out successive allowances)."""
+        self._max_calls = self._calls
+
+    def spawn(self, problem: DiscoveryProblem, max_calls: int, *, kind: str = "auxiliary", cache: dict | None = None) -> BudgetedSimulator:
+        """A simulator for ANOTHER network (e.g. the other connectome of a bundle) with its own hard budget. Its calls are reported
+        under this simulator's ``report()["children"]`` and counted by the harness's integrity check."""
+        child = BudgetedSimulator(problem, max_calls, workers=self.workers, backend=self.backend, cache=cache, log=self.log)
+        self._children.append((str(kind), child))
+        return child
+
+    def param_seeds(self) -> list[int]:
+        """Parameter seeds queried by this simulator and its children (for the harness's seed-namespace check)."""
+        out = set(self._param_seeds)
+        for _k, c in self._children:
+            out |= set(c.param_seeds())
+        return sorted(out)
+
+    def total_computed_calls(self) -> int:
+        return self._computed_calls + sum(c.total_computed_calls() for _k, c in self._children)
+
+    def total_calls(self) -> int:
+        return self._calls + sum(c.total_calls() for _k, c in self._children)
 
     def report(self) -> dict:
         """Budget accounting. ``calls`` = queries charged to the method (computed + served from the persistent store);
-        ``cache_hits`` = repeats answered by the in-run memo (free)."""
-        return {"max_calls": self.max_calls, "calls": self.calls, "cache_hits": self.cache_hits, "store_hits": self.store_hits,
-                "computed_calls": self.computed_calls, "simulated_seconds": round(self.simulated_seconds, 3),
-                "cpu_seconds": round(self.cpu_seconds, 3), "wall_seconds": round(self.wall_seconds, 3), "batches": self.n_batches,
-                "n_distinct_interventions": len(self._interventions), "n_candidate_mechanisms": len(self._keep_only_sets),
-                "network_hash": self._hash[:16], "code_version": sim_code_version()}
+        ``cache_hits`` = repeats answered by the in-run memo (free); ``children`` = simulators spawned for other networks."""
+        seeds = self.param_seeds()
+        out = {"max_calls": self._max_calls, "calls": self._calls, "cache_hits": self._cache_hits, "store_hits": self._store_hits,
+               "computed_calls": self._computed_calls, "simulated_seconds": round(self._simulated_seconds, 3),
+               "cpu_seconds": round(self._cpu_seconds, 3), "wall_seconds": round(self._wall_seconds, 3), "batches": self._n_batches,
+               "n_distinct_interventions": len(self._interventions), "n_candidate_mechanisms": len(self._keep_only_sets),
+               "param_seeds": {"n": len(seeds), "min": seeds[0] if seeds else None, "max": seeds[-1] if seeds else None},
+               "network_hash": self._hash[:16], "code_version": sim_code_version()}
+        if self._children:
+            out["children"] = [{"kind": k, **c.report()} for k, c in self._children]
+            out["total_calls_incl_children"] = self.total_calls()
+        return out
 
     # ------------------------------------------------------------------ execution
     def run(self, query: SimQuery) -> Outcome:
         return self.run_many([query])[0]
 
+    def _normalize(self, q: SimQuery) -> SimQuery:
+        """Validate a query and give equivalent queries one key (effective t_end, default stimulus, no-op overrides)."""
+        iv = q.intervention
+        if iv is not None:
+            if float(iv.weight_noise_sd or 0.0) > 0.0 and iv.weight_noise_seed is None:
+                raise ValueError("weight noise needs an explicit weight_noise_seed (an unseeded draw would be cached under one key)")
+            if iv.scale_by_nt:
+                raise ValueError("Intervention.scale_by_nt is not supported by the discovery simulator")
+            if not iv.silence and iv.keep_only is None and not float(iv.weight_noise_sd or 0.0) > 0.0:
+                iv = None
+        bad = set(q.cfg_override) - ALLOWED_CFG_OVERRIDES
+        if bad:
+            raise ValueError(f"cfg_override may only set {sorted(ALLOWED_CFG_OVERRIDES)}; got {sorted(bad)}")
+        cfg = self.problem.model_cfg
+        override = {k: float(v) for k, v in q.cfg_override.items() if float(v) != float(getattr(cfg, k))}
+        t_end = self._t_end_default if q.t_end is None else float(q.t_end)
+        if t_end > self._t_end_default + 1e-12 or t_end <= 0:
+            raise ValueError(f"t_end must be in (0, {self._t_end_default}]")
+        stim = q.stimulus
+        if stim is not None and stim == self.problem.stimulus():
+            stim = None
+        return SimQuery(iv, int(q.seed), stim, t_end, override)
+
     def run_many(self, queries: list[SimQuery]) -> list[Outcome]:
+        queries = [self._normalize(q) for q in queries]
         keys = [q.key(self._hash, self._crit) for q in queries]
         todo: dict[str, SimQuery] = {}
         for k, q in zip(keys, queries):
             if k not in self.cache and k not in todo:
                 todo[k] = q
-        if self.calls + len(todo) > self.max_calls:
-            raise BudgetExhausted(f"{len(todo)} new simulations requested with {self.remaining} of {self.max_calls} calls left")
+        if self._calls + len(todo) > self._max_calls:
+            raise BudgetExhausted(f"{len(todo)} new simulations requested with {self.remaining} of {self._max_calls} calls left")
         for q in queries:
             c = canonical(q.intervention)
             self._interventions.add(json.dumps(c, sort_keys=True))
+            self._param_seeds.add(int(q.seed))
             if c.get("keep_only") is not None:
                 self._keep_only_sets.add(tuple(sorted(int(x) for x in c["keep_only"])))
         if todo:
@@ -241,23 +377,23 @@ class BudgetedSimulator:
             for k, q in todo.items():
                 res = computed[k] if k in computed else stored[k]
                 self.cache[k] = self._outcome(res)
-                self.calls += 1
-                self.simulated_seconds += float(res.get("simulated_s", 0.0))
+                self._calls += 1
+                self._simulated_seconds += float(res.get("simulated_s", 0.0))
                 if k in computed:
-                    self.computed_calls += 1
-                    self.cpu_seconds += float(res.get("cpu_s", 0.0))
+                    self._computed_calls += 1
+                    self._cpu_seconds += float(res.get("cpu_s", 0.0))
                 else:
-                    self.store_hits += 1
+                    self._store_hits += 1
                 if self.log is not None:
                     self.log.append({"key": k[:16], "seed": q.seed, "intervention": canonical(q.intervention), "score": res["score"],
                                      "passed": res["passed"], "from_store": k not in computed})
-            self.wall_seconds += time.time() - t0
-            self.n_batches += 1
+            self._wall_seconds += time.time() - t0
+            self._n_batches += 1
         out = []
         for k in keys:
             o = self.cache[k]
             if k not in todo:
-                self.cache_hits += 1
+                self._cache_hits += 1
                 o = Outcome(**{**o.__dict__, "cached": True})
             out.append(o)
         return out
@@ -271,9 +407,11 @@ class BudgetedSimulator:
     def _outcome(res: dict) -> Outcome:
         known = {"score", "passed", "frequency_hz", "n_active_readout", "n_active_all", "active_positions", "readout_peak_median_hz",
                  "solver_success", "wall_s", "cpu_s"}
+        active = np.array(res["active_positions"], dtype=np.int32)
+        active.setflags(write=False)  # memo hits share this array: callers must not be able to alter later answers
         return Outcome(score=float(res["score"]), passed=bool(res["passed"]), frequency_hz=res.get("frequency_hz"),
                        n_active_readout=int(res["n_active_readout"]), n_active_all=int(res["n_active_all"]),
-                       active_positions=np.asarray(res["active_positions"], dtype=np.int32), readout_peak_median_hz=float(res["readout_peak_median_hz"]),
+                       active_positions=active, readout_peak_median_hz=float(res["readout_peak_median_hz"]),
                        solver_success=bool(res["solver_success"]), wall_s=float(res["wall_s"]), extra={k: v for k, v in res.items() if k not in known})
 
     # ------------------------------------------------------------------ convenience

@@ -261,12 +261,20 @@ def test_permuted_variant_verifies_and_hides_its_permutation(tiny_suite, tmp_pat
     root, label, _ = tiny_suite
     src = root / "instances" / label
     assert verify_bundle(src)["ok"]  # synthetic exports use the benchmark manifest format
-    make_permuted_bundle(src, "main", seed=11, dest_root=tmp_path / "work" / "order1")
-    v = verify_bundle(tmp_path / "work" / "order1")
+    info = make_permuted_bundle(src, "main", seed=11, dest_root=tmp_path / "work" / "variants" / "order1")
+    vdir = tmp_path / "work" / "variants" / "order1"
+    v = verify_bundle(vdir)
     assert v["ok"], v
-    inside = {p.relative_to(tmp_path / "work" / "order1").as_posix() for p in (tmp_path / "work" / "order1").rglob("*") if p.is_file()}
-    assert not any("perm" in f or "_private" in f for f in inside)
-    assert (tmp_path / "work" / "_private" / "perm_order1_main.json").exists()
+    inside = [p for p in vdir.rglob("*") if p.is_file()]
+    assert not any("perm" in p.name or "_private" in p.as_posix() for p in inside)
+    # nothing inside the variant names the permutation seed (a method could otherwise regenerate the permutation)
+    for p in inside:
+        if p.suffix in (".json", ".md"):
+            text = p.read_text(encoding="utf-8")
+            assert "order_variant_seed" not in text and "node_order_variant" not in text, p.name
+    private = tmp_path / "work" / "variants__private" / "perm_order1_main.json"
+    assert private.exists() and info["private_dir"] == str(private.parent)
+    assert not str(private).startswith(str(vdir))
 
 
 def test_meaning_preserving_perturbations(tiny_suite, tmp_path):

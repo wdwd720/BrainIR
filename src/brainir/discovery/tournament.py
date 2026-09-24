@@ -19,6 +19,7 @@ Runs are registered in the experiment registry; the per-run JSON keeps the predi
 
 from __future__ import annotations
 
+import hashlib
 import json
 import time
 from pathlib import Path
@@ -29,7 +30,7 @@ from ..compute.registry import ExperimentRecord, artifact_record, content_hash, 
 from .interface import DiscoveryResult, MethodRegistry
 from .interventions import keep_only, silence
 from .problem import DiscoveryProblem, pack_bundle, path_basename, unpack_bundle
-from .simulator import BudgetedSimulator, BudgetExhausted, SimQuery
+from .simulator import RESERVED_SEED_FLOOR, BudgetedSimulator, BudgetExhausted, SimQuery, count_real_simulations
 
 
 # ---------------------------------------------------------------------------- scoring
@@ -132,22 +133,43 @@ def score_function(problem: DiscoveryProblem, result: DiscoveryResult, *, seeds:
 # ---------------------------------------------------------------------------- running
 def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, seed: int, config: dict | None, truth_path: Path | None,
             score_seeds: list[int], workers: int = 1, robust: bool = True) -> dict:
+    from .provenance import runtime_env
+
     problem = DiscoveryProblem.from_bundle(instance_dir, network)
     sim = BudgetedSimulator(problem, max_calls=budget, workers=workers)
     method = MethodRegistry.get(method_name)
     cfg = {**method.default_config, **(config or {})}
-    t0 = time.time()
     exhausted = False
-    try:
-        result = method.discover(problem, sim, seed=seed, config=cfg)
-    except BudgetExhausted:
-        exhausted = True
-        result = DiscoveryResult(core=[], diagnostics={"error": "budget exhausted before a result"})
-    wall = time.time() - t0
+    with count_real_simulations() as counter:
+        t0, c0 = time.time(), time.process_time()
+        try:
+            result = method.discover(problem, sim, seed=seed, config=cfg)
+        except BudgetExhausted:
+            exhausted = True
+            result = DiscoveryResult(core=[], diagnostics={"error": "budget exhausted before a result"})
+        wall, cpu = time.time() - t0, time.process_time() - c0
     result.budget = {**sim.report(), "wall_s": round(wall, 2)}
     rec = {"method": method_name, "version": method.version, "instance": path_basename(instance_dir), "network": network, "seed": seed, "budget": budget,
-           "config": cfg, "result": result.to_dict(), "wall_s": round(wall, 2), "budget_exhausted": exhausted, "problem": problem.public_summary()}
+           "config": cfg, "result": result.to_dict(), "wall_s": round(wall, 2), "discover_cpu_s": round(cpu, 2), "budget_exhausted": exhausted,
+           "problem": problem.public_summary(), "env": runtime_env()}
+    # budget integrity (review F finding 2): every real simulation during discover must have been charged; calls within budget;
+    # the parameter seeds a method queries must stay out of the namespace reserved for scoring (finding 13)
+    integrity = {"real_simulations": counter["n"], "charged_computed": sim.total_computed_calls(), "charged_calls": sim.total_calls(),
+                 "budget": budget, "param_seeds": sim.report()["param_seeds"]}
+    rec["integrity"] = integrity
+    seeds_used = sim.param_seeds()
+    reserved = set(int(s) for s in score_seeds)
+    if workers == 1 and counter["n"] != integrity["charged_computed"]:
+        rec["error"] = f"budget integrity: {counter['n']} real simulations but {integrity['charged_computed']} charged"
+    elif sim.calls > budget:
+        rec["error"] = f"budget integrity: {sim.calls} calls exceed the budget {budget}"
+    elif any(s >= RESERVED_SEED_FLOOR or s in reserved for s in seeds_used):
+        rec["error"] = f"seed namespace: method queried reserved parameter seeds (max {max(seeds_used)})"
+    if "error" in rec:
+        rec["result"] = compact_result(rec["result"])
+        return rec
     if truth_path is not None and truth_path.exists():
+        ts = time.time()
         truth = json.loads(truth_path.read_text(encoding="utf-8"))
         tnet = truth["networks"][network]
         rec["structure"] = score_structure(result, tnet)
@@ -158,6 +180,7 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         rec["truth_n"] = len(perm)
         # the core in the generator's canonical node frame: comparable across node-order variants of the same instance
         rec["core_canonical"] = sorted(int(perm[int(p)]) for p in result.core if 0 <= int(p) < len(perm))
+        rec["scoring_wall_s"] = round(time.time() - ts, 2)
     rec["result"] = compact_result(rec["result"])
     return rec
 
@@ -187,22 +210,28 @@ def run_one_job(args) -> dict:
     :class:`brainir.compute.Shared` payload) is then unpacked into a temporary directory first."""
     method_name, instance_dir, network, budget, seed, config, truth_path, score_seeds, robust = args[:9]
     packs = args[9] if len(args) > 9 else None
-    instance_dir = Path(instance_dir)
-    truth_path = None if truth_path is None else Path(truth_path)
-    if not instance_dir.exists() and packs is not None:
-        import tempfile
-        name = path_basename(instance_dir)
-        tmp = Path(tempfile.mkdtemp(prefix="brainir_job_"))
-        unpack_bundle(packs[name], tmp / name)
-        instance_dir = tmp / name
-        if truth_path is not None:
-            tname = path_basename(truth_path)
-            if f"truth/{tname}" in packs:
-                (tmp / "truth").mkdir(exist_ok=True)
-                (tmp / "truth" / tname).write_bytes(packs[f"truth/{tname}"])
-                truth_path = tmp / "truth" / tname
-    return run_one(method_name, instance_dir, network, budget=budget, seed=seed, config=config, truth_path=truth_path,
-                   score_seeds=list(score_seeds), workers=1, robust=robust)
+    name = path_basename(instance_dir)
+    try:
+        instance_dir = Path(instance_dir)
+        truth_path = None if truth_path is None else Path(truth_path)
+        if not instance_dir.exists() and packs is not None:
+            import tempfile
+            # the truth goes to a sibling tree that is NOT an ancestor of the instance the method reads (review F finding 14)
+            tmp = Path(tempfile.mkdtemp(prefix="brainir_job_"))
+            unpack_bundle(packs[name], tmp / "inst" / name)
+            instance_dir = tmp / "inst" / name
+            if truth_path is not None:
+                tname = path_basename(truth_path)
+                if f"truth/{tname}" in packs:
+                    (tmp / "scorer").mkdir(exist_ok=True)
+                    (tmp / "scorer" / tname).write_bytes(packs[f"truth/{tname}"])
+                    truth_path = tmp / "scorer" / tname
+        return run_one(method_name, instance_dir, network, budget=budget, seed=seed, config=config, truth_path=truth_path,
+                       score_seeds=list(score_seeds), workers=1, robust=robust)
+    except Exception as e:  # noqa: BLE001 - a failed run is a scored failure, identical locally and remotely (review F finding 1)
+        import traceback
+        return {"method": method_name, "instance": name, "network": network, "seed": seed, "budget": budget,
+                "error": f"{type(e).__name__}: {e}"[:500], "traceback": traceback.format_exc()[-2000:]}
 
 
 def pack_suite(suite_root: Path, inst_dirs: list[Path], networks: tuple[str, ...]) -> dict:
@@ -221,25 +250,33 @@ def pack_suite(suite_root: Path, inst_dirs: list[Path], networks: tuple[str, ...
 
 
 def summarize(records: list[dict]) -> dict:
-    """Aggregate per method: success rate, recall/precision, functional pass, calls, with bootstrap CIs on the success rate."""
+    """Aggregate per method: success rate, recall/precision, functional pass, calls, with bootstrap CIs on the success rate.
+
+    Every ATTEMPTED run is in the success denominators: a run that failed (exception, timeout, budget-integrity or seed-namespace
+    violation) counts as unsuccessful (review F finding 1); ``n_failed`` reports how many. Cost/size statistics use scored runs."""
     out: dict[str, dict] = {}
     rng = np.random.default_rng(0)
-    for m in sorted({r["method"] for r in records}):
-        rs = [r for r in records if r["method"] == m and "structure" in r]
-        if not rs:
+    for m in sorted({r["method"] for r in records if "method" in r}):
+        rs = [r for r in records if r.get("method") == m and "structure" in r]
+        failed = [r for r in records if r.get("method") == m and "structure" not in r]
+        if not rs and not failed:
             continue
-        succ = np.array([r["structure"]["success"] for r in rs], dtype=float)
-        fsucc = np.array([bool((r.get("function") or {}).get("functional_success")) for r in rs], dtype=float)
+        zeros = [0.0] * len(failed)
+        succ = np.array([r["structure"]["success"] for r in rs] + zeros, dtype=float)
+        fsucc = np.array([bool((r.get("function") or {}).get("functional_success")) for r in rs] + zeros, dtype=float)
         either = np.maximum(succ, fsucc)
         boot = [rng.choice(succ, len(succ)).mean() for _ in range(2000)] if len(succ) > 1 else [succ.mean()]
         fboot = [rng.choice(fsucc, len(fsucc)).mean() for _ in range(2000)] if len(fsucc) > 1 else [fsucc.mean()]
-        out[m] = {"n_runs": len(rs), "success_rate": float(succ.mean()),
+        causal = [float(r["function"]["functional_success_causal"]) for r in rs if "functional_success_causal" in (r.get("function") or {})]
+        out[m] = {"n_runs": len(rs) + len(failed), "n_scored": len(rs), "n_failed": len(failed),
+                  "failures": [{"instance": r.get("instance"), "network": r.get("network"), "seed": r.get("seed"), "error": str(r.get("error"))[:200]}
+                               for r in failed[:20]],
+                  "success_rate": float(succ.mean()),
                   "success_ci95": [float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))],
-                  "success_planted_rate": _mean(rs, lambda r: float(r["structure"].get("success_planted", r["structure"]["success"]))),
+                  "success_planted_rate": float(np.mean([float(r["structure"].get("success_planted", r["structure"]["success"])) for r in rs] + zeros)),
                   "functional_success_rate": float(fsucc.mean()),
                   "functional_success_ci95": [float(np.percentile(fboot, 2.5)), float(np.percentile(fboot, 97.5))],
-                  "functional_success_causal_rate": _mean(rs, lambda r: None if "functional_success_causal" not in (r.get("function") or {})
-                                                          else float(r["function"]["functional_success_causal"])),
+                  "functional_success_causal_rate": float(np.mean(causal + zeros)) if (causal or zeros) else None,
                   "success_or_functional_rate": float(either.mean()),
                   "recall_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["recall"]),
                   "precision_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["precision"]),
@@ -260,21 +297,24 @@ def summarize(records: list[dict]) -> dict:
 
 
 def identity_consistency(rs: list[dict]) -> dict:
-    """Reliability across node orders and seeds: for every instance with >= 2 runs, the mean pairwise Jaccard of the runs' cores in
-    the canonical frame, and whether all runs returned the identical set; averaged over instances."""
+    """Reliability across node orders x parameter draws x internal randomness (a node-order variant re-assigns the per-neuron
+    parameter draws, so order and draw are confounded; review F finding 6): for every instance with >= 2 runs, the mean pairwise
+    Jaccard of the runs' cores in the canonical frame, and whether all runs returned the identical set; averaged over instances.
+    An empty core agrees with nothing (two empty cores score 0, not 1; review F finding 16)."""
     by_inst: dict[str, list[frozenset[int]]] = {}
     for r in rs:
         if "core_canonical" in r:
             by_inst.setdefault(r["instance"], []).append(frozenset(r["core_canonical"]))
     jac, same = [], []
+    n_empty = sum(1 for cores in by_inst.values() for c in cores if not c)
     for cores in by_inst.values():
         if len(cores) < 2:
             continue
         pairs = [(a, b) for i, a in enumerate(cores) for b in cores[i + 1:]]
-        jac.append(float(np.mean([len(a & b) / len(a | b) if (a | b) else 1.0 for a, b in pairs])))
-        same.append(float(len(set(cores)) == 1))
+        jac.append(float(np.mean([len(a & b) / len(a | b) if (a | b) else 0.0 for a, b in pairs])))
+        same.append(float(len(set(cores)) == 1 and bool(cores[0])))
     return {"n_instances": len(jac), "pairwise_jaccard_mean": float(np.mean(jac)) if jac else None,
-            "identical_fraction": float(np.mean(same)) if same else None}
+            "identical_fraction": float(np.mean(same)) if same else None, "n_empty_cores": n_empty}
 
 
 def _median(rs: list[dict], key_fn) -> float | None:
@@ -329,10 +369,28 @@ def select_instances(suite_root: Path | str, *, max_n: int | None = None, min_n:
     return out
 
 
+def suite_hash(suite_root: Path, inst_dirs: list[Path]) -> str:
+    """Content hash of the instances used (their manifests' bundle hashes) and of their truth files."""
+    h = hashlib.sha256()
+    for d in inst_dirs:
+        man = d / "manifest.json"
+        h.update(d.name.encode())
+        h.update(man.read_bytes() if man.exists() else b"-")
+        t = Path(suite_root) / "truth" / f"{d.name}.json"
+        h.update(t.read_bytes() if t.exists() else b"-")
+    return h.hexdigest()
+
+
 def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str] | None = None, networks: tuple[str, ...] = ("main",),
                    seeds: tuple[int, ...] = (0,), budget: int = 1000, configs: dict[str, dict] | None = None,
                    score_seeds: tuple[int, ...] = SCORE_SEEDS, backend=None, workers: int = 1, robust: bool = True, out_dir: Path | None = None,
-                   registry_dir: Path | None = None, label: str = "tournament") -> dict:
+                   registry_dir: Path | None = None, label: str = "tournament", allow_dirty: bool = False) -> dict:
+    from .provenance import launch_provenance
+
+    code = launch_provenance()
+    if backend is not None and code["dirty_src"] and not allow_dirty:
+        raise RuntimeError("refusing a remote campaign with uncommitted changes in src/ (the image is built from the working tree); "
+                           "commit first or pass allow_dirty=True")
     suite_root = Path(suite_root)
     inst_dirs = sorted(p for p in (suite_root / "instances").iterdir() if p.is_dir())
     if instances:
@@ -352,8 +410,9 @@ def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str]
         packs = pack_suite(suite_root, inst_dirs, networks)
         remote_jobs = [(*j, Shared("packs")) for j in jobs]
         records, failed = split_failures(backend.map(run_one_job, remote_jobs, shared={"packs": packs}))
-        for f in failed:
-            records.append({"method": jobs[f["index"]][0], "instance": Path(jobs[f["index"]][1]).name, "error": f["error"]})
+        for f in failed:  # remote infrastructure failures (timeout, OOM): scored as failed runs
+            j = jobs[f["index"]]
+            records.append({"method": j[0], "instance": path_basename(j[1]), "network": j[2], "seed": j[4], "budget": j[3], "error": f["error"]})
     elif workers > 1 and len(jobs) > 1:
         from concurrent.futures import ProcessPoolExecutor
         with ProcessPoolExecutor(max_workers=workers) as ex:
@@ -363,9 +422,11 @@ def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str]
     wall = time.time() - t0
     summary = summarize(records)
     bstats = backend.last_stats.to_dict() if backend is not None and backend.last_stats else {"backend": "local", "n_workers": workers}
-    out = {"label": label, "suite": suite_root.name, "methods": methods, "n_jobs": len(jobs), "budget": budget, "seeds": list(seeds),
-           "networks": list(networks), "score_seeds": list(score_seeds), "wall_s": round(wall, 1), "backend": bstats, "summary": summary,
-           "records": records}
+    envs = {json.dumps({k: v for k, v in (r.get("env") or {}).items() if k != "blas_env"}, sort_keys=True) for r in records if r.get("env")}
+    s_hash = suite_hash(suite_root, inst_dirs)
+    out = {"label": label, "suite": suite_root.name, "suite_sha256": s_hash, "methods": methods, "n_jobs": len(jobs), "budget": budget,
+           "seeds": list(seeds), "networks": list(networks), "score_seeds": list(score_seeds), "robust": robust, "wall_s": round(wall, 1),
+           "backend": bstats, "code": code, "environments": [json.loads(e) for e in sorted(envs)], "summary": summary, "records": records}
     if out_dir is not None:
         out_dir.mkdir(parents=True, exist_ok=True)
         p = out_dir / f"{label}.json"
@@ -373,10 +434,14 @@ def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str]
         (out_dir / f"{label}.md").write_text(to_markdown(out), encoding="utf-8", newline="\n")
         if registry_dir is not None:
             rec = ExperimentRecord(name=label, config={"methods": methods, "budget": budget, "seeds": list(seeds), "networks": list(networks),
-                                                       "configs": configs or {}, "instances": [d.name for d in inst_dirs]},
-                                   seeds=list(seeds), inputs={"suite": suite_root.name, "n_instances": len(inst_dirs), "jobs_hash": content_hash(jobs)},
-                                   backend=out["backend"], artifacts={"results": artifact_record(p)},
-                                   summary={m: {k: v for k, v in s.items() if k != "by_family"} for m, s in summary.items()})
+                                                       "configs": configs or {}, "instances": [d.name for d in inst_dirs],
+                                                       "score_seeds": list(score_seeds), "robust": robust},
+                                   seeds=list(seeds), inputs={"suite": suite_root.name, "suite_sha256": s_hash, "n_instances": len(inst_dirs),
+                                                              "jobs_hash": content_hash(jobs), "source_tree_sha256": code["source_tree_sha256"],
+                                                              "launched_utc": code["launched_utc"]},
+                                   backend=out["backend"], artifacts={"results": artifact_record(p)}, code=code,
+                                   environment={"remote": out["environments"]} if out["environments"] else {},
+                                   summary={m: {k: v for k, v in s.items() if k not in ("by_family", "failures")} for m, s in summary.items()})
             register_run(rec, registry_dir)
     return out
 
@@ -394,13 +459,15 @@ def to_markdown(t: dict) -> str:
         fci = s.get("functional_success_ci95", [float("nan")] * 2)
         ic = s.get("identity_consistency") or {}
         fmt = lambda v: "–" if v is None else f"{v:.2f}"  # noqa: E731
-        lines.append(f"| {m} | {s['n_runs']} | {s['success_rate']:.2f} [{ci[0]:.2f}, {ci[1]:.2f}] | "
+        runs = f"{s['n_runs']}" + (f" ({s['n_failed']} failed)" if s.get("n_failed") else "")
+        lines.append(f"| {m} | {runs} | {s['success_rate']:.2f} [{ci[0]:.2f}, {ci[1]:.2f}] | "
                      f"{fmt(s.get('functional_success_rate'))} [{fci[0]:.2f}, {fci[1]:.2f}] | {fmt(s.get('functional_success_causal_rate'))} | "
                      f"{fmt(s.get('success_or_functional_rate'))} | {fmt(s['recall_best_alt_median'])} | "
                      f"{fmt(s['precision_best_alt_median'])} | {fmt(s['functional_nominal_mean'])} | {fmt(s['functional_robust_mean'])} | "
                      f"{fmt(s['calls_median'])} | {fmt(s['size_median'])} | {fmt(s['role_accuracy_mean'])} | {fmt(s['brier_mean'])} | "
                      f"{fmt(ic.get('pairwise_jaccard_mean'))} / {fmt(ic.get('identical_fraction'))} |")
-    lines += ["", "structural success = the core contains a sufficient set listed in the truth (planted, or unplanted but found by the suite "
+    lines += ["", "runs = attempted runs; failed runs (errors, timeouts, budget-integrity or seed-namespace violations) count as unsuccessful.",
+              "structural success = the core contains a sufficient set listed in the truth (planted, or unplanted but found by the suite "
               "audit); functional success (pre-registered) = the core is sufficient on fresh seeds and 1-minimal under keep-only; causal "
               "functional (clarified) = sufficient and every member is keep-only-necessary or essential when silenced in the intact network."]
     lines += ["", "## By family (success rate / median calls)", ""]

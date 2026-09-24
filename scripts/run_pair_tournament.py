@@ -15,11 +15,13 @@ import sys
 import time
 from pathlib import Path
 
-from brainir.compute import ExperimentRecord, artifact_record, get_backend, register_run
+from brainir.compute import ExperimentRecord, artifact_record, register_run
 from brainir.compute.registry import content_hash
 from brainir.discovery.pair_tournament import pair_job, pairs_markdown, summarize_pairs
 from brainir.discovery.problem import pack_bundle, path_basename
-from brainir.discovery.tournament import select_instances
+from brainir.discovery.provenance import launch_provenance
+from brainir.discovery.remote import get_discovery_backend as get_backend
+from brainir.discovery.tournament import select_instances, suite_hash
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -39,6 +41,7 @@ def main(argv=None) -> int:
     ap.add_argument("--workers", type=int, default=3)
     ap.add_argument("--containers", type=int, default=100)
     ap.add_argument("--timeout", type=int, default=7200)
+    ap.add_argument("--allow-dirty", action="store_true")
     ap.add_argument("--label", required=True)
     ap.add_argument("--out", type=Path, default=ROOT / "research" / "phase2" / "tournament")
     args = ap.parse_args(argv)
@@ -54,6 +57,10 @@ def main(argv=None) -> int:
         inst_dirs = [d for d in inst_dirs if d.name in keep]
     jobs = [(m, mode, str(d), s, args.budget_a, args.budget_b, configs.get(m, {}), str(args.suite / "truth" / f"{d.name}.json"), None)
             for m in args.methods for mode in args.modes for d in inst_dirs for s in args.seeds]
+    code = launch_provenance()
+    if args.backend == "modal" and code["dirty_src"] and not args.allow_dirty:
+        print("refusing a remote campaign with uncommitted changes in src/; commit first or pass --allow-dirty")
+        return 1
     t0 = time.time()
     backend = (get_backend("modal", cpu=1.0, memory_mb=3072, timeout_s=args.timeout, max_containers=args.containers)
                if args.backend == "modal" else None)
@@ -69,7 +76,7 @@ def main(argv=None) -> int:
         records, failed = split_failures(backend.map(pair_job, remote, shared={"packs": packs}))
         for f in failed:
             j = jobs[f["index"]]
-            records.append({"method": j[0], "mode": j[1], "instance": path_basename(j[2]), "error": f["error"]})
+            records.append({"method": j[0], "mode": j[1], "instance": path_basename(j[2]), "seed": j[3], "error": f["error"]})
     elif args.workers > 1 and len(jobs) > 1:
         from concurrent.futures import ProcessPoolExecutor
         with ProcessPoolExecutor(max_workers=args.workers) as ex:
@@ -87,8 +94,10 @@ def main(argv=None) -> int:
     (args.out / f"{args.label}.md").write_text(pairs_markdown(out), encoding="utf-8", newline="\n")
     rec = ExperimentRecord(name=args.label, config={"methods": args.methods, "modes": args.modes, "budget_a": args.budget_a, "budget_b": args.budget_b,
                                                     "configs": configs, "instances": [d.name for d in inst_dirs]},
-                           seeds=args.seeds, inputs={"suite": args.suite.name, "n_instances": len(inst_dirs), "jobs_hash": content_hash(jobs)},
-                           backend=bstats, artifacts={"results": artifact_record(p)},
+                           seeds=args.seeds, inputs={"suite": args.suite.name, "suite_sha256": suite_hash(args.suite, inst_dirs),
+                                                     "n_instances": len(inst_dirs), "jobs_hash": content_hash(jobs),
+                                                     "source_tree_sha256": code["source_tree_sha256"], "launched_utc": code["launched_utc"]},
+                           backend=bstats, artifacts={"results": artifact_record(p)}, code=code,
                            summary={k: {kk: vv for kk, vv in v.items() if kk != "by_family"} for k, v in out["summary"].items()})
     register_run(rec, ROOT / "benchmarks" / "dng100" / "manifests" / "experiments")
     print(pairs_markdown(out))

@@ -14,7 +14,7 @@ import sys
 import time
 from pathlib import Path
 
-from brainir.compute import get_backend
+from brainir.discovery.remote import get_discovery_backend as get_backend
 from brainir.discovery.suite_audit import audit_suite
 
 

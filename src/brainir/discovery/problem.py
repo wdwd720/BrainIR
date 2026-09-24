@@ -123,6 +123,7 @@ class DiscoveryProblem:
     def network_hash(self) -> str:
         """Content hash of what the simulator sees (matrix, sizes, stimulus, readout, model config, criterion)."""
         h = hashlib.sha256()
+        h.update(f"n={self.n}|".encode())  # the size matters even when no neuron sizes are given (isolated neurons)
         Wc = self.W.tocoo()
         for arr in (Wc.row.astype(np.int64), Wc.col.astype(np.int64), Wc.data.astype(np.float64)):
             h.update(np.ascontiguousarray(arr).tobytes())

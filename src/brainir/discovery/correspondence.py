@@ -123,7 +123,7 @@ def match_candidates(a: DiscoveryProblem, b: DiscoveryProblem, positions_a, *, k
             meta_terms[c] = agree
             score = score + w[c] * (agree - 0.5) * 2  # +w for agreement, -w for disagreement, 0 when uninformative
         mu, sd = float(score.mean()), float(score.std() + 1e-12)
-        order = np.argsort(-score)[:k]
+        order = np.argsort(-score, kind="stable")[:k]  # exact ties -> lower candidate index first (build/CPU independent)
         top = [{"position": int(cand[j]), "score": float(score[j]), "z": float((score[j] - mu) / sd), "cos_in": float(cos_in[j]),
                 "cos_out": float(cos_out[j]), "meta": {c: float(v[j]) for c, v in meta_terms.items()}} for j in order]
         second = float(score[order[1]]) if len(order) > 1 else mu

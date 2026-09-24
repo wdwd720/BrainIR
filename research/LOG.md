@@ -376,3 +376,12 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     clean room) and F (computational, main repo without answer-bearing files) started.
   - Pitfalls: job functions defined in a script's `__main__` cannot run on Modal (first pair tournament failed 1,040/1,040;
     jobs now live in the library); numpy 2 removed `np.trapz`; bulk results are committed gzipped (`archive_results.py`).
+- **2026-09-23 16:30 – 17:15 (session 3, review F fixes).** Review F (computational) found 1 blocker, 7 majors, 11 minors;
+  all resolved before the confirmation run (`research/phase2/reviews/F_resolution.md`): failures now count in every success
+  denominator; runtime budget-integrity guard (real simulations == charged), read-only accounting, `sim.spawn()` for other
+  networks, seeded weight noise, override whitelist, reserved parameter-seed namespace; pinned Modal image
+  (`PinnedModalBackend`) and a runtime environment block on every job; launch-time provenance in registry records; the
+  hidden-evaluation gate bound to the locked method/frozen baseline with a per-network ledger; stable correspondence
+  ranking. **Correction:** "order sensitivity" of the frozen baseline (entries above) is sensitivity to node order AND the
+  parameter draw that goes with it (the position-indexed sampler re-assigns draws under a permutation); reliability numbers
+  in Phase 2 are consistency across node orders x parameter draws, applied identically to every compared method.
