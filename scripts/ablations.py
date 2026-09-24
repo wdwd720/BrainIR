@@ -21,14 +21,14 @@ from pathlib import Path
 import numpy as np
 
 from brainir.discovery.remote import get_discovery_backend as get_backend
-from brainir.discovery.tournament import run_tournament, select_instances
+from brainir.discovery.tournament import run_calls, run_tournament, select_instances
 
 ROOT = Path(__file__).resolve().parents[1]
 METRICS = {
     "structural_success": lambda r: float(r["structure"]["success"]),
     "causal_functional": lambda r: (None if "functional_success_causal" not in (r.get("function") or {})
                                     else float(r["function"]["functional_success_causal"])),
-    "calls": lambda r: float(r["result"]["budget"].get("calls", 0)),
+    "calls": lambda r: float(run_calls(r) or 0),  # every network's calls (spawned simulators share the budget; review E finding 6)
     "robust_pass": lambda r: (r.get("function") or {}).get("robust_sd_x2"),
     "size": lambda r: float(len(r["result"]["core"])),
 }

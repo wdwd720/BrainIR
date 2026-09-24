@@ -95,8 +95,19 @@ methods × 4 modes × 2 seeds; budgets 1,000 per network): both-network success 
 | evo_pareto | 1.00 / 1,518 | 0.71 / 769 | 1.00 / 1,485 | 1.00 / 848 |
 | greedy_reference | 0.71 / 569 | 0.60 / 373 | 0.71 / 570 | 0.96 / 388 |
 
-Joint discovery never lost to independent discovery, cut total calls by about 40 %, and raised claimed-correspondence
-precision to 1.00 and role-graph similarity a↔b to 1.00.
+On these pairs joint discovery never lost to independent discovery and cut total calls by about 40 %.
+
+Review E showed that this pair design made correspondence nearly free:
+- only mechanism members shared anchor profiles;
+- hemilineage was present;
+- the motif wiring was identical in both networks;
+- the backgrounds were independent.
+
+The numbers above are therefore an efficiency gain under easy correspondence. For the weak base method, part of the success
+gain also appears with the correspondence destroyed. Claimed-correspondence precision and role-graph similarity between a
+method's own two outputs measure self-agreement, which joint discovery maximises by construction, so they are not
+reported as evidence. The controlled comparison on harder held-out pairs, with pooled-budget and null-correspondence
+arms (protocol §7), is reported in §10.
 
 ## 7. BrainIR v1 (*pending*: composed from the selection evidence; `research/phase2/BRAINIR_V1_METHOD.md`)
 
@@ -121,10 +132,15 @@ Real public networks, oracle-free (`research/phase2/transfer/xfer_greedy_plus.md
 1,000 calls per network. A mechanism is judged by keep-only sufficiency on 6 fresh parameter draws of its own network. The
 null is 20 random interneuron sets per run with the same size and sign composition.
 
-| direction | independent: both sufficient / total calls | transfer only: destination sufficient (dest. calls) | null | joint: both sufficient / total calls |
-|---|---|---|---|---|
-| MaleCNS → MANC v1.2.1 | 3/3 / 426 | 3/3 (2 calls) | 0.00 | 3/3 / 268 |
-| MANC v1.2.1 → MaleCNS | 3/3 / 426 | 2/3 (2 + 21 adaptation calls) | 0.00 | 3/3 / 268 |
+| base method | direction | independent: both sufficient / total calls | transfer only: destination sufficient (dest. calls) | null | joint: both sufficient / total calls |
+|---|---|---|---|---|---|
+| greedy_plus | MaleCNS → MANC v1.2.1 | 3/3 / 426 | 3/3 (2 calls) | 0.00 | 3/3 / 268 |
+| greedy_plus | MANC v1.2.1 → MaleCNS | 3/3 / 426 | 2/3 (2 + 21 adaptation calls) | 0.00 | 3/3 / 268 |
+| greedy_reference | MaleCNS → MANC v1.2.1 | 3/3 / 1,069 | 3/3 (2 calls) | 0.00 | 3/3 / 405 |
+| greedy_reference | MANC v1.2.1 → MaleCNS | 3/3 / 1,040 | 3/3 (2 calls) | 0.00 | 3/3 / 405 |
+
+These transfers show functional sufficiency of the carried-over set in the other connectome against a matched null. They
+do not show neuron identity (review E finding 9).
 
 BrainIR v1's own transfer experiments and the hidden-oracle scoring of its cross-connectome claims: *pending*.
 
@@ -162,7 +178,25 @@ nulls: *pending*.
   - the hidden-evaluation gate was not bound to the locked method;
   - one tie-break was unstable.
 
-Reviews A, B, C, D, E and G: *pending*.
+| E cross-connectome | done (pre-lock) | 1 blocker, 6 major, 5 minor; harness fixes done, method fixes with the composer (`research/phase2/reviews/E_resolution.md`) |
+
+- **Review E blocker:** identity-claim confidence came from structural alignment, not identity evidence. Under
+  implementation shifts, v1 claimed non-homologous neurons as identical.
+- **Review E majors:**
+  - joint discovery manufactures agreement;
+  - "verified" transfer accepted unvalidated sets;
+  - the joint advantage is an efficiency gain on easy correspondence;
+  - the synthetic pairs made correspondence nearly free;
+  - v1's cross-connectome calls were counted but not budgeted;
+  - the harness could not show that synthetic truth stayed out of the method's reach.
+- **Harness fixes:**
+  - one budget pool per run;
+  - a truth guard and static rules;
+  - identity scoring on every pair type;
+  - pooled-budget and null-correspondence arms;
+  - the harder `synthetic-pairs-v2` design.
+
+Reviews A, B, C, D and G: *pending*.
 
 ## 14. Compute and cost
 

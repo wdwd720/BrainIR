@@ -1,0 +1,166 @@
+{
+ "name": "transfer_xfer_greedy_reference",
+ "config": {
+  "method": "greedy_reference",
+  "a": "male-cns_v1.0",
+  "b": "manc_v1.2.1",
+  "modes": [
+   "independent",
+   "transfer",
+   "prior",
+   "joint"
+  ],
+  "budget_a": 1000,
+  "budget_b": 1000,
+  "config": {}
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle": "public_blind"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 24,
+  "wall_time_s": 1200.1,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 4096,
+   "timeout_s": 7200,
+   "max_containers": 30,
+   "app": "brainir-phase1",
+   "shared_payload_key": "3ca193bd5fc2f7f182844a73062332a0",
+   "shared_payload_bytes": 1869349,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 2.3043
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/transfer/xfer_greedy_reference.json",
+   "sha256": "2b06b810433aa3615c95a825a88299a4b045d017e89616b948cac6c2a74ae8a5",
+   "size_bytes": 66760
+  }
+ },
+ "summary": {
+  "male-cns_v1.0->manc_v1.2.1/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 681.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 1069.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 390.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": 0.0
+  },
+  "male-cns_v1.0->manc_v1.2.1/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 651.3333333333334,
+   "calls_adaptation": 0.0,
+   "calls_total": 1039.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 0.0,
+   "calls_adaptation": 16.333333333333332,
+   "calls_total": 404.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 651.3333333333334,
+   "calls_dst": 388.3333333333333,
+   "calls_adaptation": 0.0,
+   "calls_total": 1039.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 651.3333333333334,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 653.3333333333334,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": 0.0
+  },
+  "manc_v1.2.1->male-cns_v1.0/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 681.0,
+   "calls_dst": 388.3333333333333,
+   "calls_adaptation": 0.0,
+   "calls_total": 1069.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 0.0,
+   "calls_dst": 388.3333333333333,
+   "calls_adaptation": 16.333333333333332,
+   "calls_total": 404.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  }
+ },
+ "notes": "",
+ "run_id": "68f8c9e75a1bfc08",
+ "created_utc": "2026-09-24T00:38:04Z",
+ "code": {
+  "commit": "a1a7b0674a285542d62a927108d92e8383c73de1",
+  "src_dirty": true,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

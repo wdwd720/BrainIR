@@ -139,6 +139,46 @@ class DiscoveryProblem:
                 "n_edges": int(self.C.nnz), "n_stimulus": len(self.stim_positions), "n_readout": int(self.readout_mask.sum()),
                 "criterion": self.criterion_spec.get("type"), "network_hash": self.network_hash()[:16]}
 
+    # ------------------------------------------------------------------ other networks of the same bundle
+    def bundle_networks(self) -> dict[str, dict]:
+        """Public metadata (``dataset``, ``version``) of every network in this problem's bundle, keyed by network name, so that a
+        method never has to read bundle files itself. Two networks of the same dataset are the same animal (e.g. two MANC
+        versions): a correspondence between them is not a cross-connectome result (review E finding 8)."""
+        out: dict[str, dict] = {}
+        nets = self.root / "networks"
+        if not nets.is_dir():
+            return out
+        for d in sorted(p for p in nets.iterdir() if p.is_dir() and (p / "network.json").exists()):
+            try:
+                info = json.loads((d / "network.json").read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            out[d.name] = {"dataset": str(info.get("dataset")), "version": str(info.get("version")),
+                           "same_dataset": str(info.get("dataset")) == str(self.dataset)}
+        return out
+
+    def other_dataset_networks(self) -> list[str]:
+        """Names of the bundle's networks that come from a different dataset than this one (sorted)."""
+        return [k for k, v in self.bundle_networks().items() if k != self.name and not v["same_dataset"]]
+
+    def load_network(self, name: str) -> DiscoveryProblem:
+        """Another CONNECTOME of the same bundle, loaded by the library (the method reads no files itself).
+
+        Only networks of a different dataset can be loaded. Another version or node ordering of the same animal is refused: it
+        would be a trivial "correspondence" (review E finding 8), and a sibling node-order variant would let a method fake order
+        invariance."""
+        nets = self.bundle_networks()
+        if name not in nets:
+            raise KeyError(f"network {name!r} is not in this bundle")
+        if nets[name]["same_dataset"]:
+            raise PermissionError(f"network {name!r} comes from the same dataset ({self.dataset}) as {self.name!r}: same animal")
+        return DiscoveryProblem.from_bundle(self.root, name)
+
+
+def same_animal(a: DiscoveryProblem, b: DiscoveryProblem) -> bool:
+    """Whether two problems come from the same dataset (same animal); cross-connectome claims between them are trivial."""
+    return str(a.dataset) == str(b.dataset)
+
 
 # ---------------------------------------------------------------------------- shipping bundles to remote workers
 def pack_bundle(root: Path | str, network: str, extra: dict[str, bytes] | None = None) -> dict[str, bytes]:

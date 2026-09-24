@@ -55,8 +55,8 @@ def run_method(method_name: str, bundle_root: Path | str, network: str, *, budge
         wall = time.time() - t0
     if workers == 1 and backend is None and counter["n"] != sim.total_computed_calls():
         raise BudgetViolation(f"{counter['n']} real simulations but {sim.total_computed_calls()} charged")
-    if sim.calls > budget:
-        raise BudgetViolation(f"{sim.calls} calls exceed the budget {budget}")
+    if sim.total_calls() > budget:  # spawned simulators share the pool (review E finding 6)
+        raise BudgetViolation(f"{sim.total_calls()} calls exceed the budget {budget}")
     result.budget = {**sim.report(), "wall_s": round(wall, 2)}
     info = method.method_info(problem, sim, seed, cfg, wall_s=wall, code_commit=code_commit,
                               extra={"budget_exhausted": exhausted, "source_tree_sha256": source_tree_hash(),

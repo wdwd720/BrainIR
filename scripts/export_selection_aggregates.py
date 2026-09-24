@@ -15,6 +15,8 @@ import json
 import sys
 from pathlib import Path
 
+from brainir.discovery.tournament import run_calls
+
 DROP_KEYS = {"records", "rows", "instances", "configs"}
 
 
@@ -45,7 +47,7 @@ def _by_size(records: list[dict]) -> dict:
                       if "functional_success_causal" in (r.get("function") or {})]
             res[m][sc] = {"n": len(rs), "success": float(np.mean([r["structure"]["success"] for r in rs])),
                           "causal_functional": float(np.mean(causal)) if causal else None,
-                          "calls_median": float(np.median([r["result"]["budget"].get("calls", 0) for r in rs])),
+                          "calls_median": float(np.median([run_calls(r) or 0 for r in rs])),
                           "wall_median": float(np.median([r.get("wall_s", 0.0) for r in rs])),
                           "size_median": float(np.median([len(r["result"]["core"]) for r in rs]))}
     return res

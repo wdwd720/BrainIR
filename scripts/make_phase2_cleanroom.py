@@ -5,7 +5,8 @@
 Copies ONLY generic material into a separate directory where method-development agents work:
   * the library (src/brainir), packaging files, tests that carry no answer (everything except the leakage guard, which
     reads the oracle path, and the benchmark-package/baseline tests that read oracle-side files),
-  * the two public benchmark bundles (benchmarks/dng100/public, public_blind) and the bundle README,
+  * the public BLIND benchmark bundle (benchmarks/dng100/public_blind) and the bundle README (the tier-B bundle with real type
+    names is not copied: no tier-B method is developed in the clean room; review E finding 8),
   * the clean-room runner + sandbox (so agents can exercise the method contract) and the frozen baseline SCRIPTS
     (benchmarks/dng100/baselines/*.py; NOT their answer-bearing results/),
   * the synthetic mechanism suite (data/synthetic/mechanisms_v1) and its PUBLIC instances only (truth/ excluded),
@@ -31,7 +32,6 @@ DEFAULT_DEST = ROOT.parent / "BrainIR_p2clean"
 
 COPY_TREES = [
     "src/brainir",
-    "benchmarks/dng100/public",
     "benchmarks/dng100/public_blind",
     "benchmarks/dng100/cleanroom",
     "data/synthetic/mechanisms_v1",
@@ -120,7 +120,7 @@ def _git_head() -> str | None:
 
 CLEANROOM_CLAUDE_MD = """# BrainIR — Phase 2 clean development environment (oracle-free)
 
-This directory is a copy of the generic BrainIR library, the PUBLIC benchmark bundles (`benchmarks/dng100/public*`),
+This directory is a copy of the generic BrainIR library, the PUBLIC blind benchmark bundle (`benchmarks/dng100/public_blind`),
 the clean-room runner, the frozen baseline scripts and the PUBLIC part of the synthetic mechanism suite
 (`data/synthetic/mechanisms_v1/instances`). It contains no benchmark answer, no evaluator, no ground truth of the
 synthetic instances (their `truth/` directory is deliberately absent) and no research notes about any specific circuit.

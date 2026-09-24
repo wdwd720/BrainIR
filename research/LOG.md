@@ -385,3 +385,24 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   ranking. **Correction:** "order sensitivity" of the frozen baseline (entries above) is sensitivity to node order AND the
   parameter draw that goes with it (the position-indexed sampler re-assigns draws under a permutation); reliability numbers
   in Phase 2 are consistency across node orders x parameter draws, applied identically to every compared method.
+- **2026-09-23 17:30 – 19:20 (session 3, review E fixes).** Review E (cross-connectome, oracle-free, clean room) found 1
+  blocker, 6 majors and 5 minors (`research/phase2/reviews/E_cross_connectome.md`, resolution in `E_resolution.md`).
+  - **What it confirmed.** The transfer uses only public evidence and every simulation is charged.
+  - **What it found.** Identity claims were not identity evidence: their confidence came from structural alignment, and
+    under implementation shifts v1 claimed non-homologous neurons. The pair design made correspondence nearly free, and
+    the joint advantage is an efficiency gain on that design.
+  - **Harness fixes, orchestrator:**
+    - one budget pool per run: `spawn` children draw from the parent, and runs are judged on `total_calls()`;
+    - the truth guard (`discovery/guard.py`), in-memory truth for remote jobs, and static rules on method logic;
+    - `load_network` restricted to other datasets;
+    - identity scoring on every pair type, with `independent_pooled` and `*_null` control arms;
+    - the harder `synthetic-pairs-v2` design, with the v1 design reproduced bit for bit;
+    - `pairs_v2_heldout` and `pairs_v2_final` built with secret salts and 40-bit seed offsets;
+    - the tier-B copy removed from the clean room;
+    - protocol amendment §7, written before any method ran on the new suites.
+  - **Method fixes** (calibrated identity claims, validated transfers only, budget inside the pool) were assigned to the
+    oracle-free composer.
+  - **Real-network transfer with greedy_reference** (oracle-free): the carried-over core is sufficient in the other
+    connectome in 3 of 3 runs per direction, with 2 destination calls, and the matched null passes 0. Joint discovery
+    takes 405 total calls against 1,040–1,069 for independent discovery.
+  - **Pitfall:** bash heredocs that contain some quoted Python fail with "unexpected EOF"; use Write/Edit for code.

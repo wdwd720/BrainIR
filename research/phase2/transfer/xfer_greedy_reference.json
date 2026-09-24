@@ -1,0 +1,3903 @@
+{
+ "label": "xfer_greedy_reference",
+ "method": "greedy_reference",
+ "a": "male-cns_v1.0",
+ "b": "manc_v1.2.1",
+ "modes": [
+  "independent",
+  "transfer",
+  "prior",
+  "joint"
+ ],
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "budget_a": 1000,
+ "budget_b": 1000,
+ "config": {},
+ "wall_s": 1201.7,
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 24,
+  "wall_time_s": 1200.1,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 4096,
+   "timeout_s": 7200,
+   "max_containers": 30,
+   "app": "brainir-phase1",
+   "shared_payload_key": "3ca193bd5fc2f7f182844a73062332a0",
+   "shared_payload_bytes": 1869349,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 2.3043
+ },
+ "summary": {
+  "male-cns_v1.0->manc_v1.2.1/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 681.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 1069.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 390.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": 0.0
+  },
+  "male-cns_v1.0->manc_v1.2.1/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 651.3333333333334,
+   "calls_adaptation": 0.0,
+   "calls_total": 1039.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 388.3333333333333,
+   "calls_dst": 0.0,
+   "calls_adaptation": 16.333333333333332,
+   "calls_total": 404.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer_vs_independent_jaccard": 1.0,
+  "manc_v1.2.1->male-cns_v1.0/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 651.3333333333334,
+   "calls_dst": 388.3333333333333,
+   "calls_adaptation": 0.0,
+   "calls_total": 1039.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 651.3333333333334,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 653.3333333333334,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": 0.0
+  },
+  "manc_v1.2.1->male-cns_v1.0/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 681.0,
+   "calls_dst": 388.3333333333333,
+   "calls_adaptation": 0.0,
+   "calls_total": 1069.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 0.0,
+   "calls_dst": 388.3333333333333,
+   "calls_adaptation": 16.333333333333332,
+   "calls_total": 404.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer_vs_independent_jaccard": 1.0
+ },
+ "rows": [
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "independent",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 432.3,
+   "budget": {
+    "a": 331,
+    "b": 808,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1139,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 808,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 808
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2152,
+     3310,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "independent",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 492.9,
+   "budget": {
+    "a": 417,
+    "b": 587,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1004,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 587,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 587
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9591
+    ],
+    [
+     1052,
+     2973,
+     0.9572
+    ],
+    [
+     2152,
+     3310,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "independent",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 828.2,
+   "budget": {
+    "a": 417,
+    "b": 648,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1065,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 648,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 648
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "transfer",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 147.9,
+   "budget": {
+    "a": 331,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 333,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2152,
+     3310,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   },
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "transfer",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 388.6,
+   "budget": {
+    "a": 417,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 419,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9591
+    ],
+    [
+     1052,
+     2973,
+     0.9572
+    ],
+    [
+     2152,
+     3310,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   },
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "transfer",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 356.0,
+   "budget": {
+    "a": 417,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 419,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   },
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "prior",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 787.6,
+   "budget": {
+    "a": 331,
+    "b": 808,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1139,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 808,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 808
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2152,
+     3310,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "prior",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 970.8,
+   "budget": {
+    "a": 417,
+    "b": 498,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 915,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 498,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 498
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9591
+    ],
+    [
+     1052,
+     2973,
+     0.9572
+    ],
+    [
+     2152,
+     3310,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "prior",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 758.6,
+   "budget": {
+    "a": 417,
+    "b": 648,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1065,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 648,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 648
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "joint",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 284.4,
+   "budget": {
+    "a": 331,
+    "b": 0,
+    "adaptation": 17,
+    "adaptation_a": 0,
+    "adaptation_b": 17,
+    "total": 348,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 17,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     },
+     {
+      "net": "b",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 17
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9585
+    ],
+    [
+     1052,
+     2973,
+     0.9567
+    ],
+    [
+     2152,
+     3310,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "joint",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 370.9,
+   "budget": {
+    "a": 417,
+    "b": 0,
+    "adaptation": 16,
+    "adaptation_a": 0,
+    "adaptation_b": 16,
+    "total": 433,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9591
+    ],
+    [
+     1052,
+     2973,
+     0.9572
+    ],
+    [
+     2152,
+     3310,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "male-cns_v1.0->manc_v1.2.1",
+   "mode": "joint",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 378.7,
+   "budget": {
+    "a": 417,
+    "b": 0,
+    "adaptation": 16,
+    "adaptation_a": 0,
+    "adaptation_b": 16,
+    "total": 433,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "b",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    653,
+    1052,
+    2152
+   ],
+   "core_dst": [
+    2825,
+    2973,
+    3310
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     653,
+     2825,
+     0.9576
+    ],
+    [
+     1052,
+     2973,
+     0.9559
+    ],
+    [
+     2152,
+     3310,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      2152
+     ],
+     "b": [
+      3310
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      653,
+      1052
+     ],
+     "b": [
+      2825,
+      2973
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "independent",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 431.8,
+   "budget": {
+    "a": 808,
+    "b": 331,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1139,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 808,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 808
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ],
+    [
+     3310,
+     2152,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "independent",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 904.5,
+   "budget": {
+    "a": 498,
+    "b": 417,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 915,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 498,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 498
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     2152,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "independent",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 838.3,
+   "budget": {
+    "a": 648,
+    "b": 417,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1065,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 648,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 648
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9559
+    ],
+    [
+     3310,
+     2152,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "transfer",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 603.2,
+   "budget": {
+    "a": 808,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 810,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 808,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 808
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ],
+    [
+     3310,
+     2152,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   },
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "transfer",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 517.6,
+   "budget": {
+    "a": 498,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 500,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 498,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 498
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     2152,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   },
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "transfer",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 526.2,
+   "budget": {
+    "a": 648,
+    "b": 2,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 650,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 648,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 0,
+      "evaluation": 2,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 0
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 648
+     },
+     {
+      "net": "b",
+      "kind": "evaluation",
+      "allowance": 1000,
+      "calls": 2,
+      "split": {
+       "evaluation": 2,
+       "adaptation": 0
+      }
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9559
+    ],
+    [
+     3310,
+     2152,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   },
+   "null": {
+    "n_null": 20,
+    "pass_rate": 0.0,
+    "pass_fraction_mean": 0.0,
+    "pass_fractions": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ]
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "prior",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 425.7,
+   "budget": {
+    "a": 808,
+    "b": 331,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1139,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 808,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 808
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ],
+    [
+     3310,
+     2152,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "prior",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 960.5,
+   "budget": {
+    "a": 587,
+    "b": 417,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1004,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 587,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 587
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     2152,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "prior",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 1167.9,
+   "budget": {
+    "a": 648,
+    "b": 417,
+    "adaptation": 0,
+    "adaptation_a": 0,
+    "adaptation_b": 0,
+    "total": 1065,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 648,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 22,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "a",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 648
+     },
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9559
+    ],
+    [
+     3310,
+     2152,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "prior",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "joint",
+   "seed": 0,
+   "method": "greedy_reference",
+   "wall_s": 303.4,
+   "budget": {
+    "a": 0,
+    "b": 331,
+    "adaptation": 17,
+    "adaptation_a": 17,
+    "adaptation_b": 0,
+    "total": 348,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 17,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 331,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 331
+     },
+     {
+      "net": "a",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 17
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9585
+    ],
+    [
+     2973,
+     1052,
+     0.9567
+    ],
+    [
+     3310,
+     2152,
+     0.9538
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "joint",
+   "seed": 1,
+   "method": "greedy_reference",
+   "wall_s": 368.1,
+   "budget": {
+    "a": 0,
+    "b": 417,
+    "adaptation": 16,
+    "adaptation_a": 16,
+    "adaptation_b": 0,
+    "total": 433,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "a",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9591
+    ],
+    [
+     2973,
+     1052,
+     0.9572
+    ],
+    [
+     3310,
+     2152,
+     0.9544
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  },
+  {
+   "direction": "manc_v1.2.1->male-cns_v1.0",
+   "mode": "joint",
+   "seed": 2,
+   "method": "greedy_reference",
+   "wall_s": 467.5,
+   "budget": {
+    "a": 0,
+    "b": 417,
+    "adaptation": 16,
+    "adaptation_a": 16,
+    "adaptation_b": 0,
+    "total": 433,
+    "limit": 2000,
+    "by_kind": {
+     "a": {
+      "discovery": 0,
+      "evaluation": 0,
+      "adaptation": 16,
+      "validation": 0
+     },
+     "b": {
+      "discovery": 417,
+      "evaluation": 0,
+      "adaptation": 0,
+      "validation": 0
+     }
+    },
+    "cache_hits": {
+     "a": 0,
+     "b": 22
+    },
+    "phases": [
+     {
+      "net": "b",
+      "kind": "discovery",
+      "allowance": 1000,
+      "calls": 417
+     },
+     {
+      "net": "a",
+      "kind": "adaptation",
+      "allowance": 300,
+      "calls": 16
+     }
+    ]
+   },
+   "core_src": [
+    2825,
+    2973,
+    3310
+   ],
+   "core_dst": [
+    653,
+    1052,
+    2152
+   ],
+   "n_src": 3,
+   "n_dst": 3,
+   "check_src": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "check_dst": {
+    "pass_fraction": 1.0,
+    "passed": true,
+    "removable": [],
+    "check_calls": 15
+   },
+   "n_correspondence_claims": 3,
+   "correspondence": [
+    [
+     2825,
+     653,
+     0.9576
+    ],
+    [
+     2973,
+     1052,
+     0.9559
+    ],
+    [
+     3310,
+     2152,
+     0.953
+    ]
+   ],
+   "role_alignment": {
+    "inhibitory_feedback": {
+     "a": [
+      3310
+     ],
+     "b": [
+      2152
+     ]
+    },
+    "recurrent_excitatory_core": {
+     "a": [
+      2825,
+      2973
+     ],
+     "b": [
+      653,
+      1052
+     ]
+    },
+    "role_graph_similarity": 1.0
+   },
+   "diagnostics_keys": [
+    "budget_a",
+    "budget_b",
+    "config",
+    "follower_source",
+    "lead",
+    "method",
+    "method_version",
+    "mode",
+    "n_anchor_types",
+    "probe_seeds",
+    "role_graphs",
+    "roles_inferred",
+    "seed",
+    "steps",
+    "validation_seeds",
+    "wall_s"
+   ],
+   "env": {
+    "python": "3.12.10",
+    "implementation": "cpython",
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "packages": {
+     "numpy": "2.5.3",
+     "scipy": "1.18.1",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "networkx": "3.7"
+    },
+    "blas_env": {
+     "OPENBLAS_NUM_THREADS": "1",
+     "OMP_NUM_THREADS": "1",
+     "MKL_NUM_THREADS": "1"
+    },
+    "sim_code_version": "a838ef0d604ddd11",
+    "source_tree_sha256": "342d12f039c1ad679c3bc23b86dcea5f5e97e65a96881e500dbf4d11fadfe231"
+   }
+  }
+ ]
+}

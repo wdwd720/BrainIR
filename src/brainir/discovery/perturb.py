@@ -137,3 +137,31 @@ def perturb_suite(suite_root: Path | str, out_root: Path | str, transform: str, 
         if t.exists():
             shutil.copyfile(t, out_root / "truth" / f"{name}.json")
     return names
+
+
+def null_correspondence(problem, other, *, seed: int = 0):
+    """A copy of ``problem`` with every piece of CROSS-NETWORK evidence destroyed and every simulation unchanged (review E, the
+    null control of joint discovery and transfer).
+
+    The labels ``problem`` shares with ``other`` (anchor types) are permuted among the neurons that carry them; the stimulus and
+    readout neurons keep theirs. Hemilineage, soma neuromere and side are shuffled across all rows. W, signs, sizes, stimulus,
+    readout, model and criterion are untouched, so the network hash (and every simulation outcome) is identical."""
+    import dataclasses
+
+    rng = np.random.default_rng(seed)
+    nd = problem.neurons.copy()
+    ct = nd["cell_type"].astype(object).to_numpy().copy()
+    other_labels = {str(x) for x in other.neurons["cell_type"].dropna().astype(str)}
+    fixed = set(int(p) for p in problem.stim_positions) | set(int(p) for p in problem.readout_positions)
+    idx = [i for i, t in enumerate(ct) if isinstance(t, str) and not t.startswith(TOKEN_PREFIX) and t in other_labels and i not in fixed]
+    vals = [ct[i] for i in idx]
+    for i, j in zip(idx, rng.permutation(len(idx))):
+        ct[i] = vals[int(j)]
+    nd["cell_type"] = ct
+    for c in ("hemilineage", "soma_neuromere", "side"):
+        if c in nd:
+            nd[c] = nd[c].to_numpy()[rng.permutation(len(nd))]
+    out = dataclasses.replace(problem, neurons=nd, extra={**problem.extra, "null_correspondence": {"seed": int(seed), "n_permuted": len(idx)}})
+    if out.network_hash() != problem.network_hash():
+        raise RuntimeError("null_correspondence changed what the simulator sees")
+    return out

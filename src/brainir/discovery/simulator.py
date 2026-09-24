@@ -1,6 +1,7 @@
 """The budgeted, cached simulator oracle every discovery method must go through.
 
 * Every simulation is one **call**; the budget (``max_calls``) is hard — exceeding it raises :class:`BudgetExhausted`.
+  Simulators spawned for other networks (:meth:`BudgetedSimulator.spawn`) draw from the same budget: one pool per run.
   Repeating a query already answered in the same run is free (in-run memo). Accounting also records simulated
   biological seconds, CPU seconds, wall time, the number of distinct interventions and of distinct candidate
   mechanisms (keep-only sets) queried (goal3 section 19).
@@ -225,6 +226,7 @@ class BudgetedSimulator:
         self._keep_only_sets: set[tuple[int, ...]] = set()
         self._param_seeds: set[int] = set()
         self._children: list[tuple[str, BudgetedSimulator]] = []
+        self._parent: BudgetedSimulator | None = None  # set only by spawn(): a child draws from its parent's budget
         self._hash = problem.network_hash()
         self._crit = dict(problem.criterion_spec)
         self._t_end_default = float(problem.model_cfg.t_end)
@@ -268,16 +270,24 @@ class BudgetedSimulator:
 
     @property
     def remaining(self) -> int:
-        return self._max_calls - self._calls
+        """Calls still available: this simulator's cap minus everything charged to it (its children included), and never more
+        than its parent has left (one budget pool per run)."""
+        own = self._max_calls - self.total_calls()
+        return own if self._parent is None else min(own, self._parent.remaining)
 
     def close(self) -> None:
         """No further calls: the budget becomes what was spent (used by ledgers that hand out successive allowances)."""
-        self._max_calls = self._calls
+        self._max_calls = self.total_calls()
 
     def spawn(self, problem: DiscoveryProblem, max_calls: int, *, kind: str = "auxiliary", cache: dict | None = None) -> BudgetedSimulator:
-        """A simulator for ANOTHER network (e.g. the other connectome of a bundle) with its own hard budget. Its calls are reported
-        under this simulator's ``report()["children"]`` and counted by the harness's integrity check."""
+        """A simulator for ANOTHER network (e.g. the other connectome of a bundle), capped at ``max_calls``.
+
+        Its calls are drawn from THIS simulator's budget (review E finding 6): a run declared at budget B performs at most B
+        simulations in total, on every network. The child can never spend more than this simulator has left, and every child
+        call reduces this simulator's ``remaining``. Child calls are reported under ``report()["children"]`` and counted by the
+        harness's integrity check."""
         child = BudgetedSimulator(problem, max_calls, workers=self.workers, backend=self.backend, cache=cache, log=self.log)
+        child._parent = self
         self._children.append((str(kind), child))
         return child
 
@@ -294,6 +304,9 @@ class BudgetedSimulator:
     def total_calls(self) -> int:
         return self._calls + sum(c.total_calls() for _k, c in self._children)
 
+    def total_simulated_seconds(self) -> float:
+        return self._simulated_seconds + sum(c.total_simulated_seconds() for _k, c in self._children)
+
     def report(self) -> dict:
         """Budget accounting. ``calls`` = queries charged to the method (computed + served from the persistent store);
         ``cache_hits`` = repeats answered by the in-run memo (free); ``children`` = simulators spawned for other networks."""
@@ -304,6 +317,9 @@ class BudgetedSimulator:
                "n_distinct_interventions": len(self._interventions), "n_candidate_mechanisms": len(self._keep_only_sets),
                "param_seeds": {"n": len(seeds), "min": seeds[0] if seeds else None, "max": seeds[-1] if seeds else None},
                "network_hash": self._hash[:16], "code_version": sim_code_version()}
+        out["total_calls"] = self.total_calls()  # every call charged to this run's budget, children included (compare on this)
+        if self._parent is not None:
+            out["pooled_with_parent"] = True
         if self._children:
             out["children"] = [{"kind": k, **c.report()} for k, c in self._children]
             out["total_calls_incl_children"] = self.total_calls()
@@ -343,8 +359,9 @@ class BudgetedSimulator:
         for k, q in zip(keys, queries):
             if k not in self.cache and k not in todo:
                 todo[k] = q
-        if self._calls + len(todo) > self._max_calls:
-            raise BudgetExhausted(f"{len(todo)} new simulations requested with {self.remaining} of {self._max_calls} calls left")
+        if len(todo) > self.remaining:
+            raise BudgetExhausted(f"{len(todo)} new simulations requested with {self.remaining} of {self._max_calls} calls left"
+                                  + (" (pooled with the parent run)" if self._parent is not None else ""))
         for q in queries:
             c = canonical(q.intervention)
             self._interventions.add(json.dumps(c, sort_keys=True))

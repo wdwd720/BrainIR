@@ -132,7 +132,11 @@ def score_function(problem: DiscoveryProblem, result: DiscoveryResult, *, seeds:
 
 # ---------------------------------------------------------------------------- running
 def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, seed: int, config: dict | None, truth_path: Path | None,
-            score_seeds: list[int], workers: int = 1, robust: bool = True) -> dict:
+            score_seeds: list[int], workers: int = 1, robust: bool = True, truth_json: bytes | None = None) -> dict:
+    """One discovery run, then scoring. The method runs under :func:`brainir.discovery.guard.truth_guard` (no truth directory can be
+    opened or listed); the truth is read only after the result exists. ``truth_json`` (remote jobs) replaces ``truth_path``, so no
+    truth file exists on a worker's disk while the method runs (review E finding 7)."""
+    from .guard import truth_guard
     from .provenance import runtime_env
 
     problem = DiscoveryProblem.from_bundle(instance_dir, network)
@@ -140,7 +144,7 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
     method = MethodRegistry.get(method_name)
     cfg = {**method.default_config, **(config or {})}
     exhausted = False
-    with count_real_simulations() as counter:
+    with count_real_simulations() as counter, truth_guard(None if truth_path is None else Path(truth_path).parent):
         t0, c0 = time.time(), time.process_time()
         try:
             result = method.discover(problem, sim, seed=seed, config=cfg)
@@ -161,16 +165,16 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
     reserved = set(int(s) for s in score_seeds)
     if workers == 1 and counter["n"] != integrity["charged_computed"]:
         rec["error"] = f"budget integrity: {counter['n']} real simulations but {integrity['charged_computed']} charged"
-    elif sim.calls > budget:
-        rec["error"] = f"budget integrity: {sim.calls} calls exceed the budget {budget}"
+    elif sim.total_calls() > budget:  # every network's calls count (spawned simulators share the pool; review E finding 6)
+        rec["error"] = f"budget integrity: {sim.total_calls()} calls exceed the budget {budget}"
     elif any(s >= RESERVED_SEED_FLOOR or s in reserved for s in seeds_used):
         rec["error"] = f"seed namespace: method queried reserved parameter seeds (max {max(seeds_used)})"
     if "error" in rec:
         rec["result"] = compact_result(rec["result"])
         return rec
-    if truth_path is not None and truth_path.exists():
+    if truth_json is not None or (truth_path is not None and truth_path.exists()):
         ts = time.time()
-        truth = json.loads(truth_path.read_text(encoding="utf-8"))
+        truth = json.loads(truth_json.decode("utf-8") if truth_json is not None else truth_path.read_text(encoding="utf-8"))
         tnet = truth["networks"][network]
         rec["structure"] = score_structure(result, tnet)
         rec["function"] = score_function(problem, result, seeds=score_seeds, workers=workers, robust=robust)
@@ -180,9 +184,60 @@ def run_one(method_name: str, instance_dir: Path, network: str, *, budget: int, 
         rec["truth_n"] = len(perm)
         # the core in the generator's canonical node frame: comparable across node-order variants of the same instance
         rec["core_canonical"] = sorted(int(perm[int(p)]) for p in result.core if 0 <= int(p) < len(perm))
+        if "correspondence_positions" in truth or "identity_positions" in truth:
+            rec.update(score_cross_claims(truth, network, result))
         rec["scoring_wall_s"] = round(time.time() - ts, 2)
     rec["result"] = compact_result(rec["result"])
     return rec
+
+
+def score_cross_claims(truth: dict, network: str, result: DiscoveryResult) -> dict:
+    """A single-network method run on one network of a synthetic PAIR: score the identity claims it makes about the other network
+    (``diagnostics["cross_connectome"]``) against the pair's identity truth (review E finding 1)."""
+    from .pair_tournament import identity_truth, score_identity_claims
+
+    ids, hom = identity_truth(truth)
+    claims = []
+    for c in (result.diagnostics or {}).get("cross_connectome", []) or []:
+        x, y = int(c["source_position"]), int(c["other_source_id"])  # synthetic pairs are tier A: source ids are positions
+        claims.append((x, y, c.get("confidence")) if network == "a" else (y, x, c.get("confidence")))
+    spec = truth.get("spec") or {}
+    return {"cross_claims": score_identity_claims(claims, ids, hom, core_a=result.core if network == "a" else None),
+            "pair_flags": {"shift": bool(spec.get("implementation_shift")), "null_pair": bool(spec.get("null_family")),
+                           "structural_decoy": bool(spec.get("structural_decoy")), "decoy": bool(spec.get("anchor_decoy"))}}
+
+
+def summarize_cross_claims(records: list[dict]) -> dict:
+    """Per method, pooled over runs on pair instances: identity claims, precision, false claims by pair type, Brier score and a
+    reliability diagram of the claim confidence."""
+    from .pair_tournament import reliability_bins
+
+    out: dict = {}
+    for m in sorted({r["method"] for r in records if "cross_claims" in r}):
+        rs = [r for r in records if r.get("method") == m and "cross_claims" in r]
+
+        def tot(key, pred=lambda r: True, rs=rs):
+            return int(sum(int(r["cross_claims"].get(key) or 0) for r in rs if pred(r)))
+
+        confs = [(c, ok) for r in rs for c, ok in (r["cross_claims"].get("items") or []) if c is not None]
+        n = tot("n_claimed")
+        out[m] = {"n_runs": len(rs), "claims_total": n, "claims_correct": tot("n_correct"), "precision_pooled": (tot("n_correct") / n) if n else None,
+                  "false_shift": tot("n_false", lambda r: r["pair_flags"]["shift"]), "false_null": tot("n_false", lambda r: r["pair_flags"]["null_pair"]),
+                  "false_structural_decoy": tot("n_false", lambda r: r["pair_flags"]["structural_decoy"]),
+                  "claims_on_null_pairs": tot("n_claimed", lambda r: r["pair_flags"]["null_pair"]),
+                  "runs_with_claims": int(sum(1 for r in rs if r["cross_claims"]["n_claimed"])),
+                  "recall_core_mean": _mean(rs, lambda r: r["cross_claims"].get("recall_core")) if any(
+                      r["cross_claims"].get("recall_core") is not None for r in rs) else None,
+                  "brier_pooled": float(np.mean([(c - float(ok)) ** 2 for c, ok in confs])) if confs else None,
+                  "reliability": reliability_bins(confs)}
+    return out
+
+
+def run_calls(rec: dict) -> int | None:
+    """Calls a run charged to its budget on every network (``total_calls``; older records only have ``calls``)."""
+    b = (rec.get("result") or {}).get("budget") or {}
+    v = b.get("total_calls", b.get("calls"))
+    return None if v is None else int(v)
 
 
 def compact_result(res: dict, *, top_inclusion: int = 100, max_diag_bytes: int = 4000) -> dict:
@@ -214,20 +269,18 @@ def run_one_job(args) -> dict:
     try:
         instance_dir = Path(instance_dir)
         truth_path = None if truth_path is None else Path(truth_path)
+        truth_json = None
         if not instance_dir.exists() and packs is not None:
             import tempfile
-            # the truth goes to a sibling tree that is NOT an ancestor of the instance the method reads (review F finding 14)
+            # only the instance goes to disk; the truth stays in memory until the result exists (review E finding 7)
             tmp = Path(tempfile.mkdtemp(prefix="brainir_job_"))
             unpack_bundle(packs[name], tmp / "inst" / name)
             instance_dir = tmp / "inst" / name
             if truth_path is not None:
-                tname = path_basename(truth_path)
-                if f"truth/{tname}" in packs:
-                    (tmp / "scorer").mkdir(exist_ok=True)
-                    (tmp / "scorer" / tname).write_bytes(packs[f"truth/{tname}"])
-                    truth_path = tmp / "scorer" / tname
+                truth_json = packs.get(f"truth/{path_basename(truth_path)}")
+                truth_path = None
         return run_one(method_name, instance_dir, network, budget=budget, seed=seed, config=config, truth_path=truth_path,
-                       score_seeds=list(score_seeds), workers=1, robust=robust)
+                       score_seeds=list(score_seeds), workers=1, robust=robust, truth_json=truth_json)
     except Exception as e:  # noqa: BLE001 - a failed run is a scored failure, identical locally and remotely (review F finding 1)
         import traceback
         return {"method": method_name, "instance": name, "network": network, "seed": seed, "budget": budget,
@@ -235,13 +288,18 @@ def run_one_job(args) -> dict:
 
 
 def pack_suite(suite_root: Path, inst_dirs: list[Path], networks: tuple[str, ...]) -> dict:
-    """Everything remote tournament workers need: each instance's public files (all requested networks) and its truth file."""
+    """Everything remote tournament workers need: each instance's public files and its truth file. The requested networks are
+    packed, plus every network of ANOTHER dataset in the instance (the other connectome of a synthetic pair), so a method sees
+    the same bundle remotely as locally."""
     packs: dict = {}
     for d in inst_dirs:
         pack: dict[str, bytes] = {}
-        for net in networks:
-            if (d / "networks" / net).exists():
-                pack.update(pack_bundle(d, net))
+        wanted = [net for net in networks if (d / "networks" / net).exists()]
+        if wanted:
+            first = DiscoveryProblem.from_bundle(d, wanted[0])
+            wanted += [x for x in first.other_dataset_networks() if x not in wanted]
+        for net in wanted:
+            pack.update(pack_bundle(d, net))
         packs[d.name] = pack
         t = Path(suite_root) / "truth" / f"{d.name}.json"
         if t.exists():
@@ -282,8 +340,8 @@ def summarize(records: list[dict]) -> dict:
                   "precision_best_alt_median": _median(rs, lambda r: r["structure"]["vs_best_alternative"]["precision"]),
                   "functional_nominal_mean": _mean(rs, lambda r: (r.get("function") or {}).get("nominal")),
                   "functional_robust_mean": _mean(rs, lambda r: (r.get("function") or {}).get("robust_sd_x2")),
-                  "calls_median": _median(rs, lambda r: r["result"]["budget"].get("calls")),
-                  "calls_mean": _mean(rs, lambda r: r["result"]["budget"].get("calls", 0)),
+                  "calls_median": _median(rs, lambda r: run_calls(r)),
+                  "calls_mean": _mean(rs, lambda r: run_calls(r) or 0),
                   "size_median": _median(rs, lambda r: len(r["result"]["core"])),
                   "role_accuracy_mean": _mean(rs, lambda r: r["structure"]["role_accuracy"]),
                   "brier_mean": _mean(rs, lambda r: r["structure"]["brier_inclusion"]),
@@ -333,7 +391,7 @@ def _by_family(rs: list[dict]) -> dict:
                 "success_rate": float(np.mean([r["structure"]["success"] for r in rs if r.get("truth_family") == f])),
                 "functional_success_rate": float(np.mean([bool((r.get("function") or {}).get("functional_success")) for r in rs
                                                           if r.get("truth_family") == f])),
-                "calls_median": float(np.median([r["result"]["budget"].get("calls", 0) for r in rs if r.get("truth_family") == f]))} for f in fams}
+                "calls_median": float(np.median([run_calls(r) or 0 for r in rs if r.get("truth_family") == f]))} for f in fams}
 
 
 SCORE_SEEDS = (5000, 5001, 5002, 5003)
@@ -427,6 +485,8 @@ def run_tournament(methods: list[str], suite_root: Path, *, instances: list[str]
     out = {"label": label, "suite": suite_root.name, "suite_sha256": s_hash, "methods": methods, "n_jobs": len(jobs), "budget": budget,
            "seeds": list(seeds), "networks": list(networks), "score_seeds": list(score_seeds), "robust": robust, "wall_s": round(wall, 1),
            "backend": bstats, "code": code, "environments": [json.loads(e) for e in sorted(envs)], "summary": summary, "records": records}
+    if any("cross_claims" in r for r in records):  # a pair suite: the identity claims each method made about the other network
+        out["cross_claims"] = summarize_cross_claims(records)
     if out_dir is not None:
         out_dir.mkdir(parents=True, exist_ok=True)
         p = out_dir / f"{label}.json"
@@ -479,6 +539,18 @@ def to_markdown(t: dict) -> str:
             b = s["by_family"].get(f)
             cells.append("–" if b is None else f"{b['success_rate']:.2f} / {b['calls_median']:.0f} (n={b['n']})")
         lines.append(f"| {f} | " + " | ".join(cells) + " |")
+    if t.get("cross_claims"):
+        fmt = lambda v: "–" if v is None else f"{v:.2f}"  # noqa: E731
+        lines += ["", "## Identity claims about the other network of each pair (review E)", "",
+                  "A claim is correct only if both neurons are the same planted member; under an implementation shift only the retained "
+                  "alternative counts; on a null pair every claim is false.", "",
+                  "| method | runs (with claims) | claims (correct) | precision | false: shift / null / structural decoy | claims on null pairs | "
+                  "core recall | Brier | reliability (bin: confidence -> observed, n) |", "|---|---|---|---|---|---|---|---|---|"]
+        for m, c in t["cross_claims"].items():
+            rel = "; ".join(f"{b['mean_confidence']:.2f}->{b['observed']:.2f} ({b['n']})" for b in c["reliability"]) or "–"
+            lines.append(f"| {m} | {c['n_runs']} ({c['runs_with_claims']}) | {c['claims_total']} ({c['claims_correct']}) | {fmt(c['precision_pooled'])} | "
+                         f"{c['false_shift']} / {c['false_null']} / {c['false_structural_decoy']} | {c['claims_on_null_pairs']} | "
+                         f"{fmt(c['recall_core_mean'])} | {fmt(c['brier_pooled'])} | {rel} |")
     return "\n".join(lines) + "\n"
 
 

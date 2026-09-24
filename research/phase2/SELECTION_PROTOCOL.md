@@ -72,3 +72,48 @@ The real benchmark is run only after the lock, as follows:
    and calls. The locked method and the frozen baseline use the same 8 node orders × 3 seeds per network.
 3. **Hidden scoring of the sweeps.** Only after the lock are both sets of sweep predictions scored on the structural
    families. That is one logged hidden evaluation per method and network.
+
+## 7. Amendment after review E (written 2026-09-23, before any method ran on a harder pair suite)
+
+Review E (`research/phase2/reviews/E_cross_connectome.md`) found that the v1 pair design made correspondence nearly free:
+- only members shared anchor profiles;
+- hemilineage was present;
+- the wiring was identical in both networks;
+- the backgrounds were independent;
+- the scorer ignored claims on implementation-shift pairs.
+
+It also found that identity claims were not calibrated. This amendment adds evaluation, and it changes nothing that has
+already been measured.
+
+1. **Harder pair suites.** `hard_pair_specs()` (suite id `synthetic-pairs-v2`) produces `pairs_v2_heldout` (selection
+   role) and `pairs_v2_final` (confirmation role, used once after BrainIR v1 is frozen). Both have fresh secret salts,
+   secret 40-bit seed offsets and anonymised names, and neither enters the clean room. Every pair has:
+   - blank interneuron hemilineage, weaker and noisier anchors, homologous backgrounds, and jittered motif counts in b;
+   - per family, a rewired pair, a pair with a structural decoy plus a sign-consistent anchor decoy, and a null pair
+     (b implements another family);
+   - in addition, 4 implementation-shift pairs and 4 pairs of 2,000 × 2,500 neurons.
+2. **Identity claims are scored on every pair.** A claim is correct only if both neurons are the same neuron, meaning
+   the same planted mechanism member. Under a shift, only members of the retained alternative count. On a null pair
+   every claim is false. The following are reported pooled over claims, per method and arm:
+   - precision;
+   - false claims on shift, null and structural-decoy pairs;
+   - Brier score and reliability diagram of the confidence;
+   - recall of the core.
+3. **BrainIR v1's own cross-connectome step.** It is evaluated as run: v1 on network `a` of every pair, budget 1,000
+   (its cross-connectome calls included, since spawned simulators share the budget), seeds 0, 1, 2. The runs use
+   `pairs_v1_heldout` and `pairs_v2_heldout` before the freeze, and `pairs_v2_final` once after it.
+   - **Interpretation rule (fixed now):** its identity claims are called reliable only if, on `pairs_v2_final`, the
+     pooled precision is at least 0.8, null pairs receive at most 5 % of all claims, and the Brier score beats the
+     constant predictor at the observed precision.
+   - Otherwise the report treats v1's cross-connectome claims, including their hidden-benchmark score, as unreliable.
+     No tuning follows either way.
+4. **Joint discovery against its controls** (review E finding 4). The comparison uses `pairs_v1_heldout` and
+   `pairs_v2_heldout`, seeds 0, 1, 2, and budgets of 1,000 + 1,000. Base methods are `greedy_plus` and
+   `greedy_reference`, under the arms `independent`, `independent_pooled` (b also gets a's unused calls), `joint` and
+   `joint_null` (b's anchor labels and annotations destroyed, simulations unchanged). Success and calls are reported
+   separately, with paired bootstrap CIs.
+   - An efficiency gain is claimed only if joint needs fewer total calls than `joint_null`, with the CI of the
+     difference entirely above 0.
+   - A success gain is claimed only if joint beats both `independent_pooled` and `joint_null` in the same way.
+   - Agreement between a method's own two outputs, such as role-graph similarity a↔b or claim precision on easy pairs,
+     is not reported as evidence.

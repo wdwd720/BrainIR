@@ -182,9 +182,15 @@ def _sweep_job(args) -> dict:
         comp = pred.method.compute or {}
         calls = comp.get("n_simulations") or comp.get("simulations") or comp.get("calls")
     else:
-        pred, result = run_method(method, variant_dir, network, budget=int(args["budget"]), seed=seed, config=args.get("config") or {}, workers=1)
+        from .guard import truth_guard
+
+        # the private permutations and the other runs' outputs are off limits while the method runs (review E finding 7)
+        private = variant_dir.parent.parent / f"{variant_dir.parent.name}__private"
+        with truth_guard(private, run_dir.parent):
+            pred, result = run_method(method, variant_dir, network, budget=int(args["budget"]), seed=seed, config=args.get("config") or {},
+                                      workers=1)
         out.write_text(pred.to_json(), encoding="utf-8", newline="\n")
-        calls = result.budget.get("calls")
+        calls = result.budget.get("total_calls", result.budget.get("calls"))  # every network's calls (review E finding 6)
     perm_arr = np.array(args["perm"])
     positional = bool(args["positional"])
     common = prediction_to_common_frame(pred, perm_arr, positional)
