@@ -1,0 +1,373 @@
+{
+ "label": "adv_h_v10",
+ "suite": "adversarial_heldout",
+ "suite_sha256": "a75fbadefb31c6f7f2427ca18d9d3228232632d23e9e881af009f1f7e6248ad7",
+ "methods": [
+  "brainir_v1"
+ ],
+ "n_jobs": 396,
+ "budget": 1000,
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "networks": [
+  "main",
+  "order1"
+ ],
+ "score_seeds": [
+  5000,
+  5001,
+  5002,
+  5003
+ ],
+ "robust": true,
+ "wall_s": 1270.2,
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 396,
+  "wall_time_s": 1267.1,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 150,
+   "app": "brainir-phase1",
+   "shared_payload_key": "000b141bab3c1a561ab80789f467f32a",
+   "shared_payload_bytes": 5741779,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 13.938
+ },
+ "code": {
+  "commit": "8d0ef4e25a458bf54fceba5fd22788e4661496e5",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "b45a2bdb425822930db113d3f202143a6063ea895e455d85d3692bd893538bc6",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T08:17:13Z"
+ },
+ "environments": [
+  {
+   "implementation": "cpython",
+   "machine": "x86_64",
+   "packages": {
+    "networkx": "3.7",
+    "numpy": "2.5.3",
+    "pandas": "3.0.6",
+    "pyarrow": "25.0.1",
+    "pydantic": "2.13.5",
+    "scipy": "1.18.1"
+   },
+   "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+   "python": "3.12.10",
+   "sim_code_version": "2bb1ae6e62fe65a9",
+   "source_tree_sha256": "b45a2bdb425822930db113d3f202143a6063ea895e455d85d3692bd893538bc6"
+  }
+ ],
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 396,
+   "n_scored": 396,
+   "n_failed": 0,
+   "failures": [],
+   "success_rate": 0.41919191919191917,
+   "success_ci95": [
+    0.3686868686868687,
+    0.4671717171717172
+   ],
+   "success_planted_rate": 0.41919191919191917,
+   "functional_success_rate": 0.7449494949494949,
+   "functional_success_ci95": [
+    0.6994949494949495,
+    0.7878787878787878
+   ],
+   "functional_success_causal_rate": 0.9065656565656566,
+   "success_or_functional_rate": 0.8762626262626263,
+   "recall_best_alt_median": 0.7060185185185186,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9053030303030303,
+   "functional_robust_mean": 0.875,
+   "calls_median": 129.0,
+   "calls_mean": 176.67171717171718,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.8299663299663299,
+   "brier_mean": 0.017691867664727648,
+   "essential_accuracy_mean": null,
+   "removable_fraction": 0.18181818181818182,
+   "simulated_seconds_median": 120.0,
+   "identity_consistency": {
+    "n_instances": 66,
+    "pairwise_jaccard_mean": 0.8683982061263353,
+    "identical_fraction": 0.6666666666666666,
+    "n_empty_cores": 0
+   },
+   "success_intact_rate": 0.4090909090909091,
+   "essential_recall_mean": 0.6828165374677003,
+   "missed_essential_rate": 0.5465116279069767,
+   "latent_backup_rate": 0.15404040404040403,
+   "silent_core_rate": 0.15404040404040403,
+   "silence_core_pass_mean": 0.5151515151515151,
+   "brier_contested_mean": 0.3251913401643245,
+   "brier_contested_any_alternative_mean": 0.3251913401643245,
+   "essential_accuracy_unambiguous_mean": null,
+   "by_family": {
+    "distributed_drive:identical": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 0.3888888888888889,
+     "calls_median": 526.0
+    },
+    "distributed_drive:jittered": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 0.6666666666666666,
+     "calls_median": 419.0
+    },
+    "fragile_vs_robust:band": {
+     "n": 18,
+     "success_rate": 0.7222222222222222,
+     "functional_success_rate": 1.0,
+     "calls_median": 115.5
+    },
+    "fragile_vs_robust:two_impl_rhythm": {
+     "n": 18,
+     "success_rate": 0.9444444444444444,
+     "functional_success_rate": 1.0,
+     "calls_median": 123.0
+    },
+    "identical_decoy:ei_rhythm": {
+     "n": 18,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 104.0
+    },
+    "identical_decoy:ffd_band": {
+     "n": 18,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 183.0
+    },
+    "identical_decoy:memory_persistence": {
+     "n": 18,
+     "success_rate": 1.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 79.0
+    },
+    "identical_decoy:nfc_band": {
+     "n": 18,
+     "success_rate": 1.0,
+     "functional_success_rate": 0.05555555555555555,
+     "calls_median": 226.0
+    },
+    "latent_backup:band": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 122.0
+    },
+    "latent_backup:band_active_head": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 157.0
+    },
+    "latent_backup:band_overlap": {
+     "n": 18,
+     "success_rate": 0.7777777777777778,
+     "functional_success_rate": 1.0,
+     "calls_median": 139.0
+    },
+    "latent_backup:rhythm_delayed": {
+     "n": 18,
+     "success_rate": 0.6666666666666666,
+     "functional_success_rate": 1.0,
+     "calls_median": 274.0
+    },
+    "latent_backup:rhythm_ring": {
+     "n": 18,
+     "success_rate": 0.16666666666666666,
+     "functional_success_rate": 1.0,
+     "calls_median": 157.0
+    },
+    "masked_gate:dio_rhythm": {
+     "n": 18,
+     "success_rate": 0.2777777777777778,
+     "functional_success_rate": 0.7222222222222222,
+     "calls_median": 135.0
+    },
+    "masked_gate:ei_rhythm": {
+     "n": 18,
+     "success_rate": 0.3333333333333333,
+     "functional_success_rate": 0.6666666666666666,
+     "calls_median": 71.0
+    },
+    "masked_gate:ffd_band": {
+     "n": 18,
+     "success_rate": 0.3333333333333333,
+     "functional_success_rate": 0.6666666666666666,
+     "calls_median": 94.0
+    },
+    "masked_gate:integrator_ramp": {
+     "n": 18,
+     "success_rate": 0.3333333333333333,
+     "functional_success_rate": 0.6666666666666666,
+     "calls_median": 66.0
+    },
+    "masked_gate:memory_persistence": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 1.0,
+     "calls_median": 56.0
+    },
+    "masked_gate:nfc_band": {
+     "n": 18,
+     "success_rate": 0.3333333333333333,
+     "functional_success_rate": 0.6666666666666666,
+     "calls_median": 256.0
+    },
+    "masked_gate:wta_selectivity": {
+     "n": 18,
+     "success_rate": 0.3333333333333333,
+     "functional_success_rate": 0.0,
+     "calls_median": 91.0
+    },
+    "subset_of_draws:ei_rhythm": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 0.6111111111111112,
+     "calls_median": 122.0
+    },
+    "subset_of_draws:latch_persistence": {
+     "n": 18,
+     "success_rate": 0.0,
+     "functional_success_rate": 0.2777777777777778,
+     "calls_median": 85.5
+    }
+   }
+  }
+ },
+ "adversarial": {
+  "brainir_v1": {
+   "per_trap": {
+    "distributed_drive": {
+     "n": 36,
+     "correct": 0.0,
+     "confident_wrong": 0.3055555555555556,
+     "latent_backup_returned": 0.0,
+     "essential_recall": null,
+     "participation_fraction": 1.0,
+     "brier_contested": 0.15200636685185184,
+     "exchangeable_gap": 0.8699999999999999
+    },
+    "fragile_vs_robust": {
+     "n": 36,
+     "correct": 0.8333333333333334,
+     "confident_wrong": 0.16666666666666666,
+     "latent_backup_returned": 0.0,
+     "essential_recall": null,
+     "participation_fraction": 1.0,
+     "brier_contested": 0.1520638888888889,
+     "exchangeable_gap": null
+    },
+    "identical_decoy": {
+     "n": 72,
+     "correct": 0.7638888888888888,
+     "confident_wrong": 0.06944444444444445,
+     "latent_backup_returned": 0.0,
+     "essential_recall": 0.9603174603174602,
+     "participation_fraction": 1.0,
+     "brier_contested": 0.21399864004629632,
+     "exchangeable_gap": null
+    },
+    "latent_backup": {
+     "n": 90,
+     "correct": 0.32222222222222224,
+     "confident_wrong": 0.6777777777777778,
+     "latent_backup_returned": 0.6777777777777778,
+     "essential_recall": 0.4583333333333333,
+     "participation_fraction": 0.4444444444444444,
+     "brier_contested": 0.40341678703703704,
+     "exchangeable_gap": null
+    },
+    "masked_gate": {
+     "n": 126,
+     "correct": 0.2777777777777778,
+     "confident_wrong": 0.7222222222222222,
+     "latent_backup_returned": 0.0,
+     "essential_recall": 0.7288359788359788,
+     "participation_fraction": 1.0,
+     "brier_contested": 0.12177582766439907,
+     "exchangeable_gap": null
+    },
+    "subset_of_draws": {
+     "n": 36,
+     "correct": 0.0,
+     "confident_wrong": 0.8055555555555556,
+     "latent_backup_returned": 0.0,
+     "essential_recall": 0.6111111111111112,
+     "participation_fraction": 1.0,
+     "brier_contested": 0.47708819444444445,
+     "exchangeable_gap": 0.7670833333333333
+    }
+   },
+   "n_runs": 396,
+   "confident_wrong": 0.5126262626262627,
+   "correct": 0.37626262626262624,
+   "reliability": [
+    {
+     "bin": [
+      0.0,
+      0.05
+     ],
+     "n": 942,
+     "mean_p": 0.026369426751592363,
+     "observed": 0.2403156050955414
+    },
+    {
+     "bin": [
+      0.05,
+      0.3
+     ],
+     "n": 293,
+     "mean_p": 0.15076791808873719,
+     "observed": 0.8017634812286689
+    },
+    {
+     "bin": [
+      0.3,
+      0.6
+     ],
+     "n": 347,
+     "mean_p": 0.4521181556195967,
+     "observed": 0.5579985590778098
+    },
+    {
+     "bin": [
+      0.6,
+      0.85
+     ],
+     "n": 4,
+     "mean_p": 0.68625,
+     "observed": 0.6146
+    },
+    {
+     "bin": [
+      0.85,
+      1.0
+     ],
+     "n": 1000,
+     "mean_p": 0.9330400000000002,
+     "observed": 0.7646275
+    }
+   ],
+   "brier_contested": 0.22080012045630318,
+   "n_failed": 0,
+   "correct_incl_failures": 0.37626262626262624
+  }
+ },
+ "n_records": 396,
+ "full_records": "adv_h_v10.json.gz"
+}
