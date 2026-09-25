@@ -597,6 +597,18 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     pairs are correctly rejected (S8 = 0.5 for every sharing-capable method).
   - Round-2 feedback was published. The composer had been resumed at 10:18 (it had ended its turn waiting for a monitor, the headless
     pitfall).
+- **2026-09-25 11:20-11:55: review G trap suite on the round-2 top five** (`research/phase3/review_g/results_r2top.json`; Modal, about
+  $1.6). Every candidate is CONFIDENTLY WRONG on at least one new trap, i.e. it gets "compact causal state discovered" where the
+  truth disagrees:
+  - G4, a 9-stage delay chain: 4 methods claim a compact state with k = 3-4, or 14 with E untestable;
+  - G10, non-compressible: lin_falds claims a compact state, k = 10, E untestable; only lin_dmdc abstains;
+  - G7, local validity: ks_sindy claims a compact state with k = 1 against k = 3;
+  - G9, parameter drift: the dimension is right, but the drift is not reported (a milder overclaim).
+
+  On G1 (the symmetry-hidden mode) most methods choose k = 2 against 4, as designed, but none claims a compact state there. Lesson for
+  the report: the verdict conditions (A, C, D, E) cannot certify minimality, or even correctness, of k on designed traps.
+  Decision: nothing is relayed to the composer before brainir_state_v1 is scored on the G suite, so the suite stays an independent test
+  of v1.
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete
