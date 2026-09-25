@@ -1,0 +1,80 @@
+{
+ "name": "reliability_v12_manc_v1.2.1",
+ "config": {
+  "method": "brainir_v1",
+  "network": "manc_v1.2.1",
+  "orders": 8,
+  "budget": 1000,
+  "config": {},
+  "frozen_args": ""
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "launched_utc": "2026-09-24T23:41:15Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 24,
+  "wall_time_s": 3282.6,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 30,
+   "app": "brainir-phase1",
+   "shared_payload_key": "8a89e27b75c9c72e773dee1dbd4570af",
+   "shared_payload_bytes": 9052079,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 5.7773
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/reliability/v12_manc_v1.2.1.json",
+   "sha256": "52e8d4e82e078eb331b4a7209f46d2d21e2abd912d6d9ca906d1cb63aca6051f",
+   "size_bytes": 107609
+  }
+ },
+ "summary": {
+  "method": "brainir_v1",
+  "network": "manc_v1.2.1",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "n_runs": 24,
+  "n_failed": 0,
+  "orders": 8,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "budget": 1000,
+  "functional_fidelity_mean": 1.0,
+  "functional_pass_rate": 1.0,
+  "functional_pass_rate_incl_failures": 1.0,
+  "calls_mean": 399.0,
+  "wall_s_mean": 992.4125,
+  "wall_total_s": 3287.9
+ },
+ "notes": "",
+ "run_id": "dbc21d35058bcb9a",
+ "created_utc": "2026-09-25T00:36:04Z",
+ "code": {
+  "commit": "fbf967d3caa3621e8e2f0ff526edded09b9c42bd",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T23:41:15Z"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

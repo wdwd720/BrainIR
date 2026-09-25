@@ -1,0 +1,80 @@
+{
+ "name": "reliability_v12_male-cns_v1.0",
+ "config": {
+  "method": "brainir_v1",
+  "network": "male-cns_v1.0",
+  "orders": 8,
+  "budget": 1000,
+  "config": {},
+  "frozen_args": ""
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "launched_utc": "2026-09-24T23:41:27Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 24,
+  "wall_time_s": 2738.9,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 30,
+   "app": "brainir-phase1",
+   "shared_payload_key": "abb8f6c2a01d8e1b6a334a1ba2a068e5",
+   "shared_payload_bytes": 5836431,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 4.8204
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/reliability/v12_male-cns_v1.0.json",
+   "sha256": "d8b9d47610590fdaf8ee7ff803b8ec0f134b6a9c8f4d609910dbf9dcb5c0e647",
+   "size_bytes": 107298
+  }
+ },
+ "summary": {
+  "method": "brainir_v1",
+  "network": "male-cns_v1.0",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "n_runs": 24,
+  "n_failed": 0,
+  "orders": 8,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "budget": 1000,
+  "functional_fidelity_mean": 0.96875,
+  "functional_pass_rate": 1.0,
+  "functional_pass_rate_incl_failures": 1.0,
+  "calls_mean": 386.125,
+  "wall_s_mean": 799.3916666666668,
+  "wall_total_s": 2744.1
+ },
+ "notes": "",
+ "run_id": "96bd4018337bcb87",
+ "created_utc": "2026-09-25T00:27:12Z",
+ "code": {
+  "commit": "fbf967d3caa3621e8e2f0ff526edded09b9c42bd",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T23:41:27Z"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

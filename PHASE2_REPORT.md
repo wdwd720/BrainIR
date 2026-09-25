@@ -162,7 +162,47 @@ sections 5–7).
 v1 contains no dataset name, neuron identifier, cell type, mechanism size or instance-specific threshold. This is checked
 by review, by `tests/test_leakage_guard.py` and by the static rules of `tests/test_budget_integrity.py`.
 
-## 8. Confirmation on an untouched suite (*pending*)
+## 8. Confirmation on untouched suites (BrainIR v1.2.0, frozen at commit c3362c0)
+
+The confirmation-role suites were built with secret salts before any method was run on them. They were never in the clean
+room and were used once, after the freeze.
+
+**Mechanisms** (`mechanisms_v1_final`: 57 instances, 2 node orders × 3 seeds, 1,000 calls, robust checks;
+`research/phase2/tournament/conf_mech_b1000.md`, paired comparison `cmp_conf_greedy_reference.md`):
+
+| metric | BrainIR v1.2 | greedy_reference | difference [95 % CI] |
+|---|---|---|---|
+| structural success | 1.000 | 0.754 | +0.246 [+0.140, +0.360] |
+| success_intact (the mechanism the intact network uses) | 1.000 | 0.576 | +0.424 [+0.295, +0.553] |
+| causal functional success | 1.000 | 0.155 | +0.845 [+0.754, +0.924] |
+| planted success | 1.000 | 0.623 | +0.377 [+0.254, +0.500] |
+| essential recall | 1.000 | 0.728 | +0.272 [+0.172, +0.378] |
+| identity Jaccard / identical cores (reliability) | 0.958 / 0.930 | 0.803 / 0.526 | +0.155 [+0.096, +0.217] / +0.404 [+0.281, +0.526] |
+| mean calls (efficiency) | 150 | 290 | 140 fewer [85, 202] |
+| keep-only pass, sd × 2 / weight noise (robustness) | 0.954 / 0.851 | 0.733 / 0.670 | +0.221 [+0.114, +0.332] / +0.181 [+0.073, +0.292] |
+
+**Pre-registered decision rule** (protocol §5, amended §8):
+- **(a)** Success must not be lower than greedy_reference's, on both structural success and `success_intact`. **Holds.**
+- **(b)** At least one advantage in reliability, efficiency or robustness must have a paired CI entirely above 0. **Holds
+  on all three.**
+
+**BrainIR v1.2 is therefore locked as the Phase 2 method.**
+
+**Pairs.** v1.2 ran on network a of each pair, cross-connectome step included, within the same 1,000 calls:
+
+| suite | runs | structural / intact success | identity claims (correct) | false on shift / null / structural decoy |
+|---|---|---|---|---|
+| `pairs_v1_final` (easy design) | 81 | 1.00 / 1.00 | 94 (94) | 0 / 0 / 0 |
+| `pairs_v2_final` (hard design) | 81 | 1.00 / 1.00 | 28 (28) | 0 / 0 / 0 |
+
+**Protocol §7.3 interpretation rule for identity claims** on `pairs_v2_final`:
+- pooled precision 1.00, against the required ≥ 0.8;
+- claims on null pairs 0 %, against the required ≤ 5 %;
+- mean confidence 0.97 against observed precision 1.00, within the required 0.10.
+
+The claims are therefore called reliable. v1 is conservative, though: it claimed in 18 of 81 runs, with core recall 0.24.
+
+**Adversarial** (`adversarial_final`): *pending*.
 
 ## 9. Real benchmark, oracle-free: reliability across node orders and seeds (goal3 §§20–21)
 

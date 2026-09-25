@@ -1,0 +1,169 @@
+{
+ "name": "conf_v12_pairs_v2f",
+ "config": {
+  "methods": [
+   "brainir_v1"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "networks": [
+   "a"
+  ],
+  "configs": {},
+  "instances": [
+   "p0aa6439265cd",
+   "p1208cc76e81c",
+   "p19d26a4e5a7c",
+   "p1e54bd12b62d",
+   "p23f333ec7901",
+   "p289a391f13a4",
+   "p2e7317e94ea6",
+   "p33d52f6999f8",
+   "p41def7afa5f5",
+   "p521533ebace6",
+   "p5217325c14c2",
+   "p5d1bb94178cf",
+   "p6a2033cf8708",
+   "p8a500221e399",
+   "p8da8d4ef3ab5",
+   "p9f24027570e0",
+   "paf78ba131e55",
+   "pb21138b9cbc4",
+   "pbb0e3600b1c6",
+   "pc444cddad58b",
+   "pc94433dbe7f6",
+   "pdfb87daea272",
+   "pe5c41e01f6e2",
+   "pe81967fdcdcb",
+   "pf571b1db7587",
+   "pfa08e1273c41",
+   "pfc3ac683e4d4"
+  ],
+  "score_seeds": [
+   5000,
+   5001,
+   5002,
+   5003
+  ],
+  "robust": true
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "suite": "pairs_v2_final",
+  "suite_sha256": "c08c4bb13b327ef9e2a57aace1f5a34961cf4dc8f6b8e82733ea26607a42567f",
+  "n_instances": 27,
+  "jobs_hash": "8552899da5100fc3acc91ceb44e56ffd17ab5d7e85c6134c99907f579608d28b",
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "launched_utc": "2026-09-24T23:41:03Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 81,
+  "wall_time_s": 703.0,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 150,
+   "app": "brainir-phase1",
+   "shared_payload_key": "4b9ff6449649fe1868a291afc0126031",
+   "shared_payload_bytes": 1425347,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 4.1758
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/conf_v12_pairs_v2f.json",
+   "sha256": "1006f20a4ea082ba6e20a072ba1dd57fdd516698c27573a5232951380718fd70",
+   "size_bytes": 2347651
+  }
+ },
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 81,
+   "n_scored": 81,
+   "n_failed": 0,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 1.0,
+   "functional_success_rate": 0.9259259259259259,
+   "functional_success_ci95": [
+    0.8641975308641975,
+    0.9753086419753086
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 0.9814814814814815,
+   "functional_robust_mean": 0.9166666666666666,
+   "calls_median": 238.0,
+   "calls_mean": 244.41975308641975,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9629629629629629,
+   "brier_mean": 0.0008232400856895065,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.07407407407407407,
+   "simulated_seconds_median": 134.0,
+   "identity_consistency": {
+    "n_instances": 27,
+    "pairwise_jaccard_mean": 1.0,
+    "identical_fraction": 1.0,
+    "n_empty_cores": 0
+   },
+   "success_intact_rate": 1.0,
+   "essential_recall_mean": 1.0,
+   "missed_essential_rate": 0.0,
+   "latent_backup_rate": 0.0,
+   "silent_core_rate": 0.0,
+   "silence_core_pass_mean": 0.21296296296296297,
+   "brier_contested_mean": 0.019330163074718264,
+   "brier_contested_any_alternative_mean": 0.10400668350351233,
+   "essential_accuracy_unambiguous_mean": 1.0
+  }
+ },
+ "notes": "",
+ "run_id": "a28a53386dd2be04",
+ "created_utc": "2026-09-24T23:52:53Z",
+ "code": {
+  "commit": "fbf967d3caa3621e8e2f0ff526edded09b9c42bd",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-24T23:41:03Z"
+ },
+ "environment": {
+  "remote": [
+   {
+    "implementation": "cpython",
+    "machine": "x86_64",
+    "packages": {
+     "networkx": "3.7",
+     "numpy": "2.5.3",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "scipy": "1.18.1"
+    },
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "python": "3.12.10",
+    "sim_code_version": "2bb1ae6e62fe65a9",
+    "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5"
+   }
+  ]
+ }
+}
