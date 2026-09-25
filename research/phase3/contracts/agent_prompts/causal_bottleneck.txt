@@ -1,0 +1,12 @@
+Your prefix: "cb". Your family (E in the tournament): INTERVENTION-AWARE CAUSAL BOTTLENECK. The latent must predict future behaviour AND the consequences of interventions, be closed, and be equivalent across microstates, while minimal.
+
+Register at least:
+1. cb_interchange: interchange-intervention-trained abstraction (IIT / DAS adapted to dynamics). Start with a linear (orthogonally parameterised) encoder. Use an interchange loss with realisers built by state offsets, null-space faithfulness pairs and a multi-horizon loss. Implement lift() (a latent shift -> several distinct microscopic interventions).
+2. cb_psr: a microstate predictive-state representation. Regress the microstate on the law of its futures under a probe bank of inputs / interventions (reduced-rank regression). The rank is the dimension; no spectral gap -> abstain.
+3. cb_cegar: a counterexample-guided refinement and abstention wrapper around a latent model (yours or another registered one):
+   - search for microstates, inputs and permitted interventions that break equivalence or closure (random + adversarial);
+   - refine, or increase k;
+   - stop when a budget finds no validated counterexample;
+   - abstain when no plateau exists.
+
+The intervention training data are the public single-neuron interventions, plus whatever you simulate within the public policy. Held-out TYPES (group interventions, edge removal) and TARGETS must be predicted through the structure of the model, never by per-neuron memorisation.

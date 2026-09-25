@@ -465,3 +465,38 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     - a runner record that captures stdout keeps absolute paths: commit a redacted copy, because the frozen hash covers the
       original;
     - a directory named `truth_backup_pre_audit` escaped a skip rule that matched only `truth`: match `truth*`.
+
+---
+
+## 11. Phase 3 (state discovery; spec goal4.md) — decisions, pitfalls, chronology
+
+### 11.1 Decisions
+
+| id | date | decision | rationale / evidence |
+|---|---|---|---|
+| P3-D1 | 2026-09-24 | Phase 3 code lives in a separate uv project `phase3/` (package `brainir_state`), numerical stack pinned to the root's versions | The root pyproject / uv.lock and `src/brainir/**` are hashed by the Phase 1 benchmark lock and the Phase 2 method lock (a new source file would fail the Phase 2 check) |
+| P3-D2 | 2026-09-24 | Isolation of every oracle-free agent = separate headless Claude Code session whose project directory is its room + PreToolUse guard (`python -I`) + Python audit hook (PYTHONPATH) + permission deny rules + no MCP + private TEMP + cross-session tools blocked (`scripts/p3agent/`); Docker rejected | The OAuth access token expires in ~0.19 h and sharing the refresh token would risk the host's auth; there is no API key. Canary test passed (LEAKAGE_POLICY.md) |
+| P3-D3 | 2026-09-24 | Phase 2 candidates regenerated in `C:\Dev\BrainIR_p3regen` by the locked v1.2 (hash-verified sources), public tier-A bundle, public NO-GATE rhythm criterion, seed 0, budget 1000; kept if keep-only passes on >= 4 of 8 fresh public seeds | goal4 section 5. Result: 7 candidates (net1: 4, 3 neurons; net2: 3, 3, 6; net3: 3, 4), all 8/8. No candidate chosen by hand |
+| P3-D4 | 2026-09-24 | Real systems = 3 full + 7 keep-only mechanism systems; populations by a public probe rule; networks anonymised net1-3; A/B target split by a public seeded permutation; hidden families generated only after the method lock from a salt committed by sha256 | PROTOCOL.md sections 2-3 |
+| P3-D5 | 2026-09-24 | The synthetic benchmark (48 systems, 20 families, traps A-L, 2 implementation groups, 3 unrelated pairs, 2 non-compressible controls) was written by an oracle-free author; `noise_seed`, twins and `targets_public` added on request; suites dev (public seed 20260924) / heldout / final (seeds from the salt) | goal4 section 20. The author's 237 tests pass from the locked copy |
+| P3-D6 | 2026-09-24 | Regression-based metrics (D closure, K latent recovery) use a data-adapted number of random features, min(256, max(16, n/8)), plus the linear features, with the ridge penalty chosen by an inner split by trajectory | With 256 fixed features and 4 test trajectories the cross-fitted R^2 of a correct 1-D latent was -11 (overfitting), not a property of the model |
+| P3-D7 | 2026-09-24 | Synthetic non-intervention roles include the event-free pool trajectories (held-out parameter draws and initial states) | The suites' own test split has only 4 / 8 / 12 non-intervention trajectories per system (dev / heldout / final) |
+| P3-D8 | 2026-09-24 | Tolerances tau_A, tau_C, tau_D, tau_E calibrated on the dev suite with a TRUE-LATENT reference (exact true latent as encoder, learned MLP transition / readout, events through a learned probe) before any method exists | goal4 section 7 ("from baseline distributions and synthetic calibration") |
+| P3-D9 | 2026-09-24 | Method code runs on the orchestrator side only in the sandbox (`brainir_state.runguard`): fits in subprocesses restricted to their inputs; evaluation refuses file / process / network events from method frames | Technological rather than procedural isolation of hidden data from method code (tested) |
+| P3-D10 | 2026-09-24 | Level B by successive halving with a pilot subset of 16 heldout systems fixed before any candidate existed | goal4 section 58; the full design (48 systems + G + I) costs ~85 fits per candidate |
+| P3-D11 | 2026-09-24 | Simulation budgets in units (real full 10, real mechanism 3, synthetic 1 per trajectory); fits get 250 units | A real full-network trajectory costs 10-30 CPU-s, a synthetic one ~0.1 s |
+| P3-D12 | 2026-09-24 | Clean-room ML stack pinned to the evaluation environment (torch 2.14.0, scikit-learn 1.9.1) | Fitted models are pickled and loaded by the orchestrator |
+
+### 11.2 Pitfalls hit
+
+- The real engine costs 10-30 CPU-s per full-network trajectory (adaptive RK45 over n ~ 4,500 and one restart per breakpoint),
+  not the 4-5 s measured on a nominal trajectory. The 3,005 public trajectories took ~40 min on 12 workers.
+- Evaluation workers without thread limits oversubscribed the CPU (numpy BLAS and torch default to all cores): worker
+  initialisers call `threadpoolctl.threadpool_limits(2)` and `torch.set_num_threads(2)`.
+- The fit guard first treated the `mode` argument of the `open` audit event ("r") as a path and refused every import: only the path
+  arguments of an audit event are checked now.
+- Long inline Python patches in bash heredocs failed with "unexpected EOF while looking for matching quote": write patch scripts to
+  the scratchpad with the Write tool.
+- Windows Python needs `C:/...` paths; `/c/...` works only in bash.
+- Real readout populations are small (9, 20 and 10 active readout neurons on net1-3), and the observed populations are 197-213
+  neurons (full) or 3-6 (mechanisms).

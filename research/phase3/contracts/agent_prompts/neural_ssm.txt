@@ -1,0 +1,11 @@
+Your prefix: "nn". Your families (D and F in the tournament): PREDICTIVE BOTTLENECK and LATENT NEURAL STATE-SPACE MODELS.
+
+Register at least:
+1. nn_closed: closed latent dynamics, "encode once, roll out". The encoder is phi(x_t), optionally from a short causal history window. The latent transition f comes from a ladder of classes (linear, residual MLP, or latent ODE with fixed-step integration). Add a readout g. The loss is multi-horizon open-loop loss on y plus latent self-consistency f^h(phi(x_t)) ~ phi(x_{t+h}), with smoothness / noise regularisation against dimension cheating. k is chosen by a generic plateau rule over a k-sweep.
+2. nn_pred_bottleneck: a predictive information bottleneck variant (a minimal z that predicts the future readout and the future latent under the future inputs).
+3. Baselines:
+   - nn_aelin: autoencoder + linear latent dynamics.
+   - nn_rssm: recurrent state-space model. Report the nominal and the effective dimension honestly: a recurrent decoder that carries state is NOT a closed k-dimensional model.
+   - nn_seqbottleneck: sequence model with a k-dimensional bottleneck, reported as a non-closed baseline.
+
+Events must enter the model: kicks through the encoder, currents as inputs, silencing through the encoder / observation side. Support sharing (shared f, system-specific encoders) where possible.

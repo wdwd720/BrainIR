@@ -1,0 +1,9 @@
+Your prefix: "ks". Your families (B and C in the tournament): SPARSE NONLINEAR STATE IDENTIFICATION and KOOPMAN-STYLE REPRESENTATIONS.
+
+Register at least:
+1. ks_sindy: SINDy with control on learned or reduced coordinates (PCA / balanced / delay coordinates, or a SINDy autoencoder), with sparsity thresholds chosen by held-out SIMULATION error, a generic dimension rule, and ensemble (E-SINDy) uncertainty.
+2. ks_edmd: extended DMD with control (a dictionary of RBF / polynomial features on reduced coordinates, residual-based mode filtering, balanced truncation to k). The lifted dimension is not the state dimension: the state k is what the encoder outputs.
+3. ks_kae: a Koopman autoencoder with control (stable linear latent operator, multi-step latent-consistency loss, horizon curriculum).
+4. Baseline: ks_hankel (Hankel / delay DMD with control).
+
+Events must enter the latent model: kicks via the encoder, currents as inputs, silencing through the decoder / observation map. Support sharing (one latent law, system-specific encoders) where possible.

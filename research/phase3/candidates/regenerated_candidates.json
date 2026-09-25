@@ -1,0 +1,929 @@
+{
+ "networks": {
+  "manc_v1.2.1": {
+   "criterion_spec": {
+    "type": "rhythm",
+    "analysis_start_s": 0.25,
+    "active_rate_hz": 0.01,
+    "prominence": 0.05,
+    "score_threshold": 0.5,
+    "amplitude_min_hz": 0.0
+   },
+   "n": 4604,
+   "candidates": [
+    {
+     "label": "final_core",
+     "members": [
+      1126,
+      1220,
+      2825,
+      2973
+     ],
+     "size": 4,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    },
+    {
+     "label": "alternative_0",
+     "members": [
+      2825,
+      2973,
+      3310
+     ],
+     "size": 3,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    }
+   ],
+   "inclusion_probability_top": {
+    "2825": 0.99,
+    "2973": 0.99,
+    "1126": 0.9768,
+    "1220": 0.9768
+   },
+   "method_budget": {
+    "max_calls": 1000,
+    "calls": 334,
+    "cache_hits": 0,
+    "store_hits": 0,
+    "computed_calls": 334,
+    "simulated_seconds": 668.0,
+    "cpu_seconds": 1308.312,
+    "wall_seconds": 1355.403,
+    "batches": 334,
+    "n_distinct_interventions": 115,
+    "n_candidate_mechanisms": 60,
+    "param_seeds": {
+     "n": 23,
+     "min": 17,
+     "max": 601
+    },
+    "network_hash": "d875d337f39bd978",
+    "code_version": "2bb1ae6e62fe65a9",
+    "total_calls": 518,
+    "children": [
+     {
+      "kind": "auxiliary",
+      "max_calls": 250,
+      "calls": 184,
+      "cache_hits": 0,
+      "store_hits": 0,
+      "computed_calls": 184,
+      "simulated_seconds": 368.0,
+      "cpu_seconds": 585.703,
+      "wall_seconds": 593.884,
+      "batches": 184,
+      "n_distinct_interventions": 67,
+      "n_candidate_mechanisms": 24,
+      "param_seeds": {
+       "n": 21,
+       "min": 17,
+       "max": 601
+      },
+      "network_hash": "2825d85507f675e3",
+      "code_version": "2bb1ae6e62fe65a9",
+      "total_calls": 184,
+      "pooled_with_parent": true
+     }
+    ],
+    "total_calls_incl_children": 518,
+    "wall_s": 1951.8
+   },
+   "flags": [],
+   "wall_s": 1964.9,
+   "prediction": {
+    "schema_version": "1.0.0",
+    "benchmark_id": "dng100-benchmark-v1",
+    "dataset": "manc",
+    "dataset_version": "v1.2.1",
+    "stimulus_source_ids": [
+     3084
+    ],
+    "core_neurons": [
+     {
+      "source_id": 2825,
+      "role": "excitatory",
+      "essential": true,
+      "rank": 1,
+      "confidence": 0.99,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 2973,
+      "role": "excitatory",
+      "essential": true,
+      "rank": 2,
+      "confidence": 0.99,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 1126,
+      "role": "inhibitory",
+      "essential": false,
+      "rank": 3,
+      "confidence": 0.9768376910769231,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 1220,
+      "role": "excitatory",
+      "essential": false,
+      "rank": 4,
+      "confidence": 0.9768376910769231,
+      "cell_type_claim": null
+     }
+    ],
+    "dynamics": {
+     "frequency_hz": 9.9009901,
+     "frequency_range_hz": null,
+     "n_active_readout": 2,
+     "rhythmic": true
+    },
+    "mechanism": {
+     "motif": "recurrent excitation + inhibitory feedback loop (3 excitatory, 1 inhibitory; criterion rhythm)",
+     "loop_neurons": [
+      1126,
+      1220,
+      2825,
+      2973
+     ],
+     "notes": "{\"generic_roles\":{\"1126\":{\"role\":\"inhibitory_feedback\",\"p\":0.75},\"1220\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"2825\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"2973\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75}},\"alternatives\":[[2825,2973,3310]],\"fidelity\":{\"keep_only_pass_fraction\":1.0,\"keep_only_pass_fraction_ci90\":[0.5493,0.9898],\"keep_only_pass_fraction_conditional\":1.0,\"intact_pass_fraction\":1.0,\"n_fresh_seeds\":4,\"fresh_seeds\":\"reserved (never used by the selection)\",\"selection_validation\":1.0,\"selection_validation_status\":\"validated\",\"stress_pass_fraction\":null,\"robust_sd_x2_pass_fraction\":null,\"weight_noise_pass_fraction\":null,\"reliance\":{\"compared_with\":1,\"relied_on_more\":1,\"tied\":0,\"relied_on_less\":0,\"ties_in_tie_band\":0},\"mismatch\":0.4071,\"core_frequency_hz\":6.29688115,\"intact_frequency_hz\":10.72001835,\"core_n_active_readout\":13,\"core_size\":4},\"budget\":{\"max_calls\":1000,\"calls\":334,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":334,\"simulated_seconds\":668.0,\"cpu_seconds\":1308.312,\"wall_seconds\":1355.403,\"batches\":334,\"n_distinct_interventions\":115,\"n_candidate_mechanisms\":60,\"param_seeds\":{\"n\":23,\"min\":17,\"max\":601},\"network_hash\":\"d875d337f39bd978\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":518,\"children\":[{\"kind\":\"auxiliary\",\"max_calls\":250,\"calls\":184,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":184,\"simulated_seconds\":368.0,\"cpu_seconds\":585.703,\"wall_seconds\":593.884,\"batches\":184,\"n_distinct_interventions\":67,\"n_candidate_mechanisms\":24,\"param_seeds\":{\"n\":21,\"min\":17,\"max\":601},\"network_hash\":\"2825d85507f675e3\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":184,\"pooled_with_parent\":true}],\"total_calls_incl_children\":518,\"wall_s\":1951.8}}"
+    },
+    "cross_connectome": [],
+    "method": {
+     "name": "brainir_v1",
+     "version": "1.2.0",
+     "description": "BrainIR v1: order-invariant canonical group elimination with enumerated alternatives, admissibility-first causal selection\n    (participation, measured necessity, dynamics fidelity; then a round robin on reliance, Occam and robustness with paired tests),\n    evidence-based uncertainty, simulated intervention predictions and verified cross-connectome transfer. See the module docstring.",
+     "code_commit": null,
+     "inputs_used": [
+      "networks/manc_v1.2.1/neurons.parquet",
+      "networks/manc_v1.2.1/edges.parquet",
+      "networks/manc_v1.2.1/stimulus.json",
+      "networks/manc_v1.2.1/readout.json",
+      "networks/manc_v1.2.1/network.json",
+      "model_config.json",
+      "networks/manc_v1.2.1/criterion.json",
+      "networks/male-cns_v1.0/neurons.parquet",
+      "networks/male-cns_v1.0/edges.parquet",
+      "networks/male-cns_v1.0/stimulus.json",
+      "networks/male-cns_v1.0/readout.json",
+      "networks/male-cns_v1.0/network.json",
+      "networks/male-cns_v1.0/criterion.json"
+     ],
+     "compute": {
+      "simulations": 518,
+      "simulated_seconds": 1036.0,
+      "simulator": {
+       "max_calls": 1000,
+       "calls": 334,
+       "cache_hits": 0,
+       "store_hits": 0,
+       "computed_calls": 334,
+       "simulated_seconds": 668.0,
+       "cpu_seconds": 1308.312,
+       "wall_seconds": 1355.403,
+       "batches": 334,
+       "n_distinct_interventions": 115,
+       "n_candidate_mechanisms": 60,
+       "param_seeds": {
+        "n": 23,
+        "min": 17,
+        "max": 601
+       },
+       "network_hash": "d875d337f39bd978",
+       "code_version": "2bb1ae6e62fe65a9",
+       "total_calls": 518,
+       "children": [
+        {
+         "kind": "auxiliary",
+         "max_calls": 250,
+         "calls": 184,
+         "cache_hits": 0,
+         "store_hits": 0,
+         "computed_calls": 184,
+         "simulated_seconds": 368.0,
+         "cpu_seconds": 585.703,
+         "wall_seconds": 593.884,
+         "batches": 184,
+         "n_distinct_interventions": 67,
+         "n_candidate_mechanisms": 24,
+         "param_seeds": {
+          "n": 21,
+          "min": 17,
+          "max": 601
+         },
+         "network_hash": "2825d85507f675e3",
+         "code_version": "2bb1ae6e62fe65a9",
+         "total_calls": 184,
+         "pooled_with_parent": true
+        }
+       ],
+       "total_calls_incl_children": 518
+      },
+      "wall_s": 1951.8,
+      "config": {
+       "n_seeds_per_decision": 3,
+       "adaptive_replication": true,
+       "max_decision_seeds": 5,
+       "max_seed_trials": 10,
+       "validation_seeds": 3,
+       "max_validation_seeds": 12,
+       "fidelity_seeds": 4,
+       "structural_pruning": true,
+       "activity_pruning": true,
+       "use_structural_prior": true,
+       "relevance_hops": 6,
+       "relevance_damping": 0.6,
+       "prior_weight": 1.0,
+       "use_group_testing": true,
+       "use_active_selection": true,
+       "initial_chunk_fraction": 0.25,
+       "minimality_cleanup": true,
+       "member_essentiality": true,
+       "necessity_screen": true,
+       "necessity_screen_fraction": 0.4,
+       "screen_singles": true,
+       "screen_singles_fraction": 0.15,
+       "screen_min_singles": 4,
+       "screen_singles_per_member": 4,
+       "second_partition": true,
+       "necessity_of_alternatives": true,
+       "max_alternatives": 4,
+       "max_fillers_per_member": 2,
+       "alternatives_budget_fraction": 0.5,
+       "participation_check": true,
+       "fidelity_check": true,
+       "reliance_tiebreak": true,
+       "robust_objective": true,
+       "stress_only_for_ties": true,
+       "stress_probes": 4,
+       "stress_noise_sd": 0.2,
+       "stress_sd_factor": 2.0,
+       "decisive": 0.95,
+       "decisive_margin": 2.0,
+       "decisive_stress": 0.99,
+       "occam_factor": 0.5,
+       "union_repair": true,
+       "degeneracy_detection": true,
+       "joint_necessity": true,
+       "uncertainty_model": "posterior",
+       "size_error_points": 3,
+       "simulate_edge_predictions": true,
+       "edge_prediction_members": 8,
+       "use_cross_connectome": true,
+       "aux_budget_fraction": 0.25,
+       "aux_calls_per_member": 60,
+       "aux_min_calls": 30,
+       "cross_fallback_discovery": true,
+       "cross_fallback_min_calls": 60,
+       "joint_config": {
+        "identity_calibration": [
+         1.2988,
+         0.2166,
+         1.8127
+        ]
+       },
+       "t_end": null
+      },
+      "budget_exhausted": false,
+      "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+      "integrity": {
+       "real_simulations": 518,
+       "charged_computed": 518
+      },
+      "method_file_sha256": "4bfcf81628aba7684688fefd113eddd705a13e250f119caea2050cd65d84d2a7",
+      "method_version": "1.2.0"
+     },
+     "random_seed": 0
+    },
+    "created_utc": "2026-09-25T03:37:35Z"
+   }
+  },
+  "male-cns_v1.0": {
+   "criterion_spec": {
+    "type": "rhythm",
+    "analysis_start_s": 0.25,
+    "active_rate_hz": 0.01,
+    "prominence": 0.05,
+    "score_threshold": 0.5,
+    "amplitude_min_hz": 0.0
+   },
+   "n": 4309,
+   "candidates": [
+    {
+     "label": "final_core",
+     "members": [
+      653,
+      1052,
+      2152
+     ],
+     "size": 3,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    },
+    {
+     "label": "alternative_0",
+     "members": [
+      653,
+      1052,
+      2948
+     ],
+     "size": 3,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    },
+    {
+     "label": "alternative_1",
+     "members": [
+      653,
+      1052,
+      2779,
+      3262,
+      3682,
+      4196
+     ],
+     "size": 6,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    }
+   ],
+   "inclusion_probability_top": {
+    "653": 0.99,
+    "1052": 0.99,
+    "2152": 0.4747,
+    "2948": 0.4187
+   },
+   "method_budget": {
+    "max_calls": 1000,
+    "calls": 348,
+    "cache_hits": 0,
+    "store_hits": 0,
+    "computed_calls": 348,
+    "simulated_seconds": 696.0,
+    "cpu_seconds": 1396.578,
+    "wall_seconds": 1445.715,
+    "batches": 348,
+    "n_distinct_interventions": 118,
+    "n_candidate_mechanisms": 68,
+    "param_seeds": {
+     "n": 29,
+     "min": 17,
+     "max": 801
+    },
+    "network_hash": "2825d85507f675e3",
+    "code_version": "2bb1ae6e62fe65a9",
+    "total_calls": 364,
+    "children": [
+     {
+      "kind": "auxiliary",
+      "max_calls": 250,
+      "calls": 16,
+      "cache_hits": 0,
+      "store_hits": 0,
+      "computed_calls": 16,
+      "simulated_seconds": 32.0,
+      "cpu_seconds": 29.172,
+      "wall_seconds": 29.661,
+      "batches": 16,
+      "n_distinct_interventions": 7,
+      "n_candidate_mechanisms": 4,
+      "param_seeds": {
+       "n": 4,
+       "min": 600,
+       "max": 801
+      },
+      "network_hash": "d875d337f39bd978",
+      "code_version": "2bb1ae6e62fe65a9",
+      "total_calls": 16,
+      "pooled_with_parent": true
+     }
+    ],
+    "total_calls_incl_children": 364,
+    "wall_s": 1478.39
+   },
+   "flags": [],
+   "wall_s": 1518.0,
+   "prediction": {
+    "schema_version": "1.0.0",
+    "benchmark_id": "dng100-benchmark-v1",
+    "dataset": "male-cns",
+    "dataset_version": "v1.0",
+    "stimulus_source_ids": [
+     1589
+    ],
+    "core_neurons": [
+     {
+      "source_id": 653,
+      "role": "excitatory",
+      "essential": true,
+      "rank": 1,
+      "confidence": 0.99,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 1052,
+      "role": "excitatory",
+      "essential": true,
+      "rank": 2,
+      "confidence": 0.99,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 2152,
+      "role": "inhibitory",
+      "essential": false,
+      "rank": 3,
+      "confidence": 0.47473110703160365,
+      "cell_type_claim": null
+     }
+    ],
+    "dynamics": {
+     "frequency_hz": 11.111111099999999,
+     "frequency_range_hz": null,
+     "n_active_readout": 8,
+     "rhythmic": true
+    },
+    "mechanism": {
+     "motif": "recurrent excitation + inhibitory feedback loop (2 excitatory, 1 inhibitory; criterion rhythm)",
+     "loop_neurons": [
+      653,
+      1052,
+      2152
+     ],
+     "notes": "{\"generic_roles\":{\"653\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"1052\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"2152\":{\"role\":\"inhibitory_feedback\",\"p\":0.4747}},\"inclusion_probability_top\":{\"653\":0.99,\"1052\":0.99,\"2152\":0.4747,\"2948\":0.4187,\"91\":0.03,\"190\":0.03,\"197\":0.03,\"208\":0.03,\"209\":0.03,\"229\":0.03,\"234\":0.03,\"313\":0.03,\"356\":0.03,\"473\":0.03,\"484\":0.03,\"509\":0.03,\"532\":0.03,\"536\":0.03,\"559\":0.03,\"590\":0.03,\"780\":0.03,\"781\":0.03,\"804\":0.03,\"814\":0.03,\"828\":0.03},\"alternatives\":[[653,1052,2948],[653,1052,2779,3262,3682,4196]],\"fidelity\":{\"keep_only_pass_fraction\":1.0,\"keep_only_pass_fraction_ci90\":[0.5493,0.9898],\"keep_only_pass_fraction_conditional\":1.0,\"intact_pass_fraction\":1.0,\"n_fresh_seeds\":4,\"fresh_seeds\":\"reserved (never used by the selection)\",\"selection_validation\":1.0,\"selection_validation_status\":\"validated\",\"stress_pass_fraction\":1.0,\"robust_sd_x2_pass_fraction\":1.0,\"weight_noise_pass_fraction\":1.0,\"reliance\":{\"compared_with\":2,\"relied_on_more\":1,\"tied\":1,\"relied_on_less\":0,\"ties_in_tie_band\":0},\"mismatch\":0.3724,\"core_frequency_hz\":16.6666667,\"intact_frequency_hz\":11.363636399999999,\"core_n_active_readout\":5,\"core_size\":3},\"budget\":{\"max_calls\":1000,\"calls\":348,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":348,\"simulated_seconds\":696.0,\"cpu_seconds\":1396.578,\"wall_seconds\":1445.715,\"batches\":348,\"n_distinct_interventions\":118,\"n_candidate_mechanisms\":68,\"param_seeds\":{\"n\":29,\"min\":17,\"max\":801},\"network_hash\":\"2825d85507f675e3\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":364,\"children\":[{\"kind\":\"auxiliary\",\"max_calls\":250,\"calls\":16,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":16,\"simulated_seconds\":32.0,\"cpu_seconds\":29.172,\"wall_seconds\":29.661,\"batches\":16,\"n_distinct_interventions\":7,\"n_candidate_mechanisms\":4,\"param_seeds\":{\"n\":4,\"min\":600,\"max\":801},\"network_hash\":\"d875d337f39bd978\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":16,\"pooled_with_parent\":true}],\"total_calls_incl_children\":364,\"wall_s\":1478.39}}"
+    },
+    "cross_connectome": [
+     {
+      "source_id": 653,
+      "other_dataset": "manc",
+      "other_version": "v1.2.1",
+      "other_source_id": 2825,
+      "basis": "connectivity",
+      "confidence": 0.9997
+     }
+    ],
+    "method": {
+     "name": "brainir_v1",
+     "version": "1.2.0",
+     "description": "BrainIR v1: order-invariant canonical group elimination with enumerated alternatives, admissibility-first causal selection\n    (participation, measured necessity, dynamics fidelity; then a round robin on reliance, Occam and robustness with paired tests),\n    evidence-based uncertainty, simulated intervention predictions and verified cross-connectome transfer. See the module docstring.",
+     "code_commit": null,
+     "inputs_used": [
+      "networks/male-cns_v1.0/neurons.parquet",
+      "networks/male-cns_v1.0/edges.parquet",
+      "networks/male-cns_v1.0/stimulus.json",
+      "networks/male-cns_v1.0/readout.json",
+      "networks/male-cns_v1.0/network.json",
+      "model_config.json",
+      "networks/male-cns_v1.0/criterion.json",
+      "networks/manc_v1.2.1/neurons.parquet",
+      "networks/manc_v1.2.1/edges.parquet",
+      "networks/manc_v1.2.1/stimulus.json",
+      "networks/manc_v1.2.1/readout.json",
+      "networks/manc_v1.2.1/network.json",
+      "networks/manc_v1.2.1/criterion.json"
+     ],
+     "compute": {
+      "simulations": 364,
+      "simulated_seconds": 728.0,
+      "simulator": {
+       "max_calls": 1000,
+       "calls": 348,
+       "cache_hits": 0,
+       "store_hits": 0,
+       "computed_calls": 348,
+       "simulated_seconds": 696.0,
+       "cpu_seconds": 1396.578,
+       "wall_seconds": 1445.715,
+       "batches": 348,
+       "n_distinct_interventions": 118,
+       "n_candidate_mechanisms": 68,
+       "param_seeds": {
+        "n": 29,
+        "min": 17,
+        "max": 801
+       },
+       "network_hash": "2825d85507f675e3",
+       "code_version": "2bb1ae6e62fe65a9",
+       "total_calls": 364,
+       "children": [
+        {
+         "kind": "auxiliary",
+         "max_calls": 250,
+         "calls": 16,
+         "cache_hits": 0,
+         "store_hits": 0,
+         "computed_calls": 16,
+         "simulated_seconds": 32.0,
+         "cpu_seconds": 29.172,
+         "wall_seconds": 29.661,
+         "batches": 16,
+         "n_distinct_interventions": 7,
+         "n_candidate_mechanisms": 4,
+         "param_seeds": {
+          "n": 4,
+          "min": 600,
+          "max": 801
+         },
+         "network_hash": "d875d337f39bd978",
+         "code_version": "2bb1ae6e62fe65a9",
+         "total_calls": 16,
+         "pooled_with_parent": true
+        }
+       ],
+       "total_calls_incl_children": 364
+      },
+      "wall_s": 1478.4,
+      "config": {
+       "n_seeds_per_decision": 3,
+       "adaptive_replication": true,
+       "max_decision_seeds": 5,
+       "max_seed_trials": 10,
+       "validation_seeds": 3,
+       "max_validation_seeds": 12,
+       "fidelity_seeds": 4,
+       "structural_pruning": true,
+       "activity_pruning": true,
+       "use_structural_prior": true,
+       "relevance_hops": 6,
+       "relevance_damping": 0.6,
+       "prior_weight": 1.0,
+       "use_group_testing": true,
+       "use_active_selection": true,
+       "initial_chunk_fraction": 0.25,
+       "minimality_cleanup": true,
+       "member_essentiality": true,
+       "necessity_screen": true,
+       "necessity_screen_fraction": 0.4,
+       "screen_singles": true,
+       "screen_singles_fraction": 0.15,
+       "screen_min_singles": 4,
+       "screen_singles_per_member": 4,
+       "second_partition": true,
+       "necessity_of_alternatives": true,
+       "max_alternatives": 4,
+       "max_fillers_per_member": 2,
+       "alternatives_budget_fraction": 0.5,
+       "participation_check": true,
+       "fidelity_check": true,
+       "reliance_tiebreak": true,
+       "robust_objective": true,
+       "stress_only_for_ties": true,
+       "stress_probes": 4,
+       "stress_noise_sd": 0.2,
+       "stress_sd_factor": 2.0,
+       "decisive": 0.95,
+       "decisive_margin": 2.0,
+       "decisive_stress": 0.99,
+       "occam_factor": 0.5,
+       "union_repair": true,
+       "degeneracy_detection": true,
+       "joint_necessity": true,
+       "uncertainty_model": "posterior",
+       "size_error_points": 3,
+       "simulate_edge_predictions": true,
+       "edge_prediction_members": 8,
+       "use_cross_connectome": true,
+       "aux_budget_fraction": 0.25,
+       "aux_calls_per_member": 60,
+       "aux_min_calls": 30,
+       "cross_fallback_discovery": true,
+       "cross_fallback_min_calls": 60,
+       "joint_config": {
+        "identity_calibration": [
+         1.2988,
+         0.2166,
+         1.8127
+        ]
+       },
+       "t_end": null
+      },
+      "budget_exhausted": false,
+      "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+      "integrity": {
+       "real_simulations": 364,
+       "charged_computed": 364
+      },
+      "method_file_sha256": "4bfcf81628aba7684688fefd113eddd705a13e250f119caea2050cd65d84d2a7",
+      "method_version": "1.2.0"
+     },
+     "random_seed": 0
+    },
+    "created_utc": "2026-09-25T03:29:42Z"
+   }
+  },
+  "manc_v1.2.3": {
+   "criterion_spec": {
+    "type": "rhythm",
+    "analysis_start_s": 0.25,
+    "active_rate_hz": 0.01,
+    "prominence": 0.05,
+    "score_threshold": 0.5,
+    "amplitude_min_hz": 0.0
+   },
+   "n": 4604,
+   "candidates": [
+    {
+     "label": "final_core",
+     "members": [
+      1251,
+      1351,
+      3959
+     ],
+     "size": 3,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    },
+    {
+     "label": "alternative_0",
+     "members": [
+      1215,
+      1251,
+      1351,
+      2514
+     ],
+     "size": 4,
+     "keep_only_pass_fraction": 1.0,
+     "validated": true
+    }
+   ],
+   "inclusion_probability_top": {
+    "1251": 0.99,
+    "1351": 0.99,
+    "3959": 0.4961,
+    "1215": 0.4375,
+    "2514": 0.4375
+   },
+   "method_budget": {
+    "max_calls": 1000,
+    "calls": 367,
+    "cache_hits": 0,
+    "store_hits": 0,
+    "computed_calls": 367,
+    "simulated_seconds": 734.0,
+    "cpu_seconds": 1475.25,
+    "wall_seconds": 1525.819,
+    "batches": 367,
+    "n_distinct_interventions": 118,
+    "n_candidate_mechanisms": 57,
+    "param_seeds": {
+     "n": 25,
+     "min": 17,
+     "max": 801
+    },
+    "network_hash": "09ab8cbffa69737f",
+    "code_version": "2bb1ae6e62fe65a9",
+    "total_calls": 383,
+    "children": [
+     {
+      "kind": "auxiliary",
+      "max_calls": 250,
+      "calls": 16,
+      "cache_hits": 0,
+      "store_hits": 0,
+      "computed_calls": 16,
+      "simulated_seconds": 32.0,
+      "cpu_seconds": 27.125,
+      "wall_seconds": 27.624,
+      "batches": 16,
+      "n_distinct_interventions": 7,
+      "n_candidate_mechanisms": 4,
+      "param_seeds": {
+       "n": 4,
+       "min": 600,
+       "max": 801
+      },
+      "network_hash": "2825d85507f675e3",
+      "code_version": "2bb1ae6e62fe65a9",
+      "total_calls": 16,
+      "pooled_with_parent": true
+     }
+    ],
+    "total_calls_incl_children": 383,
+    "wall_s": 1556.67
+   },
+   "flags": [],
+   "wall_s": 1573.1,
+   "prediction": {
+    "schema_version": "1.0.0",
+    "benchmark_id": "dng100-benchmark-v1",
+    "dataset": "manc",
+    "dataset_version": "v1.2.3",
+    "stimulus_source_ids": [
+     2702
+    ],
+    "core_neurons": [
+     {
+      "source_id": 1251,
+      "role": "excitatory",
+      "essential": true,
+      "rank": 1,
+      "confidence": 0.99,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 1351,
+      "role": "excitatory",
+      "essential": true,
+      "rank": 2,
+      "confidence": 0.99,
+      "cell_type_claim": null
+     },
+     {
+      "source_id": 3959,
+      "role": "inhibitory",
+      "essential": false,
+      "rank": 3,
+      "confidence": 0.49605039,
+      "cell_type_claim": null
+     }
+    ],
+    "dynamics": {
+     "frequency_hz": 10.7526882,
+     "frequency_range_hz": null,
+     "n_active_readout": 2,
+     "rhythmic": true
+    },
+    "mechanism": {
+     "motif": "recurrent excitation + inhibitory feedback loop (2 excitatory, 1 inhibitory; criterion rhythm)",
+     "loop_neurons": [
+      1251,
+      1351,
+      3959
+     ],
+     "notes": "{\"generic_roles\":{\"1251\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"1351\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"3959\":{\"role\":\"inhibitory_feedback\",\"p\":0.4961}},\"inclusion_probability_top\":{\"1251\":0.99,\"1351\":0.99,\"3959\":0.4961,\"1215\":0.4375,\"2514\":0.4375,\"40\":0.03,\"55\":0.03,\"166\":0.03,\"197\":0.03,\"383\":0.03,\"391\":0.03,\"411\":0.03,\"511\":0.03,\"546\":0.03,\"652\":0.03,\"653\":0.03,\"778\":0.03,\"842\":0.03,\"849\":0.03,\"1049\":0.03,\"1099\":0.03,\"1210\":0.03,\"1232\":0.03,\"1327\":0.03,\"1416\":0.03},\"alternatives\":[[1215,1251,1351,2514]],\"fidelity\":{\"keep_only_pass_fraction\":1.0,\"keep_only_pass_fraction_ci90\":[0.5493,0.9898],\"keep_only_pass_fraction_conditional\":1.0,\"intact_pass_fraction\":1.0,\"n_fresh_seeds\":4,\"fresh_seeds\":\"reserved (never used by the selection)\",\"selection_validation\":1.0,\"selection_validation_status\":\"validated\",\"stress_pass_fraction\":null,\"robust_sd_x2_pass_fraction\":null,\"weight_noise_pass_fraction\":null,\"reliance\":{\"compared_with\":1,\"relied_on_more\":0,\"tied\":1,\"relied_on_less\":0,\"ties_in_tie_band\":1},\"mismatch\":0.226,\"core_frequency_hz\":14.81562775,\"intact_frequency_hz\":11.052760150000001,\"core_n_active_readout\":2,\"core_size\":3},\"budget\":{\"max_calls\":1000,\"calls\":367,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":367,\"simulated_seconds\":734.0,\"cpu_seconds\":1475.25,\"wall_seconds\":1525.819,\"batches\":367,\"n_distinct_interventions\":118,\"n_candidate_mechanisms\":57,\"param_seeds\":{\"n\":25,\"min\":17,\"max\":801},\"network_hash\":\"09ab8cbffa69737f\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":383,\"children\":[{\"kind\":\"auxiliary\",\"max_calls\":250,\"calls\":16,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":16,\"simulated_seconds\":32.0,\"cpu_seconds\":27.125,\"wall_seconds\":27.624,\"batches\":16,\"n_distinct_interventions\":7,\"n_candidate_mechanisms\":4,\"param_seeds\":{\"n\":4,\"min\":600,\"max\":801},\"network_hash\":\"2825d85507f675e3\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":16,\"pooled_with_parent\":true}],\"total_calls_incl_children\":383,\"wall_s\":1556.67}}"
+    },
+    "cross_connectome": [
+     {
+      "source_id": 1251,
+      "other_dataset": "male-cns",
+      "other_version": "v1.0",
+      "other_source_id": 653,
+      "basis": "connectivity",
+      "confidence": 0.9997
+     }
+    ],
+    "method": {
+     "name": "brainir_v1",
+     "version": "1.2.0",
+     "description": "BrainIR v1: order-invariant canonical group elimination with enumerated alternatives, admissibility-first causal selection\n    (participation, measured necessity, dynamics fidelity; then a round robin on reliance, Occam and robustness with paired tests),\n    evidence-based uncertainty, simulated intervention predictions and verified cross-connectome transfer. See the module docstring.",
+     "code_commit": null,
+     "inputs_used": [
+      "networks/manc_v1.2.3/neurons.parquet",
+      "networks/manc_v1.2.3/edges.parquet",
+      "networks/manc_v1.2.3/stimulus.json",
+      "networks/manc_v1.2.3/readout.json",
+      "networks/manc_v1.2.3/network.json",
+      "model_config.json",
+      "networks/manc_v1.2.3/criterion.json",
+      "networks/male-cns_v1.0/neurons.parquet",
+      "networks/male-cns_v1.0/edges.parquet",
+      "networks/male-cns_v1.0/stimulus.json",
+      "networks/male-cns_v1.0/readout.json",
+      "networks/male-cns_v1.0/network.json",
+      "networks/male-cns_v1.0/criterion.json"
+     ],
+     "compute": {
+      "simulations": 383,
+      "simulated_seconds": 766.0,
+      "simulator": {
+       "max_calls": 1000,
+       "calls": 367,
+       "cache_hits": 0,
+       "store_hits": 0,
+       "computed_calls": 367,
+       "simulated_seconds": 734.0,
+       "cpu_seconds": 1475.25,
+       "wall_seconds": 1525.819,
+       "batches": 367,
+       "n_distinct_interventions": 118,
+       "n_candidate_mechanisms": 57,
+       "param_seeds": {
+        "n": 25,
+        "min": 17,
+        "max": 801
+       },
+       "network_hash": "09ab8cbffa69737f",
+       "code_version": "2bb1ae6e62fe65a9",
+       "total_calls": 383,
+       "children": [
+        {
+         "kind": "auxiliary",
+         "max_calls": 250,
+         "calls": 16,
+         "cache_hits": 0,
+         "store_hits": 0,
+         "computed_calls": 16,
+         "simulated_seconds": 32.0,
+         "cpu_seconds": 27.125,
+         "wall_seconds": 27.624,
+         "batches": 16,
+         "n_distinct_interventions": 7,
+         "n_candidate_mechanisms": 4,
+         "param_seeds": {
+          "n": 4,
+          "min": 600,
+          "max": 801
+         },
+         "network_hash": "2825d85507f675e3",
+         "code_version": "2bb1ae6e62fe65a9",
+         "total_calls": 16,
+         "pooled_with_parent": true
+        }
+       ],
+       "total_calls_incl_children": 383
+      },
+      "wall_s": 1556.7,
+      "config": {
+       "n_seeds_per_decision": 3,
+       "adaptive_replication": true,
+       "max_decision_seeds": 5,
+       "max_seed_trials": 10,
+       "validation_seeds": 3,
+       "max_validation_seeds": 12,
+       "fidelity_seeds": 4,
+       "structural_pruning": true,
+       "activity_pruning": true,
+       "use_structural_prior": true,
+       "relevance_hops": 6,
+       "relevance_damping": 0.6,
+       "prior_weight": 1.0,
+       "use_group_testing": true,
+       "use_active_selection": true,
+       "initial_chunk_fraction": 0.25,
+       "minimality_cleanup": true,
+       "member_essentiality": true,
+       "necessity_screen": true,
+       "necessity_screen_fraction": 0.4,
+       "screen_singles": true,
+       "screen_singles_fraction": 0.15,
+       "screen_min_singles": 4,
+       "screen_singles_per_member": 4,
+       "second_partition": true,
+       "necessity_of_alternatives": true,
+       "max_alternatives": 4,
+       "max_fillers_per_member": 2,
+       "alternatives_budget_fraction": 0.5,
+       "participation_check": true,
+       "fidelity_check": true,
+       "reliance_tiebreak": true,
+       "robust_objective": true,
+       "stress_only_for_ties": true,
+       "stress_probes": 4,
+       "stress_noise_sd": 0.2,
+       "stress_sd_factor": 2.0,
+       "decisive": 0.95,
+       "decisive_margin": 2.0,
+       "decisive_stress": 0.99,
+       "occam_factor": 0.5,
+       "union_repair": true,
+       "degeneracy_detection": true,
+       "joint_necessity": true,
+       "uncertainty_model": "posterior",
+       "size_error_points": 3,
+       "simulate_edge_predictions": true,
+       "edge_prediction_members": 8,
+       "use_cross_connectome": true,
+       "aux_budget_fraction": 0.25,
+       "aux_calls_per_member": 60,
+       "aux_min_calls": 30,
+       "cross_fallback_discovery": true,
+       "cross_fallback_min_calls": 60,
+       "joint_config": {
+        "identity_calibration": [
+         1.2988,
+         0.2166,
+         1.8127
+        ]
+       },
+       "t_end": null
+      },
+      "budget_exhausted": false,
+      "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+      "integrity": {
+       "real_simulations": 383,
+       "charged_computed": 383
+      },
+      "method_file_sha256": "4bfcf81628aba7684688fefd113eddd705a13e250f119caea2050cd65d84d2a7",
+      "method_version": "1.2.0"
+     },
+     "random_seed": 0
+    },
+    "created_utc": "2026-09-25T03:31:00Z"
+   }
+  }
+ },
+ "method": "brainir_v1",
+ "seed": 0,
+ "budget": 1000,
+ "criterion": "public (amplitude gate 0)",
+ "validation_seeds": [
+  9000,
+  9001,
+  9002,
+  9003,
+  9004,
+  9005,
+  9006,
+  9007
+ ]
+}

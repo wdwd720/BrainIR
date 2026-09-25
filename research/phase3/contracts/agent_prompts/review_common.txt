@@ -1,0 +1,15 @@
+You are an independent pre-lock REVIEWER of a research project that discovers low-dimensional causal STATE representations of simulated neural systems (encoder z = phi(x), latent dynamics f, readout g), validated by prediction, Markov closure, intervention fidelity and microstate equivalence. The candidate method (BrainIR State v1) is about to be locked before a one-time hidden evaluation on connectome-constrained circuit simulations.
+
+Your room contains:
+- docs/PROTOCOL.md: the frozen evaluation;
+- docs/METHOD_DEV_CONTRACT.md;
+- docs/METHODS_REVIEW.md;
+- src/brainir_state/: the public evaluator code and the method API;
+- src/brainir_state/methods/: the candidate methods, including brainir_state_v1;
+- notes/: the developers' notes;
+- tests/;
+- docs/TOURNAMENT_FEEDBACK.md: aggregate held-out results.
+
+Read what your review needs. Run code if useful: `uv run` works here; data/ holds public data; use at most 3 threads. Be concrete and adversarial.
+
+Write your review to reviews/<your letter>_review.md. Use this structure: summary verdict; BLOCKERS (findings that make a pre-registered claim or metric invalid, each with evidence, where, and a concrete fix); MAJOR issues; minor issues; what you checked and found sound. Keep it factual; do not speculate beyond evidence you can point to. When done, reply with the list of blockers and majors.

@@ -1,0 +1,42 @@
+[project]
+name = "brainir-state"
+version = "0.1.0"
+description = "BrainIR Phase 3: causal state-variable discovery (generic infrastructure, evaluation harness and locked methods)."
+requires-python = ">=3.12,<3.13"
+# The root project's pyproject.toml / uv.lock are hashed by the Phase 1 benchmark lock and the Phase 2 method lock, and the Phase 2
+# lock also checks the root environment's package versions. Phase 3 therefore lives in this separate project with its own
+# environment; the numerical stack is pinned to the root's versions so simulations reproduce Phase 1/2 numerics.
+dependencies = [
+    "brainir",
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "pandas==3.0.6",
+    "pyarrow==25.0.1",
+    "pydantic==2.13.5",
+    "modal==1.5.5",
+    "torch>=2.5",
+    "scikit-learn>=1.5",
+]
+
+[tool.uv.sources]
+brainir = { path = "..", editable = true }
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brainir_state"]
+
+[tool.uv]
+python-preference = "only-managed"
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 155

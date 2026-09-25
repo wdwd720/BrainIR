@@ -1,0 +1,8 @@
+Your prefix: "lin". Your family (A in the tournament): LINEAR SUBSPACE IDENTIFICATION AND BALANCED MODEL REDUCTION, plus the classical linear baselines. This family is the strongest non-deep competitor and may well be sufficient; implement it as strongly as you can.
+
+Register at least:
+1. lin_subspace: subspace identification with inputs (CVA / N4SID-style) from the observed microstate, order selected by a generic rule (for example the canonical-correlation spectrum against surrogates plus the held-out multi-step plateau), optionally refined (EM or prediction-error). Encoder = the state estimate from the past (a Kalman-type filter, or the regression of the state on recent x and u). Events are handled through the model: kicks as state offsets through the encoder, currents as input channels, silencing through the observation model.
+2. lin_balanced: balanced reduction from empirical controllability / observability of the permitted perturbations (empirical gramians), with a learned nonlinear closure of the reduced dynamics if it helps.
+3. Baselines, tuned honestly: lin_pcadyn (PCA + linear dynamics selected by free-run multi-horizon error, with a delay variant), lin_dmdc (DMD with control), lin_falds (factor analysis + linear dynamical system).
+
+Every method must support the sharing / adaptation config keys where the family allows (for example shared latent dynamics with system-specific observation maps).

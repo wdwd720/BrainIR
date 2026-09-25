@@ -1,0 +1,32 @@
+[project]
+name = "brainir-state-cleanroom"
+version = "0.1.0"
+description = "Phase 3 clean development room: public state-discovery modules and method work area."
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "pandas==3.0.6",
+    "pyarrow==25.0.1",
+    "pydantic==2.13.5",
+    "torch==2.14.0",
+    "scikit-learn==1.9.1",
+    "threadpoolctl==3.7.0",
+]
+# versions identical to the orchestrator's evaluation environment (phase3/uv.lock): fitted models are pickled in the tournament
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brainir_state"]
+
+[tool.uv]
+python-preference = "only-managed"
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

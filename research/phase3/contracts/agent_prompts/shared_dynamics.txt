@@ -1,0 +1,18 @@
+Your prefix: "sd". Your family (G in the tournament): SHARED CROSS-IMPLEMENTATION STATE MODELS. Encoders / readouts are implementation-specific; the latent transition law is ONE and shared. Test it against independent models, and reject sharing honestly when it is not supported.
+
+Register at least:
+1. sd_shared: a multi-encoder shared-dynamics model, with per-system encoders phi_s and readouts g_s and one f. It must support:
+   - fit(config sharing='shared') on several systems;
+   - fit(config sharing='independent');
+   - encoder-only adaptation (config adapt_from: f frozen, fit only phi and g of new systems);
+   - a sharing verdict in info(), computed from training / validation data only (for example shared vs independent validation error with capacity-matched models), so the method can say "sharing unsupported".
+2. sd_lowrank: a unit-space low-rank RNN (tau dx/dt = -x + M N^T phi(x) + W_in u, rank R).
+   - Every microscopic intervention acts natively on units: kicks, currents, silencing = removing a unit, edge removal = editing the low-rank factors / coupling.
+   - The latent state is the projection on the column space of M.
+   - R is chosen generically.
+   - For the real systems, the public local connectivity (systems[...]['local_graph'], 'signs') may be used as a structural prior.
+
+Test sharing honestly:
+- several systems of one real network are alternative implementations;
+- synthetic dev systems may or may not share dynamics (you are not told which);
+- unrelated systems must not be judged equivalent.
