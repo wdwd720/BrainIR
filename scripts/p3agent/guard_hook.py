@@ -95,6 +95,11 @@ SHELL_CONSTRUCTS = [
     (r"(>>?|\btee\b|\bcp\b|\bmv\b|\bsed\s+-i|set-content|add-content|out-file|\brm\b|\bdel\b|remove-item|move-item|copy-item)[^\n;&|]*"
      r"(claude\.md|\.claude\b)|(claude\.md|\.claude\b)[^\n;&|]*(>>?)", "the clean room's CLAUDE.md and .claude settings are read-only"),
     (r"dirname\s*\(\s*os\.getcwd|getcwd\(\)\s*\)\s*\.\s*parent|\bos\.path\.split\s*\(\s*os\.getcwd", "parent-of-cwd idioms are not allowed"),
+    # processes are stopped only by explicit id (never by image name / wildcard / pipeline: other agents and the simulation
+    # service run on this machine)
+    (r"stop-process\s+(-name|-processname)\b|\|\s*stop-process\b|\|\s*%\s*\{\s*stop-process|\btaskkill\b[^\n;&|]*/im\b|"
+     r"\b(pkill|killall)\b|\bwmic\b[^\n;&|]*\bdelete\b|get-process[^\n;&]*\|\s*(stop-process|kill)|\bstop-process\s+\*",
+     "stop processes only by their explicit id (Stop-Process -Id <pid>); other work runs on this machine"),
 ]
 # web queries / URLs must not name the benchmark's circuit, datasets or source paper
 WEB_BLOCK = [r"dng100", r"\bbdn2\b", r"pugliese", r"walking\s*cpg", r"walking\s+central\s+pattern", r"malecns", r"male\s*cns",

@@ -84,6 +84,12 @@ CASES = [
     ("Bash", {"command": "sed -i 's/time.time()/time.process_time()/g' runs/sd/p.py && uv run python runs/sd/p.py"}, True),
     ("Bash", {"command": "sed -i 's/c = f(x)/c = g(x)/' runs/nn/p.py"}, True),
     ("Bash", {"command": "awk '{print $1/$2}' runs/x.txt"}, True),
+    # processes may be stopped only by explicit id (other agents and the simulation service share the machine)
+    ("PowerShell", {"command": "Stop-Process -Id 1234 -Force"}, True),
+    ("PowerShell", {"command": "Stop-Process -Name python"}, False),
+    ("PowerShell", {"command": "Get-Process python | Stop-Process"}, False),
+    ("Bash", {"command": "taskkill /F /IM python.exe"}, False),
+    ("Bash", {"command": "kill 1234"}, True),
 ]
 
 
