@@ -1,0 +1,170 @@
+{
+ "name": "transfer_xfer_v12",
+ "config": {
+  "method": "brainir_v1",
+  "a": "male-cns_v1.0",
+  "b": "manc_v1.2.1",
+  "modes": [
+   "independent",
+   "transfer",
+   "prior",
+   "joint"
+  ],
+  "budget_a": 1000,
+  "budget_b": 1000,
+  "config": {
+   "method_config": {
+    "use_cross_connectome": false
+   }
+  }
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle": "public_blind"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 24,
+  "wall_time_s": 3951.5,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 4096,
+   "timeout_s": 7200,
+   "max_containers": 60,
+   "app": "brainir-phase1",
+   "shared_payload_key": "3ca193bd5fc2f7f182844a73062332a0",
+   "shared_payload_bytes": 1869349,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 7.5869
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/transfer/xfer_v12.json",
+   "sha256": "6e9fe5ceb2ad8d48ce1e80cda5c294ce779430ce649f2a093ce012a3c25d06c2",
+   "size_bytes": 64025
+  }
+ },
+ "summary": {
+  "male-cns_v1.0->manc_v1.2.1/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 406.3333333333333,
+   "calls_dst": 358.6666666666667,
+   "calls_adaptation": 0.0,
+   "calls_total": 765.0,
+   "size_src": 3.0,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 406.3333333333333,
+   "calls_dst": 2.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 408.3333333333333,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": 0.0
+  },
+  "male-cns_v1.0->manc_v1.2.1/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 406.3333333333333,
+   "calls_dst": 362.0,
+   "calls_adaptation": 0.0,
+   "calls_total": 768.3333333333334,
+   "size_src": 3.0,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": null
+  },
+  "male-cns_v1.0->manc_v1.2.1/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 406.3333333333333,
+   "calls_dst": 0.0,
+   "calls_adaptation": 16.333333333333332,
+   "calls_total": 422.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/independent": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 358.6666666666667,
+   "calls_dst": 406.3333333333333,
+   "calls_adaptation": 0.0,
+   "calls_total": 765.0,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/transfer": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 0.6666666666666666,
+   "dst_pass_fraction_mean": 0.6666666666666666,
+   "calls_src": 358.6666666666667,
+   "calls_dst": 2.0,
+   "calls_adaptation": 21.333333333333332,
+   "calls_total": 382.0,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.3333333333333335,
+   "null_pass_rate": 0.0
+  },
+  "manc_v1.2.1->male-cns_v1.0/prior": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 358.6666666666667,
+   "calls_dst": 366.6666666666667,
+   "calls_adaptation": 0.0,
+   "calls_total": 725.3333333333334,
+   "size_src": 3.3333333333333335,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  },
+  "manc_v1.2.1->male-cns_v1.0/joint": {
+   "n": 3,
+   "src_pass_rate": 1.0,
+   "dst_pass_rate": 1.0,
+   "dst_pass_fraction_mean": 1.0,
+   "calls_src": 0.0,
+   "calls_dst": 406.3333333333333,
+   "calls_adaptation": 16.333333333333332,
+   "calls_total": 422.6666666666667,
+   "size_src": 3.0,
+   "size_dst": 3.0,
+   "null_pass_rate": null
+  }
+ },
+ "notes": "",
+ "run_id": "f012f56fa06d1160",
+ "created_utc": "2026-09-25T00:47:44Z",
+ "code": {
+  "commit": "c1f3091e89238d8c71779a8f77cc81d136910fd2",
+  "src_dirty": false,
+  "brainir_version": "0.0.1"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}

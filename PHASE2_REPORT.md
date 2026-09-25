@@ -281,7 +281,25 @@ is for both networks.
 
 On the hard design v1 is conservative. It claims rarely, and when it does it is right.
 
-BrainIR v1's own transfer experiments and the hidden-oracle scoring of its cross-connectome claims: *pending*.
+**BrainIR v1.2 as the base method** (`research/phase2/transfer/xfer_v12.md`). The runs are oracle-free, with 3 seeds and
+1,000 calls per network. v1's own cross-connectome step is off here, because the transfer machinery is being tested:
+
+| goal3 §18 experiment | MaleCNS → MANC v1.2.1 | MANC v1.2.1 → MaleCNS |
+|---|---|---|
+| A / B: discover, then transfer only (destination sufficient, destination calls) | 3/3, 2 calls (vs 359 for independent discovery) | 2/3, 2 + 21 adaptation calls (vs 406) |
+| matched random null (same size and sign composition) | 0.00 | 0.00 |
+| C: joint vs independent (both sufficient, total calls) | 3/3, 423 vs 765 | 3/3, 423 vs 765 |
+| D: correspondence prior only (destination calls) | 362 vs 359 (no saving) | 367 vs 406 (−10 %) |
+
+- **Transfer works on the real networks.** A mechanism discovered in one connectome is functionally sufficient in the
+  other after anchor-based correspondence and verification, with almost no destination calls. It passes where
+  size-matched random sets never do.
+- **Agreement with independent discovery.** The transferred core agrees with the destination's own independently
+  discovered core at Jaccard 0.80.
+- **The prior barely helps.** Seeding the destination's own search with the correspondence changes its cost little.
+- **Only functional equivalence is shown.** The transferred core works in the destination; that is not evidence of
+  neuron identity. v1's identity claims are evaluated separately, on synthetic pairs (section 8) and by the frozen
+  evaluator's cross-connectome family (section 12).
 
 ## 11. Ablations, anti-gaming checks, nulls
 
