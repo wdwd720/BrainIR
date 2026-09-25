@@ -563,6 +563,17 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   One "answer token" hit in m_lin was a false positive. A 5-digit file size in an `ls -la` listing equals a numeric body id of the
   answer. The audit now reports the CLASS of each hit (numeric length / non-numeric), never the value. There are no non-numeric
   hits anywhere.
+- **2026-09-25 08:35: developers asked to wrap up.** After 9.5 h the five method agents had settled their code but planned 2-12 h of
+  further validation runs for their notes (one chain was "about 12 h of sequential jobs" on the loaded machine). Each session was
+  stopped and resumed (`launch.py --resume`) with a generic wrap-up note:
+  - stop your own long jobs by process id;
+  - freeze the code (bug fixes only);
+  - make the tests pass;
+  - finish the notes with the results you have, marking missing numbers "not run";
+  - declare candidates vs baselines;
+  - report within about 45 min.
+
+  The note carried no evaluation information.
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete
