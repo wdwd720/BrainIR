@@ -1,0 +1,23 @@
+# Final test run of Phase 2 (2026-09-25, HEAD 9db1da5 + uncommitted docs): uv run --no-sync python -m pytest -q -p no:cacheprovider
+# absolute paths replaced by $REPO / $VENV
+........................................................................ [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+........................................................................ [ 52%]
+..............s......................................................... [ 65%]
+........................................................................ [ 78%]
+........................................................................ [ 91%]
+.................................................                        [100%]
+============================== warnings summary ===============================
+tests/test_budget_integrity.py::test_failures_stay_in_the_denominators
+  C:\Dev\BrainIR\.venv\Lib\site-packages\numpy\_core\fromnumeric.py:3862: RuntimeWarning: Mean of empty slice
+    return _methods._mean(a, axis=axis, dtype=dtype,
+
+tests/test_budget_integrity.py::test_failures_stay_in_the_denominators
+  C:\Dev\BrainIR\.venv\Lib\site-packages\numpy\_core\_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+    ret = ret.dtype.type(ret / rcount)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+SKIPPED [1] tests\test_modal_consistency.py:16: set BRAINIR_TEST_MODAL=1 to run
+552 passed, 1 skipped, 2 warnings in 456.27s (0:07:36)

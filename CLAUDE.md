@@ -5,8 +5,10 @@ BrainIR aims to decompile biological neural circuits into compact, executable, t
 **Phase 1 (cross-connectome DNg100 benchmark, MaleCNS + MANC) is complete and frozen**: spec `goal2.md`, report
 `PHASE1_REPORT.md`, benchmark package `benchmarks/dng100/` locked by `BENCHMARK_LOCK.json` and git tag
 `dng100-benchmark-v1`. Changing the bundles, oracle or evaluator requires a new benchmark version (`PROTOCOL.md` §6).
-**Phase 2 (blind causal mechanism discovery, spec `goal3.md`) is in progress**: status in `research/LOG.md` §10,
-protocol `research/phase2/SELECTION_PROTOCOL.md`, hidden-evaluation log `research/phase2/HIDDEN_EVAL_LOG.md`.
+**Phase 2 (blind causal mechanism discovery, spec `goal3.md`) is complete**: report `PHASE2_REPORT.md` (answer-bearing),
+locked method BrainIR v1.2.0 (`research/phase2/METHOD_LOCK.json`, tag `brainir-v1-preblind`, commit 959d689), protocol
+`research/phase2/SELECTION_PROTOCOL.md`, hidden-evaluation log `research/phase2/HIDDEN_EVAL_LOG.md`. Any change to the
+method is a new, separately locked version (goal3 §29). Phase 3 has not started; the report recommends one step (§18).
 Read `research/LOG.md` (decisions, discrepancies, pitfalls) before changing anything.
 
 ## Phase 2 rules (anti-leakage; goal3 §4)
@@ -19,7 +21,13 @@ Read `research/LOG.md` (decisions, discrepancies, pitfalls) before changing anyt
   part in the clean room), selection `*_heldout`, confirmation `*_final` (anonymised, fresh salts, never in the clean
   room). Truth, salts, build reports and the truth audit live under `<suite>/truth/` only.
 - No hidden-oracle evaluation before `research/phase2/METHOD_LOCK.json` + tag `brainir-v1-preblind`
-  (`scripts/method_lock.py`, `scripts/blind_eval.py`); every hidden evaluation is logged.
+  (`scripts/method_lock.py`, `scripts/blind_eval.py`); every hidden evaluation is logged, including a reviewer's.
+- Post-lock ANSWER-BEARING files (never into any clean room; the builder refuses them): `PHASE2_REPORT.md`,
+  `research/phase2/HIDDEN_EVAL_LOG.md`, `hidden_eval_ledger.json`, `reliability/` (hidden rows), `blind_eval/`,
+  `reviews/D_leakage.md`, `reviews/D_resolution.md`.
+- Clean-room agents for any later version: start them as SEPARATE sessions whose project directory is the clean room, with
+  a private temp directory. A subagent inherits this file and the orchestrator's scratchpad (review D, D2). Build a new room
+  with the hardened `scripts/make_phase2_cleanroom.py`, and check each manual sync with `--check`.
 - Never modify files hashed in `benchmarks/dng100/BENCHMARK_LOCK.json` (incl. `pyproject.toml`, `uv.lock`,
   `src/brainir/{sim,metrics,benchmark,compute}`); `freeze.py --check` must stay green.
 
@@ -27,13 +35,20 @@ Read `research/LOG.md` (decisions, discrepancies, pitfalls) before changing anyt
 - `src/brainir/discovery/`: `problem.py` (bundle loader, `pack_bundle`, `write_bundle_manifest`), `simulator.py`
   (hard call budget, in-run memo, persistent `CausalEffectCache`), `criteria.py`, `interventions.py`, `interface.py`
   (`DiscoveryResult` → frozen prediction schema, `MethodRegistry`), `run.py`, `synthetic.py` / `synthetic_pairs.py`
-  (suites), `suite_audit.py` (unplanted sufficient sets), `tournament.py` (scorer), `reliability.py` (node-order
-  sweeps), `correspondence.py` / `transfer.py` (cross-network), `perturb.py` (anti-gaming), `joint.py` (pairs).
+  (suites; pairs `--design v2` = harder design), `suite_audit.py` (unplanted sufficient sets, participation audit),
+  `tournament.py` (scorer incl. `success_intact`, essential recall, identity claims), `pair_tournament.py`,
+  `adversarial.py` (third-party trap generator + scorer, review G), `guard.py` (truth guard), `reliability.py` (node-order
+  sweeps), `correspondence.py` / `transfer.py` (cross-network), `perturb.py` (anti-gaming, null correspondence),
+  `joint.py` (pairs). Suites: `mechanisms_v1`/`pairs_v1` (dev), `*_heldout` incl. `pairs_v2_heldout`,
+  `adversarial_heldout` (selection), `*_final` (confirmation, used once).
 - `src/brainir/methods/`: `greedy_reference` + tournament candidates (+ `brainir_v1`); every module present is
   registered on import.
 - `scripts/`: `run_tournament.py`, `run_pair_tournament.py`, `budget_curve.py`, `anti_gaming.py`,
-  `reliability_sweep.py`, `compare_reliability.py`, `transfer_experiments.py`, `build_synthetic_suite.py`,
-  `build_pair_suite.py`, `audit_suite_truth.py`, `method_lock.py`, `blind_eval.py`, `cleanroom_entry/`.
+  `reliability_sweep.py` (`--criterion-gate` = sensitivity only), `compare_reliability.py` (order-clustered CIs),
+  `compare_tournament_methods.py` (paired, instance bootstrap, decision rule), `compare_pair_arms.py`, `ablations.py`
+  (`--resummarize`), `transfer_experiments.py`, `build_synthetic_suite.py`, `build_pair_suite.py`,
+  `build_adversarial_suite.py`, `rescore_adversarial.py`, `reclassify_suite.py`, `audit_suite_truth.py`,
+  `phase2_costs.py`, `method_lock.py`, `blind_eval.py`, `make_phase2_cleanroom.py` (`--check`), `cleanroom_entry/`.
 - `research/phase2/`: contracts (`METHOD_DEV_CONTRACT.md`, `CROSS_CONNECTOME_CONTRACT.md`, `COMPOSER_CONTRACT.md`),
   `methods/` (per-method docs), `tournament/`, `reliability/`, `transfer/`, `methods_review.md`.
 - Pitfalls: a stray `re.py` in `%TEMP%` breaks scripts run from there (use the scratchpad); Modal workers are Linux

@@ -24,3 +24,18 @@ can invalidate the method but never tune it.
 2. Findings of post-lock reviews are reported in PHASE2_REPORT.md. A method change after the lock creates a new method
    version with a new lock (goal3 section 29).
 3. Every review states which files it read. Pre-lock reviewers must not read anything outside the clean room.
+
+## Status (2026-09-25): all seven reviews done
+
+| review | findings (blocker / major / minor) | resolution |
+|---|---|---|
+| A causal | 1 / 3 / 5 | `reviews/AG_resolution.md` (v1.1) |
+| B optimisation | 0 / 1 / 8 | `reviews/B_resolution.md` (v1.2) |
+| C statistics | 0 / 5 / 10 | `reviews/C_resolution.md` (report and analysis; no method change) |
+| D leakage | 0 / 4 / 7 | `reviews/D_resolution.md` (disclosure, gate sensitivity, tooling) |
+| E cross-connectome | 1 / 6 / 5 | `reviews/E_resolution.md` |
+| F computational | 1 / 7 / 11 | `reviews/F_resolution.md` |
+| G adversarial | 1 / 6 / 3 | `reviews/AG_resolution.md`, `reviews/G_adversarial_suite.md` |
+
+Summary in `PHASE2_REPORT.md` §13. Review D found that the "clean room" placement was procedural: pre-lock clean-room reviewers
+and developers were subagents of the answer-aware session (D2). For any later method version, start them as separate sessions.

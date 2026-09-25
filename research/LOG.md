@@ -433,3 +433,35 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     - on a Modal worker, a Windows truth path parses as a bare file name, so the truth guard blocked the worker's
       package directory (fixed, with a guard invariant);
     - a Git Bash path passed into `python -c` is resolved under `C:\c\...` (use Windows paths).
+- **2026-09-24 01:10 – 2026-09-25 (session 3 continued: v1.1, v1.2, confirmation, lock, hidden evaluation, reviews B–D).**
+  - **v1.1** (commit e22db1f, composed oracle-free) answered reviews A and G: admissibility-first selection, single-silencing
+    evidence, a masking-proof screen, degeneracy and union repair. The adversarial truth definition was fixed by its third-party
+    author after the composer reported an inconsistency (d6dc789); every held-out file was re-scored under the new definition.
+    Held-out: adversarial correct 0.98 (v1.0 0.41), mechanisms success 1.00, pairs 0.96.
+  - **Review B** (optimisation, on v1.1): 0 blockers, 1 major (B2: a real-network choice decided at the threshold edge by a t test).
+    **v1.2.0** (c3362c0): paired discordant counts with a factor-2 tie band, round-robin selection, minimality closure, budget
+    reserve. Held-out results identical to v1.1.
+  - **Confirmation** (used once, after the freeze): mechanisms rule passes (structural +0.25, success_intact +0.42, 140 fewer calls);
+    pairs 1.00 with all identity claims correct; adversarial correct 0.98, 99.1 % of confident runs correct.
+  - **Lock** 959d689, tag `brainir-v1-preblind` (tree 911625b9, lock b4c0a9cb). Oracle-free real-network sweeps ran on the locked
+    tree before the lock.
+  - **Hidden evaluations (logged):**
+    - six sweep scorings: v1.2 meets the frozen structural criterion in 20/24, 24/24 and 21/24 runs, greedy in 16/24, 22/24 and
+      16/24;
+    - blind attempt 01, one draw at the locked seed: published core on manc_v1.2.3 and male-cns_v1.0; on manc_v1.2.1 a sufficient
+      4-neuron core with full excitatory recall but no inhibitory member.
+  - **Review C** (statistics): 0 blockers, 5 majors (report framing: strong comparators, in-distribution traps, truth-definition
+    change, k = 3, thin identity evidence). All resolved in the report and the analysis scripts; ablations and sweep comparisons
+    now resample instances and order clusters.
+  - **Review D** (leakage): 0 blockers, 4 majors. No answer identity reached the method. The answer's structure was in the clean
+    room and in every agent's CLAUDE.md; isolation was procedural; tier B sat in the clean room for 8 h; the real-bundle amplitude
+    gate came from the evaluator. Disclosed; the builder was hardened; the leakage guard was extended; gate sensitivity was run
+    oracle-free. The reviewer's own post-lock oracle labelling of development cores was logged as an audit comparison.
+  - **Lesson (process):** clean-room agents must run as separate sessions whose project directory is the clean room, with a
+    private temp directory. A subagent inherits the answer-aware session's CLAUDE.md and scratchpad (review D, D2).
+  - **Pitfalls:**
+    - in a bash line `A && B && (C) & (D) &`, the `&&` chain including the first subshell becomes one background job, so a
+      variable assigned in it is invisible to `(D)`: assign variables on their own lines;
+    - a runner record that captures stdout keeps absolute paths: commit a redacted copy, because the frozen hash covers the
+      original;
+    - a directory named `truth_backup_pre_audit` escaped a skip rule that matched only `truth`: match `truth*`.

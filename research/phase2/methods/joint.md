@@ -309,3 +309,11 @@ sampling uncertainty of 10–23 pairs.
 ## 11. Evaluation pair suite
 
 The component was not tuned on `data/synthetic/pairs_v1` (its truth is withheld) and no result on it is reported here.
+
+## Orchestrator note (added after review D, finding D6)
+
+The leakage review's transcript audit (`research/phase2/reviews/D_leakage.md`, D6) found that this component's developer printed
+the head of `data/synthetic/pairs_v1/BUILD_REPORT.json` (`head -c 1500`) during orientation, before that file was removed from the
+clean room (2026-09-23T20:03Z). The bytes shown were the suite's instance list only. This document did not disclose it; the other
+five developers disclosed their equivalent exposure to `mechanisms_v1/BUILD_REPORT.json`. Development-suite information only: no
+selection or confirmation suite ever entered the clean room.
