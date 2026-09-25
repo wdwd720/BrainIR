@@ -75,6 +75,8 @@ def _remote_callables():
         import p3modal.remote as R
         if payload["kind"] in ("eval", "repro"):
             return R.run_eval(payload)
+        if payload["kind"] == "extract":
+            return R.run_extract(payload)
         return R.run_call(payload) if payload["kind"] == "call" else R.run_refs(payload)
 
     return p3_fit_call, p3_eval_call
@@ -117,6 +119,47 @@ def upload(tier: str) -> None:
         b.put_directory(str(pub), f"/suites/{tier}/public")
         b.put_directory(str(truth), f"/suites/{tier}/truth")
     print(f"suite {tier} uploaded ({time.time() - t0:.0f} s)", flush=True)
+
+
+def _truth_subset(pub: Path, truth: Path) -> list[Path]:
+    """The truth files the evaluator reads: truth.json, the truth index, the per-system records, the pool latents and the latents of
+    TEST-split trajectories (latent recovery K); training latents are only used by the dev calibration."""
+    test_keys = set()
+    for line in (pub / "index.jsonl").read_text(encoding="utf-8").splitlines():
+        r = json.loads(line)
+        if r["split"] == "test":
+            test_keys.add(r["key"])
+    out = [p for p in (truth / "truth.json", truth / "truth_index.jsonl") if p.exists()]
+    out += sorted(q for q in (truth / "systems").rglob("*") if q.is_file()) if (truth / "systems").exists() else []
+    out += sorted(q for q in (truth / "pools").rglob("*") if q.is_file()) if (truth / "pools").exists() else []
+    out += sorted(q for q in (truth / "latents").glob("*.npz") if q.stem in test_keys)
+    return out
+
+
+def upload_tar(tier: str, work: Path) -> None:
+    """Upload a suite as two tars (public, truth subset) and unpack them in Modal (slow uplinks: per-file uploads are dominated by
+    round trips). The fit view goes the same way to the fit volume if it is missing."""
+    import modal
+    pub, truth = _suite_dirs(tier)
+    evalvol = modal.Volume.from_name(EVAL_VOLUME, create_if_missing=True)
+    work.mkdir(parents=True, exist_ok=True)
+    parts = {"public": (pub, sorted(q for q in pub.rglob("*") if q.is_file())), "truth": (truth, _truth_subset(pub, truth))}
+    t0 = time.time()
+    for part, (base, files) in parts.items():
+        tar = work / f"{tier}_{part}.tar"
+        with tarfile.open(tar, "w") as tf:
+            for q in files:
+                tf.add(str(q), arcname=q.relative_to(base).as_posix())
+        size = tar.stat().st_size
+        with evalvol.batch_upload(force=True) as b:
+            b.put_file(str(tar), f"/_incoming/{tar.name}")
+        print(f"uploaded {tar.name}: {len(files)} files, {size / 1e6:.0f} MB ({time.time() - t0:.0f} s)", flush=True)
+        tar.unlink()
+    app = _open_app(4)
+    with _output(), app.run():
+        res = _eval_map([{"job_id": uuid.uuid4().hex, "kind": "extract", "name": f"{tier}_{p}.tar", "dest": f"suites/{tier}/{p}"}
+                         for p in parts], "extract")
+    print(json.dumps([r if isinstance(r, dict) else repr(r) for r in res]), flush=True)
 
 
 def _methods_key(mdir: Path, fitvol) -> str:
@@ -373,7 +416,13 @@ def main(argv=None) -> int:
     if cmd == "upload":
         ap = argparse.ArgumentParser()
         ap.add_argument("--tier", required=True)
-        upload(ap.parse_args(rest).tier)
+        ap.add_argument("--tar", action="store_true", help="upload the suite as tars and unpack in Modal (slow uplinks)")
+        ap.add_argument("--work", default=str(ROOT / "data" / "phase3" / "_modal_upload"))
+        a = ap.parse_args(rest)
+        if a.tar:
+            upload_tar(a.tier, Path(a.work))
+        else:
+            upload(a.tier)
         return 0
     if cmd == "run":
         return cmd_run(rest, containers)

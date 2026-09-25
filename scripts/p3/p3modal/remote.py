@@ -225,6 +225,25 @@ def run_call(p: dict) -> dict:
     return {"result": res.get("result"), "container_wall_s": round(time.time() - t0, 1)}
 
 
+def run_extract(p: dict) -> dict:
+    """Unpack an uploaded tar (/evalvol/_incoming/<name>) into its destination on the eval volume and commit the volume (a tar upload
+    is much faster than thousands of small files over a slow uplink)."""
+    import modal
+    t0 = time.time()
+    src, dest = EVALVOL / "_incoming" / p["name"], EVALVOL / p["dest"]
+    vol = modal.Volume.from_name("brainir-p3-eval")
+    vol.reload()
+    if dest.exists():
+        shutil.rmtree(dest)
+    dest.mkdir(parents=True)
+    with tarfile.open(src) as tf:
+        tf.extractall(dest, filter="data")
+    n = sum(1 for q in dest.rglob("*") if q.is_file())
+    src.unlink()
+    vol.commit()
+    return {"extracted_files": n, "dest": str(dest), "container_wall_s": round(time.time() - t0, 1)}
+
+
 def run_refs(p: dict) -> dict:
     """The frozen reference controls of one (system, k) on the held-out suite; returns the cache files written."""
     t0 = time.time()

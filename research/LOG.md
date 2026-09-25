@@ -539,6 +539,11 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   - A whitening eigenvalue floor of 1e-4 x lambda_max breaks the invariance of E for legitimately anisotropic latents (a PCA latent
     had a 3000:1 variance ratio): 1e-8.
   - Local calibration of one dev system took 850 s under agent load; Modal ran 3 in 390 s wall (~$0.14).
+- **Version 2 re-locked once before any use (2026-09-25 03:55).** The uplink is about 1 MB/s; per-file uploads of a suite ran at
+  0.2 MB/s. A tar upload with extraction inside Modal (`modal_tournament.py upload --tar`) was added to two hashed backend files
+  (`modal_tournament.py`, `p3modal/remote.py`). It is an upload utility, and nothing had run under v2. The lock was rewritten and the
+  tag `state-discovery-benchmark-v2` moved to the re-lock commit. The heldout suite went up as 790 MB + 70 MB (the truth subset the
+  evaluator reads) in 7 min.
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete
