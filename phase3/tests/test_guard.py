@@ -38,7 +38,7 @@ CASES = [
     ("Bash", {"command": "PYTHONPATH= python x.py"}, False),
     ("Bash", {"command": "python -I x.py"}, False),
     ("Bash", {"command": "uv run python -m pytest -q tests"}, True),
-    ("Bash", {"command": "ls data/../src && uv run python runs/a.py"}, True),
+    ("Bash", {"command": "ls data/../src && uv run python runs/a.py"}, False),     # '..' is refused outright (guard v2)
     ("Bash", {"command": "cd /c/Dev/BrainIR_p3clean/notes && ls"}, True),
     ("Bash", {"command": 'cd "C:/Dev/BrainIR_p3clean/runs" && ls'}, True),
     ("Bash", {"command": "cd runs && ls"}, True),
@@ -55,6 +55,35 @@ CASES = [
     ("Task", {"subagent_type": "email-sender", "prompt": "x"}, False),
     ("Task", {"subagent_type": "general-purpose", "prompt": "summarise docs/PROTOCOL.md"}, True),
     ("WebSearch", {"query": "dynamic mode decomposition"}, False),
+    # review F bypasses of guard v1 (F-B1), refused by guard v2
+    ("Bash", {"command": "cat $PWD/../BrainIR/PHASE2*"}, False),
+    ("Bash", {"command": "d=..; cat $d/BrainIR/goal3.md"}, False),
+    ("Bash", {"command": "cat $PWD/../BrainIR/benchmarks/dng100/orac*/oracle.json"}, False),
+    ("Bash", {"command": "ls /c"}, False),
+    ("Bash", {"command": "find /c -maxdepth 3 -name 'PHASE2*'"}, False),
+    ("Bash", {"command": "cat C:/Dev/BRAINI~1/CLAUDE.md"}, False),
+    ("Bash", {"command": "cat C:/Dev/Brain*/PHASE2*"}, False),
+    ("Bash", {"command": "x=C; y=:/Dev/BrainIR; cat $x$y/README.md"}, False),
+    ("Bash", {"command": "bash <<'EOF'\ncat ../../BrainIR/README.md\nEOF"}, False),
+    ("Bash", {"command": "cat ~/.claude/history.jsonl"}, False),
+    ("Bash", {"command": "ls C:/Users/'Mihir Modi'/AppData/Local/uv/cache"}, False),
+    ("Bash", {"command": "curl -s https://example.org"}, False),
+    ("Bash", {"command": "unset PYTHON\"\"PATH; uv run python runs/x.py"}, False),
+    ("Bash", {"command": "echo rule >> CLAUDE.md"}, False),
+    ("PowerShell", {"command": "Get-Content (Join-Path (Split-Path (Get-Location)) 'BrainIR/README.md')"}, False),
+    ("PowerShell", {"command": "New-Item -ItemType Junction -Path simq/r2 -Target C:/Dev"}, False),
+    ("Glob", {"pattern": "../BrainIR/**/*.md"}, False),
+    ("Grep", {"pattern": "x", "path": "..\\BrainIR"}, False),
+    ("Write", {"file_path": rf"{ROOT}\runs\e.ps1", "content": "Get-Content (Join-Path (Split-Path (Get-Location)) 'x')"}, False),
+    # legitimate development commands stay allowed
+    ("Bash", {"command": "cat > runs/cb/x.py <<'EOF'\nd = {k: v for k, v in x.items()}\ny = a /s\nm = ~mask\nz = q/var\nEOF"}, True),
+    ("Bash", {"command": "cat > runs/nn/b.sh <<'EOF'\ntag=$1\nmkdir -p runs/nn/$tag\nfor sid in \"$@\"; do echo runs/nn/$tag/$sid; done\nEOF"}, True),
+    ("Bash", {"command": "uv run python -c \"import json; print({k:v for k,v in json.load(open('data/x.json')).items()})\""}, True),
+    ("Bash", {"command": "for f in runs/nn/*.json; do echo $f; done"}, True),
+    ("Bash", {"command": "OMP_NUM_THREADS=3 uv run python runs/lin/eval.py > runs/lin/out.log 2>&1"}, True),
+    ("Bash", {"command": "sed -i 's/time.time()/time.process_time()/g' runs/sd/p.py && uv run python runs/sd/p.py"}, True),
+    ("Bash", {"command": "sed -i 's/c = f(x)/c = g(x)/' runs/nn/p.py"}, True),
+    ("Bash", {"command": "awk '{print $1/$2}' runs/x.txt"}, True),
 ]
 
 
@@ -79,6 +108,71 @@ def test_own_session_store_readable_other_stores_not():
     other = os.path.join(home, ".claude", "projects", "C--Dev-BrainIR", "memory", "MEMORY.md")
     assert g.decide({"tool_name": "Read", "tool_input": {"file_path": own}, "cwd": "."})[0]
     assert not g.decide({"tool_name": "Read", "tool_input": {"file_path": other}, "cwd": "."})[0]
+
+
+def test_other_rooms_by_name_but_not_the_own_room():
+    g = _guard(r"C:\Dev\BrainIR_p3reviewG")
+    room = r"C:\Dev\BrainIR_p3reviewG"
+    assert g.decide({"tool_name": "Read", "tool_input": {"file_path": room + r"\p3synth\review_g.py"}, "cwd": room})[0]
+    assert not g.decide({"tool_name": "Read", "tool_input": {"file_path": r"C:\Dev\BrainIR_p3review\CLAUDE.md"}, "cwd": room})[0]
+    assert not g.decide({"tool_name": "Read", "tool_input": {"file_path": r"C:\Dev\BrainIR_p3clean\CLAUDE.md"}, "cwd": room})[0]
+
+
+PYGUARD_PROBES = r"""
+import os, sys, subprocess
+res = {}
+def t(name, fn):
+    try:
+        fn(); res[name] = 'ALLOWED'
+    except PermissionError:
+        res[name] = 'blocked'
+    except Exception as e:
+        res[name] = 'error:' + type(e).__name__
+t('abs', lambda: open('C:/Dev/BrainIR/README.md').read())
+t('dot', lambda: open('C:/Dev/./BrainIR/README.md').read())
+def chd():
+    os.chdir('C:/Dev'); open('BrainIR/README.md').read()
+t('chdir', chd)
+t('claude_home', lambda: os.listdir(os.path.join(os.path.expanduser('~'), '.claude')))
+t('child_I', lambda: subprocess.run([sys.executable, '-I', '-c', 'print(1)']))
+def child_env():
+    env = {k: v for k, v in os.environ.items() if k != 'PYTHONPATH'}
+    subprocess.run([sys.executable, '-c', 'print(1)'], env=env)
+t('child_env', child_env)
+def winapi():
+    import _winapi
+    _winapi.CreateFile(r'C:\Dev\BrainIR\README.md', 0x80000000, 1, 0, 3, 0x80, 0)
+t('winapi', winapi)
+def ct():
+    import ctypes
+    ctypes.WinDLL('kernel32').CreateFileW
+t('ctypes', ct)
+def net():
+    import socket
+    socket.getaddrinfo('example.org', 80)
+t('net', net)
+def room_ok():
+    import tempfile
+    open(os.path.join(os.environ['P3_CLEAN_ROOT'], 'x.txt'), 'w').write('ok'); tempfile.gettempdir()
+t('room_write', room_ok)
+print(res)
+"""
+
+
+def test_python_guard_v2_resolve_and_contain(tmp_path):
+    """Review F (F-B2): the audit hook resolves paths (/./, chdir, 8.3) and blocks native / network / unguarded-child routes."""
+    import ast
+    import subprocess
+    import sys
+    room = tmp_path / "BrainIR_p3clean"
+    room.mkdir()
+    pyguard = GUARD.parent / "pyguard"
+    env = dict(os.environ, P3_CLEAN_ROOT=str(room), PYTHONPATH=str(pyguard), TEMP=str(room), TMP=str(room))
+    out = subprocess.run([sys.executable, "-c", PYGUARD_PROBES], capture_output=True, text=True, env=env, cwd=str(room), timeout=120)
+    res = ast.literal_eval(out.stdout.strip().splitlines()[-1])
+    for k in ("abs", "dot", "chdir", "claude_home", "child_I", "child_env", "winapi", "ctypes", "net"):
+        assert res[k] == "blocked", (k, res)
+    assert res["room_write"] == "ALLOWED", res
 
 
 def test_python_guard_blocks_runtime_paths(tmp_path):

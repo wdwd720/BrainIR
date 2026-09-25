@@ -1,4 +1,132 @@
 {
+ "m_cb": {
+  "streams": [
+   "m_cb.20260924T230706.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 35,
+   "Read": 4,
+   "Write": 7,
+   "Edit": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 1000,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 1,
+  "guard_denial_reasons": {
+   "path outside the clean room": 1
+  },
+  "n_web_queries": 0
+ },
+ "m_ks": {
+  "streams": [
+   "m_ks.20260924T230659.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 45,
+   "Read": 3,
+   "Write": 10
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 1194,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
+  "n_web_queries": 0
+ },
+ "m_lin": {
+  "streams": [
+   "m_lin.20260924T230655.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 39,
+   "Read": 1,
+   "Write": 9
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 976,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 3,
+  "guard_denial_reasons": {
+   "path outside the clean room": 1,
+   "the clean room's .claude settings and CLAUDE.md are read-onl": 2
+  },
+  "n_web_queries": 0
+ },
+ "m_nn": {
+  "streams": [
+   "m_nn.20260924T230702.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 38,
+   "Read": 2,
+   "PowerShell": 1,
+   "Write": 8,
+   "ToolSearch": 1,
+   "Edit": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 1,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 872,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 2,
+  "guard_denial_reasons": {
+   "variables used as path prefixes are not allowed": 1,
+   "path outside the clean room": 1
+  },
+  "n_web_queries": 0
+ },
+ "m_sd": {
+  "streams": [
+   "m_sd.20260924T230709.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 52,
+   "Read": 2,
+   "ToolSearch": 1,
+   "Write": 14,
+   "PowerShell": 5,
+   "Edit": 9,
+   "Monitor": 2
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 1,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 1052,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 2,
+  "guard_denial_reasons": {
+   "path outside the clean room": 2
+  },
+  "n_web_queries": 0
+ },
  "p3bench_author": {
   "streams": [
    "p3bench_author.20260924T200136.jsonl",
@@ -18,6 +146,13 @@
   "outputs_with_answer_tokens": 0,
   "blocked_tool_uses": 0,
   "events": 1751,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "path outside the clean room: /tmp/smoke.py",
+    "input": "{\"command\": \"uv run python - <<'EOF'\\ns=open('p3synth/latents.py').read()\\na='''        self.setup(rng, **kw)\\n        self.input_pattern'''\\nb='''        self.setup(rng, **{k_: v_ for k_, v_ in kw.items() if k_ != \\\"center_override\\\"})\\n        self.center.update(kw.get(\\\"center_override\\\") or {})\\"
+   }
+  ],
   "guard_log_unparsable_lines": 0,
   "guard_denials": 1,
   "guard_denial_reasons": {
@@ -606,6 +741,13 @@
   "outputs_with_answer_tokens": 0,
   "blocked_tool_uses": 0,
   "events": 2182,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "changing directory outside the clean room (or to home / previous directory)",
+    "input": "{\"command\": \"cd \\\"/c/Users/Mihir Modi/.claude/projects/C--Dev-BrainIR-p3lit/71930c92-04c7-4b41-8dd9-0e133eb45792/tool-results/\\\" && (which pdftotext; python -c \\\"import pypdf; print('pypdf')\\\" ) 2>&1 | head\"}"
+   }
+  ],
   "guard_log_unparsable_lines": 1,
   "guard_denials": 2,
   "guard_denial_reasons": {
@@ -613,5 +755,31 @@
    "changing directory outside the clean room": 1
   },
   "n_web_queries": 558
+ },
+ "review_g": {
+  "streams": [
+   "review_g.20260924T230843.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 61,
+   "Read": 9,
+   "Write": 4,
+   "ToolSearch": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 0,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 1178,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 3,
+  "guard_denial_reasons": {
+   "path outside the clean room": 1,
+   "forbidden pattern 'brainir_p3review'": 2
+  },
+  "n_web_queries": 0
  }
 }

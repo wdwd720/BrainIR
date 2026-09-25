@@ -514,3 +514,15 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   list. The Phase 3 log is now `research/phase3/HIDDEN_EVALUATIONS.md`. The protocol, level_c.py and LEAKAGE_POLICY.md were renamed
   accordingly and the benchmark was re-locked. The tag `state-discovery-benchmark-v1` points to the re-lock commit.
 - The clean room was built from the allowlist: 7,542 files, scan clean (`research/phase3/CLEANROOM_MANIFEST.json`).
+- **Pitfall (lock hygiene).** `freeze_benchmark.py --check` also fails on NEW files in hashed directories (research/phase3/contracts/*.md,
+  benchmarks/state_discovery_v1/**) and on edits of hashed scripts (even docstrings). Post-freeze documents go elsewhere, e.g.
+  research/phase3/review_contracts/. Run the check after touching anything under those paths.
+- **2026-09-24 23:40-00:10: review F (leakage) and guard version 2.**
+  - Findings: 2 blockers (the Bash and Python guards were substring blocklists with demonstrated bypasses), 3 majors (answer
+    material in the shared account's ~/.claude; the uv cache names the datasets; synthetic suite seeds in cleartext), 4 minors.
+  - No leak had occurred: 0 answer tokens anywhere, and a replay of every executed tool call through the new guard finds no escape.
+  - Both guards were rewritten with resolve-and-contain while the agents were running (see `research/phase3/reviews/F_resolution.md`).
+    Version 2.0 briefly produced false denials (review G's own room name, dict literals, `$tag/` in scripts); v2.1 fixed them within
+    minutes.
+  - Lesson: test a live guard against a replay of real agent traffic BEFORE swapping it in; write the new version to a staging path
+    and move it over only after the replay is clean.

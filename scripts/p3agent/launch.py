@@ -50,7 +50,11 @@ def settings_json(python: str) -> dict:
     # ~/.claude is not denied wholesale here: the guard hook allows only that store and denies every other session's
     deny = [f"{tool}({pat})" for tool in ("Read", "Edit", "Write") for pat in
             ("//c/Dev/BrainIR/**", "//C:/Dev/BrainIR/**", "~/.claude/projects/C--Dev-BrainIR/**", "~/.claude/.credentials.json",
-             "~/.claude/settings.json", "~/.claude.json", "~/.modal.toml", "//c/Dev/BrainIR_p2clean/**", "//c/Dev/BrainIR_p3audit/**")]
+             "~/.claude/settings.json", "~/.claude.json", "~/.modal.toml", "//c/Dev/BrainIR_p2clean/**", "//c/Dev/BrainIR_p3audit/**",
+             # review F (F-M1, F-M2): the answer-aware session's history stores and the uv cache
+             "~/.claude/file-history/**", "~/.claude/paste-cache/**", "~/.claude/history.jsonl", "~/.claude/todos/**",
+             "~/.claude/shell-snapshots/**", "~/.claude/sessions/**", "~/AppData/Local/uv/cache/**", "//c/Dev/BrainIR_p3run/**",
+             "//c/Dev/BrainIR_p3regen/**")]
     return {"hooks": {"PreToolUse": [{"matcher": "*", "hooks": [{"type": "command", "command": cmd, "timeout": 30}]}]},
             "permissions": {"deny": deny}, "includeCoAuthoredBy": False}
 

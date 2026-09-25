@@ -44,6 +44,20 @@ def answer_tokens() -> tuple[set[str], set[int]]:
     return toks, pos
 
 
+def _guard_for(room: str, allow_web: bool = False):
+    """The CURRENT guard's decision function configured for one room (retroactive re-check of executed tool calls)."""
+    import importlib.util
+    import os
+    os.environ["P3_CLEAN_ROOT"] = room
+    os.environ["P3_ALLOW_WEB"] = "1" if allow_web else "0"
+    os.environ.setdefault("P3_AUDIT_DIR", str(Path(__file__).resolve().parent / ".audit_replay_sink"))
+    os.environ["P3_AGENT_NAME"] = "audit_replay"
+    spec = importlib.util.spec_from_file_location(f"guard_replay_{abs(hash((room, allow_web)))}", Path(__file__).resolve().parent / "guard_hook.py")
+    g = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(g)
+    return g
+
+
 def audit(audit_dir: Path) -> dict:
     toks, _pos = answer_tokens()
     tok_re = re.compile("|".join(rf"(?<![0-9A-Za-z#]){re.escape(t)}(?![0-9A-Za-z])" for t in sorted(toks, key=len, reverse=True)))
@@ -54,6 +68,11 @@ def audit(audit_dir: Path) -> dict:
                                      "forbidden_name_inputs": 0, "outputs_with_forbidden_names": 0, "outputs_with_answer_tokens": 0,
                                      "blocked_tool_uses": 0, "events": 0})
         r["streams"].append(stream.name)
+        meta = stream.with_name(stream.name.replace(".jsonl", ".meta.json"))
+        mj = json.loads(meta.read_text(encoding="utf-8")) if meta.exists() else {}
+        room = mj.get("clean")
+        g = _guard_for(room, bool(mj.get("allow_web"))) if room else None
+        r.setdefault("denied_by_current_guard", [])
         for line in stream.read_text(encoding="utf-8", errors="replace").splitlines():
             try:
                 ev = json.loads(line)
@@ -73,6 +92,10 @@ def audit(audit_dir: Path) -> dict:
                         r["forbidden_name_inputs"] += 1
                     if tool in ("ListAgents", "SendMessage", "RemoteTrigger", "PushNotification") or tool.startswith("mcp__"):
                         r["blocked_tool_uses"] += 1
+                    if g is not None:
+                        ok, why = g.decide({"tool_name": tool, "tool_input": c.get("input") or {}, "cwd": room})
+                        if not ok:
+                            r["denied_by_current_guard"].append({"tool": tool, "reason": why[:120], "input": ti[:300]})
                 elif c.get("type") == "tool_result":
                     text = json.dumps(c.get("content"))
                     if NAMES.search(text):
@@ -111,7 +134,8 @@ def main(argv=None) -> int:
         print(f"{name}: events {r['events']}, tools {sum(r['tool_calls'].values())}, web {r['n_web_queries']}, forbidden-path inputs "
               f"{r['forbidden_path_inputs']}, forbidden-name inputs {r['forbidden_name_inputs']}, outputs with names "
               f"{r['outputs_with_forbidden_names']}, outputs with ANSWER TOKENS {r['outputs_with_answer_tokens']}, blocked tools "
-              f"{r['blocked_tool_uses']}, guard denials {r.get('guard_denials', 0)}")
+              f"{r['blocked_tool_uses']}, guard denials {r.get('guard_denials', 0)}, "
+              f"tool calls the CURRENT guard would deny {len(r.get('denied_by_current_guard', []))}")
     return 0
 
 

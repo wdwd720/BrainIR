@@ -56,6 +56,20 @@ WebSearch, a Python script building the path at run time, and `~/.claude/project
 room, and the canary text never appeared in its transcript. The guard's decision function has offline unit checks
 (phase3/tests/test_guard.py).
 
+### 2.1 Guard version 2 (after review F, 2026-09-24)
+
+Review F showed that version 1 of both code guards was a substring blocklist, and it demonstrated bypasses (`$PWD/..`, variable
+indirection, globs, `/./`, 8.3 names, chdir, native ctypes / _winapi I/O). No bypass was ever used: a replay of every executed call
+through version 2 shows none.
+
+Both guards now resolve and contain:
+- every path resolves (realpath, 8.3 / links / dots) inside the room;
+- shell commands may not build paths the guard cannot see;
+- scripts and embedded shell bodies are checked like commands;
+- Python is checked at run time for file, native-I/O, network and child-process events.
+
+Details and tests: `research/phase3/reviews/F_resolution.md`.
+
 ## 3. Residual risks (stated, not hidden)
 
 - The hook is not a kernel sandbox: a program started by an allowed command could reach a forbidden location through a route that
@@ -77,5 +91,5 @@ tier-A tokens read at audit time from the oracle), denied calls, web queries, an
 
 ## 5. Post-lock answer-bearing files of Phase 3
 
-After the Level C evaluation: `research/phase3/HIDDEN_EVALUATIONS.md`, `benchmarks/state_discovery_v1/hidden/**` and its outputs,
+Answer-aware from the start: `research/phase3/reviews/F_leakage.md` (review F read the Phase 1 oracle), `F_resolution.md`. After the Level C evaluation: `research/phase3/HIDDEN_EVALUATIONS.md`, `benchmarks/state_discovery_v1/hidden/**` and its outputs,
 `data/phase3/hidden/**`, `PHASE3_REPORT.md`. Never copy them into a Phase 4 clean room.
