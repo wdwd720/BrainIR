@@ -117,18 +117,50 @@ tag `state-discovery-benchmark-v1` (re-locked once before any use, research/LOG.
 Lifting of latent interventions is scored where supported. References: the full-state ceiling, input-only, readout-history,
 PCA-k, random-k and persistence.
 
-**Calibration (before any method; 45 compressible, closed dev systems):**
+**Version 1 calibration (before any method; 45 compressible, closed dev systems):** tau_A = 1.31, tau_C = 3.18, tau_D = 0.085,
+tau_E = 0.0039. Superseded by version 2.
 
-| tolerance | value | how it was set |
-|---|---|---|
-| tau_A | 1.31 | 90th percentile of the relative gap between the true-latent reference and the full-state ceiling |
-| tau_C | 3.18 | 75th percentile of the true-latent reference's held-out effect error (non-binding) |
-| tau_D | 0.085 | 90th percentile of the true-latent micro-gain |
-| tau_E | 0.0039 | 90th percentile of the true-latent microstate ratio |
+### 4.1 Benchmark version 2: what two early reviews found, and the correction before any held-out use
 
-The calibration's main finding is that **held-out intervention effects are hard even for a model that has the true state**. The
-full-state ceiling's median effect error is 1.2 and the true-latent reference's is 1.6, so the binding interventional condition is
-"the CI of C lies below 1".
+Two oracle-free reviewers examined the evaluation machinery while the methods were still in development (LOG P3-D13):
+- review E (statistics) found 5 blockers and 6 majors;
+- review H (numerical methods) found 1 blocker and 7 majors.
+
+Both reviews and their evidence are in `research/phase3/reviews/E_early.md` and `H_early.md`.
+
+The most consequential errors:
+- the tournament's ranks depended on the order in which candidates were listed;
+- a model that returned NaN on hard start states got a BETTER predictive score;
+- the profile medians used each method's own systems, so failures improved scores;
+- the Level C multiplicity family was only partly implemented;
+- the closed and microstate conditions were point estimates that the evaluator's own seed flipped on about half the systems;
+- the microstate metric depended on the coordinate system of the latent (a condition-10 linear map of the TRUE latent flipped the
+  verdict on 14 of 29 systems);
+- the readout-history shortcut control was handicapped by a coarse horizon grid.
+
+**Version 2** (tag `state-discovery-benchmark-v2`) fixes all of them (PROTOCOL.md section 10.1;
+`research/phase3/reviews/EH_early_resolution.md`). It was locked on 2026-09-25, BEFORE any candidate was scored on held-out data
+and before the hidden real data existed. The developers received a generic description of the evaluator changes, never the
+reviews. One review finding was kept as a limitation: a numerical property of some synthetic kick events, fixed by the hash-locked
+generator.
+
+**Version 2 calibration** (45 dev systems on Modal; tolerances with 95 % CIs over systems):
+
+| tolerance | value | 95 % CI | rule |
+|---|---|---|---|
+| tau_A | 0.784 | [0.26, 2.30] | 90th percentile of the true-latent / full-state relative A gap |
+| tau_C | 3.29 | [2.03, 34.1] | 75th percentile of the true-latent reference's held-out C (state / input interventions) |
+| tau_D | 0.400 | [0.27, 0.55] | 90th percentile of the true-latent reference's UPPER CI of D |
+| tau_E | 0.0179 | [0.0063, 0.027] | 90th percentile of the true-latent reference's UPPER CI of E (testable systems) |
+
+The calibration's main finding is that **held-out intervention effects are hard even for a model that has the exact state**. Under
+the calibrated tolerances:
+- the true-latent reference reaches "compact causal state discovered" on 3 of 45 dev systems (one of them with E untestable). It is
+  partially supported on 28 and fails the interventional condition on 41;
+- the full-state ceiling is never compact with a testable E.
+
+The verdict counts barely move at the CI ends of any tolerance. A candidate's verdict counts must be read against this reference
+distribution.
 
 ## 5. Methods-only literature review (goal4 section 24)
 
