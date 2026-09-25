@@ -82,6 +82,23 @@ Details and tests: `research/phase3/reviews/F_resolution.md`.
   the regeneration rule), and reviews F (leakage) and E (statistics) audit them.
 - The synthetic benchmark author, the literature agent and the method agents share the user's model and machine; they share no files.
 
+### 3.1 Tournament execution on Modal (LOG P3-D15, 2026-09-25)
+
+Level B fits and evaluations, the reference controls and the calibration run on the orchestrator's own Modal account
+(`scripts/p3/modal_tournament.py`, container side `scripts/p3/p3modal/`).
+- **Volumes.** The synthetic suites (public part, held-out rows, truth) are uploaded to a private volume `brainir-p3-eval`. The public
+  fit views and the method snapshots go to a separate volume `brainir-p3-fit`. No real hidden data and no Phase 1-2 oracle file is
+  uploaded.
+- **Fit containers** mount ONLY the fit volume. Every method subprocess installs a Linux guard (`p3modal.guard`, via sitecustomize)
+  before any method code runs. The guard refuses, by realpath:
+  - file events under /fitvol, /evalvol, /repo, /tmp, /root, /home, /mnt, /data outside the job's own allowed roots;
+  - other processes' /proc entries;
+  - process creation and network.
+- **Evaluation containers** mount both volumes. The guard applies while a method frame is on the call stack, the same rule as the frozen
+  runguard. Each job runs in a fresh interpreter.
+- **No agent has network access.** No clean-room agent can reach Modal: the command guard refuses network tools, and pyguard refuses
+  socket events.
+
 ## 4. Audits
 
 `scripts/p3agent/audit_transcripts.py` (to be run at every milestone and by review F) scans every agent's event stream and guard log

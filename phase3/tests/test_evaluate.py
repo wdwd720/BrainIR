@@ -120,3 +120,113 @@ def test_microstate_equivalence_prefers_the_true_state(data):
                      "future_y": Y[1:], "group": 0})
     e = E.eval_microstate(m, "toy", pool, scale, E.EvalConfig(n_boot=200, micro_match_quantile=0.05))
     assert e["E_ratio_latent_to_random"] < 0.2, e
+
+
+# ------------------------------------------------------------------------------------------------ benchmark version 2 (reviews E, H)
+class _NaNOnHardStarts(ProjectionLinearModel):
+    """Declines (returns NaN) whenever |z0| is large: version 1 dropped such units and reported a better A."""
+
+    def rollout(self, sid, z0, u_future, events, dt):
+        out = super().rollout(sid, z0, u_future, events, dt)
+        if np.linalg.norm(z0) > self._thr:
+            out = {"z": np.asarray(out["z"]) * np.nan, "y": np.asarray(out["y"]) * np.nan}
+        return out
+
+
+def test_nonfinite_predictions_count_as_the_cap_and_are_reported(data):
+    train, test, _ = data
+    scale = E.readout_scale(train)
+    cfg = E.EvalConfig(n_boot=100)
+    honest = ProjectionLinearModel(2, "pca").fit("toy", train, list(range(N)))
+    dodger = _NaNOnHardStarts(2, "pca").fit("toy", train, list(range(N)))
+    zs = [np.linalg.norm(honest.encode("toy", t.x[: E.idx(0.6, DT) + 1], t.u[: E.idx(0.6, DT) + 1], DT)) for t in test]
+    dodger._thr = float(np.percentile(zs, 50))
+    a_h = E.eval_predictive(honest, "toy", test, scale, cfg)["A_nmse_h250ms"]
+    a_d = E.eval_predictive(dodger, "toy", test, scale, cfg)["A_nmse_h250ms"]
+    assert a_d["n_windows_nonfinite"] > 0 and a_d["n"] == a_h["n"]
+    assert a_d["mean"] > a_h["mean"] and np.isfinite(a_d["mean"])           # declining is never rewarded
+
+
+def _pool(rng, n, t_end=0.25, groups=2, per_traj=4, scale_z=1.5):
+    pool = []
+    for i in range(n):
+        z0 = rng.standard_normal(2) * scale_z
+        t, X, U, Y = simulate(z0, [(0.0, 1.0)], t_end=t_end)
+        pool.append({"x_hist": X[:1].astype(np.float32), "u_hist": U[:1].astype(np.float32), "y_hist": Y[:1], "dt": DT, "y_now": Y[0],
+                     "future_y": Y[1:], "group": i % groups, "traj": f"p{i // per_traj}"})
+    return pool
+
+
+def test_e_is_invariant_to_invertible_linear_maps_and_dead_coordinates(data):
+    """Review H B1: the whitened distance gives the same E for z and for A z (A invertible, ill-conditioned), and a near-constant
+    extra coordinate does not change it."""
+    train, _, _ = data
+    scale = E.readout_scale(train)
+    base = ProjectionLinearModel(2, "pca").fit("toy", train, list(range(N)))
+    rng = np.random.default_rng(3)
+    Q, _ = np.linalg.qr(rng.standard_normal((2, 2)))
+    A = Q @ np.diag([1.0, 0.05]) @ Q.T
+
+    class Mapped:
+        uses_readout = False
+
+        def __init__(self, extra=False):
+            self.extra = extra
+
+        def encode(self, sid, x, u, dt):
+            z = A @ np.asarray(base.encode(sid, x, u, dt), float)
+            return np.r_[z, 1e-6 * rng.standard_normal()] if self.extra else z
+
+    pool = _pool(np.random.default_rng(7), 96)
+    cfg = E.EvalConfig(n_boot=100, micro_match_quantile=0.05)
+
+    def wh(model):
+        Z = np.stack([np.asarray(model.encode("toy", t.x[: E.idx(s, DT) + 1], t.u[: E.idx(s, DT) + 1], DT), float)
+                      for t in train for s in (0.3, 0.6, 0.9, 1.2)])
+        return {"z": E.whitener(Z, cfg.whiten_eig_floor)}
+
+    e0 = E.eval_microstate(base, "toy", pool, scale, cfg, whiten=wh(base))
+    e1 = E.eval_microstate(Mapped(), "toy", pool, scale, cfg, whiten=wh(Mapped()))
+    assert abs(e0["E_ratio_latent_to_random"] - e1["E_ratio_latent_to_random"]) < 1e-6 * max(1.0, e0["E_ratio_latent_to_random"])
+    e2 = E.eval_microstate(Mapped(extra=True), "toy", pool, scale, cfg, whiten=wh(Mapped(extra=True)))
+    assert e2["E_ratio_latent_to_random"] < 2 * e0["E_ratio_latent_to_random"] + 1e-3
+    assert e0["E_testable"] and e0["E_ratio_ci95"][0] <= e0["E_ratio_latent_to_random"] <= e0["E_ratio_ci95"][1] + 1e-12
+
+
+def test_e_is_untestable_when_the_pool_is_too_sparse_for_the_latent(data):
+    train, _, _ = data
+    scale = E.readout_scale(train)
+    rng = np.random.default_rng(4)
+
+    class Noise8:
+        uses_readout = False
+
+        def encode(self, sid, x, u, dt):
+            return rng.standard_normal(8)
+
+    e = E.eval_microstate(Noise8(), "toy", _pool(np.random.default_rng(8), 64, t_end=0.1, groups=1), scale, E.EvalConfig(n_boot=50))
+    assert e["E_testable"] is False and "not close" in e["E_untestable_reason"]
+
+
+def test_closure_has_repeated_folds_and_a_trajectory_cluster_ci(data):
+    train, test, _ = data
+    scale = E.readout_scale(train)
+    from brainir_state.harness import pca_basis
+    m = ProjectionLinearModel(2, "pca").fit("toy", train, list(range(N)))
+    d = E.eval_closure(m, "toy", test, pca_basis(train), scale, E.EvalConfig(n_boot=200, closure_repeats=3))
+    r = d["D_y_h100ms_rff"]
+    assert d["repeats"] == 3 and len(r["micro_gain_ci95"]) == 2 and r["micro_gain_ci95"][0] <= r["micro_gain_ci95"][1]
+    assert r["micro_gain_ci95"][1] < 0.15, r                   # the true state is closed, CI included
+
+
+def test_readout_history_control_has_a_model_for_every_step(data):
+    train, _, _ = data
+    m = DirectHorizonModel("readout_hist").fit("toy", train)
+    assert m.hs == list(range(1, m.hs[-1] + 1)) and m.hs[-1] >= int(round(0.5 / DT))
+
+
+def test_readout_scale_ignores_a_diverged_training_trajectory(data):
+    train, _, _ = data
+    b = traj("blow", np.array([1.0, 0.0]), [(0.0, 1.0)])
+    bad = Trajectory(key="blow", system_id="toy", split="x", family="nominal", protocol=b.protocol, t=b.t, x=b.x * 1e6, u=b.u, y=b.y * 1e6)
+    assert np.allclose(E.readout_scale(train), E.readout_scale(list(train) + [bad]))

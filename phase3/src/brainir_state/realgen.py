@@ -219,7 +219,20 @@ def micro_pool_protocols(system: RealSystem, salt: str, A: list[int], state_pool
 
 
 def counterfactual(p: dict) -> dict:
-    """The same trajectory without its events (the no-intervention twin)."""
+    """The same trajectory without its events (the no-intervention twin). Version 2 (review H m1): the twin keeps the intervened run's
+    BREAKPOINTS as no-op stimulus steps (the stimulus value in force at each event time), so the piecewise integration is identical
+    to the intervened run's up to the first event and the twins differ from it only after the event."""
     q = json.loads(json.dumps(p))
+    times = set()
+    for e in q.get("events") or []:
+        for key in ("t", "t0", "t1"):
+            if e.get(key) is not None:
+                times.add(float(e[key]))
     q["events"] = []
+    stim = sorted(([float(t), float(s)] for t, s in (q.get("stimulus") or [[0.0, 1.0]])), key=lambda x: x[0])
+    for t in sorted(times):
+        if 0.0 < t < float(q["t_end"]) and not any(abs(t - s[0]) < 1e-9 for s in stim):
+            in_force = [s for ts, s in stim if ts <= t + 1e-9]
+            stim.append([t, in_force[-1] if in_force else 0.0])
+    q["stimulus"] = sorted(stim, key=lambda x: x[0])
     return q

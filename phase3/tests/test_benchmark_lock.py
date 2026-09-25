@@ -20,6 +20,14 @@ def test_benchmark_lock_is_intact():
     assert p.returncode == 0, p.stdout[-3000:] + p.stderr[-2000:]
 
 
+@pytest.mark.skipif(not BENCH_LOCK.exists(), reason="benchmark not frozen yet")
+def test_the_lock_is_benchmark_version_2():
+    import json
+    lock = json.loads(BENCH_LOCK.read_text(encoding="utf-8"))
+    assert lock.get("benchmark_version") == 2 and lock["git_tag"] == "state-discovery-benchmark-v2"
+    assert lock["supersedes"]["git_tag"] == "state-discovery-benchmark-v1"
+
+
 @pytest.mark.skipif(not METHOD_LOCK.exists(), reason="method not locked yet")
 def test_method_lock_is_intact():
     p = subprocess.run([sys.executable, str(ROOT / "scripts" / "p3" / "method_lock_p3.py"), "--check"], capture_output=True, text=True,

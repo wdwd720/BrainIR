@@ -204,8 +204,9 @@ def test_paired_statistics_resample_units_and_are_reproducible():
     assert d1 == d2 and abs(d1["diff"] - 0.5) < 1e-12 and d1["ci95"][0] > 0.49 and d1["p"] < 0.01
     r = paired_ratio_diff({"x": (1.0, 2.0, 0.0), "y": (1.0, 2.0, 0.0)}, {"x": (2.0, 2.0, 0.0), "y": (2.0, 2.0, 0.0)}, 200, 0)
     assert abs(r["diff"] + 0.5) < 1e-12
+    # benchmark version 2: an uncomputable p-value stays in the family as p = 1 (review E B4)
     h = holm({"a": 0.01, "b": 0.04, "c": float("nan")})
-    assert abs(h["a"] - 0.02) < 1e-12 and abs(h["b"] - 0.04) < 1e-12 and np.isnan(h["c"])
+    assert abs(h["a"] - 0.03) < 1e-12 and abs(h["b"] - 0.08) < 1e-12 and h["c"] == 1.0
     m, ci = E.boot_mean(np.array([1.0, 2.0, 3.0, 4.0]), 1000, 0)
     assert m == 2.5 and ci == E.boot_mean(np.array([1.0, 2.0, 3.0, 4.0]), 1000, 0)[1]      # CI regression: seeded, repeatable
 

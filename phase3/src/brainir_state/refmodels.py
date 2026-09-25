@@ -182,7 +182,8 @@ class FullStateModel(StateModel):
 # ------------------------------------------------------------------------------------------------------------ shortcut controls
 class DirectHorizonModel(StateModel):
     """y(t+h) = R_h(features at t): input history (input_only) or readout + input history (readout_hist). z = the feature vector.
-    Horizons and lags are in seconds (converted with the data's dt)."""
+    Lags are in seconds (converted with the data's dt). Version 2: one ridge model per STEP h = 1 .. the longest horizon (review H M2:
+    predicting step j with the model of the nearest trained horizon handicapped the control)."""
 
     def __init__(self, kind: str, horizons_s: tuple[float, ...] = (0.001, 0.01, 0.05, 0.1, 0.25, 0.5, 1.0, 2.0),
                  lags_s: tuple[float, ...] = (0.0, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2)):
@@ -202,16 +203,26 @@ class DirectHorizonModel(StateModel):
         self.dt = trajs[0].dt
         self.lags = sorted({int(round(L / self.dt)) for L in self.lags_s})
         T = min(len(tr.t) for tr in trajs)
-        self.hs = sorted({max(1, int(round(h / self.dt))) for h in self.hs_s if max(1, int(round(h / self.dt))) < T - self.lags[-1] - 1})
+        h_max = min(max(1, int(round(max(self.hs_s) / self.dt))), T - self.lags[-1] - 2)
+        self.hs = list(range(1, h_max + 1))
         stride = max(1, T // 80)
+        # features at the sample points (once), then one ridge per step h with the input at t + h appended
+        F, where = [], []
+        offs = np.cumsum([0] + [len(tr.t) for tr in trajs])
+        for ti, tr in enumerate(trajs):
+            for i in range(self.lags[-1], len(tr.t) - 1, stride):
+                F.append(self._feat(tr.u, tr.y, i))
+                where.append((ti, i))
+        F = np.array(F, dtype=np.float64)
+        ti_arr, i_arr = np.array([w[0] for w in where]), np.array([w[1] for w in where])
+        lens = np.array([len(tr.t) for tr in trajs])
+        Ucat = np.concatenate([tr.u for tr in trajs]).astype(np.float64)
+        Ycat = np.concatenate([tr.y for tr in trajs]).astype(np.float64)
         self.models = {}
         for h in self.hs:
-            X, Y = [], []
-            for tr in trajs:
-                for i in range(self.lags[-1], len(tr.t) - h, stride):
-                    X.append(np.concatenate([self._feat(tr.u, tr.y, i), tr.u[i + h]]))
-                    Y.append(tr.y[i + h])
-            self.models[h] = _ridge(np.array(X), np.array(Y), 1e-2)
+            sel = i_arr + h < lens[ti_arr]
+            g = offs[ti_arr[sel]] + i_arr[sel] + h
+            self.models[h] = _ridge(np.hstack([F[sel], Ucat[g]]), Ycat[g], 1e-2)
         self.k[sid] = len(self._feat(trajs[0].u, trajs[0].y, self.lags[-1]))
         return self
 
@@ -232,10 +243,9 @@ class DirectHorizonModel(StateModel):
 
     def rollout(self, sid, z0, u_future, events, dt):
         H = len(u_future) - 1
-        hs = np.array(self.hs)
         ys = []
         for j in range(H + 1):
-            h = int(hs[np.argmin(np.abs(hs - max(j, 1)))])
+            h = min(max(j, 1), self.hs[-1])            # every step has its own model up to the longest trained horizon
             ys.append(_ridge_apply(self.models[h], np.concatenate([z0, u_future[j]])[None, :])[0])
         return {"z": np.tile(z0, (H + 1, 1)), "y": np.stack(ys)}
 

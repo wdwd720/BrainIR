@@ -1,4 +1,5 @@
-"""Freeze / check the Phase 3 benchmark state_discovery_v1 (goal4 sections 6-7; PROTOCOL.md section 10).
+"""Freeze / check the Phase 3 state_discovery benchmark, VERSION 2 (goal4 sections 6-7; PROTOCOL.md section 10; the directory keeps
+its version-1 name).
 
     uv run --project phase3 python scripts/p3/freeze_benchmark.py [--check]
 
@@ -28,7 +29,9 @@ CODE = ["phase3/src/brainir_state/" + m for m in (
     "harness.py", "refmodels.py", "realsim.py", "realgen.py", "store.py", "simservice.py", "simclient.py", "synthsim.py", "suite_eval.py",
     "runner.py", "runguard.py")] + ["scripts/p3/" + s for s in (
     "generate_real_data.py", "generate_real_hidden.py", "build_synthetic_suites.py", "calibrate.py", "tournament.py",
-    "regenerate_candidates.py", "regen_in_room.py", "freeze_benchmark.py", "simservice_systems.py", "level_c.py", "feedback.py")] + ["phase3/pyproject.toml", "phase3/uv.lock",
+    "regenerate_candidates.py", "regen_in_room.py", "freeze_benchmark.py", "simservice_systems.py", "level_c.py", "feedback.py",
+    "merge_rounds.py", "modal_tournament.py", "p3modal/__init__.py", "p3modal/remote.py", "p3modal/evaljob.py", "p3modal/guard.py",
+    "p3modal/site/sitecustomize.py")] + ["phase3/pyproject.toml", "phase3/uv.lock",
                                                                                "scripts/make_phase3_cleanroom.py"]
 DATASETS = ["data/phase3/real_public", "data/phase3/synthetic_dev", "data/phase3/synthetic/heldout/public", "data/phase3/synthetic/final/public",
             "data/phase3/synthetic_truth/dev", "data/phase3/synthetic/heldout/truth", "data/phase3/synthetic/final/truth"]
@@ -91,8 +94,12 @@ def main(argv=None) -> int:
         return 0
     salt_commit = json.loads((BENCH / "hidden" / "salt_commitment.json").read_text(encoding="utf-8"))
     tol = json.loads((BENCH / "public" / "tolerances.json").read_text(encoding="utf-8"))
-    rec = {"benchmark": "state_discovery_v1", "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-           "git_tag": "state-discovery-benchmark-v1", "salt_sha256": salt_commit["sha256_of_salt"], "tolerances": tol,
+    rec = {"benchmark": "state_discovery_v2", "benchmark_version": 2, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+           "git_tag": "state-discovery-benchmark-v2", "salt_sha256": salt_commit["sha256_of_salt"], "tolerances": tol,
+           "supersedes": {"benchmark": "state_discovery_v1", "git_tag": "state-discovery-benchmark-v1",
+                          "reason": "early independent reviews E (statistics) and H (numerical methods) found errors in the evaluation "
+                                    "machinery; version 2 was locked before any held-out (Level B) or hidden (Level C) evaluation had run "
+                                    "(research/phase3/reviews/EH_early_resolution.md; PROTOCOL.md section 10.1)"},
            "note": "Changing any hashed file requires a new benchmark version (PROTOCOL.md section 10).", **cur}
     LOCK.write_text(json.dumps(rec, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {LOCK.relative_to(ROOT)}: {len(cur['files'])} files, {len(cur['datasets'])} dataset entries")

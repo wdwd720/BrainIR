@@ -27,11 +27,16 @@ from .evaluate import EvalConfig, _nmse, boot_mean
 LIFT_KINDS = ("kick", "current")
 
 
-def _end_of_lift(events: list[dict]) -> float:
-    ends = []
+def _lift_done_index(events: list[dict], dt: float) -> int:
+    """The first sample at which every lifted event has fully acted: a kick at t acts between samples idx(t) and idx(t) + 1; a
+    current on [t0, t1) has acted fully in sample idx(t1) (version 2, review H m2)."""
+    js = []
     for e in events:
-        ends.append(e["t"] if e["kind"] == "kick" else e.get("t1", e.get("t0", 0.0)))
-    return max(ends) if ends else 0.0
+        if e["kind"] == "kick":
+            js.append(int(round(e["t"] / dt)) + 1)
+        else:
+            js.append(int(round(float(e.get("t1", e.get("t0", 0.0))) / dt)))
+    return max(js) if js else 0
 
 
 def _shift_to(events: list[dict], t0: float) -> list[dict]:
@@ -59,7 +64,11 @@ def eval_lifting(model: StateModel, sid: str, cases: list[dict], simulate, scale
     for c in cases:
         P, ti = c["protocol"], float(c["t"])
         dt = float(P["dt"])
-        base = simulate(dict(P, t_end=round(ti + future_s + 2 * dt, 6)))
+        # one common t_end (the protocol's own) for the base run, every lift and every twin: noise realisations of the synthetic
+        # simulator depend on t_end, so all runs of a case must share it (version 2, review H M6)
+        t_end = float(P["t_end"])
+        n_total = int(round(t_end / dt))
+        base = simulate(dict(P))
         i = int(round(ti / dt))
         z_now = np.asarray(model.encode(sid, base["x"][: i + 1], base["u"][: i + 1], dt), float)
         if zsd is None:
@@ -79,14 +88,15 @@ def eval_lifting(model: StateModel, sid: str, cases: list[dict], simulate, scale
                 continue
             n_ok += 1
             fs, true_d = [], []
+            twin = base                          # P without the lifted events, same t_end: the counterfactual twin
             for lf in lifts[:n_lifts]:
                 ev = _shift_to(lf, ti)
-                t_end_lift = _end_of_lift(ev)
-                j = int(round(t_end_lift / dt)) + 1
+                j = _lift_done_index(ev, dt)
                 n_f = int(round(future_s / dt))
-                P2 = dict(P, events=list(P.get("events") or []) + ev, t_end=round(t_end_lift + future_s + 2 * dt, 6))
+                if j + n_f > n_total:
+                    continue                     # the lift ends too late for a full future window inside the protocol
+                P2 = dict(P, events=list(P.get("events") or []) + ev)
                 sim = simulate(P2)
-                twin = simulate(dict(P, t_end=P2["t_end"]))
                 z_l = np.asarray(model.encode(sid, sim["x"][: j + 1], sim["u"][: j + 1], dt), float)
                 z_t = np.asarray(model.encode(sid, twin["x"][: j + 1], twin["u"][: j + 1], dt), float)
                 ach.append(float(np.linalg.norm((z_l - z_t) - dz) / (np.linalg.norm(dz) + 1e-12)))

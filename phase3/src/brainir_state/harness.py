@@ -26,13 +26,17 @@ NON_INTERVENTION = ("H_nominal", "H_init_state")
 HELDOUT_INTERVENTION = ("H_kick_B", "H_pulse_B", "H_silence1_B", "H_group_silence")
 INDIST_INTERVENTION = ("H_kick_A", "H_pulse_A", "H_silence1_A")
 OOD = ("H_stim_ood", "H_weight_ood")
-# family roles of the synthetic suites' test split (the generator's hold-out design)
+# family roles of the synthetic suites' test split (the generator's hold-out design). Version 2: interventions on the STATE or the
+# INPUT (kicks, currents, silencing, their group / new-target / combined forms) make up the held-out C of the verdict; STRUCTURAL
+# interventions (edge removal changes the dynamics law itself, "where supported" in goal4 section 11) are scored separately and
+# reported, not part of the verdict
 SYNTH_ROLES = {"non_intervention": ("init_heldout", "param_heldout", "H_micro"),
-               "heldout_intervention": ("kick_group", "current_group", "group_silence", "edge_remove", "kick_newtarget",
-                                        "silence_newtarget", "combined_heldout"),
+               "heldout_intervention": ("kick_group", "current_group", "group_silence", "kick_newtarget", "silence_newtarget",
+                                        "combined_heldout"),
+               "structural_intervention": ("edge_remove",),
                "indist_intervention": (),
                "ood": ("noise_heldout",)}
-REAL_ROLES = {"non_intervention": NON_INTERVENTION, "heldout_intervention": HELDOUT_INTERVENTION,
+REAL_ROLES = {"non_intervention": NON_INTERVENTION, "heldout_intervention": HELDOUT_INTERVENTION, "structural_intervention": (),
               "indist_intervention": INDIST_INTERVENTION, "ood": OOD}
 
 
@@ -112,7 +116,9 @@ def hidden_sets(ds: Dataset, sid: str, micro_dir: Path | None = None) -> dict:
 
 
 def fit_references(sid: str, train: list[Trajectory], observed: list[int], k: int, seed: int = 0) -> dict:
-    """The reference controls of PROTOCOL.md section 5, fitted on public training trajectories of one system."""
+    """The reference controls of PROTOCOL.md section 5, fitted on public training trajectories of one system (the orchestrator passes
+    train + val, like a method's fit). Finite blow-up trajectories (evaluate.blowup_mask) are left out of the reference fits."""
+    train = [t for t, b in zip(train, E.blowup_mask(train)) if not b] or list(train)
     n_y = train[0].y.shape[1]
     return {"full_state": FullStateModel(observed, n_y, seed=seed).fit(sid, train),
             "input_only": DirectHorizonModel("input_only").fit(sid, train),
@@ -121,11 +127,35 @@ def fit_references(sid: str, train: list[Trajectory], observed: list[int], k: in
             "random_k": ProjectionLinearModel(k, "random", seed=seed).fit(sid, train, observed)}
 
 
+def e_whiteners(model, sid: str, train: list[Trajectory], cfg: E.EvalConfig, pca: tuple, scale: np.ndarray, k: int | None) -> dict:
+    """Whitening of E's distances from PUBLIC training data (PROTOCOL.md section 4): the model's latent encodings, the scaled readout
+    and the PCs of x at the encoding times of up to 64 training trajectories (full covariance, eigenvalue floor)."""
+    Z = E.encodings_for_whitening(model, sid, train, cfg)
+    out = {}
+    if Z.size and np.isfinite(Z).all() and len(Z) >= 3:
+        out["z"] = E.whitener(Z, cfg.whiten_eig_floor)
+    rows_y, rows_x = [], []
+    for tr in train[:64]:
+        for t0 in cfg.start_times_s:
+            i = E.idx(t0, tr.dt)
+            if i < len(tr.t):
+                rows_y.append(tr.y[i] / np.sqrt(scale))
+                rows_x.append(tr.x[i])
+    if len(rows_y) >= 3:
+        out["y"] = E.whitener(np.stack(rows_y).astype(np.float64), cfg.whiten_eig_floor)
+        mean_x, comps = pca
+        k_eff = int(min(k or (Z.shape[1] if Z.size else 1), comps.shape[0]))
+        out["pc"] = E.whitener((np.stack(rows_x).astype(np.float64) - mean_x) @ comps[:k_eff].T, cfg.whiten_eig_floor)
+    return out
+
+
 def evaluate_system(model, sid: str, hs: dict, scale: np.ndarray, pca: tuple, cfg: E.EvalConfig = REAL_CFG, k: int | None = None,
-                    families: tuple[str, ...] = ("A", "C", "D", "R", "E", "P"), roles: dict | None = None) -> dict:
+                    families: tuple[str, ...] = ("A", "C", "D", "R", "E", "P"), roles: dict | None = None,
+                    train: list[Trajectory] | None = None) -> dict:
     """All model-level families for one system. A/B on non-intervention hidden families; C on held-out and in-distribution
-    intervention families (separately, and per family); D closure; R rollout checks (closure gap, Markov consistency, noise
-    curve); E microstate equivalence; P parameter-identity probe; plus OOD robustness (A and C on OOD families)."""
+    intervention families (separately, and per family) and, apart, on structural interventions; D closure; R rollout checks (closure
+    gap, Markov consistency, noise curve); E microstate equivalence (whitened with `train`, the PUBLIC training trajectories; the
+    orchestrator always passes them); P parameter-identity probe; plus OOD robustness (A on OOD families)."""
     roles = roles or REAL_ROLES
     out = {}
     nonint = [t for f in roles["non_intervention"] for t in hs["by_family"].get(f, [])]
@@ -134,10 +164,13 @@ def evaluate_system(model, sid: str, hs: dict, scale: np.ndarray, pca: tuple, cf
     if "C" in families:
         held = [p for f in roles["heldout_intervention"] for p in hs["pairs"].get(f, [])]
         ind = [p for f in roles["indist_intervention"] for p in hs["pairs"].get(f, [])]
+        struct = [p for f in roles.get("structural_intervention", ()) for p in hs["pairs"].get(f, [])]
         out["C_heldout"] = E.eval_intervention(model, sid, held, scale, cfg) if held else {}
         out["C_indist"] = E.eval_intervention(model, sid, ind, scale, cfg) if ind else {}
+        out["C_structural"] = E.eval_intervention(model, sid, struct, scale, cfg) if struct else {}
         out["C_per_family"] = {f: E.strip_units(E.eval_intervention(model, sid, hs["pairs"][f], scale, cfg))
-                               for f in roles["heldout_intervention"] + roles["indist_intervention"] if hs["pairs"].get(f)}
+                               for f in roles["heldout_intervention"] + roles.get("structural_intervention", ()) + roles["indist_intervention"]
+                               if hs["pairs"].get(f)}
     if "D" in families and nonint:
         out["D"] = E.eval_closure(model, sid, nonint, pca, scale, cfg)
     if "R" in families and nonint:
@@ -146,7 +179,8 @@ def evaluate_system(model, sid: str, hs: dict, scale: np.ndarray, pca: tuple, cf
         pool = [dict(p) for p in hs["pool"]]
         for p in pool:
             p["floor_div"] = float(np.mean((np.asarray(p["future_y"]) - np.asarray(p["floor_future"])) ** 2 / scale))
-        out["E"] = E.eval_microstate(model, sid, pool, scale, cfg, pca=pca, k_match=k)
+        wh = e_whiteners(model, sid, train, cfg, pca, scale, k) if train else None
+        out["E"] = E.eval_microstate(model, sid, pool, scale, cfg, pca=pca, k_match=k, whiten=wh)
     if "P" in families and hs.get("pool"):
         out["P_param_probe"] = E.eval_param_probe(model, sid, hs["pool"], cfg)
     ood = {}
@@ -163,10 +197,29 @@ def key_d(cfg: E.EvalConfig) -> str:
     return f"D_y_h{int(round(cfg.closure_task_horizon_s * 1000))}ms_rff"
 
 
+VERDICT_FULL = "compact causal state discovered"
+VERDICT_FULL_E_UNTESTABLE = "compact causal state discovered (microstate equivalence untestable)"
+VERDICT_PARTIAL = "partially supported"
+VERDICT_NONE = "not supported"
+
+
+def _upper(ci) -> float:
+    try:
+        v = float(ci[1])
+    except Exception:  # noqa: BLE001
+        return float("nan")
+    return v
+
+
 def verdict(res: dict, refs: dict, taus: dict, n_observed: int, k: int | None, mode: str, cfg: E.EvalConfig, abstain: dict | None = None,
             n_boot: int = 2000) -> dict:
-    """Per-system verdict of a model. res / refs[name]: evaluate_system outputs (with "_units"); taus: tau_A, tau_C, tau_D, tau_E from
-    the pre-registered calibration. mode 'full' / 'synthetic' judges compression, 'mech' does not (too few neurons)."""
+    """Per-system verdict of a model (PROTOCOL.md section 7, benchmark version 2). res / refs[name]: evaluate_system outputs (with
+    "_units"); taus: tau_A, tau_C, tau_D, tau_E from the pre-registered calibration. mode 'full' / 'synthetic' judges compression,
+    'mech' does not (too few neurons).
+    - predictive: A <= A_full (1 + tau_A) and A below both shortcut controls (paired CI of the difference below 0);
+    - interventional: on the held-out STATE / INPUT interventions, C <= tau_C, the upper CI of C < 1, and no pair abstained on;
+    - closed: the upper CI of D (micro-gain) <= tau_D;
+    - microstate-equivalent: the upper CI of E <= tau_E; None when E is untestable (evaluate.eval_microstate)."""
     from .evaluate_cross import paired_diff
     ka, kc, kd = key_a(cfg), key_c(cfg), key_d(cfg)
     out: dict = {"k": k, "n_observed": n_observed}
@@ -181,25 +234,39 @@ def verdict(res: dict, refs: dict, taus: dict, n_observed: int, k: int | None, m
         shortcut_ok = shortcut_ok and bool(np.isfinite(d["ci95"][1]) and d["ci95"][1] < 0)
     out["A"], out["A_full"] = a, a_full
     out["predictive"] = bool(np.isfinite(a) and np.isfinite(a_full) and a <= a_full * (1 + taus["tau_A"]) and shortcut_ok)
-    c = (res.get("C_heldout") or {}).get(kc, {})
+    ch = res.get("C_heldout") or {}
+    c = ch.get(kc, {})
     out["C"], out["C_ci95"] = c.get("ratio", float("nan")), c.get("ci95", [float("nan")] * 2)
-    n_abst = (res.get("C_heldout") or {}).get("n_abstained_unsupported", 0)
+    n_abst = ch.get("n_abstained_unsupported", 0)
     out["C_abstained_pairs"] = n_abst
-    out["interventional"] = bool(np.isfinite(out["C"]) and out["C"] <= taus["tau_C"] and np.isfinite(out["C_ci95"][1]) and out["C_ci95"][1] < 1
-                                 and n_abst == 0)
-    dg = ((res.get("D") or {}).get(kd) or {}).get("micro_gain", float("nan"))
-    out["D_micro_gain"] = dg
-    out["closed"] = bool(np.isfinite(dg) and dg <= taus["tau_D"])
-    e = (res.get("E") or {}).get("E_ratio_latent_to_random", float("nan"))
-    out["E_ratio"] = e
-    out["microstate_equivalent"] = bool(np.isfinite(e) and e <= taus["tau_E"])
-    conds = [out["predictive"], out["interventional"], out["closed"], out["microstate_equivalent"]]
-    compact_ok = out["compact"] is not False
-    if compact_ok and all(conds):
-        out["verdict"] = "compact causal state discovered"
-    elif out["predictive"] and (out["interventional"] or out["closed"]):
-        out["verdict"] = "partially supported"
+    out["C_n_eff"] = c.get("n_eff")
+    out["interventional"] = bool(np.isfinite(out["C"]) and out["C"] <= taus["tau_C"] and np.isfinite(_upper(out["C_ci95"]))
+                                 and _upper(out["C_ci95"]) < 1 and n_abst == 0 and ch.get("n_pairs", 0) > n_abst)
+    cs = (res.get("C_structural") or {}).get(kc, {})
+    out["C_structural"], out["C_structural_ci95"] = cs.get("ratio"), cs.get("ci95")
+    out["C_structural_abstained_pairs"] = (res.get("C_structural") or {}).get("n_abstained_unsupported")
+    dres = (res.get("D") or {}).get(kd) or {}
+    dg = dres.get("micro_gain", float("nan"))
+    out["D_micro_gain"], out["D_ci95"] = dg, dres.get("micro_gain_ci95", [float("nan")] * 2)
+    out["closed"] = bool(np.isfinite(dg) and np.isfinite(_upper(out["D_ci95"])) and _upper(out["D_ci95"]) <= taus["tau_D"])
+    er = res.get("E") or {}
+    e = er.get("E_ratio_latent_to_random", float("nan"))
+    out["E_ratio"], out["E_ci95"] = e, er.get("E_ratio_ci95", [float("nan")] * 2)
+    out["E_testable"] = er.get("E_testable", bool(er))
+    out["E_untestable_reason"] = er.get("E_untestable_reason")
+    if er and out["E_testable"] is False:
+        out["microstate_equivalent"] = None
     else:
-        out["verdict"] = "not supported"
+        out["microstate_equivalent"] = bool(np.isfinite(e) and np.isfinite(_upper(out["E_ci95"])) and _upper(out["E_ci95"]) <= taus["tau_E"])
+    compact_ok = out["compact"] is not False
+    core = [out["predictive"], out["interventional"], out["closed"]]
+    if compact_ok and all(core) and out["microstate_equivalent"] is True:
+        out["verdict"] = VERDICT_FULL
+    elif compact_ok and all(core) and out["microstate_equivalent"] is None:
+        out["verdict"] = VERDICT_FULL_E_UNTESTABLE
+    elif out["predictive"] and (out["interventional"] or out["closed"]):
+        out["verdict"] = VERDICT_PARTIAL
+    else:
+        out["verdict"] = VERDICT_NONE
     out["abstention"] = abstain or {}
     return out

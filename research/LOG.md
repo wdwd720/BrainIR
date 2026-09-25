@@ -487,6 +487,9 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 | P3-D11 | 2026-09-24 | Simulation budgets in units (real full 10, real mechanism 3, synthetic 1 per trajectory); fits get 250 units | A real full-network trajectory costs 10-30 CPU-s, a synthetic one ~0.1 s |
 | P3-D12 | 2026-09-24 | Clean-room ML stack pinned to the evaluation environment (torch 2.14.0, scikit-learn 1.9.1) | Fitted models are pickled and loaded by the orchestrator |
 | P3-D13 | 2026-09-25 | Reviews E (statistics) and H (numerics) run in an EARLY round on the evaluation machinery, while the methods are still in development; A-D (and E's ranking follow-up) run on the composed candidate. Room `C:\Dev\BrainIR_p3review` = clean-room snapshot + `extra/` (orchestrator code, generator, public calibration, frozen integrator; dataset / paper / bundle names redacted, counts in `extra/README.md`); `make_review_room.py --extras eh`, later `--update` | Both questions are method-independent. A blocker in the evaluator found after the tournament would invalidate its rounds; found now, it costs a benchmark version before any candidate is scored |
+| P3-D14 | 2026-09-25 | BENCHMARK VERSION 2 (tag `state-discovery-benchmark-v2`, same directory): the fixes of the early reviews E (5 blockers, 6 majors) and H (1 blocker, 7 majors), recalibrated tolerances, synced into the clean room with a generic notice to the developers | Found before any held-out or hidden evaluation; v1 was never used for one. Details: `research/phase3/reviews/EH_early_resolution.md`, PROTOCOL.md section 10.1. Acceptance criterion 9 is reported as "v1 frozen before development, corrected to v2 before any held-out use" |
+| P3-D16 | 2026-09-25 | Operational reading of PROTOCOL section 9, fixed BEFORE any round: baselines are candidates in round 1 like any other; the best-ranked ELIGIBLE baseline of round 1 is carried into every later round as the Level C comparator even if halving would eliminate it (so that "the strongest baseline of the last round" exists); if a later round ranks another carried or surviving baseline higher, that one is the comparator | The frozen text presupposes a baseline in the last round; successive halving could remove all of them. No hashed file changes |
+| P3-D15 | 2026-09-25 | Level B fits, evaluations, reference controls and the calibration run on Modal (`scripts/p3/modal_tournament.py`, container side `scripts/p3/p3modal/`) with the FROZEN workers unchanged: the tournament driver's three execution functions are swapped; every job runs in a fresh interpreter; a Linux guard (p3modal.guard via sitecustomize) protects the container's data roots from method frames; fit containers never mount the held-out volume | goal4 section 58. Round 2 alone is ~1,000 fits of 5-20 min each; the local machine (16 threads, shared with 5 agents) would need days. A dev calibration system gives the same numbers on Linux as on Windows to ~1e-9 |
 
 ### 11.2 Pitfalls hit
 
@@ -527,6 +530,15 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     minutes.
   - Lesson: test a live guard against a replay of real agent traffic BEFORE swapping it in; write the new version to a staging path
     and move it over only after the replay is clean.
+- **2026-09-25 01:40-03:30: early reviews E and H, benchmark version 2, Modal backend.** Both reviews ran in 25 min on the redacted
+  review room and found real errors (rank by list order, NaN units dropped, medians over own subsets, missing Level C family, seed-
+  decided D / E, coordinate-dependent E, handicapped shortcut control, diverged-trajectory normaliser, lifting noise mismatch).
+  Fixed as benchmark v2 before any held-out use (P3-D14). Pitfalls:
+  - Modal `serialized=True` pickles a MODULE-LEVEL function by reference: the container crash-loops with "module ... not available".
+    Build the remote functions as closures (Phase 1's `_make_remote_wrapper` did this).
+  - A whitening eigenvalue floor of 1e-4 x lambda_max breaks the invariance of E for legitimately anisotropic latents (a PCA latent
+    had a 3000:1 variance ratio): 1e-8.
+  - Local calibration of one dev system took 850 s under agent load; Modal ran 3 in 390 s wall (~$0.14).
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete

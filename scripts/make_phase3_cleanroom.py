@@ -2,6 +2,7 @@
 
     uv run python scripts/make_phase3_cleanroom.py --build                # create C:\\Dev\\BrainIR_p3clean (refuses if it exists)
     uv run python scripts/make_phase3_cleanroom.py --check                # verify every allowlisted file, flag anything else
+    uv run python scripts/make_phase3_cleanroom.py --sync "<reason>"      # copy changed allowlisted files, record the sync, scan
     uv run python scripts/make_phase3_cleanroom.py --destroy-and-rebuild  # delete and build again (method work areas are lost)
 
 Every file that enters has an allowlist entry {path, source, reason, sha256, leakage_class}; the manifest is written to
@@ -177,14 +178,54 @@ def scan(dest: Path, manifest: dict) -> list[str]:
     return probs
 
 
+def sync(dest: Path, reason: str) -> dict:
+    """Bring an existing room up to date with the allowlist: copy every allowlisted file whose source changed (or that is missing),
+    update its manifest entry, record the sync (time, reason, files) in the manifest, then scan. Method work areas are untouched."""
+    manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+    by_path = {e["path"]: e for e in manifest["files"]}
+    changed = []
+    for it in allowlist():
+        src, dst = it["source"], dest / it["path"]
+        if not src.exists():
+            raise SystemExit(f"allowlisted source missing: {src}")
+        if dst.exists() and _sha(dst) == _sha(src):
+            continue
+        if FORBIDDEN_NAMES.search(it["path"]):
+            raise SystemExit(f"forbidden name: {it['path']}")
+        if src.suffix in TEXT_SUFFIXES:
+            m = FORBIDDEN_CONTENT.search(src.read_text(encoding="utf-8", errors="ignore"))
+            if m:
+                raise SystemExit(f"forbidden content {m.group(0)!r} in {src}")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copyfile(src, dst)
+        by_path[it["path"]] = {"path": it["path"], "source": "$REPO/" + src.relative_to(ROOT).as_posix(), "reason": it["reason"],
+                               "sha256": _sha(dst), "leakage_class": it["leakage_class"]}
+        changed.append(it["path"])
+    manifest["files"] = sorted(by_path.values(), key=lambda e: e["path"])
+    manifest["n_files"] = len(manifest["files"])
+    manifest.setdefault("syncs", []).append({"time_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "reason": reason,
+                                             "files": changed})
+    problems = scan(dest, manifest)
+    if problems:
+        raise SystemExit(f"sync scan failed (manifest not written): {problems[:5]}")
+    for p in (MANIFEST, dest / "CLEANROOM_MANIFEST.json"):
+        p.write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n")
+    return {"changed": changed}
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     g = ap.add_mutually_exclusive_group(required=True)
     g.add_argument("--build", action="store_true")
     g.add_argument("--check", action="store_true")
     g.add_argument("--destroy-and-rebuild", action="store_true")
+    g.add_argument("--sync", metavar="REASON", help="update changed allowlisted files in an existing room (work areas untouched)")
     ap.add_argument("--dest", type=Path, default=CLEAN)
     args = ap.parse_args(argv)
+    if args.sync:
+        r = sync(args.dest, args.sync)
+        print(f"synced {args.dest}: {len(r['changed'])} files: {r['changed']}")
+        return 0
     if args.destroy_and_rebuild:
         if args.dest.exists():
             shutil.rmtree(args.dest)

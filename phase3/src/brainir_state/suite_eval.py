@@ -157,20 +157,42 @@ def run_fits(jobs: list[dict], parallel: int = 5) -> list[dict]:
 
 
 # ------------------------------------------------------------------------------------------------------------ references
+_CODE_TAG: str | None = None
+
+
+def evaluator_code_tag() -> str:
+    """First 10 hex of the sha256 over the evaluation modules (reference caches are keyed by it: a changed evaluator never reuses
+    stale references; review E minor)."""
+    global _CODE_TAG
+    if _CODE_TAG is None:
+        import hashlib
+        h = hashlib.sha256()
+        here = Path(__file__).resolve().parent
+        for name in ("evaluate.py", "evaluate_cross.py", "harness.py", "refmodels.py", "suite_eval.py", "data.py"):
+            h.update((here / name).read_bytes().replace(b"\r\n", b"\n"))
+        _CODE_TAG = h.hexdigest()[:10]
+    return _CODE_TAG
+
+
 def reference_results(sd: SuiteData, sid: str, k: int, cache_dir: Path, seed: int = 0, names: tuple[str, ...] | None = None) -> dict:
-    """Evaluate the reference controls of PROTOCOL.md section 5 on one system. Cached on disk: the k-independent controls
-    (full-state ceiling, input-only, readout-history, persistence) per system, the PCA-k / random-k controls per (system, k)."""
+    """Evaluate the reference controls of PROTOCOL.md section 5 on one system. The controls are fitted on the public train + val
+    trajectories (like a method; finite blow-ups left out), the normalisers (readout scale, PCA basis) come from train only. Cached on
+    disk, keyed by the evaluator's code tag: the k-independent controls (full-state ceiling, input-only, readout-history,
+    persistence) per system, the PCA-k / random-k controls per (system, k)."""
     from .refmodels import DirectHorizonModel, FullStateModel, ProjectionLinearModel
     cache_dir.mkdir(parents=True, exist_ok=True)
     tag = sid.replace(":", "_")
-    f_fixed = cache_dir / f"refs_{tag}_s{seed}.json"
-    f_k = cache_dir / f"refs_{tag}_k{k}_s{seed}.json"
-    train = hs = scale = pca = None
+    ct = evaluator_code_tag()
+    f_fixed = cache_dir / f"refs_{tag}_s{seed}_{ct}.json"
+    f_k = cache_dir / f"refs_{tag}_k{k}_s{seed}_{ct}.json"
+    fit = train = hs = scale = pca = None
 
     def prep():
-        nonlocal train, hs, scale, pca
+        nonlocal fit, train, hs, scale, pca
         if train is None:
             train = sd.train_only(sid)
+            full = sd.train(sid)
+            fit = [t for t, b in zip(full, E.blowup_mask(full)) if not b] or list(full)
             hs = sd.hidden(sid)
             scale = E.readout_scale(train)
             pca = pca_basis(train)
@@ -181,11 +203,11 @@ def reference_results(sd: SuiteData, sid: str, k: int, cache_dir: Path, seed: in
         prep()
         n_y = train[0].y.shape[1]
         observed = sd.sysinfo(sid)["observed"]
-        fixed = {"full_state": evaluate_system(FullStateModel(observed, n_y, seed=seed).fit(sid, train), sid, hs, scale, pca, sd.cfg, k=k,
-                                               families=("A", "C", "D", "R", "E"), roles=sd.roles),
-                 "input_only": evaluate_system(DirectHorizonModel("input_only").fit(sid, train), sid, hs, scale, pca, sd.cfg,
+        fixed = {"full_state": evaluate_system(FullStateModel(observed, n_y, seed=seed).fit(sid, fit), sid, hs, scale, pca, sd.cfg, k=k,
+                                               families=("A", "C", "D", "R", "E"), roles=sd.roles, train=train),
+                 "input_only": evaluate_system(DirectHorizonModel("input_only").fit(sid, fit), sid, hs, scale, pca, sd.cfg,
                                                families=("A",), roles=sd.roles),
-                 "readout_hist": evaluate_system(DirectHorizonModel("readout_hist").fit(sid, train), sid, hs, scale, pca, sd.cfg,
+                 "readout_hist": evaluate_system(DirectHorizonModel("readout_hist").fit(sid, fit), sid, hs, scale, pca, sd.cfg,
                                                  families=("A",), roles=sd.roles)}
         nonint = [t for fam in sd.roles["non_intervention"] for t in hs["by_family"].get(fam, [])]
         fixed["persistence"] = E.eval_persistence(sid, nonint, scale, sd.cfg) if nonint else {}
@@ -195,10 +217,10 @@ def reference_results(sd: SuiteData, sid: str, k: int, cache_dir: Path, seed: in
     else:
         prep()
         observed = sd.sysinfo(sid)["observed"]
-        kdep = {"pca_k": evaluate_system(ProjectionLinearModel(k, "pca").fit(sid, train, observed), sid, hs, scale, pca, sd.cfg, k=k,
-                                         families=("A", "C", "D", "R", "E"), roles=sd.roles),
-                "random_k": evaluate_system(ProjectionLinearModel(k, "random", seed=seed).fit(sid, train, observed), sid, hs, scale, pca,
-                                            sd.cfg, k=k, families=("A", "C", "D", "R", "E"), roles=sd.roles)}
+        kdep = {"pca_k": evaluate_system(ProjectionLinearModel(k, "pca").fit(sid, fit, observed), sid, hs, scale, pca, sd.cfg, k=k,
+                                         families=("A", "C", "D", "R", "E"), roles=sd.roles, train=train),
+                "random_k": evaluate_system(ProjectionLinearModel(k, "random", seed=seed).fit(sid, fit, observed), sid, hs, scale, pca,
+                                            sd.cfg, k=k, families=("A", "C", "D", "R", "E"), roles=sd.roles, train=train)}
         f_k.write_text(json.dumps(kdep, default=_json_default) + "\n", encoding="utf-8")
     out = {**fixed, **kdep}
     return {n: v for n, v in out.items() if not names or n in names or n == "persistence"}
@@ -273,10 +295,12 @@ def evaluate_model_job(job: dict) -> dict:
     try:
         model = load_model(job["method_dir"], job["model_path"])
         info = model.info() or {}
-        k = (info.get("k") or {}).get(sid) or (getattr(model, "k", {}) or {}).get(sid)
+        k = (info.get("k") or {}).get(sid)
+        if k is None:                                     # k = 0 is a value, not a missing entry (review E minor)
+            k = (getattr(model, "k", {}) or {}).get(sid)
         out["info"] = info
         out["k"] = k
-        out["res"] = evaluate_system(model, sid, hs, scale, pca, sd.cfg, k=k, roles=sd.roles)
+        out["res"] = evaluate_system(model, sid, hs, scale, pca, sd.cfg, k=k, roles=sd.roles, train=train)
         if sd.truth is not None:
             from .evaluate_synth import dimension_recovery, eval_latent_recovery
             tr = sd.truth_system(sid) or {}

@@ -81,6 +81,81 @@ def _params(info: dict, members: list[str]) -> dict:
     return {"encoder": enc, "readout": ro, "transition": tr, "total": enc + ro + tr, "reported": True}
 
 
+# ---------------------------------------------------------------- the pre-registered primary family (PROTOCOL.md section 8, version 2)
+# one-sided NON-INFERIORITY of the locked method against the strongest baseline; diff = method - baseline on a lower-is-better scale
+NI_MARGIN = {"A": ("relative", 0.2), "C": ("relative_min", 0.2, 0.05), "D": ("absolute", 0.05), "E": ("relative", 0.2), "K": ("absolute", 0.05)}
+N_BOOT = 2000
+
+
+def _margin(fam: str, base_value: float) -> float:
+    m = NI_MARGIN[fam]
+    if m[0] == "absolute":
+        return m[1]
+    if not np.isfinite(base_value):
+        return float("nan")
+    return max(m[2], m[1] * base_value) if m[0] == "relative_min" else m[1] * base_value
+
+
+def _test_row(point: float, boot: np.ndarray, margin: float, extra: dict | None = None) -> dict:
+    from brainir_state.evaluate_cross import _boot_p, _ci, ni_p
+    ok = np.isfinite(point) and len(boot) > 0 and np.isfinite(margin)
+    return {"diff": point, "ci95": _ci(boot) if len(boot) else [float("nan")] * 2, "margin": margin,
+            "p_noninferiority": ni_p(boot, margin) if ok else 1.0, "p_two_sided": _boot_p(boot, point) if ok else 1.0,
+            "computable": bool(ok), **(extra or {})}
+
+
+def primary_tests(ra: dict | None, rb: dict | None, cfg) -> dict:
+    """A, C, D, E of one full system: the method (ra) against the baseline (rb). A comparison that cannot be computed (missing result,
+    untestable E, no common units) has p = 1 and stays in the family."""
+    from brainir_state.evaluate_cross import paired_diff_boot, paired_e_diff_boot, paired_gain_diff_boot, paired_ratio_diff_boot
+    out = {}
+    if ra is None or rb is None:
+        return {f: _test_row(float("nan"), np.zeros(0), float("nan"), {"note": "missing fit or evaluation"}) for f in ("A", "C", "D", "E")}
+    ka, kc = key_a(cfg), f"C_w{int(round(cfg.primary_c_window_s * 1000))}ms"
+    pa, ba, _ = paired_diff_boot((ra["A_B"].get("_units") or {}).get(ka, {}), (rb["A_B"].get("_units") or {}).get(ka, {}), N_BOOT)
+    out["A"] = _test_row(pa, ba, _margin("A", (rb["A_B"].get(ka) or {}).get("mean", float("nan"))))
+    pc, bc, _, ex = paired_ratio_diff_boot(((ra.get("C_heldout") or {}).get("_units") or {}).get(kc, {}),
+                                           ((rb.get("C_heldout") or {}).get("_units") or {}).get(kc, {}), N_BOOT)
+    out["C"] = _test_row(pc, bc, _margin("C", ex.get("ratio_b", float("nan"))), ex)
+    ua = (((ra.get("D") or {}).get(key_d(cfg)) or {}).get("_units")) or {}
+    ub = (((rb.get("D") or {}).get(key_d(cfg)) or {}).get("_units")) or {}
+    pd_, bd = paired_gain_diff_boot(ua, ub, N_BOOT)
+    out["D"] = _test_row(pd_, bd, _margin("D", float("nan")))
+    ea, eb = ra.get("E") or {}, rb.get("E") or {}
+    if ea.get("E_testable") is False or eb.get("E_testable") is False:
+        out["E"] = _test_row(float("nan"), np.zeros(0), float("nan"), {"note": "E untestable for the method or the baseline"})
+    else:
+        pe, be = paired_e_diff_boot(ea.get("_units") or {}, eb.get("_units") or {}, cfg.micro_match_quantile, N_BOOT)
+        out["E"] = _test_row(pe, be, _margin("E", eb.get("E_ratio_latent_to_random", float("nan"))))
+    return out
+
+
+def k_test_final(final_round: str, method: str, baseline: str) -> dict:
+    """K (latent recovery, random-feature R^2 of the true latent) on the synthetic FINAL suite, paired by system instance: diff =
+    baseline - method (lower is better for the method), non-inferiority margin 0.05, bootstrap over systems."""
+    base = ROOT / "research" / "phase3" / "tournament" / final_round
+    try:
+        rm = json.loads((base / f"{method}.json").read_text(encoding="utf-8"))["per_system"]
+        rb = json.loads((base / f"{baseline}.json").read_text(encoding="utf-8"))["per_system"]
+    except (OSError, KeyError, ValueError):
+        return _test_row(float("nan"), np.zeros(0), float("nan"), {"note": f"final round {final_round!r} results missing"})
+    d = []
+    for s in sorted(set(rm) & set(rb)):
+        km = ((rm[s] or {}).get("K") or {}).get("r2_true_from_model_rff")
+        kb = ((rb[s] or {}).get("K") or {}).get("r2_true_from_model_rff")
+        if (rm[s] or {}).get("k_true") in (None, "none"):
+            continue
+        km = float(km) if km is not None and np.isfinite(km) else -np.inf        # a failure counts as the worst recovery
+        kb = float(kb) if kb is not None and np.isfinite(kb) else -np.inf
+        d.append(np.clip(kb, -1, 1) - np.clip(km, -1, 1))
+    d = np.array(d, float)
+    if len(d) == 0:
+        return _test_row(float("nan"), np.zeros(0), float("nan"), {"note": "no common systems"})
+    rng = np.random.default_rng(0)
+    boot = np.array([d[rng.integers(0, len(d), len(d))].mean() for _ in range(N_BOOT)])
+    return _test_row(float(d.mean()), boot, _margin("K", float("nan")), {"n_systems": int(len(d)), "note": "R^2 clipped to [-1, 1]"})
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--method-dir", required=True)
@@ -91,6 +166,7 @@ def main(argv=None) -> int:
     ap.add_argument("--eval-workers", type=int, default=4)
     ap.add_argument("--timeout", type=float, default=3600.0)
     ap.add_argument("--reason", default="first and only planned Level C evaluation")
+    ap.add_argument("--final-round", default="final", help="the Level B confirmation round (tournament --suite final) holding K")
     args = ap.parse_args(argv)
     if not (ROOT / "research" / "phase3" / "METHOD_LOCK.json").exists():
         raise SystemExit("refusing: Level C runs only after research/phase3/METHOD_LOCK.json exists")
@@ -214,7 +290,7 @@ def main(argv=None) -> int:
     cfg = sd.cfg
     result = {"attempt": args.attempt, "method": args.method, "baseline": args.baseline, "tolerances": taus, "systems": {}, "fit_failures":
               [r for r in recs if "error" in r][:50]}
-    pvals, comps = {}, {}
+    pvals, comps, sup = {}, {}, {}
     for s in sids:
         info = sd.sysinfo(s)
         row = {"mode": info["mode"], "network": info["network"], "n_observed": len(info["observed"])}
@@ -229,24 +305,22 @@ def main(argv=None) -> int:
             v = verdict(e["res"], refs, taus, len(info["observed"]), k, "mech" if info["mode"] == "mech" else "full", cfg, abstain=ab)
             row[mm] = {"k": k, "k_range": ((e.get("info") or {}).get("k_range") or {}).get(s), "verdict": v, "lift": e.get("lift"),
                        "res": e["res"], "references": {n: {kk: vv for kk, vv in r.items() if kk != "C_per_family"} for n, r in refs.items()}}
-        # primary paired comparisons (full systems): locked method vs strongest baseline
-        em, eb = ev(args.method, "indep", f"{s.replace(':', '_')}_s0", s), ev(args.baseline, "indep", f"{s.replace(':', '_')}_s0", s)
-        if info["mode"] == "full" and em and eb and "error" not in em and "error" not in eb:
-            ra, rb = em["res"], eb["res"]
-            ka = key_a(cfg)
-            c_key = f"C_w{int(round(cfg.primary_c_window_s * 1000))}ms"
-            comps[s] = {"A": paired_diff((ra["A_B"].get("_units") or {}).get(ka, {}), (rb["A_B"].get("_units") or {}).get(ka, {})),
-                        "C": paired_ratio_diff(((ra.get("C_heldout") or {}).get("_units") or {}).get(c_key, {}),
-                                               ((rb.get("C_heldout") or {}).get("_units") or {}).get(c_key, {})),
-                        "D": {"method": ((ra.get("D") or {}).get(key_d(cfg)) or {}).get("micro_gain"),
-                              "baseline": ((rb.get("D") or {}).get(key_d(cfg)) or {}).get("micro_gain")},
-                        "E": {"method": (ra.get("E") or {}).get("E_ratio_latent_to_random"),
-                              "baseline": (rb.get("E") or {}).get("E_ratio_latent_to_random")}}
-            for fam in ("A", "C"):
-                pvals[f"{s}:{fam}"] = comps[s][fam]["p"]
+        # primary paired comparisons (full systems): locked method vs strongest baseline (PROTOCOL.md section 8, version 2)
+        if info["mode"] == "full":
+            em, eb = ev(args.method, "indep", f"{s.replace(':', '_')}_s0", s), ev(args.baseline, "indep", f"{s.replace(':', '_')}_s0", s)
+            ok = bool(em and eb and "error" not in em and "error" not in eb)
+            comps[s] = primary_tests(em["res"] if ok else None, eb["res"] if ok else None, cfg)
+            for fam, r in comps[s].items():
+                pvals[f"{s}:{fam}"] = r["p_noninferiority"]
+                sup[f"{s}:{fam}"] = r["p_two_sided"]
         result["systems"][s] = row
+    comps["final_suite:K"] = k_test_final(args.final_round, args.method, args.baseline)
+    pvals["final_suite:K"] = comps["final_suite:K"]["p_noninferiority"]
+    sup["final_suite:K"] = comps["final_suite:K"]["p_two_sided"]
     result["primary_comparisons"] = comps
+    result["primary_family"] = sorted(pvals)
     result["primary_holm"] = holm(pvals)
+    result["secondary_superiority_holm"] = holm(sup)
     # ---------------------------------------------------------------- G (5 seeds of the locked method)
     g_jobs = []
     for s in sids:
