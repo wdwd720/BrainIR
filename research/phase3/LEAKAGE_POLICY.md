@@ -119,8 +119,12 @@ access:
   (path inside the requester's work area, no `..`, a character whitelist for arguments, known class, bounded time).
 - **Container.** The image has the room's pinned numerical stack and no repository code. The job brings the room's `src/` and the
   requester's `runs/<prefix>/` as a tar. The only volume is `brainir-p3-devdata`, an exact, hash-verified copy of the room's `data/`
-  directory (`research/phase3/devrun_volume_check.json`). The network is blocked. No held-out, hidden, truth or orchestrator material
-  is reachable, and there is no simulation service.
+  directory (`research/phase3/devrun_volume_check.json`). Inside the job, an audit-hook guard loaded into the job's own Python
+  processes (`scripts/p3/devrun_site/sitecustomize.py`) refuses IP sockets, name resolution and starting any program other than the
+  Python interpreter; the container's Modal runtime (which transfers the job's input and output) is outside the job. A whole-container
+  network block was tried first and dropped: the runtime then cannot fetch inputs that exceed Modal's inline size. No held-out,
+  hidden, truth or orchestrator material is reachable, and there is no simulation service. Isolation smoke test (orchestrator script
+  `runs/zzorch/smoke.py`): data present, the eval / fit volumes and the repository not visible, network refused.
 - **Results.** Only new or changed files under the requester's `runs/<prefix>/` come back, into `runs/<prefix>/remote/<job id>/`
   (size-capped).
 - **Audit.** Every request, rejection, code-tar hash, result hash, exit code, peak memory and wall time is logged outside the room

@@ -12,7 +12,7 @@ the orchestrator, validates the request and runs it on Modal:
 - the only volume is `brainir-p3-devdata`, an exact copy of the room's data/ directory (public development data; built server-side
   from the staged public dev suite and public real fit view, the missing public twin files uploaded; every file verified by sha256
   against the room);
-- the network is blocked (`block_network=True`);
+- the job's own processes cannot use the network or start other programs (an audit-hook guard, scripts/p3/devrun_site);
 - no held-out, hidden or truth data, no orchestrator module, no simulation service.
 New or changed files under the developer's runs/<prefix>/ come back into the room under runs/<prefix>/remote/<job id>/ (size capped).
 Every job is recorded outside the room (C:\\Dev\\BrainIR_p3audit\\remote_runner.jsonl: request, code-tar hash, result hash, exit
@@ -60,7 +60,9 @@ def image():
             .pip_install("torch==2.14.0", index_url="https://download.pytorch.org/whl/cpu")
             .env({"PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1",
                   # the same numerics pinning as the evaluation image (PROTOCOL.md section 10)
-                  "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR", "ATEN_CPU_CAPABILITY": "avx2"}))
+                  "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR", "ATEN_CPU_CAPABILITY": "avx2"})
+            # the job guard (network and program starts refused inside the job's own Python processes)
+            .add_local_dir(str(Path(__file__).resolve().parent / "devrun_site"), "/opt/devguard"))
 
 
 def _run_job(payload: dict) -> dict:
@@ -87,7 +89,8 @@ def _run_job(payload: dict) -> dict:
 
     before = hashes()
     cpu = int(payload["cpu"])
-    env = {"PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"), "HOME": "/tmp", "PYTHONPATH": str(room / "src"),
+    env = {"PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"), "HOME": "/tmp",
+           "PYTHONPATH": "/opt/devguard" + os.pathsep + str(room / "src"),
            "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1", "OMP_NUM_THREADS": str(cpu), "MKL_NUM_THREADS": str(cpu),
            "OPENBLAS_NUM_THREADS": str(cpu), "P3_REMOTE_JOB": payload["job_id"], "P3_REMOTE_CPUS": str(cpu),
            "NPY_DISABLE_CPU_FEATURES": os.environ.get("NPY_DISABLE_CPU_FEATURES", ""),
@@ -128,7 +131,9 @@ def make_app():
 
     fns = {}
     for name, (cpu, mem) in CLASSES.items():
-        fns[name] = app.function(cpu=cpu, memory=mem, timeout=6 * 3600, max_containers=64, block_network=True,
+        # the container's own runtime keeps its network (Modal fetches large inputs and stores large outputs through blob storage);
+        # the JOB's processes are guarded by /opt/devguard/sitecustomize.py (no network, no other programs)
+        fns[name] = app.function(cpu=cpu, memory=mem, timeout=6 * 3600, max_containers=64,
                                  volumes={"/devdata": dev}, serialized=True, name=f"devrun_{name}")(run_job)
     return app, fns
 
