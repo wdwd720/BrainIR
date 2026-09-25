@@ -215,7 +215,23 @@ Frozen `greedy_prune_sim`, unchanged, 8 salted node orders × 3 seeds per networ
 | male-cns_v1.0 | 0.87 | 0.92 | 0.92 | 550 |
 | manc_v1.2.3 | 0.65 | 0.67 | 0.67 | 755 |
 
-BrainIR v1 under identical orders and seeds: *pending*.
+**BrainIR v1.2 (locked) under identical orders and seeds.** The sweeps ran on the exact locked code tree before the lock
+was written, and are oracle-free. They are paired by (order variant, seed), with 95 % CIs from paired bootstrap resampling of
+runs (`research/phase2/reliability/compare_v12_vs_greedy_*.md`):
+
+| network | identity Jaccard (v1.2 / greedy) | modal-core frequency | keep-only pass rate | calls | simulated seconds | wall per run |
+|---|---|---|---|---|---|---|
+| manc_v1.2.1 | 0.80 / 0.63, +0.17 [+0.04, +0.28] | 0.75 / 0.67 | 1.00 / 0.67, +0.33 [+0.17, +0.54] | 399 / 777 | 798 / 777 (n.s.) | 992 / 327 s |
+| male-cns_v1.0 | 1.00 / 0.87, +0.13 [+0.00, +0.28] | 1.00 / 0.92 | 1.00 / 0.92, +0.08 [0.00, +0.21] | 386 / 550 | 772 / 550 (+40 %) | 799 / 216 s |
+| manc_v1.2.3 | 0.85 / 0.65, +0.20 [+0.00, +0.38] | 0.83 / 0.67 | 1.00 / 0.67, +0.33 [+0.17, +0.54] | 403 / 755 | 806 / 755 (+7 %) | 960 / 265 s |
+
+**Reliability and function.** On every real network v1.2 is more consistent across node orders × parameter draws, and
+every one of its 72 cores passes keep-only on fresh seeds.
+
+**Compute.** v1.2 needs about half the simulator calls, but each of its calls simulates the bundle's full 2-second
+protocol. The frozen baseline simulates 1 s per call. In simulated time v1.2 therefore costs the same as the baseline or
+more, and in wall time 3–4× more, because of the many full-network silencing simulations reviews A and G required. The
+honest efficiency claim is fewer queries, not less compute.
 
 ## 10. Cross-connectome transfer
 
