@@ -323,7 +323,7 @@ The same rule applies to cross-connectome sharing (J).
 - Method lock before Level B confirmation and Level C: `research/phase3/METHOD_LOCK.json`, tag `brainir-state-v1-preblind`. It
   records source hashes, configuration, dimension rule, objective, hyper-parameters, training and simulator budgets, intervention
   training split, evaluator version, seeds and package environment.
-- Level B confirmation and Level C run once each. Every hidden evaluation is appended to `research/phase3/HIDDEN_EVAL_LOG.md`. A
+- Level B confirmation and Level C run once each. Every hidden evaluation is appended to `research/phase3/HIDDEN_EVALUATIONS.md`. A
   repeated attempt must be logged with its reason. Any method change after Level C is v2.
 - The hidden salt is committed by its sha256 in `BENCHMARK_LOCK.json` and revealed after Level C.
 

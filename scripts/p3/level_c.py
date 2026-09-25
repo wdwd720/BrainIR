@@ -4,7 +4,7 @@
                                                        [--parallel 4] [--eval-workers 4] [--attempt 01]
 
 Refuses to run without research/phase3/METHOD_LOCK.json and without the hidden real data (scripts/p3/generate_real_hidden.py, run
-after the lock). Every run is appended to research/phase3/HIDDEN_EVAL_LOG.md. Steps:
+after the lock). Every run is appended to research/phase3/HIDDEN_EVALUATIONS.md. Steps:
 1. fits in the sandbox on the PUBLIC real data (train + val): the locked method on every system with seeds 0-4 (G), the strongest
    baseline with seed 0; shared fits per network (I) with leave-one-implementation-out adaptation; cross-connectome models on the
    full systems (J): (1) independent, (2) common k with independent dynamics, (3) shared dynamics, (4) partially shared where
@@ -119,7 +119,7 @@ def main(argv=None) -> int:
     by_net = {n: [s for s in sids if sd.sysinfo(s)["network"] == n] for n in nets}
     full = {n: next(s for s in by_net[n] if sd.sysinfo(s)["mode"] == "full") for n in nets}
     out_dir = OUT / args.attempt
-    log = ROOT / "research" / "phase3" / "HIDDEN_EVAL_LOG.md"
+    log = ROOT / "research" / "phase3" / "HIDDEN_EVALUATIONS.md"
     if not log.exists():
         log.write_text("# Phase 3 hidden evaluation log (Level C and Level B confirmation; PROTOCOL.md section 10)\n\n| time (UTC) | "
                        "attempt | what | method / baseline | reason | outputs |\n|---|---|---|---|---|---|\n", encoding="utf-8", newline="\n")

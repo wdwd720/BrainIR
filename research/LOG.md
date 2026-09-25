@@ -500,3 +500,17 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 - Windows Python needs `C:/...` paths; `/c/...` works only in bash.
 - Real readout populations are small (9, 20 and 10 active readout neurons on net1-3), and the observed populations are 197-213
   neurons (full) or 3-6 (mechanisms).
+
+### 11.3 Chronology
+
+- **2026-09-24 20:00-22:50 (Phase 3 start).** Isolation stack; literature review (oracle-free agent, filtered web); synthetic
+  benchmark (oracle-free author, 237 tests); candidate regeneration (7 candidates); real public data (3,005 trajectories);
+  synthetic suites and pools; screen (1 diverged heldout trajectory removed); smoke tournament with a toy PCA method (pipeline end
+  to end: sandboxed fits, shared / leave-one-out fits, evaluation, lifting, G, verdicts, profile); calibration (45 dev systems,
+  75 min on 7 workers).
+- **Benchmark lock, then an immediate re-lock before any use.** The first lock (commit 186b1d3, tag moved) was superseded ~15 min
+  later. No agent had started, and nothing had been evaluated. The clean-room builder refused PROTOCOL.md because the Phase 3
+  hidden-evaluation log was named like the Phase 2 answer file (`HIDDEN_EVAL_LOG.md`), which is on the builder's forbidden-phrase
+  list. The Phase 3 log is now `research/phase3/HIDDEN_EVALUATIONS.md`. The protocol, level_c.py and LEAKAGE_POLICY.md were renamed
+  accordingly and the benchmark was re-locked. The tag `state-discovery-benchmark-v1` points to the re-lock commit.
+- The clean room was built from the allowlist: 7,542 files, scan clean (`research/phase3/CLEANROOM_MANIFEST.json`).

@@ -77,5 +77,5 @@ tier-A tokens read at audit time from the oracle), denied calls, web queries, an
 
 ## 5. Post-lock answer-bearing files of Phase 3
 
-After the Level C evaluation: `research/phase3/HIDDEN_EVAL_LOG.md`, `benchmarks/state_discovery_v1/hidden/**` and its outputs,
+After the Level C evaluation: `research/phase3/HIDDEN_EVALUATIONS.md`, `benchmarks/state_discovery_v1/hidden/**` and its outputs,
 `data/phase3/hidden/**`, `PHASE3_REPORT.md`. Never copy them into a Phase 4 clean room.
