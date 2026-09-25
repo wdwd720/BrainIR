@@ -52,11 +52,15 @@ _STATE: dict = {"costs": [], "methods_keys": {}}
 def image():
     import modal
     ign = ["**/__pycache__/**", "**/*.pyc"]
+    # the frozen Phase 1-2 library `brainir` is on the path because the simulation service's import chain reaches the real engine
+    # (brainir_state.simservice -> realgen -> realsim -> brainir.sim); synthetic simulation never calls it. Versions from phase3/uv.lock
     return (modal.Image.debian_slim(python_version="3.12")
             .pip_install("numpy==2.5.3", "scipy==1.18.1", "pandas==3.0.6", "pyarrow==25.0.1", "pydantic==2.13.5", "scikit-learn==1.9.1",
-                         "threadpoolctl==3.7.0")
+                         "threadpoolctl==3.7.0", "duckdb==1.5.5", "networkx==3.7", "requests==2.34.2", "cloudpickle==3.1.2",
+                         "python-dateutil==2.9.0.post0")
             .pip_install("torch==2.14.0", index_url="https://download.pytorch.org/whl/cpu")
-            .env({"PYTHONPATH": "/repo/phase3/src:/repo/p3modal", "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"})
+            .env({"PYTHONPATH": "/repo/phase3/src:/repo/p3modal:/repo/src", "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1"})
+            .add_local_dir(str(ROOT / "src" / "brainir"), "/repo/src/brainir", ignore=ign)
             .add_local_dir(str(PKG_DIR), "/repo/phase3/src/brainir_state", ignore=ign)
             .add_local_dir(str(GEN_DIR), "/repo/benchmarks/state_discovery_v1/generator", ignore=ign)
             .add_local_dir(str(P3M_DIR), "/repo/p3modal/p3modal", ignore=ign + ["site/**"])

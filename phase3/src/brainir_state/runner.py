@@ -36,11 +36,28 @@ def mount_methods(method_dir: str | Path) -> None:
 
 
 def import_method(method_dir: str | Path, name: str):
+    """The registered method `name` ("module:name", or a plain name). A plain name is looked up in the module of the same name;
+    if there is no such module, every module of the methods package is imported (sorted, skipping modules that fail to import)
+    so that methods registered in a module with another name (e.g. several baselines in one file) are found."""
     mount_methods(method_dir)
-    from brainir_state.api import get_method
-    module = name.split(":")[0]
-    importlib.import_module(f"brainir_state.methods.{module}")
-    return get_method(name.split(":")[-1])
+    from brainir_state.api import get_method, registered
+    if ":" in name:
+        module, meth = name.split(":", 1)
+        importlib.import_module(f"brainir_state.methods.{module}")
+        return get_method(meth)
+    try:
+        importlib.import_module(f"brainir_state.methods.{name}")
+    except ModuleNotFoundError as e:
+        if e.name != f"brainir_state.methods.{name}":
+            raise
+        for p in sorted(Path(method_dir).glob("*.py")):
+            if p.stem == "__init__" or name in registered():
+                continue
+            try:
+                importlib.import_module(f"brainir_state.methods.{p.stem}")
+            except Exception:  # noqa: BLE001 - another developer's broken module must not hide a registered method
+                continue
+    return get_method(name)
 
 
 def load_model(method_dir: str | Path, path: str | Path):

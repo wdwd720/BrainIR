@@ -544,6 +544,17 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   (`modal_tournament.py`, `p3modal/remote.py`). It is an upload utility, and nothing had run under v2. The lock was rewritten and the
   tag `state-discovery-benchmark-v2` moved to the re-lock commit. The heldout suite went up as 790 MB + 70 MB (the truth subset the
   evaluator reads) in 7 min.
+- **Version 2 re-locked a second time before any use (2026-09-25 04:40).** A dev-suite smoke tournament on Modal found two
+  execution bugs, both fixed before any held-out run:
+  - the container lacked the frozen `brainir` package: the simulation service imports the real engine, although synthetic runs never
+    call it;
+  - `runner.import_method` only found methods registered in a module of the same name. This would have failed every baseline that
+    shares a file (`lin_pcadyn` in `lin_baselines.py`), in Level B and in Level C. The method is now looked up across the package's
+    modules (test `test_import_method_finds_methods_registered_in_a_module_with_another_name`).
+
+  The smoke on the dev suite then ran end to end (lin_pcadyn: 94 fits, 84 evaluations, 66 reference prefetches, G, shared and
+  leave-one-out fits, profile and ranks; 4 fits failed inside the developer's in-progress shared-fit code). The lock was rewritten
+  and the tag moved.
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete

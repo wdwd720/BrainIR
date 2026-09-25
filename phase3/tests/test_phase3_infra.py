@@ -247,6 +247,30 @@ def test_cleanroom_scan_rejects_forbidden_files(tmp_path):
 
 
 # ------------------------------------------------------------------------------------------------ method sandbox (fit guard)
+def test_import_method_finds_methods_registered_in_a_module_with_another_name(tmp_path):
+    """Several baselines live in one module (e.g. lin_pcadyn in lin_baselines.py): a plain name must still resolve, and another
+    developer's broken module must not hide it."""
+    from brainir_state.runner import import_method
+    mdir = tmp_path / "methods"
+    mdir.mkdir()
+    (mdir / "__init__.py").write_text("", encoding="utf-8")
+    (mdir / "aaa_broken.py").write_text("raise RuntimeError('broken module')\n", encoding="utf-8")
+    (mdir / "fam_baselines.py").write_text('''
+from brainir_state.api import StateMethod, register
+class _Base(StateMethod):
+    def fit(self, train, *, systems, config=None, sim=None, seed=0):
+        raise NotImplementedError
+@register
+class First(_Base):
+    name = "fam_first"
+@register
+class Second(_Base):
+    name = "fam_second"
+''', encoding="utf-8")
+    assert import_method(mdir, "fam_second").name == "fam_second"
+    assert import_method(mdir, "fam_baselines:fam_first").name == "fam_first"
+
+
 def test_fit_sandbox_refuses_reads_outside_the_allowed_roots(tmp_path):
     """A method that tries to read a file outside its inputs (e.g. hidden data) fails inside the sandboxed fit subprocess."""
     import subprocess
