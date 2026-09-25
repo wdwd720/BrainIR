@@ -1,0 +1,936 @@
+{
+ "lock_version": "1.0.0",
+ "created_utc": "2026-09-25T00:37:33Z",
+ "method": {
+  "name": "brainir_v1",
+  "version": "1.2.0",
+  "class": "brainir.methods.brainir_v1.BrainIRv1",
+  "config": {
+   "n_seeds_per_decision": 3,
+   "adaptive_replication": true,
+   "max_decision_seeds": 5,
+   "max_seed_trials": 10,
+   "validation_seeds": 3,
+   "max_validation_seeds": 12,
+   "fidelity_seeds": 4,
+   "structural_pruning": true,
+   "activity_pruning": true,
+   "use_structural_prior": true,
+   "relevance_hops": 6,
+   "relevance_damping": 0.6,
+   "prior_weight": 1.0,
+   "use_group_testing": true,
+   "use_active_selection": true,
+   "initial_chunk_fraction": 0.25,
+   "minimality_cleanup": true,
+   "member_essentiality": true,
+   "necessity_screen": true,
+   "necessity_screen_fraction": 0.4,
+   "screen_singles": true,
+   "screen_singles_fraction": 0.15,
+   "screen_min_singles": 4,
+   "screen_singles_per_member": 4,
+   "second_partition": true,
+   "necessity_of_alternatives": true,
+   "max_alternatives": 4,
+   "max_fillers_per_member": 2,
+   "alternatives_budget_fraction": 0.5,
+   "participation_check": true,
+   "fidelity_check": true,
+   "reliance_tiebreak": true,
+   "robust_objective": true,
+   "stress_only_for_ties": true,
+   "stress_probes": 4,
+   "stress_noise_sd": 0.2,
+   "stress_sd_factor": 2.0,
+   "decisive": 0.95,
+   "decisive_margin": 2.0,
+   "decisive_stress": 0.99,
+   "occam_factor": 0.5,
+   "union_repair": true,
+   "degeneracy_detection": true,
+   "joint_necessity": true,
+   "uncertainty_model": "posterior",
+   "size_error_points": 3,
+   "simulate_edge_predictions": true,
+   "edge_prediction_members": 8,
+   "use_cross_connectome": true,
+   "aux_budget_fraction": 0.25,
+   "aux_calls_per_member": 60,
+   "aux_min_calls": 30,
+   "cross_fallback_discovery": true,
+   "cross_fallback_min_calls": 60,
+   "joint_config": {
+    "identity_calibration": [
+     1.2988,
+     0.2166,
+     1.8127
+    ]
+   },
+   "t_end": null
+  },
+  "config_overrides": {},
+  "config_sha256": "ee45951e938bc240f90d32b46bb0c3e1ccca42c530722d1e15348c115dd5c4c9"
+ },
+ "run_protocol": {
+  "runner": "benchmarks/dng100/cleanroom/run_method.py",
+  "entry": "scripts/cleanroom_entry/brainir_discovery_entry.py",
+  "method_args": "--method brainir_v1 --budget 1000",
+  "bundle": "benchmarks/dng100/public_blind",
+  "networks": [
+   "manc_v1.2.1",
+   "manc_v1.2.3",
+   "male-cns_v1.0"
+  ],
+  "seed": 0,
+  "seed_policy": "one primary blind run per network with the locked seed; reliability sweeps use seeds 0,1,2 x 8 salted node orders (order 0 = the bundle's own order)",
+  "budget_calls_per_network": 1000,
+  "workers": 1,
+  "evaluator": "benchmarks/dng100/evaluator/evaluate.py --run-record (n_replicates 16, t_end 2.0: the frozen defaults)"
+ },
+ "git": {
+  "commit": "334503c16e33476b495bdc664790e6445e90609d",
+  "branch_or_head": "main"
+ },
+ "source_hashes": {
+  "pyproject.toml": "3a4d465ffcf2086aaf51c18322748577e841d7de3e7ebe47dc3d2f4f891f5bfb",
+  "scripts/blind_eval.py": "7753f80e156717688184d1d9c2626d855bdb06732cc2962808e9f7011b0bfccb",
+  "scripts/cleanroom_entry/brainir_discovery_entry.py": "2a158cb4cd454308c1adccda8f1f3f4c40f195a7bb5296c3cf1ef69123827fe0",
+  "scripts/method_lock.py": "5c8ddf36253f37946f00717184d9f76ba71ad1a116b6527811ed20f39e9b69cd",
+  "src/brainir/__init__.py": "738dc99add2c093ca5932ca21d0e4c281a7378e4062c6c000599575b122e895a",
+  "src/brainir/acquire.py": "8f5c03f4b355e36a1fdb99efae687ff52cabd63d68e46441cfd4cf7bc4bc5f46",
+  "src/brainir/benchmark/__init__.py": "e39203ac71857862f8eadb75809c40b0a06a70c8a2a1edde5932871e52bbd620",
+  "src/brainir/benchmark/bundle.py": "34a08ebaca0de95960d1e164ec02183f6adff43cf0650becc3cfad350731ff58",
+  "src/brainir/benchmark/prediction.py": "6a2005868f0bd7332722ff03071677259ffc1b2a055b11048d6d9a4309d721b0",
+  "src/brainir/cli.py": "e48953def13809c2c84b25487a6ef76eba23ec8c1224ca4a9f921aff2c8c54a7",
+  "src/brainir/compute/__init__.py": "24fd232a255b2fd58359843980103bd1b200a6f390d3fc8dc7a96a50f0b493e4",
+  "src/brainir/compute/backend.py": "838536403affccb60cbeeaeb80bee265a38c4776a32bddceeefef79825ec2220",
+  "src/brainir/compute/registry.py": "d9ff106733bc812f506d3bf8fcfb5ec67808742effe3889d5a95ebd12032ae88",
+  "src/brainir/discovery/__init__.py": "c307baaf2b1d294c5cfbea0d83ff5d6aa2615262c60d18117218f6508aa9c910",
+  "src/brainir/discovery/adversarial.py": "f55070eea55a81eec127e7f9267de46d669446679c3a6319f4cd1c2c97057dfb",
+  "src/brainir/discovery/correspondence.py": "11acef92bf1e86ceffeb2636cc3c61a4f81fb361ca6b5c1d8658c8b739aa599e",
+  "src/brainir/discovery/criteria.py": "0a79ecb3cc2f62a208cc2abc42e9151bdc7a10f3560a387c5e83d02d528673e4",
+  "src/brainir/discovery/guard.py": "65dadb9a65dc8ed7e5702417c79ca7a0479322a38baba4fdd6877c3e6c26a382",
+  "src/brainir/discovery/interface.py": "ebfba75b9047400a52fc5028b0396c286a036ea6938837c4e7364bfdb662cd7c",
+  "src/brainir/discovery/interventions.py": "570d9b561bddd6f191b2d9a920b496bb101fe368259cf9d61e166bd04b11249b",
+  "src/brainir/discovery/joint.py": "38609d27eb6e0e9e2445f60970d0be151bb8526d0dd773cc59a0ce6477737687",
+  "src/brainir/discovery/pair_tournament.py": "807065b6e3c40bc446dc956eea223824c0e2908cca723d3c1f5b816626348c38",
+  "src/brainir/discovery/perturb.py": "55d4a3a008d110b6bf411b3d3e99e43f6349465a7e0fde11d2bdac607956bd6c",
+  "src/brainir/discovery/problem.py": "db22cb00c2b6f249b60019ef14cc1fa79588c17d69845bc7d3f1014db094a58a",
+  "src/brainir/discovery/provenance.py": "6a0a43a9011516897f3e1c2a8c7306433e6301af47dca339f3f34a63a2caa6a1",
+  "src/brainir/discovery/reliability.py": "8f7fcdf8f63243f7501d52df17d6ee8842e8039296062f3fe37eaa74cdcd792c",
+  "src/brainir/discovery/remote.py": "15066ccd97cf08387dc06325b69925a03dab5fb653ec286da8ab2ddc89f19327",
+  "src/brainir/discovery/run.py": "251ef83b0a4aa626f9e82a30265451256d689f6907db9bb8bcdd42d28d619acd",
+  "src/brainir/discovery/simulator.py": "9622b914c72b24f57d25e846f13815706b16e216763b6fdb974371c0f524db86",
+  "src/brainir/discovery/suite_audit.py": "8269a392f0e610ef5fe75a53333b995398603dfeb5b059626b2c063a44235604",
+  "src/brainir/discovery/synthetic.py": "32272908751ae1511eb9f662501ecb70257e25b546e2a5f745c0ba2e0a2f6f71",
+  "src/brainir/discovery/synthetic_pairs.py": "854d0c6d8a6689deee47d586799176a4a2edbe32c186c106d5463d40d079b4b5",
+  "src/brainir/discovery/tournament.py": "523de05b9e16a48a2bff3ca146a015d9b7e6796636cd44e108b7afb520c0435c",
+  "src/brainir/discovery/transfer.py": "c62248f796bdc845130fe3c13929f8293080da5a89275c92c342a28bca3f191a",
+  "src/brainir/graph.py": "f27ad90d2549ff083a7d9e200caf6987868cfaae6fdd04de7cad4fa06e0cf868",
+  "src/brainir/ingest/__init__.py": "9bbb18f3d14db82e315bb6c378cb425587110b14e55a1e6769a4d654cc24e976",
+  "src/brainir/ingest/common.py": "12630e70eb3bfad0b984ec9eead6a6d5089ed55a579d34644cf043501a3b7bb1",
+  "src/brainir/ingest/malecns.py": "35ea4d371889c774758e3be86e205b7bb42cf4ce0e2afc5b3a2430734567e4df",
+  "src/brainir/ingest/manc.py": "c2c95ceaae0bc6138af3be97f2b87f818858ed4c4746336b2f3365ee9b7fc5c6",
+  "src/brainir/io.py": "caef03300a0021f9f05eee4bef7d06b935d1a3d45b2d26d365def931f127d91c",
+  "src/brainir/manifest.py": "62ab66fb9bb7a0c40de4f938460782a93c330e594df8962c789bb454c373cba3",
+  "src/brainir/mapping.py": "b7d96bc832ff067f181d8452c72b8e0be5061a79856ebdbcf36cc75ce9dab23b",
+  "src/brainir/methods/__init__.py": "a15691110a18264d5fca5e963ba32cf16712ed9aff0e73c108554e5238bc36b6",
+  "src/brainir/methods/_brainir_v1_sha256.py": "07df449ee6fd09e9c23c595ffa37686dffde36ae3fd53bd3fb9b717253b7c7e9",
+  "src/brainir/methods/brainir_v1.py": "4bfcf81628aba7684688fefd113eddd705a13e250f119caea2050cd65d84d2a7",
+  "src/brainir/methods/cem_search.py": "d9c86b76569619ea1587336e004efd7a79ca9eca788edf2ee73296f19a55b2cc",
+  "src/brainir/methods/evo_pareto.py": "0119e1b0e8177d0214719cd50782ff60174904235349dce7c3ead0d273819581",
+  "src/brainir/methods/greedy_plus.py": "e3fa5a825703a71d549149604f20f0ec6169ad18718e4261806ff93c612555dc",
+  "src/brainir/methods/greedy_reference.py": "6e316bdb95136dead4b231447ac8a9ade199b8fe632ae91c794134f6e6a00e12",
+  "src/brainir/methods/group_probe.py": "b1002c99134228acc9d8e1a14ec07d6a02919f6d230060f60f2a13083ba79268",
+  "src/brainir/methods/surrogate_search.py": "456f3ca7c2285a460710d76484ac118527a255e1577e6b6ff1a1459e3e861463",
+  "src/brainir/metrics/__init__.py": "2abdf6b61e8264a423f7c8a4b16c685c60489c98d8b990935501f5808eb60605",
+  "src/brainir/metrics/rhythm.py": "28670e22c42f421161105d6031d488267ef57cb1ec57fb170b0e703f7552a7bf",
+  "src/brainir/paths.py": "d1605ad6a2a90398bcac987703f3854601f7b57bfb15d600d0419836d3ca1c42",
+  "src/brainir/schema/__init__.py": "9ec6f64cef22ac4cd126edfca7a32bc84e83320cb485045b5c29ea7420cf57e7",
+  "src/brainir/schema/evidence.py": "ea3ec89660d7154d5c4182a10ef48d270e9ead8ad8fc05c03f137ed237bf0407",
+  "src/brainir/schema/models.py": "d7b07c5906ac3a10603c10790ea39106f43a4948d8c5d741d8e9d40e26f51de4",
+  "src/brainir/schema/tables.py": "98dc8ae7dc0b6dcb9789388df4d2a96923ab244b7a1376d2a5c1dbf5d56b7652",
+  "src/brainir/schema/vocab.py": "63c9f8da8bcf9bd3ed25a914582d154f9a9f52ed92a7957b5f01d27f0b55b349",
+  "src/brainir/sim/__init__.py": "38eb2b9ca62762411edafdfbb2cb6f31120a481d380446d1680c3d2f0f1bf5ea",
+  "src/brainir/sim/experiments.py": "607efea58c512d9cea7c7dc85865a8a67d6067888012f8f4a1912f531eb6a88c",
+  "src/brainir/sim/model.py": "64169df011c45cc39aa213526d99fa789f10d58e5bf30edd327f0b2a9779d18f",
+  "src/brainir/sim/prune.py": "779105f07e865e776f536cb6e5e23a32cf36bb778a71ce0b71107224993a121f",
+  "src/brainir/sim/screen.py": "b5bea4e9b11ba24a710456045d94bc1ff2737f313279de39290d44cb218ab89a",
+  "src/brainir/sim/weights.py": "81bd618380f295b54996c0c54b7afd310176c2d8a580f0fed5223db0ec57102b",
+  "src/brainir/sources/__init__.py": "e29199fb96771d658cd1e0b3998cf2ec05ff08b5e24060b30ad2baa04a7a4273",
+  "src/brainir/sources/registry.py": "470bb9c6a6e82d1c2e486b964894566c6c08cb0fe185e6d0b5ea1923d4d6f84d",
+  "src/brainir/synapses.py": "6e5e181f129933c3962c4fba97f067de9a975a480d5af26cb99db0ccd1c8317c",
+  "src/brainir/testing/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "src/brainir/testing/circuits.py": "93d4e4c14ad61f140d0b47d096f119e4b749f6f77b9afd39cbf6f6618007b970",
+  "src/brainir/testing/signals.py": "15a3490de4443cf3851610bfafa623bd5b7f34f89501ae14d9e3322c06751d24",
+  "src/brainir/testing/synthetic.py": "138cdf3c013a0327714178090abb4e35114bcf968074bb2998b48cc69c2245c3",
+  "src/brainir/testing/synthetic_manc.py": "c72928e917ece811e34b18f60daeade9f5c531f698fd6c50daeb95c21985c57f",
+  "src/brainir/validation.py": "2c16125a8ad1ceb30dd6c3e0bd0ac2b807e2eb5be4c5397df8e8d0ffc9773f61",
+  "uv.lock": "51168c97dc6aa24ac5bcfa16e759c4c07df72de65ec333e5a18b9c23a19598f7"
+ },
+ "source_tree_sha256": "911625b9275faad4aea2ab74123f82ef166d7c89b369ca1705b1a813954e3856",
+ "package_versions": {
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pandas": "3.0.6",
+  "pyarrow": "25.0.1",
+  "pydantic": "2.13.5",
+  "networkx": "3.7",
+  "duckdb": "1.5.5"
+ },
+ "python": "3.12.14",
+ "benchmark": {
+  "benchmark_id": "dng100-benchmark-v1",
+  "lock_sha256": "bcaa8ee46e23dc29fb9f89f79a28e5ee6ea3d6ffdb8f2dafeb795716ce00f7e7",
+  "bundles": {
+   "public_blind": {
+    "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+    "tier": "A"
+   },
+   "public": {
+    "bundle_sha256": "3cf5a5615ca7276661e86879830551deff34fd342c5103dbfd25ce6b0498d4d7",
+    "tier": "B"
+   }
+  }
+ },
+ "synthetic_results": [
+  {
+   "path": "research/phase2/tournament/conf_mech_b1000_summary.json",
+   "sha256": "877e070a5e69d9a05942710ba6c746bdbf02591d89c295bcb792f924ba93eb68",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 342,
+     "n_scored": 342,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 1.0,
+     "success_ci95": [
+      1.0,
+      1.0
+     ],
+     "success_planted_rate": 1.0,
+     "functional_success_rate": 0.9122807017543859,
+     "functional_success_ci95": [
+      0.8801169590643275,
+      0.9415204678362573
+     ],
+     "functional_success_causal_rate": 1.0,
+     "success_or_functional_rate": 1.0,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9956140350877193,
+     "functional_robust_mean": 0.9539473684210527,
+     "calls_median": 115.0,
+     "calls_mean": 149.81578947368422,
+     "size_median": 2.0,
+     "role_accuracy_mean": 0.9122807017543859,
+     "brier_mean": 0.0025822096640665407,
+     "essential_accuracy_mean": 0.9992690058479532,
+     "removable_fraction": 0.08771929824561403,
+     "simulated_seconds_median": 145.6,
+     "identity_consistency": {
+      "n_instances": 57,
+      "pairwise_jaccard_mean": 0.9578947368421052,
+      "identical_fraction": 0.9298245614035088,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 1.0,
+     "essential_recall_mean": 1.0,
+     "missed_essential_rate": 0.0,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.3333333333333333,
+     "brier_contested_mean": 0.018577977925056013,
+     "brier_contested_any_alternative_mean": 0.1045060012471227,
+     "essential_accuracy_unambiguous_mean": 0.9992690058479532
+    },
+    "greedy_reference": {
+     "n_runs": 342,
+     "n_scored": 342,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.7543859649122807,
+     "success_ci95": [
+      0.7105263157894737,
+      0.7982456140350878
+     ],
+     "success_planted_rate": 0.6228070175438597,
+     "functional_success_rate": 0.15497076023391812,
+     "functional_success_ci95": [
+      0.11695906432748537,
+      0.19298245614035087
+     ],
+     "functional_success_causal_rate": 0.16987179487179488,
+     "success_or_functional_rate": 0.7543859649122807,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 0.3333333333333333,
+     "functional_nominal_mean": 0.777046783625731,
+     "functional_robust_mean": 0.7331871345029239,
+     "calls_median": 236.0,
+     "calls_mean": 290.1169590643275,
+     "size_median": 3.0,
+     "role_accuracy_mean": null,
+     "brier_mean": 0.21353474585163854,
+     "essential_accuracy_mean": 1.0,
+     "removable_fraction": 0.6858974358974359,
+     "simulated_seconds_median": 228.0,
+     "identity_consistency": {
+      "n_instances": 57,
+      "pairwise_jaccard_mean": 0.802542313465273,
+      "identical_fraction": 0.5263157894736842,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.5760233918128655,
+     "essential_recall_mean": 0.7275000000000001,
+     "missed_essential_rate": 0.45,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.27485380116959063,
+     "silence_core_pass_mean": 0.2894736842105263,
+     "brier_contested_mean": 0.3733530600595202,
+     "brier_contested_any_alternative_mean": 0.4805834992665944,
+     "essential_accuracy_unambiguous_mean": 1.0
+    }
+   },
+   "label": "conf_mech_b1000",
+   "suite": "mechanisms_v1_final",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "main",
+    "order1"
+   ],
+   "n_jobs": 684
+  },
+  {
+   "path": "research/phase2/tournament/conf_mech_b1000.json.gz",
+   "sha256": "d6af50beb372ebe5d7884c1b11fae316e790b55a54fb9011f68d108df75c24c1"
+  },
+  {
+   "path": "research/phase2/tournament/cmp_conf_greedy_reference.json",
+   "sha256": "0ce6b244b25d9855c21ac425814ab09f03269cd430de42ee3ca002a0e6b80444"
+  },
+  {
+   "path": "research/phase2/tournament/conf_adv_summary.json",
+   "sha256": "787cadfb38e22686b8bb815d8c61277930ac428c6a3577c3fa4a516565ce6fba",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 396,
+     "n_scored": 396,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.8888888888888888,
+     "success_ci95": [
+      0.8585858585858586,
+      0.9191919191919192
+     ],
+     "success_planted_rate": 0.8888888888888888,
+     "functional_success_rate": 0.45707070707070707,
+     "functional_success_ci95": [
+      0.4065656565656566,
+      0.5075757575757576
+     ],
+     "functional_success_causal_rate": 0.8333333333333334,
+     "success_or_functional_rate": 0.8914141414141414,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9450757575757576,
+     "functional_robust_mean": 0.9046717171717171,
+     "calls_median": 185.0,
+     "calls_mean": 240.09595959595958,
+     "size_median": 3.0,
+     "role_accuracy_mean": 0.9507575757575758,
+     "brier_mean": 0.0030593180807841945,
+     "essential_accuracy_mean": null,
+     "removable_fraction": 0.5,
+     "simulated_seconds_median": 180.4,
+     "identity_consistency": {
+      "n_instances": 66,
+      "pairwise_jaccard_mean": 0.9647052229630066,
+      "identical_fraction": 0.8484848484848485,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.8888888888888888,
+     "essential_recall_mean": 0.9962962962962963,
+     "missed_essential_rate": 0.003703703703703704,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.4147727272727273,
+     "brier_contested_mean": 0.018822229755733253,
+     "brier_contested_any_alternative_mean": 0.018822229755733253,
+     "essential_accuracy_unambiguous_mean": null
+    },
+    "greedy_plus": {
+     "n_runs": 396,
+     "n_scored": 396,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.7196969696969697,
+     "success_ci95": [
+      0.6742424242424242,
+      0.7626262626262627
+     ],
+     "success_planted_rate": 0.7196969696969697,
+     "functional_success_rate": 0.5555555555555556,
+     "functional_success_ci95": [
+      0.5050505050505051,
+      0.601010101010101
+     ],
+     "functional_success_causal_rate": 0.8849104859335039,
+     "success_or_functional_rate": 0.851010101010101,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9065656565656566,
+     "functional_robust_mean": 0.8737373737373737,
+     "calls_median": 148.0,
+     "calls_mean": 209.38636363636363,
+     "size_median": 3.0,
+     "role_accuracy_mean": 0.9231902356902358,
+     "brier_mean": 0.009236330366065769,
+     "essential_accuracy_mean": null,
+     "removable_fraction": 0.37851662404092073,
+     "simulated_seconds_median": 142.85,
+     "identity_consistency": {
+      "n_instances": 66,
+      "pairwise_jaccard_mean": 0.795413419562101,
+      "identical_fraction": 0.42424242424242425,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.7196969696969697,
+     "essential_recall_mean": 0.8969135802469135,
+     "missed_essential_rate": 0.1814814814814815,
+     "latent_backup_rate": 0.03535353535353535,
+     "silent_core_rate": 0.045454545454545456,
+     "silence_core_pass_mean": 0.44191919191919193,
+     "brier_contested_mean": 0.1189039197356227,
+     "brier_contested_any_alternative_mean": 0.1189039197356227,
+     "essential_accuracy_unambiguous_mean": null
+    },
+    "greedy_reference": {
+     "n_runs": 396,
+     "n_scored": 396,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.17676767676767677,
+     "success_ci95": [
+      0.1388888888888889,
+      0.21464646464646464
+     ],
+     "success_planted_rate": 0.17676767676767677,
+     "functional_success_rate": 0.13383838383838384,
+     "functional_success_ci95": [
+      0.10101010101010101,
+      0.16666666666666666
+     ],
+     "functional_success_causal_rate": 0.18971061093247588,
+     "success_or_functional_rate": 0.2222222222222222,
+     "recall_best_alt_median": 0.5,
+     "precision_best_alt_median": 0.25,
+     "functional_nominal_mean": 0.6401515151515151,
+     "functional_robust_mean": 0.5978535353535354,
+     "calls_median": 244.0,
+     "calls_mean": 411.3560606060606,
+     "size_median": 3.0,
+     "role_accuracy_mean": null,
+     "brier_mean": 0.21319846125292718,
+     "essential_accuracy_mean": null,
+     "removable_fraction": 0.6527331189710611,
+     "simulated_seconds_median": 304.9,
+     "identity_consistency": {
+      "n_instances": 66,
+      "pairwise_jaccard_mean": 0.7865547190769214,
+      "identical_fraction": 0.45454545454545453,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.1388888888888889,
+     "essential_recall_mean": 0.37530864197530867,
+     "missed_essential_rate": 0.8629629629629629,
+     "latent_backup_rate": 0.18686868686868688,
+     "silent_core_rate": 0.5707070707070707,
+     "silence_core_pass_mean": 0.48674242424242425,
+     "brier_contested_mean": 0.7236150367022721,
+     "brier_contested_any_alternative_mean": 0.7236150367022721,
+     "essential_accuracy_unambiguous_mean": null
+    },
+    "group_probe": {
+     "n_runs": 396,
+     "n_scored": 396,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.6818181818181818,
+     "success_ci95": [
+      0.6338383838383839,
+      0.7272727272727273
+     ],
+     "success_planted_rate": 0.6818181818181818,
+     "functional_success_rate": 0.41414141414141414,
+     "functional_success_ci95": [
+      0.3661616161616162,
+      0.4621212121212121
+     ],
+     "functional_success_causal_rate": 0.8455696202531645,
+     "success_or_functional_rate": 0.8106060606060606,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9147727272727273,
+     "functional_robust_mean": 0.875,
+     "calls_median": 212.0,
+     "calls_mean": 291.67424242424244,
+     "size_median": 3.0,
+     "role_accuracy_mean": 0.8273284796012069,
+     "brier_mean": 0.013178140954796627,
+     "essential_accuracy_mean": null,
+     "removable_fraction": 0.5240506329113924,
+     "simulated_seconds_median": 196.8,
+     "identity_consistency": {
+      "n_instances": 66,
+      "pairwise_jaccard_mean": 0.8345251810546982,
+      "identical_fraction": 0.6060606060606061,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.6792929292929293,
+     "essential_recall_mean": 0.978395061728395,
+     "missed_essential_rate": 0.03333333333333333,
+     "latent_backup_rate": 0.14393939393939395,
+     "silent_core_rate": 0.14646464646464646,
+     "silence_core_pass_mean": 0.37752525252525254,
+     "brier_contested_mean": 0.17612450582570818,
+     "brier_contested_any_alternative_mean": 0.17612450582570818,
+     "essential_accuracy_unambiguous_mean": null
+    }
+   },
+   "label": "conf_adv",
+   "suite": "adversarial_final",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "main",
+    "order1"
+   ],
+   "n_jobs": 1584
+  },
+  {
+   "path": "research/phase2/tournament/conf_adv.json.gz",
+   "sha256": "89d370077199b82bf9a1b157b09de351445479621a1a7ccf5d9042f82cb1a540"
+  },
+  {
+   "path": "research/phase2/tournament/conf_v12_pairs_v1f_summary.json",
+   "sha256": "f13c211dad9efb8c31b5fc49567f4b4624f1eb1ad8cc067894c519f7b97ed770",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 81,
+     "n_scored": 81,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 1.0,
+     "success_ci95": [
+      1.0,
+      1.0
+     ],
+     "success_planted_rate": 1.0,
+     "functional_success_rate": 0.9259259259259259,
+     "functional_success_ci95": [
+      0.8641975308641975,
+      0.9753086419753086
+     ],
+     "functional_success_causal_rate": 1.0,
+     "success_or_functional_rate": 1.0,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9722222222222222,
+     "functional_robust_mean": 0.9166666666666666,
+     "calls_median": 142.0,
+     "calls_mean": 165.71604938271605,
+     "size_median": 2.0,
+     "role_accuracy_mean": 0.9629629629629629,
+     "brier_mean": 0.0012740498579901403,
+     "essential_accuracy_mean": 1.0,
+     "removable_fraction": 0.07407407407407407,
+     "simulated_seconds_median": 106.0,
+     "identity_consistency": {
+      "n_instances": 27,
+      "pairwise_jaccard_mean": 1.0,
+      "identical_fraction": 1.0,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 1.0,
+     "essential_recall_mean": 1.0,
+     "missed_essential_rate": 0.0,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.2222222222222222,
+     "brier_contested_mean": 0.02014951372444727,
+     "brier_contested_any_alternative_mean": 0.07573834666692975,
+     "essential_accuracy_unambiguous_mean": 1.0
+    }
+   },
+   "label": "conf_v12_pairs_v1f",
+   "suite": "pairs_v1_final",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "a"
+   ],
+   "n_jobs": 81
+  },
+  {
+   "path": "research/phase2/tournament/conf_v12_pairs_v1f.json.gz",
+   "sha256": "c039d08f2f5e972097dd254b5659a8c2f1a7c6917da89291ef8be40cf76780fb"
+  },
+  {
+   "path": "research/phase2/tournament/conf_v12_pairs_v2f_summary.json",
+   "sha256": "7ad5a429e9d98e38e0ff0893d26fbe3e708eadb06d092290fdf1c904497a77e1",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 81,
+     "n_scored": 81,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 1.0,
+     "success_ci95": [
+      1.0,
+      1.0
+     ],
+     "success_planted_rate": 1.0,
+     "functional_success_rate": 0.9259259259259259,
+     "functional_success_ci95": [
+      0.8641975308641975,
+      0.9753086419753086
+     ],
+     "functional_success_causal_rate": 1.0,
+     "success_or_functional_rate": 1.0,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9814814814814815,
+     "functional_robust_mean": 0.9166666666666666,
+     "calls_median": 238.0,
+     "calls_mean": 244.41975308641975,
+     "size_median": 2.0,
+     "role_accuracy_mean": 0.9629629629629629,
+     "brier_mean": 0.0008232400856895065,
+     "essential_accuracy_mean": 1.0,
+     "removable_fraction": 0.07407407407407407,
+     "simulated_seconds_median": 134.0,
+     "identity_consistency": {
+      "n_instances": 27,
+      "pairwise_jaccard_mean": 1.0,
+      "identical_fraction": 1.0,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 1.0,
+     "essential_recall_mean": 1.0,
+     "missed_essential_rate": 0.0,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.21296296296296297,
+     "brier_contested_mean": 0.019330163074718264,
+     "brier_contested_any_alternative_mean": 0.10400668350351233,
+     "essential_accuracy_unambiguous_mean": 1.0
+    }
+   },
+   "label": "conf_v12_pairs_v2f",
+   "suite": "pairs_v2_final",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "a"
+   ],
+   "n_jobs": 81
+  },
+  {
+   "path": "research/phase2/tournament/conf_v12_pairs_v2f.json.gz",
+   "sha256": "9c57bbe104aef4dd9bfcb75b5f72f9f8057327dab45cdf6a7e4a18c8fddeb172"
+  },
+  {
+   "path": "research/phase2/tournament/sel_v12_b1000_summary.json",
+   "sha256": "eb4cc842c7f731f49ef5a6d62688355064a859283f51de51514a5dfc18cfd6d3",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 342,
+     "n_scored": 342,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 1.0,
+     "success_ci95": [
+      1.0,
+      1.0
+     ],
+     "success_planted_rate": 1.0,
+     "functional_success_rate": 0.9122807017543859,
+     "functional_success_ci95": [
+      0.8801169590643275,
+      0.9415204678362573
+     ],
+     "functional_success_causal_rate": 1.0,
+     "success_or_functional_rate": 1.0,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9956140350877193,
+     "functional_robust_mean": 0.9210526315789473,
+     "calls_median": 117.0,
+     "calls_mean": 146.16081871345028,
+     "size_median": 2.0,
+     "role_accuracy_mean": 0.9210526315789473,
+     "brier_mean": 0.0028713458204200405,
+     "essential_accuracy_mean": 0.9992690058479532,
+     "removable_fraction": 0.08771929824561403,
+     "simulated_seconds_median": 128.0,
+     "identity_consistency": {
+      "n_instances": 57,
+      "pairwise_jaccard_mean": 0.968421052631579,
+      "identical_fraction": 0.9473684210526315,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 1.0,
+     "essential_recall_mean": 1.0,
+     "missed_essential_rate": 0.0,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.3333333333333333,
+     "brier_contested_mean": 0.02297685369359147,
+     "brier_contested_any_alternative_mean": 0.10939386628379603,
+     "essential_accuracy_unambiguous_mean": 0.9992690058479532
+    }
+   },
+   "label": "sel_v12_b1000",
+   "suite": "mechanisms_v1_heldout",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "main",
+    "order1"
+   ],
+   "n_jobs": 342
+  },
+  {
+   "path": "research/phase2/tournament/adv_h_v12_summary.json",
+   "sha256": "d5238765d16faa083aa2c8b79a7fc37fef3d2187839053d2f2b94ae556cc2118",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 396,
+     "n_scored": 396,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.8888888888888888,
+     "success_ci95": [
+      0.8560606060606061,
+      0.9191919191919192
+     ],
+     "success_planted_rate": 0.8888888888888888,
+     "functional_success_rate": 0.4772727272727273,
+     "functional_success_ci95": [
+      0.4292929292929293,
+      0.5277777777777778
+     ],
+     "functional_success_causal_rate": 0.8409090909090909,
+     "success_or_functional_rate": 0.9065656565656566,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 0.9488636363636364,
+     "functional_robust_mean": 0.9261363636363636,
+     "calls_median": 187.0,
+     "calls_mean": 245.72979797979798,
+     "size_median": 3.0,
+     "role_accuracy_mean": 0.9507575757575758,
+     "brier_mean": 0.0017361487039938707,
+     "essential_accuracy_mean": null,
+     "removable_fraction": 0.49242424242424243,
+     "simulated_seconds_median": 195.5,
+     "identity_consistency": {
+      "n_instances": 66,
+      "pairwise_jaccard_mean": 0.9577409650009718,
+      "identical_fraction": 0.8181818181818182,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.8888888888888888,
+     "essential_recall_mean": 0.9883720930232558,
+     "missed_essential_rate": 0.011627906976744186,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.442550505050505,
+     "brier_contested_mean": 0.01956563357533625,
+     "brier_contested_any_alternative_mean": 0.01956563357533625,
+     "essential_accuracy_unambiguous_mean": null
+    }
+   },
+   "label": "adv_h_v12",
+   "suite": "adversarial_heldout",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "main",
+    "order1"
+   ],
+   "n_jobs": 396
+  },
+  {
+   "path": "research/phase2/tournament/sel_v12_pairs_v1h_summary.json",
+   "sha256": "0f8328a8094dc3e0862033d20fd1937278e78bb5bfb1fdc33a54277af9d3c687",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 78,
+     "n_scored": 78,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.9615384615384616,
+     "success_ci95": [
+      0.9102564102564102,
+      1.0
+     ],
+     "success_planted_rate": 0.9615384615384616,
+     "functional_success_rate": 0.9615384615384616,
+     "functional_success_ci95": [
+      0.9102564102564102,
+      1.0
+     ],
+     "functional_success_causal_rate": 1.0,
+     "success_or_functional_rate": 1.0,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 1.0,
+     "functional_robust_mean": 0.9615384615384616,
+     "calls_median": 136.0,
+     "calls_mean": 171.28205128205127,
+     "size_median": 2.0,
+     "role_accuracy_mean": 1.0,
+     "brier_mean": 0.002450934793933083,
+     "essential_accuracy_mean": 1.0,
+     "removable_fraction": 0.038461538461538464,
+     "simulated_seconds_median": 95.0,
+     "identity_consistency": {
+      "n_instances": 26,
+      "pairwise_jaccard_mean": 1.0,
+      "identical_fraction": 1.0,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.9615384615384616,
+     "essential_recall_mean": 1.0,
+     "missed_essential_rate": 0.0,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.19230769230769232,
+     "brier_contested_mean": 0.05732653855223741,
+     "brier_contested_any_alternative_mean": 0.10154953000522884,
+     "essential_accuracy_unambiguous_mean": 1.0
+    }
+   },
+   "label": "sel_v12_pairs_v1h",
+   "suite": "pairs_v1_heldout",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "a"
+   ],
+   "n_jobs": 78
+  },
+  {
+   "path": "research/phase2/tournament/sel_v12_pairs_v2h_summary.json",
+   "sha256": "9602ea998fbf570ab9f3f04de42f94d17abc7bc7553b64b848abdf1f3d1fbd44",
+   "summary": {
+    "brainir_v1": {
+     "n_runs": 81,
+     "n_scored": 81,
+     "n_failed": 0,
+     "failures": [],
+     "success_rate": 0.9629629629629629,
+     "success_ci95": [
+      0.9135802469135802,
+      1.0
+     ],
+     "success_planted_rate": 0.9629629629629629,
+     "functional_success_rate": 0.8888888888888888,
+     "functional_success_ci95": [
+      0.8148148148148148,
+      0.9506172839506173
+     ],
+     "functional_success_causal_rate": 0.9629629629629629,
+     "success_or_functional_rate": 0.9629629629629629,
+     "recall_best_alt_median": 1.0,
+     "precision_best_alt_median": 1.0,
+     "functional_nominal_mean": 1.0,
+     "functional_robust_mean": 0.9629629629629629,
+     "calls_median": 244.0,
+     "calls_mean": 265.1358024691358,
+     "size_median": 2.0,
+     "role_accuracy_mean": 0.9615384615384616,
+     "brier_mean": 0.0017775794934795305,
+     "essential_accuracy_mean": 0.9814814814814815,
+     "removable_fraction": 0.1111111111111111,
+     "simulated_seconds_median": 148.0,
+     "identity_consistency": {
+      "n_instances": 27,
+      "pairwise_jaccard_mean": 1.0,
+      "identical_fraction": 1.0,
+      "n_empty_cores": 0
+     },
+     "success_intact_rate": 0.9629629629629629,
+     "essential_recall_mean": 1.0,
+     "missed_essential_rate": 0.0,
+     "latent_backup_rate": 0.0,
+     "silent_core_rate": 0.0,
+     "silence_core_pass_mean": 0.28703703703703703,
+     "brier_contested_mean": 0.05408692311399501,
+     "brier_contested_any_alternative_mean": 0.13656841421811142,
+     "essential_accuracy_unambiguous_mean": 0.9814814814814815
+    }
+   },
+   "label": "sel_v12_pairs_v2h",
+   "suite": "pairs_v2_heldout",
+   "budget": 1000,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "networks": [
+    "a"
+   ],
+   "n_jobs": 81
+  }
+ ],
+ "documentation": {
+  "path": "research/phase2/BRAINIR_V1_METHOD.md",
+  "sha256": "7ed7e4703425da8f7ddd3fdc4405c04546a23f92a3d782db380ce7bc6c15348b"
+ },
+ "tests": {
+  "command": "uv run pytest -m \"not real_data\"",
+  "log_sha256": "8a6df39fe15f06c2dd41bf475e63b7b76738a5f60a0e27c437769b9ed9447240",
+  "passed": 549,
+  "failed": 0,
+  "summary_line": "549 passed, 1 skipped, 2 warnings in 444.41s (0:07:24)"
+ },
+ "expected_output": {
+  "prediction_schema_version": "1.0.0",
+  "one_prediction_per_network": true
+ },
+ "notes": "BrainIR v1.2.0 (brainir_v1.py sha256 4bfcf816...), composed and fixed oracle-free in the clean room (reviews A, B, E, F, G resolved before the lock); frozen at commit c3362c0; confirmation suites used once after the freeze (protocol sections 5, 7, 8): decision rule passes; adversarial confidence warranted (99.1 %); identity claims reliable. Reliability sweeps (v12_*) run on this exact tree before the lock, oracle-free.",
+ "lock_sha256": "b4c0a9cb06390a844ea1b25e70ef362af47ab89f777bde8ddaf3ac4115ee42cd"
+}
