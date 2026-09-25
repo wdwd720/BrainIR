@@ -87,3 +87,7 @@ research/phase2/tournament/*.json
 !research/phase2/tournament/*_summary.json
 !research/phase2/tournament/*_curve.json
 !research/phase2/tournament/cmp_*.json
+
+# blind-evaluation run records keep the runner's captured absolute output paths; the hash is in FROZEN.json and a
+# path-redacted copy (run_record_redacted.json) is committed instead (rule: no absolute paths in git)
+research/phase2/blind_eval/*/runs/run_record.json

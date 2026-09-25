@@ -1,0 +1,205 @@
+{
+ "benchmark_id": "dng100-benchmark-v1",
+ "core_neurons": [
+  {
+   "cell_type_claim": null,
+   "confidence": 0.99,
+   "essential": true,
+   "rank": 1,
+   "role": "excitatory",
+   "source_id": 2825
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": 0.99,
+   "essential": true,
+   "rank": 2,
+   "role": "excitatory",
+   "source_id": 2973
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": 0.9768376910769231,
+   "essential": false,
+   "rank": 3,
+   "role": "inhibitory",
+   "source_id": 1126
+  },
+  {
+   "cell_type_claim": null,
+   "confidence": 0.9768376910769231,
+   "essential": false,
+   "rank": 4,
+   "role": "excitatory",
+   "source_id": 1220
+  }
+ ],
+ "created_utc": "2026-09-25T00:59:32Z",
+ "cross_connectome": [],
+ "dataset": "manc",
+ "dataset_version": "v1.2.1",
+ "dynamics": {
+  "frequency_hz": 9.9009901,
+  "frequency_range_hz": null,
+  "n_active_readout": 2,
+  "rhythmic": true
+ },
+ "mechanism": {
+  "loop_neurons": [
+   1126,
+   1220,
+   2825,
+   2973
+  ],
+  "motif": "recurrent excitation + inhibitory feedback loop (3 excitatory, 1 inhibitory; criterion rhythm)",
+  "notes": "{\"generic_roles\":{\"1126\":{\"role\":\"inhibitory_feedback\",\"p\":0.75},\"1220\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"2825\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75},\"2973\":{\"role\":\"recurrent_excitatory_core\",\"p\":0.75}},\"alternatives\":[[2825,2973,3310]],\"fidelity\":{\"keep_only_pass_fraction\":1.0,\"keep_only_pass_fraction_ci90\":[0.5493,0.9898],\"keep_only_pass_fraction_conditional\":1.0,\"intact_pass_fraction\":1.0,\"n_fresh_seeds\":4,\"fresh_seeds\":\"reserved (never used by the selection)\",\"selection_validation\":1.0,\"selection_validation_status\":\"validated\",\"stress_pass_fraction\":null,\"robust_sd_x2_pass_fraction\":null,\"weight_noise_pass_fraction\":null,\"reliance\":{\"compared_with\":1,\"relied_on_more\":1,\"tied\":0,\"relied_on_less\":0,\"ties_in_tie_band\":0},\"mismatch\":0.4071,\"core_frequency_hz\":6.29688115,\"intact_frequency_hz\":10.72001835,\"core_n_active_readout\":13,\"core_size\":4},\"budget\":{\"max_calls\":1000,\"calls\":334,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":334,\"simulated_seconds\":668.0,\"cpu_seconds\":771.859,\"wall_seconds\":776.814,\"batches\":334,\"n_distinct_interventions\":115,\"n_candidate_mechanisms\":60,\"param_seeds\":{\"n\":23,\"min\":17,\"max\":601},\"network_hash\":\"0238af95b80ce70a\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":518,\"children\":[{\"kind\":\"auxiliary\",\"max_calls\":250,\"calls\":184,\"cache_hits\":0,\"store_hits\":0,\"computed_calls\":184,\"simulated_seconds\":368.0,\"cpu_seconds\":497.531,\"wall_seconds\":500.543,\"batches\":184,\"n_distinct_interventions\":67,\"n_candidate_mechanisms\":24,\"param_seeds\":{\"n\":21,\"min\":17,\"max\":601},\"network_hash\":\"9b61d2fe63c02782\",\"code_version\":\"2bb1ae6e62fe65a9\",\"total_calls\":184,\"pooled_with_parent\":true}],\"total_calls_incl_children\":518,\"wall_s\":1278.61}}"
+ },
+ "method": {
+  "code_commit": null,
+  "compute": {
+   "budget_exhausted": false,
+   "config": {
+    "activity_pruning": true,
+    "adaptive_replication": true,
+    "alternatives_budget_fraction": 0.5,
+    "aux_budget_fraction": 0.25,
+    "aux_calls_per_member": 60,
+    "aux_min_calls": 30,
+    "cross_fallback_discovery": true,
+    "cross_fallback_min_calls": 60,
+    "decisive": 0.95,
+    "decisive_margin": 2.0,
+    "decisive_stress": 0.99,
+    "degeneracy_detection": true,
+    "edge_prediction_members": 8,
+    "fidelity_check": true,
+    "fidelity_seeds": 4,
+    "initial_chunk_fraction": 0.25,
+    "joint_config": {
+     "identity_calibration": [
+      1.2988,
+      0.2166,
+      1.8127
+     ]
+    },
+    "joint_necessity": true,
+    "max_alternatives": 4,
+    "max_decision_seeds": 5,
+    "max_fillers_per_member": 2,
+    "max_seed_trials": 10,
+    "max_validation_seeds": 12,
+    "member_essentiality": true,
+    "minimality_cleanup": true,
+    "n_seeds_per_decision": 3,
+    "necessity_of_alternatives": true,
+    "necessity_screen": true,
+    "necessity_screen_fraction": 0.4,
+    "occam_factor": 0.5,
+    "participation_check": true,
+    "prior_weight": 1.0,
+    "relevance_damping": 0.6,
+    "relevance_hops": 6,
+    "reliance_tiebreak": true,
+    "robust_objective": true,
+    "screen_min_singles": 4,
+    "screen_singles": true,
+    "screen_singles_fraction": 0.15,
+    "screen_singles_per_member": 4,
+    "second_partition": true,
+    "simulate_edge_predictions": true,
+    "size_error_points": 3,
+    "stress_noise_sd": 0.2,
+    "stress_only_for_ties": true,
+    "stress_probes": 4,
+    "stress_sd_factor": 2.0,
+    "structural_pruning": true,
+    "t_end": null,
+    "uncertainty_model": "posterior",
+    "union_repair": true,
+    "use_active_selection": true,
+    "use_cross_connectome": true,
+    "use_group_testing": true,
+    "use_structural_prior": true,
+    "validation_seeds": 3
+   },
+   "integrity": {
+    "charged_computed": 518,
+    "real_simulations": 518
+   },
+   "method_file_sha256": "4bfcf81628aba7684688fefd113eddd705a13e250f119caea2050cd65d84d2a7",
+   "method_version": "1.2.0",
+   "simulated_seconds": 1036.0,
+   "simulations": 518,
+   "simulator": {
+    "batches": 334,
+    "cache_hits": 0,
+    "calls": 334,
+    "children": [
+     {
+      "batches": 184,
+      "cache_hits": 0,
+      "calls": 184,
+      "code_version": "2bb1ae6e62fe65a9",
+      "computed_calls": 184,
+      "cpu_seconds": 497.531,
+      "kind": "auxiliary",
+      "max_calls": 250,
+      "n_candidate_mechanisms": 24,
+      "n_distinct_interventions": 67,
+      "network_hash": "9b61d2fe63c02782",
+      "param_seeds": {
+       "max": 601,
+       "min": 17,
+       "n": 21
+      },
+      "pooled_with_parent": true,
+      "simulated_seconds": 368.0,
+      "store_hits": 0,
+      "total_calls": 184,
+      "wall_seconds": 500.543
+     }
+    ],
+    "code_version": "2bb1ae6e62fe65a9",
+    "computed_calls": 334,
+    "cpu_seconds": 771.859,
+    "max_calls": 1000,
+    "n_candidate_mechanisms": 60,
+    "n_distinct_interventions": 115,
+    "network_hash": "0238af95b80ce70a",
+    "param_seeds": {
+     "max": 601,
+     "min": 17,
+     "n": 23
+    },
+    "simulated_seconds": 668.0,
+    "store_hits": 0,
+    "total_calls": 518,
+    "total_calls_incl_children": 518,
+    "wall_seconds": 776.814
+   },
+   "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+   "wall_s": 1278.6
+  },
+  "description": "BrainIR v1: order-invariant canonical group elimination with enumerated alternatives, admissibility-first causal selection\n    (participation, measured necessity, dynamics fidelity; then a round robin on reliance, Occam and robustness with paired tests),\n    evidence-based uncertainty, simulated intervention predictions and verified cross-connectome transfer. See the module docstring.",
+  "inputs_used": [
+   "networks/manc_v1.2.1/neurons.parquet",
+   "networks/manc_v1.2.1/edges.parquet",
+   "networks/manc_v1.2.1/stimulus.json",
+   "networks/manc_v1.2.1/readout.json",
+   "networks/manc_v1.2.1/network.json",
+   "model_config.json",
+   "networks/male-cns_v1.0/neurons.parquet",
+   "networks/male-cns_v1.0/edges.parquet",
+   "networks/male-cns_v1.0/stimulus.json",
+   "networks/male-cns_v1.0/readout.json",
+   "networks/male-cns_v1.0/network.json"
+  ],
+  "name": "brainir_v1",
+  "random_seed": 0,
+  "version": "1.2.0"
+ },
+ "schema_version": "1.0.0",
+ "stimulus_source_ids": [
+  3084
+ ]
+}
