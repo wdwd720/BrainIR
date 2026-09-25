@@ -1,7 +1,10 @@
 """Evaluate candidate methods on the review G suite (new adversarial traps unknown to the developers; pre-lock review G).
 
     uv run --project phase3 python scripts/p3/eval_review_g.py --label r1 --methods m1,m2 --method-dir <snapshot of the methods package>
-        [--parallel 4] [--eval-workers 4]
+        [--parallel 4] [--eval-workers 4] [--backend modal]
+
+With --backend modal the fits and evaluations run on Modal with the frozen workers (scripts/p3/modal_tournament.py); the suite must
+have been uploaded as "review_g" (scripts/p3/modal_upload_view.py --name review_g ...).
 
 Uses the frozen evaluation code (brainir_state.suite_eval / harness / evaluate_synth). Fits run in the sandbox without a simulator:
 the review G systems are not served by the simulation service, and the contract requires fits to work with sim=None. Lifting is not
@@ -41,23 +44,38 @@ def main(argv=None) -> int:
     ap.add_argument("--parallel", type=int, default=4)
     ap.add_argument("--eval-workers", type=int, default=4)
     ap.add_argument("--timeout", type=float, default=1800.0)
+    ap.add_argument("--backend", choices=("local", "modal"), default="local")
     args = ap.parse_args(argv)
     limit_threads(4)
     t0 = time.time()
-    spec = {"public_dir": str(DATA / "public"), "truth_dir": str(DATA / "truth"), "kind": "synthetic", "tier": "heldout", "suite_seed": -1}
+    spec = {"public_dir": str(DATA / "public"), "truth_dir": str(DATA / "truth"), "kind": "synthetic", "tier": "review_g", "suite_seed": -1}
     sd = SuiteData(spec["public_dir"], kind="synthetic", truth_dir=spec["truth_dir"])
     run_dir = RUN / f"review_g_{args.label}"
-    view = sd.fit_view(run_dir / "fitview")
+    view = sd.fit_view(run_dir / "fitview_review_g")
+    fits, evals, refcache = run_fits, evaluate_models, OUT / "_refcache"
+    app = None
+    if args.backend == "modal":
+        sys.path.insert(0, str(ROOT / "scripts" / "p3"))
+        import modal_tournament as MT
+        MT._STATE.update(tier="review_g", sim_budget=0)
+        app = MT._open_app(100)
+        fits, evals = MT.modal_run_fits, MT.modal_evaluate_models
+        refcache = MT.ROOT / "research" / "phase3" / "tournament" / "_refcache" / "review_g"
+    ctx = MT._output() if app is not None else None
+    if app is not None:
+        ctx.__enter__()
+        run_ctx = app.run()
+        run_ctx.__enter__()
     taus = json.loads((ROOT / "benchmarks" / "state_discovery_v1" / "public" / "tolerances.json").read_text(encoding="utf-8"))
     mdir = Path(args.method_dir).resolve()
     out = {"label": args.label, "methods": {}, "tolerances": taus}
     for m in [x for x in args.methods.split(",") if x]:
         jobs = [dict(method_dir=mdir, method=m, datasets=[view], systems=[s], out=run_dir / m / f"{s}.pkl", seed=0, timeout_s=args.timeout)
                 for s in sd.systems]
-        recs = run_fits(jobs, parallel=args.parallel)
+        recs = fits(jobs, parallel=args.parallel)
         ev_jobs = [{"suite": spec, "sid": s, "method_dir": str(mdir), "model_path": str(run_dir / m / f"{s}.pkl"), "lift": False}
                    for s in sd.systems if (run_dir / m / f"{s}.pkl").exists()]
-        evs = evaluate_models(ev_jobs, workers=args.eval_workers)
+        evs = evals(ev_jobs, workers=args.eval_workers)
         per, lrows = {}, []
         for e in evs:
             s = e["sid"]
@@ -67,7 +85,7 @@ def main(argv=None) -> int:
                 lrows.append(abstention_row(tr, None, None))
                 continue
             k = e.get("k")
-            refs = reference_results(sd, s, int(k) if k else 1, OUT / "_refcache")
+            refs = reference_results(sd, s, int(k) if k else 1, refcache)
             ab = ((e.get("info") or {}).get("abstain") or {}).get(s)
             v = verdict(e["res"], refs, taus, len(sd.sysinfo(s)["observed"]), k, "synthetic", sd.cfg, abstain=ab)
             per[s] = {"name": tr.get("name"), "trap": tr.get("trap"), "k": k, "k_true": tr.get("k"), "verdict": v["verdict"],
@@ -78,6 +96,10 @@ def main(argv=None) -> int:
         out["methods"][m] = {"per_system": per, "abstention": abstention_summary(lrows),
                              "fit_failures": sum(1 for r in recs if "error" in r)}
         print(m, json.dumps({s: (r.get("trap"), r.get("verdict"), r.get("k"), r.get("k_true")) for s, r in per.items()}), flush=True)
+    if app is not None:
+        run_ctx.__exit__(None, None, None)
+        ctx.__exit__(None, None, None)
+        out["modal_costs"] = MT._STATE["costs"]
     out["wall_s"] = round(time.time() - t0, 1)
     dump(out, OUT / f"results_{args.label}.json")
     return 0
