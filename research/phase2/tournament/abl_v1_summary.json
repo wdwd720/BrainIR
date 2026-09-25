@@ -10,6 +10,7 @@
   "order1"
  ],
  "n_instances": 54,
+ "resampling_unit": "instance",
  "variants": {
   "default": {
    "config": {},
@@ -21,20 +22,19 @@
    "role_accuracy": 0.9117647058823529,
    "brier": 0.00415159694846759
   },
-  "no_structural_pruning": {
+  "no_active_selection": {
    "config": {
-    "structural_pruning": false
+    "use_active_selection": false
    },
    "success": 1.0,
    "causal_functional": 1.0,
    "identity": 0.9444444444444444,
-   "calls_mean": 103.99074074074075,
+   "calls_mean": 103.13888888888889,
    "robust": 0.9166666666666666,
    "role_accuracy": 0.9117647058823529,
-   "brier": 0.004263228853992801,
+   "brier": 0.00415159694846759,
    "paired": {
     "structural_success": {
-     "n": 108,
      "default": 1.0,
      "variant": 1.0,
      "diff": 0.0,
@@ -43,10 +43,27 @@
       0.0
      ]
     },
-    "causal_functional": {
-     "n": 108,
+    "causal_functional_success": {
      "default": 1.0,
      "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
      "diff": 0.0,
      "ci95": [
       0.0,
@@ -54,17 +71,15 @@
      ]
     },
     "calls": {
-     "n": 108,
      "default": 99.91666666666667,
-     "variant": 103.99074074074075,
-     "diff": 4.074074074074074,
+     "variant": 103.13888888888889,
+     "diff": 3.2222222222222143,
      "ci95": [
-      2.5833333333333335,
-      5.601851851851852
+      1.962962962962962,
+      4.333333333333343
      ]
     },
-    "robust_pass": {
-     "n": 108,
+    "robust_sd_x2": {
      "default": 0.9166666666666666,
      "variant": 0.9166666666666666,
      "diff": 0.0,
@@ -73,8 +88,7 @@
       0.0
      ]
     },
-    "size": {
-     "n": 108,
+    "core_size": {
      "default": 2.388888888888889,
      "variant": 2.388888888888889,
      "diff": 0.0,
@@ -82,7 +96,9 @@
       0.0,
       0.0
      ]
-    }
+    },
+    "n_runs": 108,
+    "n_instances": 54
    }
   },
   "no_activity_pruning": {
@@ -98,7 +114,6 @@
    "brier": 0.003960072213476302,
    "paired": {
     "structural_success": {
-     "n": 108,
      "default": 1.0,
      "variant": 1.0,
      "diff": 0.0,
@@ -107,10 +122,27 @@
       0.0
      ]
     },
-    "causal_functional": {
-     "n": 108,
+    "causal_functional_success": {
      "default": 1.0,
      "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
      "diff": 0.0,
      "ci95": [
       0.0,
@@ -118,17 +150,15 @@
      ]
     },
     "calls": {
-     "n": 108,
      "default": 99.91666666666667,
      "variant": 98.62037037037037,
-     "diff": -1.2962962962962963,
+     "diff": -1.2962962962963047,
      "ci95": [
-      -2.2222222222222223,
-      -0.4442129629629642
+      -2.6666666666666576,
+      -0.09259259259259522
      ]
     },
-    "robust_pass": {
-     "n": 108,
+    "robust_sd_x2": {
      "default": 0.9166666666666666,
      "variant": 0.9166666666666666,
      "diff": 0.0,
@@ -137,208 +167,17 @@
       0.0
      ]
     },
-    "size": {
-     "n": 108,
+    "core_size": {
      "default": 2.388888888888889,
      "variant": 2.314814814814815,
-     "diff": -0.07407407407407407,
+     "diff": -0.07407407407407396,
      "ci95": [
-      -0.12962962962962962,
-      -0.027777777777777776
-     ]
-    }
-   }
-  },
-  "random_order": {
-   "config": {
-    "use_structural_prior": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9197530864197531,
-   "calls_mean": 118.1574074074074,
-   "robust": 0.9120370370370371,
-   "role_accuracy": 0.9607843137254902,
-   "brier": 0.004178278949617676,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
+      -0.14814814814814836,
+      -0.018518518518518157
      ]
     },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 118.1574074074074,
-     "diff": 18.24074074074074,
-     "ci95": [
-      13.583101851851852,
-      23.703703703703702
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9120370370370371,
-     "diff": -0.004629629629629629,
-     "ci95": [
-      -0.020833333333333332,
-      0.009317129629629313
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.388888888888889,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    }
-   }
-  },
-  "no_group_testing": {
-   "config": {
-    "use_group_testing": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 204.5,
-   "robust": 0.9189814814814815,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.004061527342593781,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 204.5,
-     "diff": 104.58333333333333,
-     "ci95": [
-      68.7400462962963,
-      143.0185185185185
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9189814814814815,
-     "diff": 0.0023148148148148147,
-     "ci95": [
-      0.0,
-      0.006944444444444444
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.425925925925926,
-     "diff": 0.037037037037037035,
-     "ci95": [
-      0.0,
-      0.09259259259259259
-     ]
-    }
-   }
-  },
-  "no_active_selection": {
-   "config": {
-    "use_active_selection": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 103.13888888888889,
-   "robust": 0.9166666666666666,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.00415159694846759,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 103.13888888888889,
-     "diff": 3.2222222222222223,
-     "ci95": [
-      2.2962962962962963,
-      4.055555555555555
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9166666666666666,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.388888888888889,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    }
+    "n_runs": 108,
+    "n_instances": 54
    }
   },
   "no_adaptive_replication": {
@@ -354,7 +193,6 @@
    "brier": 0.004147341629318653,
    "paired": {
     "structural_success": {
-     "n": 108,
      "default": 1.0,
      "variant": 1.0,
      "diff": 0.0,
@@ -363,28 +201,43 @@
       0.0
      ]
     },
-    "causal_functional": {
-     "n": 108,
+    "causal_functional_success": {
      "default": 1.0,
      "variant": 1.0,
      "diff": 0.0,
      "ci95": [
       0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9259259259259259,
+     "diff": -0.01851851851851849,
+     "ci95": [
+      -0.05555555555555558,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9259259259259259,
+     "diff": -0.01851851851851849,
+     "ci95": [
+      -0.05555555555555558,
       0.0
      ]
     },
     "calls": {
-     "n": 108,
      "default": 99.91666666666667,
      "variant": 98.5,
-     "diff": -1.4166666666666667,
+     "diff": -1.4166666666666714,
      "ci95": [
-      -2.009259259259259,
-      -0.8703703703703703
+      -2.240740740740734,
+      -0.7129629629629758
      ]
     },
-    "robust_pass": {
-     "n": 108,
+    "robust_sd_x2": {
      "default": 0.9166666666666666,
      "variant": 0.9166666666666666,
      "diff": 0.0,
@@ -393,16 +246,807 @@
       0.0
      ]
     },
-    "size": {
-     "n": 108,
+    "core_size": {
      "default": 2.388888888888889,
      "variant": 2.3981481481481484,
-     "diff": 0.009259259259259259,
+     "diff": 0.009259259259259522,
      "ci95": [
       0.0,
-      0.027777777777777776
+      0.027777777777778123
      ]
-    }
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_alternatives": {
+   "config": {
+    "max_alternatives": 0
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 69.60185185185185,
+   "robust": 0.9305555555555556,
+   "role_accuracy": 0.9134615384615384,
+   "brier": 0.00043963350726909553,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 69.60185185185185,
+     "diff": -30.314814814814824,
+     "ci95": [
+      -43.648611111111116,
+      -19.424537037037034
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9305555555555556,
+     "diff": 0.01388888888888895,
+     "ci95": [
+      0.0023148148148147696,
+      0.03009259259259256
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.5555555555555554,
+     "diff": 0.16666666666666652,
+     "ci95": [
+      0.0370370370370372,
+      0.3148148148148149
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_group_testing": {
+   "config": {
+    "use_group_testing": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 204.5,
+   "robust": 0.9189814814814815,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.004061527342593781,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 204.5,
+     "diff": 104.58333333333333,
+     "ci95": [
+      56.28009259259255,
+      160.8136574074074
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9189814814814815,
+     "diff": 0.0023148148148148806,
+     "ci95": [
+      0.0,
+      0.006944444444444531
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.425925925925926,
+     "diff": 0.0370370370370372,
+     "ci95": [
+      0.0,
+      0.11111111111111116
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_member_essentiality": {
+   "config": {
+    "member_essentiality": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 69.80555555555556,
+   "robust": 0.9166666666666666,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.004286573264509567,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 69.80555555555556,
+     "diff": -30.111111111111114,
+     "ci95": [
+      -40.092592592592595,
+      -21.777314814814808
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9166666666666666,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.388888888888889,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_minimality_cleanup": {
+   "config": {
+    "minimality_cleanup": false
+   },
+   "success": 1.0,
+   "causal_functional": 0.9351851851851852,
+   "identity": 0.8817901234567901,
+   "calls_mean": 95.91666666666667,
+   "robust": 0.9189814814814815,
+   "role_accuracy": 0.9183006535947712,
+   "brier": 0.006185979529867451,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 0.9351851851851852,
+     "diff": -0.06481481481481477,
+     "ci95": [
+      -0.12037037037037035,
+      -0.01851851851851849
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.8817901234567901,
+     "diff": -0.06265432098765433,
+     "ci95": [
+      -0.12098765432098779,
+      -0.01388888888888884
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.8518518518518519,
+     "diff": -0.09259259259259256,
+     "ci95": [
+      -0.18518518518518512,
+      -0.01851851851851849
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 95.91666666666667,
+     "diff": -4.0,
+     "ci95": [
+      -7.648148148148152,
+      -0.12037037037036669
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9189814814814815,
+     "diff": 0.0023148148148148806,
+     "ci95": [
+      -0.00694444444444442,
+      0.01388888888888884
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.564814814814815,
+     "diff": 0.17592592592592604,
+     "ci95": [
+      0.04629629629629628,
+      0.34259259259259256
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_necessity_screen": {
+   "config": {
+    "necessity_screen": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 93.63888888888889,
+   "robust": 0.9166666666666666,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.00415159694846759,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 93.63888888888889,
+     "diff": -6.277777777777786,
+     "ci95": [
+      -7.444444444444443,
+      -5.2777777777777715
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9166666666666666,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.2962962962962963,
+     "diff": -0.09259259259259256,
+     "ci95": [
+      -0.18518518518518512,
+      -0.0185185185185186
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_reliance": {
+   "config": {
+    "reliance_tiebreak": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 97.43518518518519,
+   "robust": 0.9166666666666666,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.00415159694846759,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 97.43518518518519,
+     "diff": -2.481481481481481,
+     "ci95": [
+      -4.018518518518519,
+      -1.2222222222222285
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9166666666666666,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.388888888888889,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_robust_objective": {
+   "config": {
+    "robust_objective": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 94.06481481481481,
+   "robust": 0.9166666666666666,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.00415159694846759,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 94.06481481481481,
+     "diff": -5.851851851851862,
+     "ci95": [
+      -6.740740740740748,
+      -5.111111111111114
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9166666666666666,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.388888888888889,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "no_structural_pruning": {
+   "config": {
+    "structural_pruning": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 103.99074074074075,
+   "robust": 0.9166666666666666,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.004263228853992801,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 103.99074074074075,
+     "diff": 4.074074074074076,
+     "ci95": [
+      1.8148148148148233,
+      6.222222222222214
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9166666666666666,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.388888888888889,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "point_uncertainty": {
+   "config": {
+    "uncertainty_model": "point"
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9444444444444444,
+   "calls_mean": 99.91666666666667,
+   "robust": 0.9166666666666666,
+   "role_accuracy": 0.9117647058823529,
+   "brier": 0.0,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 99.91666666666667,
+     "diff": -0.0,
+     "ci95": [
+      -0.0,
+      -0.0
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9166666666666666,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.388888888888889,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
+   }
+  },
+  "random_order": {
+   "config": {
+    "use_structural_prior": false
+   },
+   "success": 1.0,
+   "causal_functional": 1.0,
+   "identity": 0.9197530864197531,
+   "calls_mean": 118.1574074074074,
+   "robust": 0.9120370370370371,
+   "role_accuracy": 0.9607843137254902,
+   "brier": 0.004178278949617676,
+   "paired": {
+    "structural_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "causal_functional_success": {
+     "default": 1.0,
+     "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9197530864197531,
+     "diff": -0.024691358024691357,
+     "ci95": [
+      -0.08641975308641991,
+      0.03703703703703709
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9074074074074074,
+     "diff": -0.03703703703703698,
+     "ci95": [
+      -0.11111111111111116,
+      0.03703703703703698
+     ]
+    },
+    "calls": {
+     "default": 99.91666666666667,
+     "variant": 118.1574074074074,
+     "diff": 18.240740740740733,
+     "ci95": [
+      12.39791666666667,
+      25.092824074074063
+     ]
+    },
+    "robust_sd_x2": {
+     "default": 0.9166666666666666,
+     "variant": 0.9120370370370371,
+     "diff": -0.004629629629629539,
+     "ci95": [
+      -0.02546296296296291,
+      0.01157407407407407
+     ]
+    },
+    "core_size": {
+     "default": 2.388888888888889,
+     "variant": 2.388888888888889,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "n_runs": 108,
+    "n_instances": 54
    }
   },
   "single_seed_decisions": {
@@ -419,7 +1063,6 @@
    "brier": 0.003924916347631778,
    "paired": {
     "structural_success": {
-     "n": 108,
      "default": 1.0,
      "variant": 1.0,
      "diff": 0.0,
@@ -428,10 +1071,27 @@
       0.0
      ]
     },
-    "causal_functional": {
-     "n": 108,
+    "causal_functional_success": {
      "default": 1.0,
      "variant": 1.0,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identity_jaccard": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
+     "diff": 0.0,
+     "ci95": [
+      0.0,
+      0.0
+     ]
+    },
+    "identical_cores": {
+     "default": 0.9444444444444444,
+     "variant": 0.9444444444444444,
      "diff": 0.0,
      "ci95": [
       0.0,
@@ -439,17 +1099,15 @@
      ]
     },
     "calls": {
-     "n": 108,
      "default": 99.91666666666667,
      "variant": 64.3425925925926,
      "diff": -35.574074074074076,
      "ci95": [
-      -40.806481481481484,
-      -30.665509259259267
+      -43.14814814814815,
+      -29.240740740740748
      ]
     },
-    "robust_pass": {
-     "n": 108,
+    "robust_sd_x2": {
      "default": 0.9166666666666666,
      "variant": 0.9166666666666666,
      "diff": 0.0,
@@ -458,8 +1116,7 @@
       0.0
      ]
     },
-    "size": {
-     "n": 108,
+    "core_size": {
      "default": 2.388888888888889,
      "variant": 2.388888888888889,
      "diff": 0.0,
@@ -467,455 +1124,9 @@
       0.0,
       0.0
      ]
-    }
-   }
-  },
-  "no_minimality_cleanup": {
-   "config": {
-    "minimality_cleanup": false
-   },
-   "success": 1.0,
-   "causal_functional": 0.9351851851851852,
-   "identity": 0.8817901234567901,
-   "calls_mean": 95.91666666666667,
-   "robust": 0.9189814814814815,
-   "role_accuracy": 0.9183006535947712,
-   "brier": 0.006185979529867451,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
     },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 0.9351851851851852,
-     "diff": -0.06481481481481481,
-     "ci95": [
-      -0.1111111111111111,
-      -0.018518518518518517
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 95.91666666666667,
-     "diff": -4.0,
-     "ci95": [
-      -6.556018518518519,
-      -1.3703703703703705
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9189814814814815,
-     "diff": 0.0023148148148148147,
-     "ci95": [
-      -0.006944444444444444,
-      0.013888888888888888
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.564814814814815,
-     "diff": 0.17592592592592593,
-     "ci95": [
-      0.06458333333333334,
-      0.3148148148148148
-     ]
-    }
-   }
-  },
-  "no_member_essentiality": {
-   "config": {
-    "member_essentiality": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 69.80555555555556,
-   "robust": 0.9166666666666666,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.004286573264509567,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 69.80555555555556,
-     "diff": -30.11111111111111,
-     "ci95": [
-      -36.87083333333334,
-      -23.888657407407408
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9166666666666666,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.388888888888889,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    }
-   }
-  },
-  "no_necessity_screen": {
-   "config": {
-    "necessity_screen": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 93.63888888888889,
-   "robust": 0.9166666666666666,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.00415159694846759,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 93.63888888888889,
-     "diff": -6.277777777777778,
-     "ci95": [
-      -7.111111111111111,
-      -5.555555555555555
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9166666666666666,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.2962962962962963,
-     "diff": -0.09259259259259259,
-     "ci95": [
-      -0.14814814814814814,
-      -0.04606481481481608
-     ]
-    }
-   }
-  },
-  "no_alternatives": {
-   "config": {
-    "max_alternatives": 0
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 69.60185185185185,
-   "robust": 0.9305555555555556,
-   "role_accuracy": 0.9134615384615384,
-   "brier": 0.00043963350726909553,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 69.60185185185185,
-     "diff": -30.314814814814813,
-     "ci95": [
-      -39.5837962962963,
-      -22.12962962962963
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9305555555555556,
-     "diff": 0.013888888888888888,
-     "ci95": [
-      0.0023148148148148147,
-      0.03009259259259259
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.5555555555555554,
-     "diff": 0.16666666666666666,
-     "ci95": [
-      0.07407407407407407,
-      0.2777777777777778
-     ]
-    }
-   }
-  },
-  "no_reliance": {
-   "config": {
-    "reliance_tiebreak": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 97.43518518518519,
-   "robust": 0.9166666666666666,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.00415159694846759,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 97.43518518518519,
-     "diff": -2.4814814814814814,
-     "ci95": [
-      -3.5002314814814817,
-      -1.4722222222222223
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9166666666666666,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.388888888888889,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    }
-   }
-  },
-  "no_robust_objective": {
-   "config": {
-    "robust_objective": false
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 94.06481481481481,
-   "robust": 0.9166666666666666,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.00415159694846759,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 94.06481481481481,
-     "diff": -5.851851851851852,
-     "ci95": [
-      -6.481481481481482,
-      -5.333333333333333
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9166666666666666,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.388888888888889,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    }
-   }
-  },
-  "point_uncertainty": {
-   "config": {
-    "uncertainty_model": "point"
-   },
-   "success": 1.0,
-   "causal_functional": 1.0,
-   "identity": 0.9444444444444444,
-   "calls_mean": 99.91666666666667,
-   "robust": 0.9166666666666666,
-   "role_accuracy": 0.9117647058823529,
-   "brier": 0.0,
-   "paired": {
-    "structural_success": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "causal_functional": {
-     "n": 108,
-     "default": 1.0,
-     "variant": 1.0,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "calls": {
-     "n": 108,
-     "default": 99.91666666666667,
-     "variant": 99.91666666666667,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "robust_pass": {
-     "n": 108,
-     "default": 0.9166666666666666,
-     "variant": 0.9166666666666666,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    },
-    "size": {
-     "n": 108,
-     "default": 2.388888888888889,
-     "variant": 2.388888888888889,
-     "diff": 0.0,
-     "ci95": [
-      0.0,
-      0.0
-     ]
-    }
+    "n_runs": 108,
+    "n_instances": 54
    }
   }
  }

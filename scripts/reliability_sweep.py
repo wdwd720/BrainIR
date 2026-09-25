@@ -81,6 +81,9 @@ def _summary_md(args, summary: dict, cons: dict) -> list[str]:
     md = [f"# Reliability sweep — {args.label}", "",
           f"method `{args.method}` on `{args.network}` (bundle `{str(summary['bundle_sha256'])[:12]}`), {args.orders} node orders x seeds "
           f"{args.seeds}, budget {args.budget}; {summary['n_runs']} runs, {summary['n_failed']} failed; wall {summary['wall_total_s']} s", ""]
+    if "criterion_override" in summary:
+        md += [f"- SENSITIVITY ANALYSIS (review D, D4), not the locked condition: every variant carries a criterion.json with rhythm amplitude "
+               f"gate {summary['criterion_override']['amplitude_min_hz']} Hz; discovery and fidelity use it", ""]
     if cons:
         md += [f"- identity consistency (node orders x parameter draws): pairwise Jaccard mean {_f3(cons['pairwise_jaccard_mean'])} "
                f"(min {_f3(cons['pairwise_jaccard_min'])}); modal core frequency {cons['modal_core_frequency']:.2f}; size "
@@ -118,8 +121,14 @@ def main(argv=None) -> int:
     ap.add_argument("--new-attempt", action="store_true", help="allow a repeated hidden evaluation of the same (method, network) (logged)")
     ap.add_argument("--label", required=True)
     ap.add_argument("--out", type=Path, default=ROOT / "research" / "phase2" / "reliability")
+    ap.add_argument("--criterion-gate", type=float, default=None,
+                    help="sensitivity analysis only (review D, finding D4): write a criterion.json whose rhythm amplitude gate is this value "
+                         "(Hz) into every node-order variant, so discovery and fidelity use it; never combined with a hidden evaluation")
     args = ap.parse_args(argv)
     config = json.loads(args.config)
+    if args.criterion_gate is not None and (args.hidden_eval or args.score_existing):
+        print("refusing: a criterion override is a sensitivity analysis and is never hidden-evaluated")
+        return 1
     if args.score_existing:
         p = args.out / f"{args.label}.json"
         payload = json.loads(p.read_text(encoding="utf-8"))
@@ -153,6 +162,16 @@ def main(argv=None) -> int:
     work = paths.cache_dir() / "reliability" / args.label
     work.mkdir(parents=True, exist_ok=True)
     variants = _make_variants(args.bundle, args.network, args.orders, work)
+    criterion_override = None
+    if args.criterion_gate is not None:
+        # the default rhythm criterion of a bundle without criterion.json (DiscoveryProblem.from_bundle), with the gate replaced
+        m = json.loads((args.bundle / "model_config.json").read_text(encoding="utf-8")).get("metric", {})
+        criterion_override = {"type": "rhythm", "analysis_start_s": m.get("analysis_start_s", 0.25), "active_rate_hz": m.get("active_rate_hz", 0.01),
+                              "prominence": m.get("prominence", 0.05), "score_threshold": m.get("rhythmic_threshold", 0.5),
+                              "amplitude_min_hz": float(args.criterion_gate)}
+        for v, _, _ in variants:
+            (v / "networks" / args.network / "criterion.json").write_text(json.dumps(criterion_override, indent=1) + "\n", encoding="utf-8",
+                                                                           newline="\n")
     frozen_src = FROZEN_GREEDY.read_text(encoding="utf-8") if args.method == FROZEN_NAME else None
     jobs = [{"method": args.method, "variant_dir": str(v), "network": args.network, "seed": s, "budget": args.budget, "config": config,
              "perm": perm, "positional": positional, "frozen_args": args.frozen_args.split(), "frozen_script": frozen_src,
@@ -197,6 +216,8 @@ def main(argv=None) -> int:
                "functional_pass_rate_incl_failures": float(np.sum([r["functional_fidelity"] >= 0.5 for r in ok]) / len(runs)) if runs else None,
                "calls_mean": float(np.mean(calls)) if calls else None,
                "wall_s_mean": float(np.mean([r["wall_s"] for r in ok])) if ok else None, "wall_total_s": round(time.time() - t0, 1)}
+    if criterion_override is not None:
+        summary["criterion_override"] = criterion_override
     if args.hidden_eval:
         summary["hidden_eval"] = _hidden_eval(args, ok)
     args.out.mkdir(parents=True, exist_ok=True)
@@ -211,6 +232,7 @@ def main(argv=None) -> int:
         backend_rec = {"backend": "local", "n_workers": args.workers}
     rec = ExperimentRecord(name=f"reliability_{args.label}",
                            config={"method": args.method, "network": args.network, "orders": args.orders, "budget": args.budget, "config": config,
+                                   "criterion_gate": args.criterion_gate,
                                    "frozen_args": args.frozen_args},
                            seeds=args.seeds, inputs={"bundle_sha256": summary["bundle_sha256"], "source_tree_sha256": code["source_tree_sha256"],
                                                      "launched_utc": code["launched_utc"]},

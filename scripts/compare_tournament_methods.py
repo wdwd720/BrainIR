@@ -51,10 +51,13 @@ PER_RUN = {
     "success_intact": lambda r: None if "success_intact" not in r["structure"] else float(bool(r["structure"]["success_intact"])),
     "essential_recall": lambda r: r["structure"].get("essential_recall"),
     "latent_backup_returned": lambda r: None if "latent_backup_returned" not in r["structure"] else float(bool(r["structure"]["latent_backup_returned"])),
+    # adversarial trap suites only (third-party scorer, review G); reported, not part of the decision rule
+    "adversarial_correct": lambda r: None if "adversarial" not in r else float(bool(r["adversarial"]["correct"])),
+    "adversarial_confident_wrong": lambda r: None if "adversarial" not in r else float(bool(r["adversarial"]["confident_wrong"])),
 }
 FAILED = {"structural_success": 0.0, "causal_functional_success": 0.0, "functional_success_preregistered": 0.0, "planted_success": 0.0,
           "robust_sd_x2": 0.0, "robust_weight_noise": 0.0, "nominal_pass": 0.0, "core_size": None, "success_intact": 0.0, "essential_recall": 0.0,
-          "latent_backup_returned": None}
+          "latent_backup_returned": None, "adversarial_correct": 0.0, "adversarial_confident_wrong": None}
 
 
 def _value(r: dict, metric: str):
@@ -83,18 +86,20 @@ def compare(recs: list[dict], budgets: dict, a: str, b: str, *, n_boot: int = 40
             by[(r["method"], r["instance"], r.get("network"), r.get("seed"))] = r
     keys = sorted({k[1:] for k in by if (a, *k[1:]) in by and (b, *k[1:]) in by})
     insts = sorted({k[0] for k in keys})
+    # the adversarial metrics exist only on trap suites; elsewhere a pair of failed runs must not create them
+    per_run = [m for m in PER_RUN if not m.startswith("adversarial_") or any("adversarial" in by[(x, *k)] for k in keys for x in (a, b))]
     per_inst: dict[str, dict] = {i: {"rows": [], "cores_a": [], "cores_b": []} for i in insts}
     for k in keys:
         ra, rb = by[(a, *k)], by[(b, *k)]
         row = {}
-        for m in PER_RUN:
+        for m in per_run:
             va, vb = _value(ra, m), _value(rb, m)
             row[m] = (va, vb)
         row["calls"] = (_calls(ra, budgets.get(a)), _calls(rb, budgets.get(b)))
         per_inst[k[0]]["rows"].append(row)
         per_inst[k[0]]["cores_a"].append(frozenset(ra.get("core_canonical") or []))
         per_inst[k[0]]["cores_b"].append(frozenset(rb.get("core_canonical") or []))
-    metrics = list(PER_RUN) + ["calls"]
+    metrics = per_run + ["calls"]
     rng = np.random.default_rng(seed)
     # per instance, once: sums and counts of every paired metric, and each method's identity consistency
     sums = {m: np.zeros((len(insts), 3)) for m in metrics}  # columns: sum a, sum b, count
