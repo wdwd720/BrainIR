@@ -491,6 +491,13 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 | P3-D16 | 2026-09-25 | Operational reading of PROTOCOL section 9, fixed BEFORE any round: baselines are candidates in round 1 like any other; the best-ranked ELIGIBLE baseline of round 1 is carried into every later round as the Level C comparator even if halving would eliminate it (so that "the strongest baseline of the last round" exists); if a later round ranks another carried or surviving baseline higher, that one is the comparator | The frozen text presupposes a baseline in the last round; successive halving could remove all of them. No hashed file changes |
 | P3-D15 | 2026-09-25 | Level B fits, evaluations, reference controls and the calibration run on Modal (`scripts/p3/modal_tournament.py`, container side `scripts/p3/p3modal/`) with the FROZEN workers unchanged: the tournament driver's three execution functions are swapped; every job runs in a fresh interpreter; a Linux guard (p3modal.guard via sitecustomize) protects the container's data roots from method frames; fit containers never mount the held-out volume | goal4 section 58. Round 2 alone is ~1,000 fits of 5-20 min each; the local machine (16 threads, shared with 5 agents) would need days. A dev calibration system gives the same numbers on Linux as on Windows to ~1e-9 |
 
+| P3-D17 | 2026-09-25 | BENCHMARK VERSION 3 (tag `state-discovery-benchmark-v3`, same directory): the evaluation fixes of the pre-lock reviews A-D (7 blockers, 19 majors), recalibrated on the dev suite (Modal); synced into the clean room with a generic notice. Method findings relayed as generic requirements only | Found before the method lock, before any use of the FINAL suite and before any hidden real data existed. Mapping: `research/phase3/reviews/ABCD_prelock_resolution.md`; PROTOCOL.md section 10.1 |
+| P3-D18 | 2026-09-25 | The D (closure) regressions fit the base (z, u, future input) WITHOUT shrinkage (guard: at most 1 base column per 4 fitted rows); the residual microstate is computed inside each training fold | Found while fixing review A B2: the ridge penalty shrank the base, so extra columns that merely repeat z "helped" — on the toy with the exact 2-D state the v2 history gain was 0.74 and the proper (leak-free) micro-gain 0.73; with the fix both are ~0. The v2 D null (tau_D 0.40) was largely this artefact: v3 tau_D = 0.092, and random-k passes 'closed' on 24 % of dev systems instead of 56 % |
+| P3-D19 | 2026-09-25 | The closure gap stays DESCRIPTIVE (pre-registered power rule of calibrate.py: it would enter 'closed' only if random-k passed it >= 20 points less often than the true latent; both pass it on 100 %) | A model whose rollouts forget their initial state has a small gap whatever its latent; on the first calibration system random-k had a gap of 0.017 against the true latent's 0.30 |
+| P3-D20 | 2026-09-25 | The evaluator's reference controls (`refmodels`) are not copied by the rollout isolation (`evaluate.Fresh`) | They are orchestrator code; the true-latent reference carries a lookup of every recorded state (tens of MB), which a per-rollout copy would make prohibitively slow. Method models are always copied |
+| P3-D21 | 2026-09-25 | An independent BASELINE TUNER (fresh clean-room agent, no competing candidate, ~3 h budget, dev data only, `<baseline>_t` variants) before the version-3 round 3; the Level C comparator is ranked on S1-S5 among markov-valid baselines only | Review C M2: baselines were smoke-tested only; the round-2 comparator was chosen on components the Level C family does not test |
+| P3-D22 | 2026-09-25 | Parallel orchestration (the user's acceleration directive): forks of the orchestrator implement disjoint parts of version 3 and the post-lock infrastructure (files owned per fork); clean-room agents (composer, baseline tuner) run concurrently; every Modal job runs in parallel apps | Serial barriers kept: v3 fixes and recalibration before the round-3 re-run; the method lock before the FINAL suite and before hidden data exist; hidden data never on the fit volume |
+
 ### 11.2 Pitfalls hit
 
 - The real engine costs 10-30 CPU-s per full-network trajectory (adaptive RK45 over n ~ 4,500 and one restart per breakpoint),
@@ -613,3 +620,34 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete
   deliverables before accepting it as done.
+- **2026-09-25 14:00-15:20: pre-lock reviews A-D resolved in BENCHMARK VERSION 3.** The four reviews (A system identification, B
+  causal inference, C representation learning, D computational neuroscience) found 7 blockers in the evaluation of brainir_state_v1
+  and benchmark v2 (no enforced Markov / hidden-memory test; a powerless closure condition; C unable to show a causal STATE and
+  including non-held-out and unobservable pairs; S6 rewarding wide k ranges; real readout NMSE dominated by near-silent neurons; an
+  unattainable real predictive condition). Resolution: `research/phase3/reviews/ABCD_prelock_resolution.md`. Round 3 attempt 1 (v2,
+  brainir_state_v1: mean rank 3.62, P(rank 1) 0.56) is recorded and superseded: the selection re-runs round 3 under v3.
+  Calibration v3 on Modal (45 dev systems, 486 s wall, $1.97): tau_D 0.092 (was 0.40), tau_H 0.234, tau_gap descriptive, tau_E and
+  tau_A unchanged; random-k passes 'closed' on 24 % of the dev systems (v2: 56 %), the true latent on 80 %.
+- **2026-09-25 ~16:00: design of Level B round 3 under version 3 (fixed before any version-3 held-out result).** Participants:
+  - the 10 round-2 finalists (lin_subspace, lin_falds, lin_dmdc, lin_balanced, ks_sindy, ks_edmd, ks_hankel, cb_cegar, nn_closed,
+    nn_aelin). Their round-2 fits are RE-SCORED (not refitted): version 3 changed the evaluation only, their code is byte-identical
+    to the round-2 snapshot (checked by `scripts/p3/stage_round_fits.py`), and the design (seeds, simulation budget 250, time limit
+    1800 s, systems, G systems, shared / LOIO fits) is unchanged. Failed fits are attempted again;
+  - the declared baselines eliminated in the pilot (lin_pcadyn, nn_rssm, nn_seqbottleneck): pilot fits re-scored, the remaining
+    fits made now;
+  - the independently tuned baseline variants (`<baseline>_t`), fitted in full;
+  - brainir_state_v1 after the composer's response to the generic requirements, fitted in full.
+  Each part runs as its own Modal app (parallel); `merge_rounds.py --decide` applies the pre-registered decision rule and the
+  comparator rule (PROTOCOL.md section 9). The shared reference cache of version 3 is filled once before the apps start.
+- **Pitfall: forcing OpenBLAS kernels on Modal crashed workers (SIGSEGV).** After the numerics pinning of the Modal image
+  (`NPY_DISABLE_CPU_FEATURES`, `OPENBLAS_CORETYPE=Haswell`, `ATEN_CPU_CAPABILITY=avx2`), 2 then 4 of 45 calibration systems died with
+  exit -11 and an EMPTY stderr even with PYTHONFAULTHANDLER=1; no such crash appears in the ~3,000 unpinned jobs of rounds 1-3. Every
+  re-run inside the same container crashed again (the crash follows the host). Experiment (`research/phase3/level_c/
+  modal_pinning_crash_experiment.json`, 4 crash-prone dev systems x 5 repeats x 4 variants, $3.3): inputs lost after all retries only
+  with the OpenBLAS pin present (all pins 2, without the torch pin 2, without the OpenBLAS pin 0, without the numpy pin 0).
+  Decision: OpenBLAS kernels are no longer forced (numpy and torch stay pinned: the real engine needs them for bit-identity with the
+  local trajectories, re-checked by `generate_real_hidden.py smoke-public`); a worker killed by a signal is re-run once in its
+  container, then the container exits so that Modal re-runs the input on another host (up to 3 retries), all recorded. Consequence:
+  dense linear algebra, hence fits and evaluation statistics, may differ between Modal hosts in the last digits (documented tolerance
+  in PROTOCOL.md section 10). The first v3 calibration run had no crash (whether its image already carried the pins was not
+  recorded); the calibration of record is the run made with the final image.

@@ -1,0 +1,172 @@
+{
+ "method": "lin_dmdc",
+ "systems": [
+  "real:net1:mech:02fa13b8",
+  "real:net2:mech:6883ab7b"
+ ],
+ "local_evaluator_code_tag_before": "365f7ad6d9",
+ "local_evaluator_code_tag_after": "365f7ad6d9",
+ "remote_evaluator_code_tags": [
+  "365f7ad6d9"
+ ],
+ "same_evaluator_code": true,
+ "checked_utc": "2026-09-25T22:23:06Z",
+ "per_system": {
+  "real:net1:mech:02fa13b8": {
+   "fit_local_error": null,
+   "fit_modal_error": null,
+   "k_local": 3,
+   "k_modal": 3,
+   "eval_local_error": null,
+   "eval_modal_error": null,
+   "eval_cross_error": null,
+   "local_fit__local_eval_vs_modal_eval": {
+    "n_leaves": 490,
+    "n_mismatch": 0,
+    "max_rel_diff": 0.0,
+    "mismatches": []
+   },
+   "local_fit_vs_modal_fit__evaluated": {
+    "n_leaves": 490,
+    "n_mismatch": 4,
+    "max_rel_diff": 0.05633913898051538,
+    "mismatches": [
+     [
+      "res.D.D_y_h100ms_rff.err_z_plus_micro",
+      1.6329472281097865,
+      1.6331299365109202
+     ],
+     [
+      "res.D.D_y_h100ms_rff.micro_gain",
+      0.28098023454301996,
+      0.2808997843272069
+     ],
+     [
+      "res.D.D_y_h100ms_rff.micro_gain_ci95[0]",
+      0.045370676144559814,
+      0.042814531315611505
+     ],
+     [
+      "res.D.D_y_h100ms_rff.micro_gain_ci95[1]",
+      0.42022180621610367,
+      0.4206067180580256
+     ]
+    ]
+   }
+  },
+  "real:net2:mech:6883ab7b": {
+   "fit_local_error": null,
+   "fit_modal_error": null,
+   "k_local": 3,
+   "k_modal": 3,
+   "eval_local_error": null,
+   "eval_modal_error": null,
+   "eval_cross_error": null,
+   "local_fit__local_eval_vs_modal_eval": {
+    "n_leaves": 622,
+    "n_mismatch": 0,
+    "max_rel_diff": 0.0,
+    "mismatches": []
+   },
+   "local_fit_vs_modal_fit__evaluated": {
+    "n_leaves": 622,
+    "n_mismatch": 2,
+    "max_rel_diff": 2.672484447209496e-06,
+    "mismatches": [
+     [
+      "lift.model_nmse_after_lift.ci95[0]",
+      0.016489843409316265,
+      0.016489799340466217
+     ],
+     [
+      "lift.model_nmse_after_lift.mean",
+      0.017816774650794006,
+      0.01781675221237628
+     ]
+    ]
+   }
+  }
+ },
+ "simulator": {
+  "local": {
+   "system": "real:net1:mech:02fa13b8",
+   "protocol_key": "3cb499b1286bfbd7f1fe3fbb0516b77ed5cbced9cc79e7d8e4b0a0d014481c64",
+   "items": [
+    {
+     "i": 0,
+     "ok": true,
+     "cost": 3,
+     "key": "3cb499b1286bfbd7f1fe3fbb0516b77ed5cbced9cc79e7d8e4b0a0d014481c64",
+     "cached": false
+    }
+   ],
+   "cpu": "AMD64 Family 25 Model 68 Stepping 1, AuthenticAMD",
+   "summary": [
+    30540.54839008837,
+    14384.60772319572,
+    48.044578552246094,
+    17.543689727783203,
+    273793.0983773895
+   ],
+   "max_abs_diff_x_vs_stored": 0.0,
+   "max_abs_diff_y_vs_stored": 0.0
+  },
+  "modal": {
+   "system": "real:net1:mech:02fa13b8",
+   "protocol_key": "3cb499b1286bfbd7f1fe3fbb0516b77ed5cbced9cc79e7d8e4b0a0d014481c64",
+   "items": [
+    {
+     "i": 0,
+     "ok": true,
+     "cost": 3,
+     "key": "3cb499b1286bfbd7f1fe3fbb0516b77ed5cbced9cc79e7d8e4b0a0d014481c64",
+     "cached": false
+    }
+   ],
+   "cpu": "unknown",
+   "summary": [
+    30540.54839008837,
+    14384.60772319572,
+    48.044578552246094,
+    17.543689727783203,
+    273793.0983773895
+   ],
+   "max_abs_diff_x_vs_stored": 0.0,
+   "max_abs_diff_y_vs_stored": 0.0
+  },
+  "equal_within_1e-9": true
+ },
+ "modal_costs": [
+  {
+   "label": "extract",
+   "calls": 1,
+   "container_s": 2.4,
+   "usd_approx": 0.0
+  },
+  {
+   "label": "real fits",
+   "calls": 2,
+   "container_s": 24.0,
+   "usd_approx": 0.004
+  },
+  {
+   "label": "real evaluations",
+   "calls": 2,
+   "container_s": 88.2,
+   "usd_approx": 0.013
+  },
+  {
+   "label": "real evaluations",
+   "calls": 2,
+   "container_s": 53.6,
+   "usd_approx": 0.008
+  },
+  {
+   "label": "sim check",
+   "calls": 1,
+   "container_s": 13.6,
+   "usd_approx": 0.002
+  }
+ ],
+ "usd_approx_total": 0.027
+}

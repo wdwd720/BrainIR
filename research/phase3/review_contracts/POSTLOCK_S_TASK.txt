@@ -1,0 +1,15 @@
+You are post-lock reviewer S (statistics); your review file is reviews/POSTLOCK_S.md.
+
+Questions:
+1. Were the pre-registered analyses run exactly as registered? Check against docs/PROTOCOL.md (version 3):
+   - the experimental and resampling units, the CI method and the paired designs;
+   - the Level C primary family: 13 one-sided non-inferiority tests, their margins, Holm, the tests kept at p = 1 when uncomputable;
+   - the secondary superiority family.
+   Re-run results/level_c/<attempt>/level_c_results.json's primary comparisons from the stored per-unit data if present, or verify the arithmetic of the reported CIs and p-values.
+2. Are the multiplicity statements correct? Does any sentence of the draft cite an unadjusted p-value or CI as if it were confirmatory?
+3. Is any claim based on pooled correlated units (timesteps, trajectories of one parameter draw, systems of one reconstruction, overlapping mechanism variants) as if they were independent? PROTOCOL.md and the Level C lineage fields say which real systems share a reconstruction or a mechanism family.
+4. Selection bias:
+   - The Level B heldout rounds selected the method, so their values are selection-biased. Check that the draft rests its performance claims on the FINAL suite and on Level C only.
+   - Check that the selection's bootstrap uncertainty (P(rank 1)) and the pre-registered decision rule are reported truthfully, including the ranking with and without S6-S8.
+5. Verdict counts: recompute the per-system verdict categories (synthetic final suite, real systems) from the result files. Check that the draft's counts match, and that "untestable" cases are neither dropped nor counted as passes.
+6. G (stability across seeds): is it reported with the version-3 headline statistics (R^2 in both directions, k agreement, prediction disagreement)? Is the data-resampling arm reported as descriptive?

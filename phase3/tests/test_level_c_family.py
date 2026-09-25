@@ -67,8 +67,9 @@ def test_uncomputable_tests_stay_in_the_family_with_p_one():
 def test_k_on_the_final_suite_is_paired_by_system(tmp_path, monkeypatch):
     rnd = tmp_path / "research" / "phase3" / "tournament" / "fin"
     rnd.mkdir(parents=True)
-    per_m = {f"s{i}": {"k_true": 2, "K": {"r2_true_from_model_rff": 0.95}} for i in range(20)}
-    per_b = {f"s{i}": {"k_true": 2, "K": {"r2_true_from_model_rff": 0.90}} for i in range(20)}
+    # version 3: K = min(R^2 true <- model, R^2 model <- true); both directions are given here
+    per_m = {f"s{i}": {"k_true": 2, "K": {"r2_true_from_model_rff": 0.95, "r2_model_from_true_rff": 0.95}} for i in range(20)}
+    per_b = {f"s{i}": {"k_true": 2, "K": {"r2_true_from_model_rff": 0.90, "r2_model_from_true_rff": 0.90}} for i in range(20)}
     per_m["s0"] = {"k_true": 2, "error": "timeout"}            # a failure counts as the worst recovery
     (rnd / "m.json").write_text(json.dumps({"per_system": per_m}), encoding="utf-8")
     (rnd / "b.json").write_text(json.dumps({"per_system": per_b}), encoding="utf-8")

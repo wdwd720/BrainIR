@@ -1,0 +1,54 @@
+{
+ "wall_s": 731.9,
+ "systems": [
+  "syn-566e16b512",
+  "syn-74c2a90450",
+  "syn-7bc1b50022",
+  "syn-b8dafc4f01"
+ ],
+ "repeats": 5,
+ "variants": {
+  "all_pins": {
+   "calls": 20,
+   "signal_crashes": 0,
+   "final_failures": 0,
+   "exceptions": 2,
+   "crash_stderr": [
+    "WorkerCrashed('worker killed by a signal 3 times: [{\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}]')",
+    "WorkerCrashed('worker killed by a signal 3 times: [{\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}]')"
+   ]
+  },
+  "no_openblas_coretype": {
+   "calls": 20,
+   "signal_crashes": 0,
+   "final_failures": 0,
+   "exceptions": 0,
+   "crash_stderr": []
+  },
+  "no_aten_capability": {
+   "calls": 20,
+   "signal_crashes": 0,
+   "final_failures": 0,
+   "exceptions": 2,
+   "crash_stderr": [
+    "WorkerCrashed('worker killed by a signal 3 times: [{\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}]')",
+    "WorkerCrashed('worker killed by a signal 3 times: [{\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}, {\"returncode\": -11, \"stderr_tail\": \"\"}]')"
+   ]
+  },
+  "no_npy_disable": {
+   "calls": 20,
+   "signal_crashes": 0,
+   "final_failures": 0,
+   "exceptions": 0,
+   "crash_stderr": []
+  }
+ },
+ "costs": [
+  {
+   "label": "pin-experiment",
+   "calls": 76,
+   "container_s": 22483.6,
+   "usd_approx": 3.298
+  }
+ ]
+}

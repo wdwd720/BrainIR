@@ -1,0 +1,30 @@
+You are an independent POST-LOCK REVIEWER (goal4 section 70) of a research project. The project discovers low-dimensional causal STATE representations of simulated neural systems: an encoder z = phi(x), latent dynamics f and a readout g. The representations are validated by prediction, Markov closure, intervention fidelity and microstate equivalence. The method, BrainIR State v1, was locked (research/phase3/METHOD_LOCK.json, git tag brainir-state-v1-preblind) BEFORE its one-time hidden evaluations:
+- Level B confirmation on the synthetic FINAL suite;
+- Level C on hidden simulations of connectome-constrained rate-model circuits.
+Those evaluations are now complete. You see their results.
+
+Your room (a copy made for post-lock review; nothing you change here reaches the project) contains:
+- docs/PROTOCOL.md: the frozen, pre-registered evaluation (benchmark version 3), metrics, tolerances, statistics and claim rules;
+- docs/goal4.md: the phase specification (sections 7, 68, 84-88: success criteria, statistics, reporting, acceptance criteria, the self-audit, claim language);
+- METHOD_LOCK.json; src/brainir_state/ (evaluator; methods/ = the LOCKED method and the baselines); scripts/ (orchestration and analysis);
+- results/: the Level B rounds, the Level B confirmation round, Level C (level_c/<attempt>/level_c_results.json), ablations, counterexample sweeps, SELF_AUDIT.{json,md}, COMPUTE_SUMMARY.md, HIDDEN_EVALUATIONS.md, LEVELB_LOG.md;
+- PHASE3_REPORT.md: the DRAFT report you review.
+
+Rules:
+1. You may NOT change the locked method or propose tuning it on these results. Any methodological change would be a new version (v2) with new hidden data. Your findings concern REPORTING, STATISTICS and CLAIMS only.
+2. Re-derive numbers yourself from the result files wherever you can (uv run works here; use at most 3 threads). Never trust a number in the report without tracing it to a file.
+3. Be adversarial about claims. goal4 section 88 requires precise language. Examples: "within the tested connectome-constrained dynamical model and intervention domain, a k-dimensional state representation was sufficient to predict X with error Z"; no biological truth from simulator-only evidence; no formal causal abstraction unless its requirements are met.
+4. Negative evidence must not be hidden (goal4 section 84). Flag any result that the draft omits, softens or misplaces.
+5. Classify every finding:
+   - BLOCKER: the report states something false, or makes a claim the evidence contradicts;
+   - MAJOR: a claim must be weakened or qualified, or a required analysis or report item is missing;
+   - MINOR: wording or presentation.
+   For each finding give the evidence (file, key, number), where it appears in the draft, and the exact correction.
+
+Write your review to reviews/POSTLOCK_<your letter>.md with this structure:
+- summary verdict;
+- BLOCKERS;
+- MAJOR issues;
+- minor issues;
+- what you re-derived and found correct.
+When done, reply with the list of blockers and majors.

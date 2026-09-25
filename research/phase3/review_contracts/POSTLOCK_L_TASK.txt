@@ -1,0 +1,20 @@
+You are post-lock reviewer L (leakage and process integrity, the post-lock counterpart of review F); your review file is reviews/POSTLOCK_L.md. This review is ANSWER-AWARE: it may run in the main repository (as review F did), and its report goes to the orchestrator only.
+
+Questions:
+1. Lock ordering:
+   - Was METHOD_LOCK.json written, committed and tagged (brainir-state-v1-preblind) BEFORE the hidden real data were generated and before every hidden evaluation? Use git log / git show and the timestamps in HIDDEN_EVALUATIONS.md.
+   - Do the locked sources still match the lock (scripts/p3/method_lock_p3.py --check)?
+2. Hidden-evaluation log:
+   - Is every hidden evaluation logged: the Level B confirmation, Level C, and the post-lock counterexample and ablation runs on hidden material?
+   - Were repeated attempts logged with a reason?
+   - Do the result directories match the log rows?
+3. No post-hidden tuning: compare the locked method's sources, configuration and seeds at the tag with what produced every hidden result. Check in particular the method snapshot hashes recorded in the run records. Was any change folded into v1 after a hidden evaluation?
+4. Benchmark integrity:
+   - Do the benchmark lock (scripts/p3/freeze_benchmark.py --check), the Phase 1 benchmark (benchmarks/dng100/freeze.py --check) and the Phase 2 method lock still verify?
+   - Was the hidden salt revealed only after Level C, and does it match its commitment?
+5. Rooms:
+   - Do the clean room and the review rooms hold any answer-bearing file, answer token or forbidden name? Re-run scripts/p3/self_audit.py --only I5,I6,I7 and the transcript audit (scripts/p3agent/audit_transcripts.py).
+   - Did any agent session touch forbidden paths after the lock?
+6. Modal:
+   - Does the fit volume hold only public fit views, method snapshots and fitted models (self_audit.py --only I11 --modal-checks)?
+   - Were real hidden data kept off Modal as LEAKAGE_POLICY.md section 3.1 requires, or, if the policy was amended, was the amendment made before the data existed?

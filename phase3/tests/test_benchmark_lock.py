@@ -21,11 +21,12 @@ def test_benchmark_lock_is_intact():
 
 
 @pytest.mark.skipif(not BENCH_LOCK.exists(), reason="benchmark not frozen yet")
-def test_the_lock_is_benchmark_version_2():
+def test_the_lock_is_benchmark_version_3():
     import json
     lock = json.loads(BENCH_LOCK.read_text(encoding="utf-8"))
-    assert lock.get("benchmark_version") == 2 and lock["git_tag"] == "state-discovery-benchmark-v2"
-    assert lock["supersedes"]["git_tag"] == "state-discovery-benchmark-v1"
+    assert lock.get("benchmark_version") == 3 and lock["git_tag"] == "state-discovery-benchmark-v3"
+    assert lock["supersedes"]["git_tag"] == "state-discovery-benchmark-v2"
+    assert lock["tolerances"].get("tau_H") is not None and "tau_gap" in lock["tolerances"]
 
 
 @pytest.mark.skipif(not METHOD_LOCK.exists(), reason="method not locked yet")

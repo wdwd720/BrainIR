@@ -41,8 +41,9 @@ def test_tie_break_by_fewer_transition_parameters():
 
 
 def _ok(c=0.5, a=1.1, k=0.9):
-    return {"k": 2, "verdict": {"C": c, "D_micro_gain": 0.0, "E_ratio": 0.001, "E_testable": True}, "A_over_full": a,
-            "K": {"r2_true_from_model_rff": k}, "K_dim": {"in_range": True}}
+    # benchmark version 3 record format: S3 from the upper CI of D, S5 = min of both K directions, S6 = the exact point k
+    return {"k": 2, "verdict": {"C": c, "D_micro_gain": 0.0, "D_ci95": [-0.05, 0.05], "E_ratio": 0.001, "E_testable": True},
+            "A_over_full": a, "K": {"r2_true_from_model_rff": k, "r2_model_from_true_rff": k}, "K_dim": {"exact": True, "in_range": True}}
 
 
 def test_failed_systems_count_as_worst_values():

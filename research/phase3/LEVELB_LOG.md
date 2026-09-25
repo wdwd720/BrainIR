@@ -17,3 +17,4 @@
 | 2026-09-25T17:36:34Z | r2_nn_closed | heldout | nn_closed | research/phase3/tournament/r2_nn_closed/ |
 | 2026-09-25T17:40:51Z | r2_lin_balanced | heldout | lin_balanced | research/phase3/tournament/r2_lin_balanced/ |
 | 2026-09-25T18:10:34Z | r2_nn_aelin | heldout | nn_aelin | research/phase3/tournament/r2_nn_aelin/ |
+| 2026-09-25T21:16:17Z | r3_brainir_state_v1 | heldout | brainir_state_v1 | research/phase3/tournament/r3_brainir_state_v1/ |

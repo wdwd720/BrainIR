@@ -169,7 +169,9 @@ def test_latent_lifting_with_an_exact_lift(toy):
     cases = [{"protocol": {"dt": DT, "t_end": 4.0, "stimulus": [[0.0, 0.0], [0.3, 0.8]], "events": []}, "t": 1.0}]
     r = eval_lifting(lm, "toy", cases, simulate, np.ones(1), E.EvalConfig(n_boot=50), future_s=0.5)
     assert r["supported"] and r["achieved_shift_rel_error"]["mean"] < 0.1, r
-    assert r["implementation_invariance_ratio"] < 0.1, r      # distinct lifts of one shift: same future (the null space is inert)
+    # version 3 (review B M4): the toy's microstate is x = C z, so the three lifts achieve the same microstate change (cosine 1): they
+    # are one realisation, and implementation invariance is untestable rather than a perfect score
+    assert r["n_distinct"] >= 1 and r["n_near_identical"] >= 1 and not r["implementation_invariance"]["testable"], r
 
 
 # ------------------------------------------------------------------------------------------------ cross-implementation

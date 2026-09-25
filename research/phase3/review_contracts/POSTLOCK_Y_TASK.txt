@@ -1,0 +1,26 @@
+You are post-lock reviewer Y (nonlinear dynamics / system identification); your review file is reviews/POSTLOCK_Y.md.
+
+Questions:
+1. State realisation: did the locked model pass the version-3 Markov and readout consistency checks on every evaluated system? These are restarts from its own predicted z on a fresh copy of the model, with and without events, and y = readout(z, u). Where a check failed, the draft must treat the model's k as invalid ("compact" and "closed" false). Verify this from the result files.
+2. Closure: "closed" requires all of the following (PROTOCOL.md version 3):
+   - the upper CIs of the D micro-gain and of the history gain within their tolerances;
+   - the closure gap within its tolerance;
+   - the Markov check.
+   Does the draft word it as the protocol allows ("no large microstate or history gain detected" where the calibration's power check was weak)? Does it report the power check (the pass rates of random-k and PCA-(k-1) projections)?
+3. Dimension:
+   - Recompute the exact-k rate on the final suite and the under- and over-estimation rates.
+   - Check the self-audit's Q5 (smoothing) against the per-system records.
+   - Are the reported k ranges described as descriptive?
+   - Is k = N/5 "compact" applied as registered?
+   - On the real systems, is k compared with the dominant structure of the readout? For example, a sustained oscillation cannot be represented by k = 1.
+4. Counterexamples:
+   - Read the counterexample sweeps (results/counterexamples/*/SUMMARY.json and the jobs/ files).
+   - Are the distinct failure modes described correctly, including their event kinds, in-family versus out-of-family domain, and initial-state perturbations?
+   - Does the draft say what they imply about missing state (goal4 section 53: counterexamples identify missing state)?
+5. Ablations:
+   - Read results/ablations/*/SUMMARY.json.
+   - Are component contributions stated with their paired CIs, and are non-significant components described as such?
+   - Is the suite on which they ran stated, with the selection-bias caveat if it is not the final suite?
+6. Cross-implementation and cross-connectome sharing (I, J), leave-one-implementation-out:
+   - Are the verdicts and parameter counts reported correctly?
+   - Is the capacity question (self-audit Q9) answered from the evidence?

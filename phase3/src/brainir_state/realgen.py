@@ -218,6 +218,28 @@ def micro_pool_protocols(system: RealSystem, salt: str, A: list[int], state_pool
     return out
 
 
+def applied_kick_totals(info: dict | None) -> dict | None:
+    """Requested against APPLIED kick offsets of one intervention trajectory (benchmark version 3; pre-lock review D, M1), from its
+    index info["kicks_applied"] (written for the hidden real data by scripts/p3/generate_real_hidden.py; the engine clips rates at 0,
+    so a negative kick on a quiet neuron is applied only partly, or not at all). None when nothing is recorded (no kicks, or data
+    generated before version 3). A kicked neuron is "clipped" when its applied offset differs from the requested one, and "null" when
+    the applied offset is 0 (a negative kick on a silent neuron: a no-op). The function only reads the info dict, but importing
+    brainir_state.realgen also imports the real engine (not in the clean room): evaluator code shared with the room imports it lazily."""
+    ka = (info or {}).get("kicks_applied")
+    if not ka:
+        return None
+    req = [float(v) for k in ka for v in k["requested"].values()]
+    app = [float(k["applied"][n]) for k in ka for n in k["requested"]]
+    req_abs, app_abs = sum(abs(v) for v in req), sum(abs(v) for v in app)
+    return {"n_kick_events": len(ka), "n_kicked_neurons": len(req),
+            "requested_abs_total": req_abs, "applied_abs_total": app_abs,
+            "requested_signed_total": sum(req), "applied_signed_total": sum(app),
+            "applied_over_requested_abs": (app_abs / req_abs) if req_abs > 0 else None,
+            "n_clipped": sum(1 for r, a in zip(req, app) if abs(a - r) > 1e-9),
+            "n_null": sum(1 for a in app if abs(a) <= 1e-9),
+            "source": ka[0].get("source", "engine"), "ambiguous": any(k.get("ambiguous") for k in ka)}
+
+
 def counterfactual(p: dict) -> dict:
     """The same trajectory without its events (the no-intervention twin). Version 2 (review H m1): the twin keeps the intervened run's
     BREAKPOINTS as no-op stimulus steps (the stimulus value in force at each event time), so the piecewise integration is identical

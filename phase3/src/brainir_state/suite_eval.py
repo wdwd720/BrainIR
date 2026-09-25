@@ -26,7 +26,7 @@ import numpy as np
 
 from . import evaluate as E
 from .data import Dataset, Trajectory
-from .harness import REAL_CFG, REAL_ROLES, SYNTH_CFG, SYNTH_ROLES, evaluate_system, fit_references, hidden_sets, pca_basis
+from .harness import REAL_CFG, REAL_ROLES, SYNTH_CFG, SYNTH_ROLES, evaluate_system, fit_references, hidden_sets, pca_basis, roles_for
 
 FIT_SPLITS = ("train", "val")
 
@@ -61,6 +61,38 @@ class SuiteData:
 
     def train_only(self, sid: str) -> list[Trajectory]:
         return [t for t in self.train(sid) if t.split == "train"]
+
+    # ---- version 3 (pre-lock reviews B and D): per-system normaliser, roles, observed population and sensitivity sets
+    def scale(self, sid: str) -> np.ndarray:
+        """The readout normaliser from the PUBLIC training trajectories: per dimension for synthetic suites, POOLED for real systems
+        (review D B1)."""
+        return E.readout_scale(self.train_only(sid), pooled=self.kind != "synthetic")
+
+    def alt_scales(self, sid: str) -> dict[str, np.ndarray] | None:
+        """Alternative normalisers whose C is reported for sensitivity (real systems: the version-2 per-dimension variance with floors
+        of 1e-3 and 1e-2 of the largest variance)."""
+        if self.kind == "synthetic":
+            return None
+        tr = self.train_only(sid)
+        return {"per_dim_floor_1e-3": E.readout_scale(tr, floor=1e-3), "per_dim_floor_1e-2": E.readout_scale(tr, floor=1e-2)}
+
+    def roles_for(self, sid: str) -> dict:
+        return roles_for(self.kind, (self.sysinfo(sid) or {}).get("mode"))
+
+    def observed(self, sid: str) -> list[int]:
+        return [int(n) for n in self.sysinfo(sid)["observed"]]
+
+    def exclude_keys(self, sid: str) -> dict[str, set]:
+        """Descriptive sensitivity sets of held-out pairs (synthetic truth side): 'kick_clip' = pairs whose kicks leave a neuron's range
+        (review D M2), from <truth_dir>/kick_clip_pairs.json when present."""
+        if self.truth_dir is None:
+            return {}
+        f = self.truth_dir / "kick_clip_pairs.json"
+        if not f.exists():
+            return {}
+        d = json.loads(f.read_text(encoding="utf-8"))           # format p3-kick-clip-pairs-1 (scripts/p3/kick_clip_pairs.py)
+        v = {str(p["key"]) for p in d.get("pairs", []) if p.get("system_id") == sid}
+        return {"kick_clip": v} if v else {}
 
     def hidden(self, sid: str) -> dict:
         if sid not in self._hidden:
@@ -194,7 +226,7 @@ def reference_results(sd: SuiteData, sid: str, k: int, cache_dir: Path, seed: in
             full = sd.train(sid)
             fit = [t for t, b in zip(full, E.blowup_mask(full)) if not b] or list(full)
             hs = sd.hidden(sid)
-            scale = E.readout_scale(train)
+            scale = sd.scale(sid)
             pca = pca_basis(train)
 
     if f_fixed.exists():
@@ -203,13 +235,15 @@ def reference_results(sd: SuiteData, sid: str, k: int, cache_dir: Path, seed: in
         prep()
         n_y = train[0].y.shape[1]
         observed = sd.sysinfo(sid)["observed"]
+        roles = sd.roles_for(sid)
+        kw = dict(roles=roles, train=train, observed=sd.observed(sid), alt_scales=sd.alt_scales(sid))
         fixed = {"full_state": evaluate_system(FullStateModel(observed, n_y, seed=seed).fit(sid, fit), sid, hs, scale, pca, sd.cfg, k=k,
-                                               families=("A", "C", "D", "R", "E"), roles=sd.roles, train=train),
+                                               families=("A", "C", "D", "R", "E"), **kw),
                  "input_only": evaluate_system(DirectHorizonModel("input_only").fit(sid, fit), sid, hs, scale, pca, sd.cfg,
-                                               families=("A",), roles=sd.roles),
+                                               families=("A",), roles=roles),
                  "readout_hist": evaluate_system(DirectHorizonModel("readout_hist").fit(sid, fit), sid, hs, scale, pca, sd.cfg,
-                                                 families=("A",), roles=sd.roles)}
-        nonint = [t for fam in sd.roles["non_intervention"] for t in hs["by_family"].get(fam, [])]
+                                                 families=("A",), roles=roles)}
+        nonint = [t for fam in roles["non_intervention"] for t in hs["by_family"].get(fam, [])]
         fixed["persistence"] = E.eval_persistence(sid, nonint, scale, sd.cfg) if nonint else {}
         f_fixed.write_text(json.dumps(fixed, default=_json_default) + "\n", encoding="utf-8")
     if f_k.exists():
@@ -217,10 +251,11 @@ def reference_results(sd: SuiteData, sid: str, k: int, cache_dir: Path, seed: in
     else:
         prep()
         observed = sd.sysinfo(sid)["observed"]
+        kw = dict(roles=sd.roles_for(sid), train=train, observed=sd.observed(sid), alt_scales=sd.alt_scales(sid))
         kdep = {"pca_k": evaluate_system(ProjectionLinearModel(k, "pca").fit(sid, fit, observed), sid, hs, scale, pca, sd.cfg, k=k,
-                                         families=("A", "C", "D", "R", "E"), roles=sd.roles, train=train),
+                                         families=("A", "C", "D", "R", "E"), **kw),
                 "random_k": evaluate_system(ProjectionLinearModel(k, "random", seed=seed).fit(sid, fit, observed), sid, hs, scale, pca,
-                                            sd.cfg, k=k, families=("A", "C", "D", "R", "E"), roles=sd.roles, train=train)}
+                                            sd.cfg, k=k, families=("A", "C", "D", "R", "E"), **kw)}
         f_k.write_text(json.dumps(kdep, default=_json_default) + "\n", encoding="utf-8")
     out = {**fixed, **kdep}
     return {n: v for n, v in out.items() if not names or n in names or n == "persistence"}
@@ -283,9 +318,10 @@ def evaluate_model_job(job: dict) -> dict:
     sid = job["sid"]
     hs = sd.hidden(sid)
     train = sd.train_only(sid)
-    scale = E.readout_scale(train)
+    scale = sd.scale(sid)
     pca = pca_basis(train)
-    test_trajs = [t for fam in sd.roles["non_intervention"] for t in hs["by_family"].get(fam, [])]
+    roles = sd.roles_for(sid)
+    test_trajs = [t for fam in roles["non_intervention"] for t in hs["by_family"].get(fam, [])]
     z_true = sd.z_true([t.key for t in test_trajs]) if sd.truth is not None else {}
     mdir = str(Path(job["method_dir"]).resolve())
     if mdir not in _GUARDED:
@@ -300,19 +336,25 @@ def evaluate_model_job(job: dict) -> dict:
             k = (getattr(model, "k", {}) or {}).get(sid)
         out["info"] = info
         out["k"] = k
-        out["res"] = evaluate_system(model, sid, hs, scale, pca, sd.cfg, k=k, roles=sd.roles, train=train)
+        roll = E.Fresh(model)                             # the pristine model, before any encode call of this job
+        out["res"] = evaluate_system(model, sid, hs, scale, pca, sd.cfg, k=k, roles=roles, train=train, observed=sd.observed(sid),
+                                     alt_scales=sd.alt_scales(sid), exclude_keys=sd.exclude_keys(sid), roll=roll)
         if sd.truth is not None:
             from .evaluate_synth import dimension_recovery, eval_latent_recovery
             tr = sd.truth_system(sid) or {}
             out["K"] = eval_latent_recovery(model, sid, test_trajs, z_true, sd.cfg) if tr.get("k") != "none" else {"note": "non-compressible"}
             out["K_dim"] = dimension_recovery(k, (info.get("k_range") or {}).get(sid), tr.get("k"))
-        if job.get("lift") and hasattr(model, "lift"):
+        from .evaluate_lift import lift_supported
+        if job.get("lift") and lift_supported(model):
             from .evaluate_lift import eval_lifting
             cases = []
             for t in test_trajs[: int(job.get("lift_cases", 6))]:
                 for ts in sd.cfg.start_times_s[1:3]:
                     cases.append({"protocol": dict(t.protocol, events=[]), "t": ts})
-            out["lift"] = eval_lifting(model, sid, cases, _simulator(job["suite"], sid), scale, sd.cfg, future_s=sd.cfg.micro_future_s)
+            out["lift"] = eval_lifting(model, sid, cases, _simulator(job["suite"], sid), scale, sd.cfg, future_s=sd.cfg.micro_future_s,
+                                       roll=roll)
+        elif job.get("lift"):
+            out["lift"] = {"supported": False, "reason": "the model does not implement lift()"}
     except Exception as e:  # noqa: BLE001
         import traceback
         out["error"] = repr(e)
@@ -354,8 +396,8 @@ def reproducibility_job(job: dict) -> dict:
     sid = job["sid"]
     hs = sd.hidden(sid)
     val = [t for t in sd.train(sid) if t.split == "val"]
-    test = [t for fam in sd.roles["non_intervention"] for t in hs["by_family"].get(fam, [])]
-    scale = E.readout_scale(sd.train_only(sid))
+    test = [t for fam in sd.roles_for(sid)["non_intervention"] for t in hs["by_family"].get(fam, [])]
+    scale = sd.scale(sid)
     mdir = str(Path(job["method_dir"]).resolve())
     if mdir not in _GUARDED:
         install_eval_guard([mdir], allowed=[str(Path(p).resolve().parent) for p in job["model_paths"]])

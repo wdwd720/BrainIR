@@ -1,0 +1,92 @@
+{
+ "rtol": 1e-06,
+ "atol": 1e-09,
+ "searches": [
+  {
+   "system": "real:net1:mech:02fa13b8",
+   "strategy": "random",
+   "n_local": 8,
+   "n_modal": 8,
+   "same_protocol_sequence": true,
+   "same_nan_pattern": true,
+   "max_abs_diff": 0.005022830920836441,
+   "max_rel_diff": 0.0002559082861982859,
+   "within_tolerance": false,
+   "errors_local": null,
+   "errors_modal": null
+  },
+  {
+   "system": "real:net1:mech:02fa13b8",
+   "strategy": "evolve",
+   "n_local": 8,
+   "n_modal": 8,
+   "same_protocol_sequence": true,
+   "same_nan_pattern": true,
+   "max_abs_diff": 0.008327246225001694,
+   "max_rel_diff": 0.0022929871160855355,
+   "within_tolerance": false,
+   "errors_local": null,
+   "errors_modal": null
+  },
+  {
+   "system": "real:net1:mech:02fa13b8",
+   "strategy": "structured",
+   "n_local": 8,
+   "n_modal": 8,
+   "same_protocol_sequence": true,
+   "same_nan_pattern": true,
+   "max_abs_diff": 0.22088100134331512,
+   "max_rel_diff": 0.0030980317251411756,
+   "within_tolerance": false,
+   "errors_local": null,
+   "errors_modal": null
+  },
+  {
+   "system": "real:net1:mech:02fa13b8",
+   "strategy": "bo",
+   "n_local": 8,
+   "n_modal": 8,
+   "same_protocol_sequence": true,
+   "same_nan_pattern": true,
+   "max_abs_diff": 0.00043694768349289426,
+   "max_rel_diff": 0.0003869866535816415,
+   "within_tolerance": false,
+   "errors_local": null,
+   "errors_modal": null
+  }
+ ],
+ "all_equivalent": false,
+ "system": "real:net1:mech:02fa13b8",
+ "kind": "real",
+ "tier": "real_public",
+ "budget": 8,
+ "strategies": [
+  "random",
+  "evolve",
+  "structured",
+  "bo"
+ ],
+ "objective": "effect",
+ "local_wall_s": 19.9,
+ "modal": {
+  "app_id": "ap-DW6DzPCRyZIK0uvrQgtqF7",
+  "calls": 4,
+  "container_s": 46.7,
+  "wall_s": 28.1,
+  "cpu": 2.0,
+  "memory_mb": 6144,
+  "usd_approx": 0.007
+ },
+ "local_job_wall_s": [
+  16.1,
+  17.7,
+  16.8,
+  16.7
+ ],
+ "modal_job_wall_s": [
+  10.5,
+  10.3,
+  9.8,
+  11.4
+ ]
+}

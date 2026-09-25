@@ -98,6 +98,16 @@ Level B fits and evaluations, the reference controls and the calibration run on 
   runguard. Each job runs in a fresh interpreter.
 - **No agent has network access.** No clean-room agent can reach Modal: the command guard refuses network tools, and pyguard refuses
   socket events.
+- **Amendment (benchmark version 3, 2026-09-25, before any hidden real data exist).** Level C runs on Modal like Level B:
+  - the PUBLIC real fit view and the public blind bundle (`benchmarks/dng100/public_blind`, 3 MB, already public) are staged on the
+    fit volume; the internal real system definitions go to the eval volume only;
+  - the hidden real data are generated after the method lock. Their protocols are built locally from the salt (the salt never
+    leaves the machine); the simulations run on Modal (`generate_real_hidden.py --backend modal`, which refuses to run before the
+    method lock) and write ONLY to the eval volume (`/evalvol/real_hidden_build`, `/evalvol/suites/real/hidden`); the local copy is
+    downloaded from there. With the local backend they are uploaded to the eval volume only (`modal_tournament.py upload-real --what
+    hidden`). Fit containers never mount the eval volume;
+  - evaluation containers read them under the same guard as the synthetic held-out suites;
+  - counterexample searches with HIDDEN real parameter draws run locally only (`counterexamples.py` refuses Modal for them).
 
 ## 4. Audits
 

@@ -18,7 +18,7 @@ import numpy as np
 
 from .api import StateModel
 from .data import Trajectory
-from .evaluate import EvalConfig, _nmse, encode_at, idx, strip_units  # noqa: F401
+from .evaluate import EvalConfig, Fresh, _nmse, encode_at, idx, strip_units  # noqa: F401
 
 
 # ------------------------------------------------------------------------------------------------------------ statistics
@@ -202,7 +202,9 @@ def eval_reproducibility(models: list[StateModel], sid: str, val: list[Trajector
                          cfg: EvalConfig = EvalConfig(), horizon_s: float | None = None) -> dict:
     """G: all pairs of models (same method, different seeds). Alignment (CCA directions, ridge maps) is fitted on PUBLIC validation
     trajectories and measured on the hidden test trajectories (goal4 sections 44, 65). Latent states are sampled every half
-    start-time spacing from the first start time on."""
+    start-time spacing from the first start time on. Version 3 (pre-lock review A M3): the headline statistics are r2_min_mean (the
+    smaller of the two cross-R^2 directions), k agreement and the prediction disagreement; the canonical correlations are padded
+    with zeros up to max(k_a, k_b) (a smaller latent is otherwise always found inside a larger one); rollouts run on fresh copies."""
     horizon_s = cfg.primary_horizon_s if horizon_s is None else horizon_s
     step = (cfg.start_times_s[1] - cfg.start_times_s[0]) / 2 if len(cfg.start_times_s) > 1 else cfg.start_times_s[0]
     t_last = min(float(tr.t[-1]) for tr in list(val) + list(test))
@@ -212,20 +214,23 @@ def eval_reproducibility(models: list[StateModel], sid: str, val: list[Trajector
     ks = [int(z.shape[1]) for z in Zv]
     preds = []
     for m in models:
+        roll = Fresh(m)
         rows = []
         for tr in test:
             for t0 in cfg.start_times_s:
                 i0, n = idx(t0, tr.dt), idx(horizon_s, tr.dt)
                 if i0 + n < len(tr.t):
                     z0 = encode_at(m, sid, tr, i0)
-                    rows.append(np.asarray(m.rollout(sid, z0, tr.u[i0: i0 + n + 1], [], tr.dt)["y"], float)[1:])
+                    rows.append(np.asarray(roll.rollout(sid, z0, tr.u[i0: i0 + n + 1], [], tr.dt)["y"], float)[1:])
         preds.append(rows)
     pairs = []
     for a in range(len(models)):
         for b in range(a + 1, len(models)):
             cc = cca_fit_apply(Zv[a], Zv[b], Zt[a], Zt[b])
+            padded = [0.0 if not np.isfinite(v) else v for v in cc] + [0.0] * (max(ks[a], ks[b]) - len(cc))
             agree = [_nmse(pa, pb, scale) for pa, pb in zip(preds[a], preds[b])]
-            pairs.append({"a": a, "b": b, "cca_mean": float(np.nanmean(cc)), "cca": cc,
+            pairs.append({"a": a, "b": b, "cca_mean": float(np.mean(padded)) if padded else float("nan"),
+                          "cca_mean_unpadded": float(np.nanmean(cc)) if cc else float("nan"), "cca": cc,
                           "r2_a_to_b": cross_r2(Zv[a], Zv[b], Zt[a], Zt[b]), "r2_b_to_a": cross_r2(Zv[b], Zv[a], Zt[b], Zt[a]),
                           "prediction_disagreement_nmse": float(np.mean(agree)) if agree else float("nan")})
     return {"k": ks, "k_agree": len(set(ks)) == 1, "pairs": pairs,
@@ -314,7 +319,10 @@ def _worst(key: str) -> float:
 
 def system_values(per_sys: dict, sid: str) -> dict:
     """The per-system quantities behind S1-S6 for one method's per-system record (tournament format); a failed fit / evaluation or a
-    non-finite value is imputed as the WORST value (version 2: a failure never improves a median)."""
+    non-finite value is imputed as the WORST value (version 2: a failure never improves a median).
+    Version 3 (pre-lock reviews A B2, C B1 / M3): S3 = max(0, upper 95 % CI of the D micro-gain) (a negative gain is regression noise,
+    not "more closed"); S5 = min(R^2 true <- model, R^2 model <- true) (random features; extra content in z costs as much as missing
+    content); S6 = the point k equals the true k (the reported range is descriptive: a wider range never earns credit)."""
     r = per_sys.get(sid) or {}
     v = r.get("verdict") or {}
 
@@ -328,12 +336,21 @@ def system_values(per_sys: dict, sid: str) -> dict:
     e = v.get("E_ratio")
     if v and v.get("E_testable") is False:
         e = None                                        # untestable: not a value of the method (left out of S4, never imputed)
+    try:
+        d_up = float((v.get("D_ci95") or [None, None])[1])
+    except (TypeError, ValueError):
+        d_up = float("nan")
+    kres = r.get("K") or {}
+    try:
+        k_min = min(float(kres.get("r2_true_from_model_rff")), float(kres.get("r2_model_from_true_rff")))
+    except (TypeError, ValueError):
+        k_min = float("nan")
     return {"S1_A_over_full": val(r.get("A_over_full"), "S1_A_over_full"),
             "S2_C_heldout": val(v.get("C"), "S2_C_heldout"),
-            "S3_D_micro_gain": val(v.get("D_micro_gain"), "S3_D_micro_gain"),
+            "S3_D_micro_gain": val(max(0.0, d_up) if np.isfinite(d_up) else d_up, "S3_D_micro_gain"),
             "S4_E_ratio": (val(e, "S4_E_ratio") if (e is not None or not v) else None),
-            "S5_K_r2_rff": val((r.get("K") or {}).get("r2_true_from_model_rff"), "S5_K_r2_rff"),
-            "S6_dim_ok": bool((r.get("K_dim") or {}).get("in_range"))}
+            "S5_K_r2_rff": val(k_min, "S5_K_r2_rff"),
+            "S6_dim_ok": bool((r.get("K_dim") or {}).get("exact"))}
 
 
 def profile_from_systems(per_sys: dict, compressible: list[str], abstention: dict, i_rows: list[dict]) -> dict:
@@ -361,14 +378,16 @@ def profile_from_systems(per_sys: dict, compressible: list[str], abstention: dic
             "n_systems": len(vals), "n_E_untestable": sum(1 for v in vals if v["S4_E_ratio"] is None)}
 
 
-def rank_profiles(profiles: dict[str, dict], transition_params: dict[str, float] | None = None) -> dict:
+def rank_profiles(profiles: dict[str, dict], transition_params: dict[str, float] | None = None,
+                  keys: tuple[str, ...] = PROFILE_KEYS) -> dict:
     """Mean rank over S1-S8 (PROTOCOL.md section 9, version 2): average ranks for ties; a non-finite value ranks last (tied with the
     other non-finite values); a component that is non-finite for EVERY candidate is dropped; ties in the mean rank are broken by
-    fewer transition parameters, then by name. The result does not depend on the order of the candidates."""
+    fewer transition parameters, then by name. The result does not depend on the order of the candidates. `keys` restricts the
+    components (version 3: the Level C comparator is ranked on S1-S5 among the baselines only)."""
     from scipy.stats import rankdata
     names = sorted(profiles)
     used, ranks = [], {m: [] for m in names}
-    for key in PROFILE_KEYS:
+    for key in keys:
         v = np.array([float(profiles[m].get(key, float("nan"))) for m in names], float)
         if not np.isfinite(v).any():
             continue

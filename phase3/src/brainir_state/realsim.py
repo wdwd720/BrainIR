@@ -96,6 +96,7 @@ class RealEngine:
         stim_idx = list(system.stimulus)
         u = np.zeros((len(grid), max(1, len(stim_idx))), dtype=np.float64)
         n_calls, ok = 0, True
+        kicks_applied: list[dict] = []
         for a, b in zip(bps[:-1], bps[1:]):
             ia, ib = int(round(a / dt)), int(round(b / dt))
             # the sample at a kick's time is the PRE-kick state (x_t is what an encoder sees before the intervention); the
@@ -103,8 +104,14 @@ class RealEngine:
             R[ia] = r
             for e in q["events"]:
                 if e["kind"] == "kick" and abs(e["t"] - a) < 1e-9:
+                    requested, applied = {}, {}
                     for k, d in e["delta"].items():
-                        r[int(k)] = max(0.0, r[int(k)] + d)
+                        before = r[int(k)]
+                        r[int(k)] = max(0.0, before + d)
+                        # rates are clipped at 0: the APPLIED offset differs from the requested one when before + d < 0
+                        requested[k] = float(d)
+                        applied[k] = float(d) if before + d >= 0.0 else float(-before)
+                    kicks_applied.append({"t": float(e["t"]), "requested": requested, "applied": applied})
             if ib <= ia:
                 continue
             scale = [s for t, s in q["stimulus"] if t <= a + 1e-9][-1]
@@ -144,9 +151,43 @@ class RealEngine:
         if stim_idx:
             u[-1, :] = u[-2, :] if len(u) > 1 else u[-1, :]
         nonzero = np.flatnonzero(np.abs(R).max(axis=0) > 0)
+        info = {"engine": ENGINE_VERSION, "simulator": MODEL_ID, "n_calls": n_calls, "success": bool(ok), "n": int(n),
+                "bundle_sha256": self.bundle_sha, "network": self.problem.name}
+        if kicks_applied:
+            # benchmark version 3 (pre-lock review D, M1): the applied (clipped) kick offsets, next to the requested ones. The
+            # event dicts are unchanged (methods keep seeing the requested offsets, as in the public data); the simulated rates
+            # are bitwise identical to engine p3-realsim-1 without this record, so ENGINE_VERSION (a store-key input) is unchanged
+            info["kicks_applied"] = kicks_applied
         return {"t": grid, "neurons": nonzero.astype(np.int32), "rates": R[:, nonzero].astype(np.float32), "u": u.astype(np.float32),
-                "info": {"engine": ENGINE_VERSION, "simulator": MODEL_ID, "n_calls": n_calls, "success": bool(ok), "n": int(n),
-                         "bundle_sha256": self.bundle_sha, "network": self.problem.name}}
+                "info": info}
+
+
+def kicks_applied_from_record(record: dict, proto: dict) -> list[dict]:
+    """The applied kick offsets of a protocol, reconstructed from a stored record (for records stored before the engine recorded
+    them): the sample at a kick's time holds the PRE-kick rates, so the applied offset is d if r_pre + d >= 0, else -r_pre. The
+    stored rates are float32, so the reconstruction is exact up to float32 rounding of r_pre (flagged "source": "record"). With
+    several kicks on one neuron at the same time the later ones would see the earlier ones' result; the protocol generators never
+    produce that, and such a case is flagged "ambiguous"."""
+    q = P.validate(proto)
+    dt = q["dt"]
+    pos = {int(n): i for i, n in enumerate(record["neurons"])}
+    out, seen = [], {}
+    for e in q.get("events") or []:
+        if e["kind"] != "kick":
+            continue
+        i = int(round(e["t"] / dt))
+        requested, applied = {}, {}
+        for k, d in e["delta"].items():
+            j = pos.get(int(k))
+            pre = float(record["rates"][i, j]) if (j is not None and i < len(record["rates"])) else 0.0
+            requested[k] = float(d)
+            applied[k] = float(d) if pre + d >= 0.0 else float(-pre)
+            seen[(i, int(k))] = seen.get((i, int(k)), 0) + 1
+        out.append({"t": float(e["t"]), "requested": requested, "applied": applied, "source": "record"})
+    if any(c > 1 for c in seen.values()):
+        for rec in out:
+            rec["ambiguous"] = True
+    return out
 
 
 def dense(record: dict, neurons: list[int] | tuple[int, ...]) -> np.ndarray:

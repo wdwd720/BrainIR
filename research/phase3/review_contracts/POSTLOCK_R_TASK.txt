@@ -1,0 +1,15 @@
+You are post-lock reviewer R (report accuracy and completeness); your review file is reviews/POSTLOCK_R.md.
+
+Questions:
+1. Traceability: pick every number in the draft's summary and results sections. Trace each to its result file and key, re-derive it, and list any number you cannot trace or that differs.
+2. Completeness against goal4 section 84 (reporting list) and section 91 (final response items). For every item, say where the draft covers it or that it is missing. The items include the latent dimension(s), synthetic hidden-state recovery, full-state vs compressed prediction, held-out intervention fidelity, Markov closure, microstate equivalence, latent interventions, cross-mechanism and cross-connectome results, the strongest baseline and where BrainIR beats / matches / loses to it, counterexamples, robustness, tests, reviews, Modal cost, lock / tag, the biggest limitation and ONE next-phase recommendation.
+3. Acceptance criteria (goal4 section 85, 50 items): does the draft's checklist match the evidence? Cross-check against results/SELF_AUDIT.md: every criterion the self-audit marks fail or n/a must be reported as such, not as satisfied.
+4. The self-audit (goal4 section 87):
+   - Were all 19 questions TESTED? SELF_AUDIT.json holds each test's evidence.
+   - Does the draft report each result faithfully, including the failures?
+   - Were the thresholds fixed before the evidence? Compare SELF_AUDIT.json's thresholds with the self-audit script's history if you have it.
+5. Compute (goal4 section 59):
+   - Does the draft's cost statement match COMPUTE_SUMMARY.md?
+   - Are simulator calls, CPU / container hours and Modal job ids reported?
+   - Is a method that needs much more compute for small gains described honestly?
+6. Answer-bearing marking: is PHASE3_REPORT.md marked answer-bearing, and does it state that it must never enter a later clean room?

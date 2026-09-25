@@ -1,5 +1,6 @@
-"""state_discovery Level B tournament (orchestrator; PROTOCOL.md section 9, benchmark version 2). Also used for the Level B
-confirmation (--suite final).
+"""state_discovery Level B tournament (orchestrator; PROTOCOL.md section 9, benchmark version 3). Also used for the Level B
+confirmation (--suite final). The round decision (selection rule on the bootstrap, Level C comparator) is made by
+merge_rounds.py --decide.
 
     uv run --project phase3 python scripts/p3/tournament.py --round r1 --methods m1,m2 [--suite heldout] [--parallel 5]
                                                             [--eval-workers 6] [--g-systems 8] [--skip-shared] [--systems s1,s2]
@@ -37,6 +38,9 @@ from brainir_state.evaluate_cross import (loio_comparison, profile_from_systems,
 from brainir_state.evaluate_synth import abstention_row, abstention_summary  # noqa: E402
 from brainir_state.harness import key_a, key_c, key_d, verdict  # noqa: E402
 from brainir_state.suite_eval import SuiteData, dump, evaluate_models, reference_results, reproducibility_jobs, run_fits  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from level_c import k_min_value  # noqa: E402
 
 ROOM = Path(r"C:\Dev\BrainIR_p3clean")
 RUN = Path(r"C:\Dev\BrainIR_p3run")
@@ -145,7 +149,7 @@ def main(argv=None) -> int:
     pairs = [p for p in truth["suite"]["unrelated_pairs"] if set(p) <= set(sids)]
     design = {"suite": args.suite, "pilot": bool(args.pilot), "systems": sorted(sids), "compressible": list(compressible),
               "g_systems": int(args.g_systems), "skip_shared": bool(args.skip_shared), "sim_budget": int(args.sim_budget),
-              "timeout_s": float(args.timeout), "benchmark_version": 2}
+              "timeout_s": float(args.timeout), "benchmark_version": 3}
     out_dir = OUT / args.round
     report = {"round": args.round, "suite": args.suite, "design": design, "methods": methods, "method_hashes": mhash, "tolerances": taus,
               "results": {}}
@@ -236,8 +240,10 @@ def main(argv=None) -> int:
             ks = [by.get((s, f"indep_s{seed}"), {}).get("k") for seed in (0, 1, 2)]
             a = [((by.get((s, f"indep_s{seed}"), {}).get("res") or {}).get("A_B") or {}).get(key_a(cfg), {}).get("mean") for seed in (0, 1, 2)]
             kr = [((by.get((s, f"indep_s{seed}"), {}).get("K") or {}).get("r2_true_from_model_rff")) for seed in (0, 1, 2)]
+            kmin = [k_min_value(by.get((s, f"indep_s{seed}"), {}).get("K")) if by.get((s, f"indep_s{seed}")) else None for seed in (0, 1, 2)]
             g = (g_out.get(s) or {}).get("G") or {}
-            g_rows[s] = {"k": ks, "A": a, "K_r2": kr, "cca_mean": g.get("cca_mean"), "r2_min_mean": g.get("r2_min_mean"),
+            g_rows[s] = {"k": ks, "A": a, "K_r2": kr, "K_min": kmin, "k_agree": g.get("k_agree"), "cca_mean": g.get("cca_mean"),
+                         "r2_min_mean": g.get("r2_min_mean"),
                          "prediction_disagreement_nmse": g.get("prediction_disagreement_nmse"), "error": (g_out.get(s) or {}).get("error")}
         # ---- I (groups) and sharing nulls (pairs), both with leave-one-implementation-out
         i_rows = []

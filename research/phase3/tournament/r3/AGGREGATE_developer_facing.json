@@ -1,0 +1,420 @@
+{
+ "round": "r3",
+ "suite": "heldout",
+ "design": {
+  "suite": "heldout",
+  "pilot": false,
+  "systems": [
+   "syn-08e85e4763",
+   "syn-13a082e564",
+   "syn-191d593fc0",
+   "syn-1b421315d5",
+   "syn-1c91f7976d",
+   "syn-1fc77172f5",
+   "syn-2549feeb62",
+   "syn-256bea93ae",
+   "syn-337a73e03e",
+   "syn-33f09f3c04",
+   "syn-380742fb33",
+   "syn-3d38f143c5",
+   "syn-4b2ae06443",
+   "syn-4edae2950e",
+   "syn-4fea71cd9a",
+   "syn-52d74c61fd",
+   "syn-5300b22b3f",
+   "syn-5348f2ceed",
+   "syn-5f1785223c",
+   "syn-6934004d41",
+   "syn-6f0472dd09",
+   "syn-7be17fa7bf",
+   "syn-7cf49d4e3c",
+   "syn-7e7c5ca4aa",
+   "syn-8388334ff0",
+   "syn-8665cde1ee",
+   "syn-8e5af06ca7",
+   "syn-8ebf2060ff",
+   "syn-9b6a92a608",
+   "syn-9ece63cc1b",
+   "syn-a27688970c",
+   "syn-a5823117aa",
+   "syn-a88f20686e",
+   "syn-ae1c65b132",
+   "syn-b14b6978bd",
+   "syn-bb785f95b4",
+   "syn-c01a812646",
+   "syn-c4dfaaa040",
+   "syn-c564c6795c",
+   "syn-d3349ca208",
+   "syn-da54214054",
+   "syn-e8e52e0ff2",
+   "syn-ea8a7078c0",
+   "syn-ecc3b8f431",
+   "syn-ee2fc3b737",
+   "syn-eeb930b9cf",
+   "syn-f0b198629c",
+   "syn-ffea8ed434"
+  ],
+  "compressible": [
+   "syn-08e85e4763",
+   "syn-13a082e564",
+   "syn-191d593fc0",
+   "syn-1b421315d5",
+   "syn-1c91f7976d",
+   "syn-1fc77172f5",
+   "syn-2549feeb62",
+   "syn-256bea93ae",
+   "syn-337a73e03e",
+   "syn-33f09f3c04",
+   "syn-380742fb33",
+   "syn-3d38f143c5",
+   "syn-4b2ae06443",
+   "syn-4edae2950e",
+   "syn-4fea71cd9a",
+   "syn-52d74c61fd",
+   "syn-5300b22b3f",
+   "syn-5348f2ceed",
+   "syn-5f1785223c",
+   "syn-6934004d41",
+   "syn-6f0472dd09",
+   "syn-7be17fa7bf",
+   "syn-7e7c5ca4aa",
+   "syn-8388334ff0",
+   "syn-8665cde1ee",
+   "syn-8e5af06ca7",
+   "syn-8ebf2060ff",
+   "syn-9b6a92a608",
+   "syn-9ece63cc1b",
+   "syn-a27688970c",
+   "syn-a5823117aa",
+   "syn-a88f20686e",
+   "syn-ae1c65b132",
+   "syn-b14b6978bd",
+   "syn-bb785f95b4",
+   "syn-c01a812646",
+   "syn-c4dfaaa040",
+   "syn-c564c6795c",
+   "syn-da54214054",
+   "syn-e8e52e0ff2",
+   "syn-ea8a7078c0",
+   "syn-ecc3b8f431",
+   "syn-ee2fc3b737",
+   "syn-eeb930b9cf",
+   "syn-f0b198629c",
+   "syn-ffea8ed434"
+  ],
+  "g_systems": 8,
+  "skip_shared": false,
+  "sim_budget": 250,
+  "timeout_s": 1800.0,
+  "benchmark_version": 2
+ },
+ "parts": [
+  "r3_brainir_state_v1",
+  "r2_nn_closed",
+  "r2_lin_falds",
+  "r2_ks_sindy",
+  "r2_lin_subspace",
+  "r2_lin_balanced",
+  "r2_lin_dmdc",
+  "r2_ks_edmd",
+  "r2_nn_aelin",
+  "r2_ks_hankel",
+  "r2_cb_cegar"
+ ],
+ "profiles": {
+  "brainir_state_v1": {
+   "S1_A_over_full": 0.9288678273093438,
+   "S2_C_heldout": 0.5617350744099867,
+   "S3_D_micro_gain": -0.03680432917883368,
+   "S4_E_ratio": 0.0018239607114162268,
+   "S5_K_r2_rff": 0.9949297546047129,
+   "S6_dim_rate": 0.782608695652174,
+   "S7_abstention": 0.7173913043478262,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 8
+  },
+  "nn_closed": {
+   "S1_A_over_full": 0.9383163538101338,
+   "S2_C_heldout": 0.7463469417475299,
+   "S3_D_micro_gain": -0.00831052095765068,
+   "S4_E_ratio": 0.002255536124946955,
+   "S5_K_r2_rff": 0.9914263771276801,
+   "S6_dim_rate": 0.782608695652174,
+   "S7_abstention": 0.9782608695652174,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 3
+  },
+  "lin_falds": {
+   "S1_A_over_full": 1.156802478837836,
+   "S2_C_heldout": 0.5504006923333304,
+   "S3_D_micro_gain": -0.005198118777856903,
+   "S4_E_ratio": 0.0010503715972129345,
+   "S5_K_r2_rff": 0.9968876642082385,
+   "S6_dim_rate": 0.5869565217391305,
+   "S7_abstention": 0.8913043478260869,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 10
+  },
+  "ks_sindy": {
+   "S1_A_over_full": 0.9692807477778773,
+   "S2_C_heldout": 0.5848967687440392,
+   "S3_D_micro_gain": -0.03539920727275406,
+   "S4_E_ratio": 0.0017320675142238435,
+   "S5_K_r2_rff": 0.9949815954586554,
+   "S6_dim_rate": 0.6521739130434783,
+   "S7_abstention": 0.6956521739130435,
+   "S8_sharing_correct": 0.16666666666666666,
+   "n_systems": 46,
+   "n_E_untestable": 6
+  },
+  "lin_subspace": {
+   "S1_A_over_full": 0.9987681400103454,
+   "S2_C_heldout": 0.564443772896517,
+   "S3_D_micro_gain": -0.08272384175506181,
+   "S4_E_ratio": 0.001752034844104036,
+   "S5_K_r2_rff": 0.9964884435969064,
+   "S6_dim_rate": 0.6739130434782609,
+   "S7_abstention": 0.4565217391304348,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 3
+  },
+  "lin_balanced": {
+   "S1_A_over_full": 1.026994113709204,
+   "S2_C_heldout": 0.6804650145100275,
+   "S3_D_micro_gain": -0.045895131331773656,
+   "S4_E_ratio": 0.002356699653119616,
+   "S5_K_r2_rff": 0.996723388263236,
+   "S6_dim_rate": 0.5434782608695652,
+   "S7_abstention": 0.5,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 8
+  },
+  "lin_dmdc": {
+   "S1_A_over_full": 1.0785046199491175,
+   "S2_C_heldout": 0.6133224130684953,
+   "S3_D_micro_gain": -0.04881459221129629,
+   "S4_E_ratio": 0.0015918919081568225,
+   "S5_K_r2_rff": 0.9948865098516857,
+   "S6_dim_rate": 0.5652173913043478,
+   "S7_abstention": 0.9021739130434783,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 14
+  },
+  "ks_edmd": {
+   "S1_A_over_full": 1.0036174049839572,
+   "S2_C_heldout": 0.74536515443661,
+   "S3_D_micro_gain": -0.07527171844634348,
+   "S4_E_ratio": 0.002916020484864515,
+   "S5_K_r2_rff": 0.990348233387067,
+   "S6_dim_rate": 0.6956521739130435,
+   "S7_abstention": 0.7173913043478262,
+   "S8_sharing_correct": 0.0,
+   "n_systems": 46,
+   "n_E_untestable": 2
+  },
+  "nn_aelin": {
+   "S1_A_over_full": 1.0947101515117452,
+   "S2_C_heldout": 0.9825753114135236,
+   "S3_D_micro_gain": -0.07098366667847847,
+   "S4_E_ratio": 0.002766043961548656,
+   "S5_K_r2_rff": 0.9911629431745002,
+   "S6_dim_rate": 0.782608695652174,
+   "S7_abstention": 0.9891304347826086,
+   "S8_sharing_correct": 0.5,
+   "n_systems": 46,
+   "n_E_untestable": 3
+  },
+  "ks_hankel": {
+   "S1_A_over_full": 1.1403714188511898,
+   "S2_C_heldout": 0.5983540938454661,
+   "S3_D_micro_gain": -0.003141187455687343,
+   "S4_E_ratio": 0.0016944210271740735,
+   "S5_K_r2_rff": 0.9952111706147806,
+   "S6_dim_rate": 0.6304347826086957,
+   "S7_abstention": 0.9565217391304348,
+   "S8_sharing_correct": 0.0,
+   "n_systems": 46,
+   "n_E_untestable": 10
+  },
+  "cb_cegar": {
+   "S1_A_over_full": 1.0319816291933792,
+   "S2_C_heldout": 0.6248679078127878,
+   "S3_D_micro_gain": -0.06187195715737592,
+   "S4_E_ratio": 0.0023335652527444913,
+   "S5_K_r2_rff": 0.9934114962488445,
+   "S6_dim_rate": 0.391304347826087,
+   "S7_abstention": 0.9565217391304348,
+   "S8_sharing_correct": 0.0,
+   "n_systems": 46,
+   "n_E_untestable": 7
+  }
+ },
+ "verdict_counts": {
+  "brainir_state_v1": {
+   "partially supported": 23,
+   "compact causal state discovered": 10,
+   "not supported": 12,
+   "compact causal state discovered (microstate equivalence untestable)": 1
+  },
+  "nn_closed": {
+   "not supported": 11,
+   "partially supported": 27,
+   "compact causal state discovered": 8
+  },
+  "lin_falds": {
+   "not supported": 26,
+   "partially supported": 12,
+   "compact causal state discovered": 7,
+   "compact causal state discovered (microstate equivalence untestable)": 1
+  },
+  "ks_sindy": {
+   "partially supported": 22,
+   "compact causal state discovered": 9,
+   "not supported": 14,
+   "compact causal state discovered (microstate equivalence untestable)": 1
+  },
+  "lin_subspace": {
+   "partially supported": 15,
+   "not supported": 19,
+   "compact causal state discovered": 11,
+   "compact causal state discovered (microstate equivalence untestable)": 1
+  },
+  "lin_balanced": {
+   "partially supported": 20,
+   "not supported": 16,
+   "compact causal state discovered": 6,
+   "compact causal state discovered (microstate equivalence untestable)": 4
+  },
+  "lin_dmdc": {
+   "not supported": 26,
+   "partially supported": 11,
+   "compact causal state discovered": 9
+  },
+  "ks_edmd": {
+   "partially supported": 20,
+   "not supported": 19,
+   "compact causal state discovered": 7
+  },
+  "nn_aelin": {
+   "partially supported": 24,
+   "not supported": 19,
+   "compact causal state discovered": 3
+  },
+  "ks_hankel": {
+   "not supported": 24,
+   "partially supported": 12,
+   "compact causal state discovered": 9,
+   "compact causal state discovered (microstate equivalence untestable)": 1
+  },
+  "cb_cegar": {
+   "not supported": 19,
+   "partially supported": 14,
+   "compact causal state discovered": 12,
+   "compact causal state discovered (microstate equivalence untestable)": 1
+  }
+ },
+ "eligible": {
+  "brainir_state_v1": true,
+  "nn_closed": true,
+  "lin_falds": true,
+  "ks_sindy": true,
+  "lin_subspace": true,
+  "lin_balanced": true,
+  "lin_dmdc": true,
+  "ks_edmd": false,
+  "nn_aelin": true,
+  "ks_hankel": false,
+  "cb_cegar": false
+ },
+ "mean_rank": {
+  "brainir_state_v1": 3.625,
+  "ks_sindy": 4.875,
+  "lin_balanced": 5.375,
+  "lin_dmdc": 4.5,
+  "lin_falds": 4.125,
+  "lin_subspace": 3.875,
+  "nn_aelin": 5.0,
+  "nn_closed": 4.625
+ },
+ "rank_order": [
+  "brainir_state_v1",
+  "lin_subspace",
+  "lin_falds",
+  "lin_dmdc",
+  "nn_closed",
+  "ks_sindy",
+  "nn_aelin",
+  "lin_balanced"
+ ],
+ "rank_components": [
+  "S1_A_over_full",
+  "S2_C_heldout",
+  "S3_D_micro_gain",
+  "S4_E_ratio",
+  "S5_K_r2_rff",
+  "S6_dim_rate",
+  "S7_abstention",
+  "S8_sharing_correct"
+ ],
+ "selection_uncertainty": {
+  "brainir_state_v1": {
+   "p_rank1": 0.563,
+   "rank_p05": 1.0,
+   "rank_p95": 4.0
+  },
+  "ks_sindy": {
+   "p_rank1": 0.001,
+   "rank_p05": 3.0,
+   "rank_p95": 8.0
+  },
+  "lin_balanced": {
+   "p_rank1": 0.004,
+   "rank_p05": 4.0,
+   "rank_p95": 8.0
+  },
+  "lin_dmdc": {
+   "p_rank1": 0.061,
+   "rank_p05": 1.0,
+   "rank_p95": 8.0
+  },
+  "lin_falds": {
+   "p_rank1": 0.076,
+   "rank_p05": 1.0,
+   "rank_p95": 6.0
+  },
+  "lin_subspace": {
+   "p_rank1": 0.25,
+   "rank_p05": 1.0,
+   "rank_p95": 6.0
+  },
+  "nn_aelin": {
+   "p_rank1": 0.007,
+   "rank_p05": 2.0,
+   "rank_p95": 8.0
+  },
+  "nn_closed": {
+   "p_rank1": 0.038,
+   "rank_p05": 2.0,
+   "rank_p95": 8.0
+  }
+ },
+ "per_candidate_files": {
+  "brainir_state_v1": "research/phase3/tournament/r3_brainir_state_v1/brainir_state_v1.json",
+  "nn_closed": "research/phase3/tournament/r2_nn_closed/nn_closed.json",
+  "lin_falds": "research/phase3/tournament/r2_lin_falds/lin_falds.json",
+  "ks_sindy": "research/phase3/tournament/r2_ks_sindy/ks_sindy.json",
+  "lin_subspace": "research/phase3/tournament/r2_lin_subspace/lin_subspace.json",
+  "lin_balanced": "research/phase3/tournament/r2_lin_balanced/lin_balanced.json",
+  "lin_dmdc": "research/phase3/tournament/r2_lin_dmdc/lin_dmdc.json",
+  "ks_edmd": "research/phase3/tournament/r2_ks_edmd/ks_edmd.json",
+  "nn_aelin": "research/phase3/tournament/r2_nn_aelin/nn_aelin.json",
+  "ks_hankel": "research/phase3/tournament/r2_ks_hankel/ks_hankel.json",
+  "cb_cegar": "research/phase3/tournament/r2_cb_cegar/cb_cegar.json"
+ }
+}
