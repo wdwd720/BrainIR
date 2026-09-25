@@ -124,9 +124,10 @@ uv run brainir --help                      # neuron/type/search/up/down/edge/kho
   `sub_class == 'fl'` (144 in v1.2.1 = the authors' set; 130 in the paper's MaleCNS network; the 4 `nm` neck MNs are
   excluded). The benchmark stimulus = the DNg100 with the most output into `LegNp(T1)(L)` (`choose_stimulus`), NOT the
   first DNg100 in table order (that cost a spurious "discrepancy" once, LOG D41).
-- Every published dynamical claim is reproduced by BrainIR's simulator (PHASE1_REPORT §7); the simulation-guided
-  baseline `greedy_prune_sim` recovers the published core in tier A, so the benchmark is structurally "solved" by search
-  (PROTOCOL §5 sets the bar family by family). Modal campaigns cost cents to ~$20 each (shared payload, LOG D37).
+- Every published dynamical claim is reproduced by BrainIR's simulator (PHASE1_REPORT §7). How the baselines fare on
+  the answer is in the answer-bearing `PHASE1_REPORT.md` / `PROTOCOL.md` §5 only: subagents inherit this file, so it must
+  state nothing about the answer's size, composition or recoverability (review D, D1). Modal campaigns cost cents to
+  ~$50 each (shared payload, LOG D37).
 
 ## Non-negotiable rules
 1. Keep observations (EM anatomy), curated annotations, ML predictions (NT), rule-based hypotheses (sign) and model

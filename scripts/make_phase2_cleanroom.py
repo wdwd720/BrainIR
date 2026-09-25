@@ -7,14 +7,26 @@ Copies ONLY generic material into a separate directory where method-development 
     reads the oracle path, and the benchmark-package/baseline tests that read oracle-side files),
   * the public BLIND benchmark bundle (benchmarks/dng100/public_blind) and the bundle README (the tier-B bundle with real type
     names is not copied: no tier-B method is developed in the clean room; review E finding 8),
-  * the clean-room runner + sandbox (so agents can exercise the method contract) and the frozen baseline SCRIPTS
-    (benchmarks/dng100/baselines/*.py; NOT their answer-bearing results/),
-  * the synthetic mechanism suite (data/synthetic/mechanisms_v1) and its PUBLIC instances only (truth/ excluded),
+  * the clean-room runner + sandbox (so agents can exercise the method contract; not the leakage check),
+  * the synthetic mechanism suite (data/synthetic/mechanisms_v1) and its PUBLIC instances only (every truth* directory and every
+    build or audit report excluded),
   * research/phase2/methods_review.md when present.
 Excluded by construction: benchmarks/dng100/oracle, benchmarks/dng100/evaluator, benchmarks/dng100/baselines/results,
 benchmarks/dng100_walking_cpg, research/literature, research/audit, goal*.md, PHASE*_REPORT.md, research/LOG.md,
 data/raw, data/processed, data/manifests, any *.token / .modal.toml. A CLEANROOM_MANIFEST.json (file list + hashes) is
 written so an auditor can verify nothing else was present.
+
+Hardened after review D (research/phase2/reviews/D_leakage.md, findings D1, D2, D11) for any LATER clean room (the Phase 2 room
+was built before these changes, and every change here is recorded in PHASE2_REPORT.md section 2):
+  * the benchmark PROTOCOL.md, the repository README.md and the baseline scripts and README are no longer copied (they describe
+    the answer's structure: its size, sign composition, the inhibitory slot and that pruning recovers it);
+  * every copied text file is scanned for answer phrases (CONTENT_PATTERNS); a hit fails the build unless the file is listed in
+    ALLOWED_CONTENT_HITS with its reason (frozen benchmark code that cannot change);
+  * `--check PATH ...` applies the same path and content rules to files before a manual one-by-one sync (`cp`);
+  * post-lock answer-bearing Phase 2 outputs are refused by path (hidden evaluations, reliability sweeps, blind runs, review D,
+    the Phase 2 report).
+Isolation remains procedural unless development agents run as SEPARATE sessions whose project directory is the clean room, with a
+private temp directory (review D, D2): a subagent of the answer-aware session inherits that session's CLAUDE.md and scratchpad.
 """
 
 from __future__ import annotations
@@ -36,13 +48,28 @@ COPY_TREES = [
     "benchmarks/dng100/cleanroom",
     "data/synthetic/mechanisms_v1",
 ]
-COPY_FILES = ["pyproject.toml", "uv.lock", ".python-version", ".gitattributes", "README.md", "benchmarks/dng100/PROTOCOL.md",
+COPY_FILES = ["pyproject.toml", "uv.lock", ".python-version", ".gitattributes",
               "research/phase2/methods_review.md", "research/phase2/METHOD_DEV_CONTRACT.md", "scripts/run_tournament.py",
               "scripts/build_synthetic_suite.py"]
-BASELINE_SCRIPTS = "benchmarks/dng100/baselines"
 TEST_EXCLUDE = {"test_leakage_guard.py", "test_leakage_check.py", "test_benchmark_package.py", "test_baselines_contract.py", "test_freeze.py",
                 "test_cleanroom_sandbox.py", "test_real_data.py"}
 FORBIDDEN_SUBSTRINGS = ("oracle", "walking_cpg", "literature", "PHASE", "goal", "LOG.md", "/truth/", "\\truth\\", "audit", "results")
+# path fragments refused in the room and by --check (review D, D11: post-lock answer-bearing Phase 2 outputs included)
+FORBIDDEN_PATHS = ("oracle/", "walking_cpg", "literature", "/truth/", "truth/", "baselines/", "PROTOCOL.md", "evaluator/", "hidden",
+                   "research/phase2/reliability", "research/phase2/blind_eval", "research/phase2/reviews/D_", "research/phase2/tournament",
+                   "PHASE2_REPORT", "PHASE1_REPORT", "PHASE0_REPORT", "BUILD_REPORT", "AUDIT_REPORT", "build_report", "audit_report", "goal")
+# answer phrases (lower-case substrings) that no clean-room file may contain (review D, D1). The model's source paper is cited by
+# the frozen public bundle itself (sign rule `pugliese2026.sign.predictedNt`, model_config, network.json) and by the library, so
+# its name is not a pattern: that residual route (an agent recalling the paper) is disclosed in PHASE2_REPORT.md section 2.
+CONTENT_PATTERNS = ("inhibitory slot", "e-core recall", "excitatory core recall", "published core", "published circuit", "published answer",
+                    "2 e + 1 i", "2e+1i", "e1/e2", "i1|i2", "core_contralateral", "answer key", "dng100 walking")
+# files that must be copied, cannot change and mention a pattern only to prohibit or deny it (review D, D1)
+ALLOWED_CONTENT_HITS = {
+    "src/brainir/benchmark/bundle.py": "frozen benchmark code (BENCHMARK_LOCK); the docstring says the bundle has 'no published circuit'",
+    "research/phase2/METHOD_DEV_CONTRACT.md": "the development contract; its rule forbids looking for the published circuits",
+}
+# never copied, whatever the tree (review D, D1 and D6: answer structure; build and audit reports carry development truth)
+SKIP_NAMES = ("BUILD_REPORT", "AUDIT_REPORT", "build_report", "audit_report", "leakage_check.py", "LEAKAGE_AUDIT")
 
 
 def _sha(p: Path) -> str:
@@ -54,7 +81,10 @@ def _copy_tree(src: Path, dst: Path, *, skip_parts: tuple[str, ...] = ("__pycach
     if not src.exists():
         return out
     for p in sorted(src.rglob("*")):
-        if p.is_dir() or any(part in skip_parts for part in p.relative_to(src).parts) or p.suffix in (".pyc",):
+        # any directory named truth* (e.g. truth_backup_pre_audit) carries truth (review D follow-up)
+        if p.is_dir() or any(part in skip_parts or part.startswith("truth") for part in p.relative_to(src).parts) or p.suffix in (".pyc",):
+            continue
+        if any(s in p.name for s in SKIP_NAMES):
             continue
         rel = p.relative_to(src)
         q = dst / rel
@@ -76,13 +106,8 @@ def build(dest: Path, fresh: bool) -> dict:
             (dest / f).parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / f, dest / f)
             copied.append(dest / f)
-    # baseline scripts only (no results)
-    for p in sorted((ROOT / BASELINE_SCRIPTS).glob("*.py")) + [ROOT / BASELINE_SCRIPTS / "README.md"]:
-        if p.exists():
-            q = dest / BASELINE_SCRIPTS / p.name
-            q.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copyfile(p, q)
-            copied.append(q)
+    # the frozen baseline scripts and their README are NOT copied any more (review D, D1: they describe the answer's structure);
+    # the baseline's algorithm is available as the generic `greedy_reference` method in src/brainir/methods
     # tests without answer dependencies
     for p in sorted((ROOT / "tests").glob("*.py")):
         if p.name in TEST_EXCLUDE:
@@ -100,14 +125,48 @@ def build(dest: Path, fresh: bool) -> dict:
     # a CLAUDE.md for the clean room that states the rules and nothing about any circuit
     (dest / "CLAUDE.md").write_text(CLEANROOM_CLAUDE_MD, encoding="utf-8", newline="\n")
     (dest / ".gitignore").write_text("data/cache/\n__pycache__/\n.venv/\n*.pyc\n.pytest_cache/\n.ruff_cache/\n", encoding="utf-8", newline="\n")
-    # audit: no forbidden path fragments, no answer tokens
-    forbidden = ("oracle/", "walking_cpg", "literature", "/truth/", "baselines/results")
-    bad = [str(q.relative_to(dest)) for q in copied if any(s in str(q.relative_to(dest)).replace("\\", "/") for s in forbidden)]
+    # audit: no forbidden path fragments, no answer phrases
+    rels = {q: str(q.relative_to(dest)).replace("\\", "/") for q in copied}
+    bad = [r for q, r in rels.items() if path_violation(r)]
+    content = {r: hits for q, r in rels.items() if (hits := content_hits(q)) and r not in ALLOWED_CONTENT_HITS}
+    allowed = {r: {"hits": hits, "reason": ALLOWED_CONTENT_HITS[r]} for q, r in rels.items() if r in ALLOWED_CONTENT_HITS and (hits := content_hits(q))}
     manifest = {"created_utc": _dt.datetime.now(_dt.UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z"), "source_repo_head": _git_head(),
-                "n_files": len(copied), "files": {str(q.relative_to(dest)).replace("\\", "/"): _sha(q) for q in sorted(copied)},
-                "forbidden_path_hits": bad}
+                "n_files": len(copied), "files": {r: _sha(q) for q, r in sorted(rels.items(), key=lambda kv: kv[1])},
+                "forbidden_path_hits": bad, "forbidden_content_hits": content, "allowed_content_hits": allowed}
     (dest / "CLEANROOM_MANIFEST.json").write_text(json.dumps(manifest, indent=1) + "\n", encoding="utf-8", newline="\n")
     return manifest
+
+
+def path_violation(rel: str) -> bool:
+    rel = rel.replace("\\", "/").lower()
+    return any(s.lower() in rel for s in FORBIDDEN_PATHS) or any(part.startswith("truth") for part in rel.split("/")[:-1])
+
+
+def content_hits(p: Path) -> list[str]:
+    """Answer phrases found in a text file (binary files such as parquet are not scanned)."""
+    if p.suffix.lower() in (".parquet", ".gz", ".npz", ".npy", ".png", ".pdf", ".zip", ".whl", ".pyc"):
+        return []
+    try:
+        text = p.read_text(encoding="utf-8").lower()
+    except (UnicodeDecodeError, OSError):
+        return []
+    return [pat for pat in CONTENT_PATTERNS if pat in text]
+
+
+def check_files(paths: list[Path]) -> list[str]:
+    """Problems that forbid syncing these files into the clean room (path rules, then content rules)."""
+    problems = []
+    for p in paths:
+        p = Path(p).resolve()
+        try:
+            rel = p.relative_to(ROOT).as_posix()
+        except ValueError:
+            rel = p.as_posix()
+        if path_violation(rel):
+            problems.append(f"{rel}: forbidden path")
+        elif rel not in ALLOWED_CONTENT_HITS and (hits := content_hits(p)):
+            problems.append(f"{rel}: answer phrases {hits}")
+    return problems
 
 
 def _git_head() -> str | None:
@@ -141,10 +200,16 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dest", type=Path, default=DEFAULT_DEST)
     ap.add_argument("--fresh", action="store_true", help="delete the destination first")
+    ap.add_argument("--check", nargs="+", type=Path, default=None, help="only check these files before a manual sync; build nothing")
     args = ap.parse_args(argv)
+    if args.check:
+        problems = check_files(args.check)
+        print("\n".join(problems) if problems else f"ok: {len(args.check)} file(s) may be synced")
+        return 1 if problems else 0
     m = build(args.dest, args.fresh)
-    print(f"clean room at {args.dest}: {m['n_files']} files; forbidden path hits: {m['forbidden_path_hits']}")
-    return 0 if not m["forbidden_path_hits"] else 1
+    print(f"clean room at {args.dest}: {m['n_files']} files; forbidden path hits: {m['forbidden_path_hits']}; "
+          f"forbidden content hits: {sorted(m['forbidden_content_hits'])}")
+    return 0 if not (m["forbidden_path_hits"] or m["forbidden_content_hits"]) else 1
 
 
 if __name__ == "__main__":

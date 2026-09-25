@@ -10,6 +10,12 @@
   "file": "v12_male-cns_v1.0.json"
  },
  "n_paired": 24,
+ "n_order_clusters": 8,
+ "n_failed": {
+  "a": 0,
+  "b": 0
+ },
+ "resampling_unit": "node-order variant",
  "metrics": {
   "functional_fidelity": {
    "n": 24,
@@ -18,7 +24,7 @@
    "diff_mean": 0.078125,
    "diff_ci95": [
     0.0,
-    0.19791666666666666
+    0.1875
    ]
   },
   "functional_pass": {
@@ -47,8 +53,8 @@
    "b_mean": 386.125,
    "diff_mean": -163.875,
    "diff_ci95": [
-    -178.70833333333334,
-    -146.75
+    -177.29166666666666,
+    -148.66666666666666
    ]
   },
   "simulated_seconds": {
@@ -57,8 +63,8 @@
    "b_mean": 772.25,
    "diff_mean": 222.25,
    "diff_ci95": [
-    192.16666666666666,
-    255.5041666666667
+    195.41666666666666,
+    252.66666666666666
    ]
   }
  },
@@ -66,7 +72,7 @@
   "a": 0.8724637681159421,
   "b": 1.0,
   "a_ci95": [
-   0.7246376811594203,
+   0.7121212121212122,
    1.0
   ],
   "b_ci95": [
@@ -76,7 +82,7 @@
   "diff": 0.12753623188405794,
   "diff_ci95": [
    0.0,
-   0.2753623188405797
+   0.28787878787878785
   ],
   "a_modal_frequency": 0.9166666666666666,
   "b_modal_frequency": 1.0
@@ -92,6 +98,10 @@
   ],
   "b_only": 2,
   "a_only": 0,
-  "mcnemar_exact_p": 0.5
+  "mcnemar_exact_p": 0.5,
+  "order_clusters_favouring_b": 2,
+  "order_clusters_favouring_a": 0,
+  "order_clusters_tied": 6,
+  "cluster_sign_test_p": 0.5
  }
 }
