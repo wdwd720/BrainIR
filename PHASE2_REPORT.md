@@ -330,7 +330,28 @@ orders and seed 0 (108 paired runs per variant). Structural success stays 1.00 i
 The replication and the uncertainty model are insurance that this suite does not reward. The real-network sweeps
 (section 9) test the replication.
 
-## 12. Blind evaluation (*pending*; after the lock)
+## 12. Hidden evaluation (after the lock: commit 959d689, tag `brainir-v1-preblind`)
+
+Every hidden evaluation is logged in `research/phase2/HIDDEN_EVAL_LOG.md`. None ran before the lock.
+
+**Reliability sweeps, scored with the frozen evaluator's structural families.** One logged evaluation per method and
+network; 24 runs each, paired by node order and seed (`research/phase2/reliability/compare_v12_vs_greedy_*_hidden.md`):
+
+| network | structural success: BrainIR v1.2 / frozen greedy_prune_sim | paired difference [95 % CI] | discordant runs (v1.2 only / greedy only) | exact McNemar p |
+|---|---|---|---|---|
+| manc_v1.2.1 | 0.83 / 0.67 | +0.17 [0.00, +0.33] | 5 / 1 | 0.22 |
+| male-cns_v1.0 | 1.00 / 0.92 | +0.08 [0.00, +0.21] | 2 / 0 | 0.50 |
+| manc_v1.2.3 | 0.88 / 0.67 | +0.21 [0.00, +0.42] | 6 / 1 | 0.13 |
+| pooled (72 pairs) | 0.90 / 0.75 | | 13 / 2 | 0.007 |
+
+- **Per network.** v1.2 recovers the published circuit more often than the frozen baseline on every network, but no
+  single network's difference is significant alone.
+- **Pooled.** The pooled exact McNemar test (p = 0.007) is a post-hoc summary. It was not pre-registered, and runs on the
+  same network are correlated, so it overstates the evidence somewhat.
+- **E-core recall.** v1.2 has mean recall 1.00 of the published excitatory core on every network, against 0.83–0.96 for
+  greedy.
+
+**Blind run** (`scripts/blind_eval.py`, the frozen clean-room protocol): *pending*.
 
 ## 13. Independent reviews
 

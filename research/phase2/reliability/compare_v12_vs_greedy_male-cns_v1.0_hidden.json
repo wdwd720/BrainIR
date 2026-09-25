@@ -1,0 +1,97 @@
+{
+ "label": "v12_vs_greedy_male-cns_v1.0_hidden",
+ "network": "male-cns_v1.0",
+ "a": {
+  "method": "greedy_prune_sim_frozen",
+  "file": "greedy_frozen_male-cns_v1.0.json"
+ },
+ "b": {
+  "method": "brainir_v1",
+  "file": "v12_male-cns_v1.0.json"
+ },
+ "n_paired": 24,
+ "metrics": {
+  "functional_fidelity": {
+   "n": 24,
+   "a_mean": 0.890625,
+   "b_mean": 0.96875,
+   "diff_mean": 0.078125,
+   "diff_ci95": [
+    0.0,
+    0.19791666666666666
+   ]
+  },
+  "functional_pass": {
+   "n": 24,
+   "a_mean": 0.9166666666666666,
+   "b_mean": 1.0,
+   "diff_mean": 0.08333333333333333,
+   "diff_ci95": [
+    0.0,
+    0.20833333333333334
+   ]
+  },
+  "core_size": {
+   "n": 24,
+   "a_mean": 3.0,
+   "b_mean": 3.0,
+   "diff_mean": 0.0,
+   "diff_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "calls": {
+   "n": 24,
+   "a_mean": 550.0,
+   "b_mean": 386.125,
+   "diff_mean": -163.875,
+   "diff_ci95": [
+    -178.70833333333334,
+    -146.75
+   ]
+  },
+  "simulated_seconds": {
+   "n": 24,
+   "a_mean": 550.0,
+   "b_mean": 772.25,
+   "diff_mean": 222.25,
+   "diff_ci95": [
+    192.16666666666666,
+    255.5041666666667
+   ]
+  }
+ },
+ "identity_consistency": {
+  "a": 0.8724637681159421,
+  "b": 1.0,
+  "a_ci95": [
+   0.7246376811594203,
+   1.0
+  ],
+  "b_ci95": [
+   1.0,
+   1.0
+  ],
+  "diff": 0.12753623188405794,
+  "diff_ci95": [
+   0.0,
+   0.2753623188405797
+  ],
+  "a_modal_frequency": 0.9166666666666666,
+  "b_modal_frequency": 1.0
+ },
+ "hidden_structural_success": {
+  "n": 24,
+  "a_rate": 0.9166666666666666,
+  "b_rate": 1.0,
+  "diff": 0.08333333333333333,
+  "diff_ci95": [
+   0.0,
+   0.20833333333333334
+  ],
+  "b_only": 2,
+  "a_only": 0,
+  "mcnemar_exact_p": 0.5
+ }
+}
