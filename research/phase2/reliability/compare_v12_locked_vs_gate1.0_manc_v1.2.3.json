@@ -1,0 +1,96 @@
+{
+ "label": "v12_locked_vs_gate1.0_manc_v1.2.3",
+ "network": "manc_v1.2.3",
+ "a": {
+  "method": "brainir_v1",
+  "file": "v12_manc_v1.2.3.json"
+ },
+ "b": {
+  "method": "brainir_v1",
+  "file": "v12_gate1.0_manc_v1.2.3.json"
+ },
+ "n_paired": 24,
+ "n_order_clusters": 8,
+ "n_failed": {
+  "a": 0,
+  "b": 0
+ },
+ "resampling_unit": "node-order variant",
+ "metrics": {
+  "functional_fidelity": {
+   "n": 24,
+   "a_mean": 1.0,
+   "b_mean": 1.0,
+   "diff_mean": 0.0,
+   "diff_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "functional_pass": {
+   "n": 24,
+   "a_mean": 1.0,
+   "b_mean": 1.0,
+   "diff_mean": 0.0,
+   "diff_ci95": [
+    0.0,
+    0.0
+   ]
+  },
+  "core_size": {
+   "n": 24,
+   "a_mean": 3.1666666666666665,
+   "b_mean": 4.041666666666667,
+   "diff_mean": 0.875,
+   "diff_ci95": [
+    0.6666666666666666,
+    1.0833333333333333
+   ]
+  },
+  "calls": {
+   "n": 24,
+   "a_mean": 403.0416666666667,
+   "b_mean": 413.0833333333333,
+   "diff_mean": 10.041666666666666,
+   "diff_ci95": [
+    -7.042708333333334,
+    26.916666666666668
+   ]
+  },
+  "simulated_seconds": {
+   "n": 24,
+   "a_mean": 806.0833333333334,
+   "b_mean": 826.1666666666666,
+   "diff_mean": 20.083333333333332,
+   "diff_ci95": [
+    -14.085416666666667,
+    53.833333333333336
+   ]
+  }
+ },
+ "identity_consistency": {
+  "a": 0.8471014492753622,
+  "b": 0.847463768115942,
+  "a_ci95": [
+   0.7196969696969697,
+   0.9792361111111082
+  ],
+  "b_ci95": [
+   0.7814393939393939,
+   0.9302156862745097
+  ],
+  "diff": 0.00036231884057980057,
+  "diff_ci95": [
+   -0.16609674329501925,
+   0.1483188627851548
+  ],
+  "a_modal_frequency": 0.8333333333333334,
+  "b_modal_frequency": 0.75
+ },
+ "paired_core_agreement": {
+  "identical_rate": 0.041666666666666664,
+  "n_identical": 1,
+  "jaccard_mean": 0.6625,
+  "a_modal_core_equals_b_modal_core": false
+ }
+}

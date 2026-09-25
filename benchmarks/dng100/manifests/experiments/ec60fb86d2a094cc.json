@@ -1,0 +1,185 @@
+{
+ "name": "ag_v12_reorder_edges",
+ "config": {
+  "methods": [
+   "brainir_v1"
+  ],
+  "budget": 1000,
+  "seeds": [
+   0
+  ],
+  "networks": [
+   "main"
+  ],
+  "configs": {},
+  "instances": [
+   "h05d19a2775e2",
+   "h08cf70ca61d5",
+   "h0917890668b3",
+   "h0c02a4b6d066",
+   "h155f16e50568",
+   "h16c726db0232",
+   "h19c5316c0779",
+   "h1c36d673ac06",
+   "h2471b8fd0135",
+   "h264f754cd30e",
+   "h3fdad918827e",
+   "h41aa4c5a3318",
+   "h4295cf292883",
+   "h45573a4375a5",
+   "h4c1f023117b5",
+   "h4e2d5323ed0a",
+   "h4ecc100c0018",
+   "h5231e2579fe6",
+   "h5554eb0e92b8",
+   "h5a092d1ee53e",
+   "h5a3633e0e3c4",
+   "h5c096c200eee",
+   "h66a4fb84cf9c",
+   "h6ab7d00f7871",
+   "h722e4c720982",
+   "h835b3841bf30",
+   "h853b896b231f",
+   "h8885f53d9c24",
+   "h902b54116e87",
+   "h9297aba17982",
+   "h92f3d32d67d8",
+   "h9b867bd5abd5",
+   "ha610594ea140",
+   "hac81906e12d1",
+   "hacb17f220959",
+   "had9ecf24d29d",
+   "hb04d5d9894ba",
+   "hb237455fd9c7",
+   "hb373ec40f084",
+   "hb9a017ba5436",
+   "hbadc0bb431f7",
+   "hc32e8cd0a48c",
+   "hc6c0a7f0c2f6",
+   "hea247d65e787",
+   "hedc7f7933643",
+   "hee42a9855afe",
+   "hffe35092e434"
+  ],
+  "score_seeds": [
+   5000,
+   5001,
+   5002,
+   5003
+  ],
+  "robust": false
+ },
+ "seeds": [
+  0
+ ],
+ "inputs": {
+  "suite": "reorder_edges",
+  "suite_sha256": "bece8dd2731237abe2f34bc3468015e98d44e69637baa27ac9c26d8ebf7287cb",
+  "n_instances": 47,
+  "jobs_hash": "ddc549de02d1880584193d7ed8bf2cb0b5535c309438fa25fb72acb473a93979",
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "launched_utc": "2026-09-25T01:25:52Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 47,
+  "wall_time_s": 278.8,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 50,
+   "app": "brainir-phase1",
+   "shared_payload_key": "4220d9a8d6c41cbac6b324b52f39bb72",
+   "shared_payload_bytes": 182787,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 0.9608
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/tournament/ag_v12_reorder_edges.json",
+   "sha256": "955eb251245581bb6126eccc6c0f51945b76ee94fcf2583afea91eac4a773ace",
+   "size_bytes": 988828
+  }
+ },
+ "summary": {
+  "brainir_v1": {
+   "n_runs": 47,
+   "n_scored": 47,
+   "n_failed": 0,
+   "success_rate": 1.0,
+   "success_ci95": [
+    1.0,
+    1.0
+   ],
+   "success_planted_rate": 1.0,
+   "functional_success_rate": 0.8936170212765957,
+   "functional_success_ci95": [
+    0.8085106382978723,
+    0.9787234042553191
+   ],
+   "functional_success_causal_rate": 1.0,
+   "success_or_functional_rate": 1.0,
+   "recall_best_alt_median": 1.0,
+   "precision_best_alt_median": 1.0,
+   "functional_nominal_mean": 1.0,
+   "functional_robust_mean": null,
+   "calls_median": 94.0,
+   "calls_mean": 118.80851063829788,
+   "size_median": 2.0,
+   "role_accuracy_mean": 0.9148936170212766,
+   "brier_mean": 0.0033103193162089452,
+   "essential_accuracy_mean": 1.0,
+   "removable_fraction": 0.10638297872340426,
+   "simulated_seconds_median": 100.0,
+   "identity_consistency": {
+    "n_instances": 0,
+    "pairwise_jaccard_mean": null,
+    "identical_fraction": null,
+    "n_empty_cores": 0
+   },
+   "success_intact_rate": 1.0,
+   "essential_recall_mean": 1.0,
+   "missed_essential_rate": 0.0,
+   "latent_backup_rate": 0.0,
+   "silent_core_rate": 0.0,
+   "silence_core_pass_mean": 0.3191489361702128,
+   "brier_contested_mean": 0.025545136707209516,
+   "brier_contested_any_alternative_mean": 0.11865436582943666,
+   "essential_accuracy_unambiguous_mean": 1.0
+  }
+ },
+ "notes": "",
+ "run_id": "ec60fb86d2a094cc",
+ "created_utc": "2026-09-25T01:30:34Z",
+ "code": {
+  "commit": "28f675864bdba0021dd9e42bbaa2f179e42fae4f",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-25T01:25:52Z"
+ },
+ "environment": {
+  "remote": [
+   {
+    "implementation": "cpython",
+    "machine": "x86_64",
+    "packages": {
+     "networkx": "3.7",
+     "numpy": "2.5.3",
+     "pandas": "3.0.6",
+     "pyarrow": "25.0.1",
+     "pydantic": "2.13.5",
+     "scipy": "1.18.1"
+    },
+    "platform": "Linux-4.19.0-gvisor-x86_64-with-glibc2.36",
+    "python": "3.12.10",
+    "sim_code_version": "2bb1ae6e62fe65a9",
+    "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5"
+   }
+  ]
+ }
+}

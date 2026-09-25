@@ -1,0 +1,89 @@
+{
+ "name": "reliability_v12_gate1.0_manc_v1.2.1",
+ "config": {
+  "method": "brainir_v1",
+  "network": "manc_v1.2.1",
+  "orders": 8,
+  "budget": 1000,
+  "config": {},
+  "criterion_gate": 1.0,
+  "frozen_args": ""
+ },
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "inputs": {
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "launched_utc": "2026-09-25T01:24:58Z"
+ },
+ "backend": {
+  "backend": "modal-pinned",
+  "n_items": 24,
+  "wall_time_s": 2835.9,
+  "settings": {
+   "cpu": 1.0,
+   "memory_mb": 3072,
+   "timeout_s": 7200,
+   "max_containers": 24,
+   "app": "brainir-phase1",
+   "shared_payload_key": "c93ced9d063220bb49bdd65be5a67a99",
+   "shared_payload_bytes": 9052528,
+   "n_failed": 0
+  },
+  "estimated_cost_usd": 4.9911
+ },
+ "artifacts": {
+  "results": {
+   "path": "$REPO/research/phase2/reliability/v12_gate1.0_manc_v1.2.1.json",
+   "sha256": "7bb58f5562433f62b1685d8a07bad144e74b5df663a71e5be50cdb9f3fd3ee66",
+   "size_bytes": 108539
+  }
+ },
+ "summary": {
+  "method": "brainir_v1",
+  "network": "manc_v1.2.1",
+  "bundle_sha256": "efc33d775d886f22eecbfb45b634c0170640e946682fc5306f221c1a46999ff0",
+  "n_runs": 24,
+  "n_failed": 0,
+  "orders": 8,
+  "seeds": [
+   0,
+   1,
+   2
+  ],
+  "budget": 1000,
+  "functional_fidelity_mean": 0.9635416666666666,
+  "functional_pass_rate": 1.0,
+  "functional_pass_rate_incl_failures": 1.0,
+  "calls_mean": 408.2083333333333,
+  "wall_s_mean": 1031.2208333333335,
+  "wall_total_s": 2841.4,
+  "criterion_override": {
+   "type": "rhythm",
+   "analysis_start_s": 0.25,
+   "active_rate_hz": 0.01,
+   "prominence": 0.05,
+   "score_threshold": 0.5,
+   "amplitude_min_hz": 1.0
+  }
+ },
+ "notes": "",
+ "run_id": "53feee8a980bd22e",
+ "created_utc": "2026-09-25T02:12:21Z",
+ "code": {
+  "commit": "28f675864bdba0021dd9e42bbaa2f179e42fae4f",
+  "dirty_src": false,
+  "dirty_scripts": false,
+  "diff_sha256": null,
+  "source_tree_sha256": "c2f9931a3b0bf36928ded30442721d3c6835cc65a4ce1179607c4f8dcde502a5",
+  "sim_code_version": "2bb1ae6e62fe65a9",
+  "launched_utc": "2026-09-25T01:24:58Z"
+ },
+ "environment": {
+  "python": "3.12.14",
+  "platform": "Windows-11-10.0.26100-SP0"
+ }
+}
