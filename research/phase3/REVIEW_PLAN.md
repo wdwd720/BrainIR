@@ -21,6 +21,18 @@ to the orchestrator only, never directly to the method developers.
 | G adversarial state discovery | NEW trap families unknown to the composer | oracle-free agent in a copy of the benchmark-author room (`C:\Dev\BrainIR_p3reviewG`) | the generator code and its contract, the candidate method's notes (algorithm description); the new traps are built into a separate suite by the orchestrator (secret seed) and scored before the lock |
 | H numerical methods | integration, timing, solver artefacts | review room plus the generator's numerics and the piecewise real engine | realsim.py, the frozen Phase 1 simulator module (no data), p3synth core / diagnostics, the protocol code, the numerical tests |
 
+## Early round (E, H), added 2026-09-25 (LOG P3-D13)
+
+Reviews E and H examine machinery that does not depend on the method: the evaluator, statistics, tournament, generator and
+simulators. They run first, while the methods are still in development, in `C:\Dev\BrainIR_p3review` built with
+`make_review_room.py --extras eh`. The prompts are in `review_contracts/REVIEW_{E,H}_EARLY_TASK.txt`.
+
+`extra/` holds the orchestrator-side files the plan above gives to E and H. In these copies, dataset, paper and bundle names are
+replaced by REDACTED. Nothing hidden enters.
+
+Reviews A-D run on the composed candidate after a `--update` of the same room. E then gets a follow-up on the tournament's actual
+ranking.
+
 ## Blocker policy
 
 A blocker is a finding that makes a pre-registered claim or metric invalid, for example:

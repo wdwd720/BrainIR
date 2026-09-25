@@ -31,12 +31,13 @@ def main(argv=None) -> int:
             except Exception:  # noqa: BLE001
                 continue
             if o.get("type") == "assistant":
+                cost = None                     # activity after a result event (a resumed session replays the old result first)
                 for c in o.get("message", {}).get("content", []):
                     if c.get("type") == "text" and c["text"].strip():
                         texts.append(c["text"].strip().replace("\n", " "))
                     elif c.get("type") == "tool_use":
                         tools += 1
-            elif o.get("type") == "result":
+            elif o.get("type") == "result" and o.get("num_turns", 1) > 0:
                 cost = o.get("total_cost_usd")
         print(f"== {name} ({s.name}): {tools} tool calls{'; FINISHED' if cost is not None else ''}")
         for t in texts[-args.n:]:

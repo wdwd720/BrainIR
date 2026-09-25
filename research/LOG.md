@@ -486,6 +486,7 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 | P3-D10 | 2026-09-24 | Level B by successive halving with a pilot subset of 16 heldout systems fixed before any candidate existed | goal4 section 58; the full design (48 systems + G + I) costs ~85 fits per candidate |
 | P3-D11 | 2026-09-24 | Simulation budgets in units (real full 10, real mechanism 3, synthetic 1 per trajectory); fits get 250 units | A real full-network trajectory costs 10-30 CPU-s, a synthetic one ~0.1 s |
 | P3-D12 | 2026-09-24 | Clean-room ML stack pinned to the evaluation environment (torch 2.14.0, scikit-learn 1.9.1) | Fitted models are pickled and loaded by the orchestrator |
+| P3-D13 | 2026-09-25 | Reviews E (statistics) and H (numerics) run in an EARLY round on the evaluation machinery, while the methods are still in development; A-D (and E's ranking follow-up) run on the composed candidate. Room `C:\Dev\BrainIR_p3review` = clean-room snapshot + `extra/` (orchestrator code, generator, public calibration, frozen integrator; dataset / paper / bundle names redacted, counts in `extra/README.md`); `make_review_room.py --extras eh`, later `--update` | Both questions are method-independent. A blocker in the evaluator found after the tournament would invalidate its rounds; found now, it costs a benchmark version before any candidate is scored |
 
 ### 11.2 Pitfalls hit
 
@@ -526,3 +527,7 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     minutes.
   - Lesson: test a live guard against a replay of real agent traffic BEFORE swapping it in; write the new version to a staging path
     and move it over only after the replay is clean.
+- **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
+  notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
+  `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete
+  deliverables before accepting it as done.
