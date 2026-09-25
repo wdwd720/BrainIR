@@ -1,7 +1,7 @@
 {
  "benchmark": "state_discovery_v3",
  "benchmark_version": 3,
- "created_utc": "2026-09-25T23:39:50Z",
+ "created_utc": "2026-09-25T23:43:36Z",
  "datasets": {
   "data/phase3/real_public/index.jsonl": "0514d864211b30c15d304286924af1fd262e32f02591a8ee794f5a2856e8f8d3",
   "data/phase3/real_public/manifest.json": "d3a11c9effa0483212655b71f2cd9a6768343a32440ae83089643dc3d0e45634",
@@ -120,7 +120,7 @@
   "scripts/p3/p3modal/evaljob.py": "be26f5de1b49eadd7b49b226d47b078c2f4ea8a58e226510a9d1e5f883982fd6",
   "scripts/p3/p3modal/guard.py": "6e27823373e6806e96e96c0d8b434487abbac3645fbaa1a85cdce3d170e95f46",
   "scripts/p3/p3modal/postlock.py": "852c6af2e2e6dc57cd14aac3f8ee1fea98368ad3b6bdf8984c215f50894cd96e",
-  "scripts/p3/p3modal/remote.py": "8ee1669cbb08f631cfb06e0bb0912f8b4b2d554e609b3d796c78d660aa6e6f33",
+  "scripts/p3/p3modal/remote.py": "18c416928a2ab293de13084173ebfa8cb4abccbb69608f36254c7b967327fcb3",
   "scripts/p3/p3modal/site/sitecustomize.py": "ac8e84b163390f3e43991f3e7c790424fdaa5bb2a454ed2fd31b4633c48d8b72",
   "scripts/p3/regen_in_room.py": "be18a73fdf60d577329ed3a66b79b668a0f9211caf2ff1aa814ebe244a7b733e",
   "scripts/p3/regenerate_candidates.py": "b0f9199f26ef0cf667bacbe37701a20c2d8e65aba02c7780c0c7b492308d4a8c",
@@ -150,6 +150,23 @@
    },
    "reason": "per-job container memory recording and per-run container sizing (the orchestrator's request to size remote containers from measured memory needs); room builder recovery from an interrupted sync; PROTOCOL section 10 text for both",
    "tag": "state-discovery-benchmark-v3-relock1"
+  },
+  {
+   "affected_runs": [
+    "r3v3_lin_dmdc attempt 2 (all evaluations failed; archived as invalid)",
+    "the first launch of the tuned-variant parts (stopped during their fits)"
+   ],
+   "evaluator_code_tag": "365f7ad6d9",
+   "files_changed": [
+    "scripts/p3/p3modal/remote.py"
+   ],
+   "kind": "execution only",
+   "n": 2,
+   "of": {
+    "git_tag": "state-discovery-benchmark-v3-relock1"
+   },
+   "reason": "re-lock 1 applied the memory-recording decorator before its definition, so every Modal job failed at import; the definition was moved up (a test now imports the container modules)",
+   "tag": "state-discovery-benchmark-v3-relock2"
   }
  ],
  "salt_sha256": "4fe1d860a3a3f87997c8b0738a42187bc775b3c53e74e64071786eb48cb3d276",

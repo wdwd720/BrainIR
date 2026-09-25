@@ -30,6 +30,62 @@ SUB_PYTHONPATH = os.pathsep.join(["/repo/p3modal_site", "/repo/phase3/src", "/re
 FIT_VOLUME_NAME = "brainir-p3-fit"
 
 
+class MemPeak:
+    """Peak memory of the CONTAINER while a job runs (cgroup counters sampled every 0.25 s): the per-job-kind sizing input of the
+    Modal resource classes (the orchestrator's request: containers sized from measured needs)."""
+
+    FILES = ("/sys/fs/cgroup/memory.current", "/sys/fs/cgroup/memory/memory.usage_in_bytes")
+
+    def __init__(self):
+        import threading
+        self.peak = 0
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._loop, daemon=True)
+        self._file = next((f for f in self.FILES if os.path.exists(f)), None)
+
+    def _read(self) -> int:
+        try:
+            with open(self._file) as fh:
+                return int(fh.read().strip())
+        except Exception:  # noqa: BLE001
+            return 0
+
+    def _loop(self):
+        while not self._stop.is_set():
+            self.peak = max(self.peak, self._read())
+            self._stop.wait(0.25)
+
+    def __enter__(self):
+        if self._file:
+            self._thread.start()
+        return self
+
+    def __exit__(self, *exc):
+        self._stop.set()
+        if self._file:
+            self._thread.join(timeout=2)
+            self.peak = max(self.peak, self._read())
+        return False
+
+    @property
+    def mb(self) -> float | None:
+        return round(self.peak / 2**20, 1) if self._file else None
+
+
+def with_mem(fn):
+    """Decorator: run a job function under MemPeak and add peak_container_mb to its dict result."""
+    import functools
+
+    @functools.wraps(fn)
+    def wrapped(p):
+        with MemPeak() as mp:
+            res = fn(p)
+        if isinstance(res, dict):
+            res["peak_container_mb"] = mp.mb
+        return res
+    return wrapped
+
+
 def _reload_fitvol() -> None:
     try:
         import modal
@@ -184,62 +240,6 @@ def run_fit(p: dict) -> dict:
            "container_wall_s": round(time.time() - t0, 1)}
     shutil.rmtree(jd, ignore_errors=True)
     return res
-
-
-class MemPeak:
-    """Peak memory of the CONTAINER while a job runs (cgroup counters sampled every 0.25 s): the per-job-kind sizing input of the
-    Modal resource classes (the orchestrator's request: containers sized from measured needs)."""
-
-    FILES = ("/sys/fs/cgroup/memory.current", "/sys/fs/cgroup/memory/memory.usage_in_bytes")
-
-    def __init__(self):
-        import threading
-        self.peak = 0
-        self._stop = threading.Event()
-        self._thread = threading.Thread(target=self._loop, daemon=True)
-        self._file = next((f for f in self.FILES if os.path.exists(f)), None)
-
-    def _read(self) -> int:
-        try:
-            with open(self._file) as fh:
-                return int(fh.read().strip())
-        except Exception:  # noqa: BLE001
-            return 0
-
-    def _loop(self):
-        while not self._stop.is_set():
-            self.peak = max(self.peak, self._read())
-            self._stop.wait(0.25)
-
-    def __enter__(self):
-        if self._file:
-            self._thread.start()
-        return self
-
-    def __exit__(self, *exc):
-        self._stop.set()
-        if self._file:
-            self._thread.join(timeout=2)
-            self.peak = max(self.peak, self._read())
-        return False
-
-    @property
-    def mb(self) -> float | None:
-        return round(self.peak / 2**20, 1) if self._file else None
-
-
-def with_mem(fn):
-    """Decorator: run a job function under MemPeak and add peak_container_mb to its dict result."""
-    import functools
-
-    @functools.wraps(fn)
-    def wrapped(p):
-        with MemPeak() as mp:
-            res = fn(p)
-        if isinstance(res, dict):
-            res["peak_container_mb"] = mp.mb
-        return res
-    return wrapped
 
 
 SIGNAL_RETRIES = 1      # a worker killed by a signal (an infrastructure fault) is re-run once in the container; crashes follow the

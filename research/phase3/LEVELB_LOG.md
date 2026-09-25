@@ -28,3 +28,10 @@
 | 2026-09-25T23:35:58Z | r3v3_cb_cegar | heldout | cb_cegar | research/phase3/tournament/r3v3_cb_cegar/ |
 | 2026-09-25T23:36:03Z | r3v3_nn_aelin | heldout | nn_aelin | research/phase3/tournament/r3v3_nn_aelin/ |
 | 2026-09-25T23:39:15Z | r3v3_lin_pcadyn | heldout | lin_pcadyn | research/phase3/tournament/r3v3_lin_pcadyn/ |
+| 2026-09-25T23:42:06Z | r3v3_lin_dmdc | heldout | lin_dmdc | research/phase3/tournament/r3v3_lin_dmdc/ |
+
+Note (2026-09-25, orchestrator): the row `r3v3_lin_dmdc` at 23:42:06Z is INVALID. Every evaluation of that attempt failed at import
+time in the Modal containers (a NameError in `scripts/p3/p3modal/remote.py` introduced by re-lock 1: a decorator used before its
+definition). An infrastructure failure, not a result of the method. Its output was moved to
+`research/phase3/tournament/_failed/r3v3_lin_dmdc_attempt2_infra/`. The first attempt of that part (23:2x) had died on a Modal client
+SSL error before writing results. The part is re-run after re-lock 2 (execution only), with the same cached fits.
