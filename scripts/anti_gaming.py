@@ -31,17 +31,39 @@ def _key(r: dict) -> tuple:
     return (r["method"], r["instance"], r["network"], r["seed"])
 
 
+def _core(r: dict) -> tuple | None:
+    """The returned core in the generator's canonical frame (positions are preserved by every transform; appended distractors fall
+    outside it, so the core size is compared too). None for a failed run."""
+    if "structure" not in r:
+        return None
+    return (tuple(r.get("core_canonical") or ()), len((r.get("result") or {}).get("core") or ()))
+
+
 def _paired(base: list[dict], pert: list[dict], method: str, rng) -> dict:
-    b = {_key(r): r["structure"]["success"] for r in base if "structure" in r and r["method"] == method}
-    p = {_key(r): r["structure"]["success"] for r in pert if "structure" in r and r["method"] == method}
+    # failed runs count as unsuccessful (review F); differences are resampled by instance (review C, finding C7)
+    b = {_key(r): r for r in base if r["method"] == method}
+    p = {_key(r): r for r in pert if r["method"] == method}
     keys = sorted(set(b) & set(p))
     if not keys:
         return {"n_pairs": 0}
-    d = np.array([float(p[k]) - float(b[k]) for k in keys])
-    boot = [rng.choice(d, len(d)).mean() for _ in range(2000)]
-    return {"n_pairs": len(keys), "success_base": float(np.mean([b[k] for k in keys])), "success_perturbed": float(np.mean([p[k] for k in keys])),
-            "diff_mean": float(d.mean()), "diff_ci95": [float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))],
-            "n_lost": int((d < 0).sum()), "n_gained": int((d > 0).sum())}
+
+    def ok(r):
+        return float(bool((r.get("structure") or {}).get("success")))
+
+    d = np.array([ok(p[k]) - ok(b[k]) for k in keys])
+    same = np.array([float(_core(b[k]) is not None and _core(b[k]) == _core(p[k])) for k in keys])
+    inst = sorted({k[1] for k in keys})
+    by_inst = {i: [j for j, k in enumerate(keys) if k[1] == i] for i in inst}
+    boot, boot_same = [], []
+    for _ in range(2000):
+        sel = [j for i in rng.choice(inst, len(inst)) for j in by_inst[i]]
+        boot.append(d[sel].mean())
+        boot_same.append(same[sel].mean())
+    return {"n_pairs": len(keys), "n_instances": len(inst), "success_base": float(np.mean([ok(b[k]) for k in keys])),
+            "success_perturbed": float(np.mean([ok(p[k]) for k in keys])), "diff_mean": float(d.mean()),
+            "diff_ci95": [float(np.percentile(boot, 2.5)), float(np.percentile(boot, 97.5))], "n_lost": int((d < 0).sum()),
+            "n_gained": int((d > 0).sum()), "identical_core_rate": float(same.mean()),
+            "identical_core_ci95": [float(np.percentile(boot_same, 2.5)), float(np.percentile(boot_same, 97.5))]}
 
 
 def main(argv=None) -> int:
@@ -80,13 +102,14 @@ def main(argv=None) -> int:
         summary["transforms"][t] = {m: _paired(base["records"], res["records"], m, rng) for m in args.methods}
     (args.out / f"{args.label}_summary.json").write_text(json.dumps(summary, indent=1) + "\n", encoding="utf-8", newline="\n")
     lines = [f"# Anti-gaming checks — {args.label}", "", f"{len(names)} instances x networks {args.networks} x seeds {args.seeds}; budget "
-             f"{args.budget}", "", "| transform | method | pairs | success base -> perturbed | paired diff [95% CI] | lost / gained |",
-             "|---|---|---|---|---|---|"]
+             f"{args.budget}", "", "| transform | method | pairs | success base -> perturbed | paired diff [95% CI] | lost / gained | "
+             "same core as unperturbed [95% CI] |", "|---|---|---|---|---|---|---|"]
     for t, per in summary["transforms"].items():
         for m, s in per.items():
             if s.get("n_pairs"):
                 lines.append(f"| {t} | {m} | {s['n_pairs']} | {s['success_base']:.2f} -> {s['success_perturbed']:.2f} | {s['diff_mean']:+.2f} "
-                             f"[{s['diff_ci95'][0]:+.2f}, {s['diff_ci95'][1]:+.2f}] | {s['n_lost']} / {s['n_gained']} |")
+                             f"[{s['diff_ci95'][0]:+.2f}, {s['diff_ci95'][1]:+.2f}] | {s['n_lost']} / {s['n_gained']} | "
+                             f"{s['identical_core_rate']:.2f} [{s['identical_core_ci95'][0]:.2f}, {s['identical_core_ci95'][1]:.2f}] |")
     (args.out / f"{args.label}_summary.md").write_text("\n".join(lines) + "\n", encoding="utf-8", newline="\n")
     print("\n".join(lines))
     return 0
