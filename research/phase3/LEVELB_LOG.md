@@ -7,3 +7,13 @@
 | 2026-09-25T16:13:11Z | r1_ks | heldout | ks_sindy, ks_edmd, ks_kae, ks_hankel | research/phase3/tournament/r1_ks/ |
 | 2026-09-25T16:16:12Z | r1_lin | heldout | lin_subspace, lin_balanced, lin_pcadyn, lin_dmdc, lin_falds | research/phase3/tournament/r1_lin/ |
 | 2026-09-25T16:54:21Z | r1_nn | heldout | nn_closed, nn_pred_bottleneck, nn_aelin, nn_rssm, nn_seqbottleneck | research/phase3/tournament/r1_nn/ |
+| 2026-09-25T17:24:33Z | r2_ks_hankel | heldout | ks_hankel | research/phase3/tournament/r2_ks_hankel/ |
+| 2026-09-25T17:26:02Z | r2_lin_falds | heldout | lin_falds | research/phase3/tournament/r2_lin_falds/ |
+| 2026-09-25T17:30:41Z | r2_lin_subspace | heldout | lin_subspace | research/phase3/tournament/r2_lin_subspace/ |
+| 2026-09-25T17:31:25Z | r2_cb_cegar | heldout | cb_cegar | research/phase3/tournament/r2_cb_cegar/ |
+| 2026-09-25T17:31:35Z | r2_lin_dmdc | heldout | lin_dmdc | research/phase3/tournament/r2_lin_dmdc/ |
+| 2026-09-25T17:32:07Z | r2_ks_edmd | heldout | ks_edmd | research/phase3/tournament/r2_ks_edmd/ |
+| 2026-09-25T17:33:15Z | r2_ks_sindy | heldout | ks_sindy | research/phase3/tournament/r2_ks_sindy/ |
+| 2026-09-25T17:36:34Z | r2_nn_closed | heldout | nn_closed | research/phase3/tournament/r2_nn_closed/ |
+| 2026-09-25T17:40:51Z | r2_lin_balanced | heldout | lin_balanced | research/phase3/tournament/r2_lin_balanced/ |
+| 2026-09-25T18:10:34Z | r2_nn_aelin | heldout | nn_aelin | research/phase3/tournament/r2_nn_aelin/ |

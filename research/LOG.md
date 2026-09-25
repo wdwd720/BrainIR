@@ -584,6 +584,19 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 
   The aggregate feedback was published to the room (`publish_feedback.py`: the frozen feedback.py, with the S8 wording brought to v2).
   The composer was launched in parallel with round 2.
+- **2026-09-25 10:00-11:15: Level B round 2.** The 10 survivors on all 48 heldout systems, with G seeds, shared fits (2 groups, 3
+  unrelated pairs) and leave-one-out fits. Ten parts on Modal (70 min wall; about $26.4).
+  - Primary ranking under the literal eligibility rule, 7 eligible: lin_subspace 3.31 (P(rank 1) 0.57), lin_falds 3.69, nn_closed 3.88,
+    lin_dmdc 3.94, ks_sindy 4.12, nn_aelin 4.38, lin_balanced 4.69.
+  - ks_edmd, ks_hankel and cb_cegar are independent-only by design. Their 18 shared / leave-one-out fits count as failures, just above
+    10 % of 172. This conflicts with the "untestable" provision of section 7.
+  - Sensitivity with all 10 eligible: lin_subspace is still first (3.94) and lin_falds is still the best baseline. The contested three
+    rank 7th, 9th and 10th. The selection does not depend on the reading.
+  - Finding: NO candidate obtains sharing support for either implementation group. Shared models are measurably worse than independent
+    ones (A differences +0.02 to +0.15 NMSE with CIs above 0), and encoder-only adaptation rarely beats from-scratch fits. The unrelated
+    pairs are correctly rejected (S8 = 0.5 for every sharing-capable method).
+  - Round-2 feedback was published. The composer had been resumed at 10:18 (it had ended its turn waiting for a monitor, the headless
+    pitfall).
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete

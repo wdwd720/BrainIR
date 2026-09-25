@@ -36,3 +36,18 @@ Every value is an aggregate over held-out synthetic systems you have never seen.
 | nn_rssm | True | 1.34 | 1.1 | 0.0226 | 0.00392 | 0.992 | 0 | 0.933 | - | 15.8 | not supported: 6, partially supported: 9 |
 | nn_pred_bottleneck | True | 1.24 | 1.59 | 0.000737 | - | 0.994 | 0 | 0.5 | - | 16.9 | not supported: 8, partially supported: 7 |
 
+## Round r2 (heldout)
+
+| candidate | eligible | S1 | S2 | S3 | S4 | S5 | S6 | S7 | S8 | mean rank | verdicts (compressible systems) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| lin_subspace | True | 0.999 | 0.564 | -0.0827 | 0.00175 | 0.996 | 0.674 | 0.457 | 0.5 | 3.31 | compact causal state discovered: 11, compact causal state discovered (microstate equivalence untestable): 1, not supported: 19, partially supported: 15 |
+| lin_falds | True | 1.16 | 0.55 | -0.0052 | 0.00105 | 0.997 | 0.587 | 0.891 | 0.5 | 3.69 | compact causal state discovered: 7, compact causal state discovered (microstate equivalence untestable): 1, not supported: 26, partially supported: 12 |
+| nn_closed | True | 0.938 | 0.746 | -0.00831 | 0.00226 | 0.991 | 0.783 | 0.978 | 0.5 | 3.88 | compact causal state discovered: 8, not supported: 11, partially supported: 27 |
+| lin_dmdc | True | 1.08 | 0.613 | -0.0488 | 0.00159 | 0.995 | 0.565 | 0.902 | 0.5 | 3.94 | compact causal state discovered: 9, not supported: 26, partially supported: 11 |
+| ks_sindy | True | 0.969 | 0.585 | -0.0354 | 0.00173 | 0.995 | 0.652 | 0.696 | 0.167 | 4.12 | compact causal state discovered: 9, compact causal state discovered (microstate equivalence untestable): 1, not supported: 14, partially supported: 22 |
+| nn_aelin | True | 1.09 | 0.983 | -0.071 | 0.00277 | 0.991 | 0.783 | 0.989 | 0.5 | 4.38 | compact causal state discovered: 3, not supported: 19, partially supported: 24 |
+| lin_balanced | True | 1.03 | 0.68 | -0.0459 | 0.00236 | 0.997 | 0.543 | 0.5 | 0.5 | 4.69 | compact causal state discovered: 6, compact causal state discovered (microstate equivalence untestable): 4, not supported: 16, partially supported: 20 |
+| ks_edmd | False | 1 | 0.745 | -0.0753 | 0.00292 | 0.99 | 0.696 | 0.717 | 0 | - | compact causal state discovered: 7, not supported: 19, partially supported: 20 |
+| ks_hankel | False | 1.14 | 0.598 | -0.00314 | 0.00169 | 0.995 | 0.63 | 0.957 | 0 | - | compact causal state discovered: 9, compact causal state discovered (microstate equivalence untestable): 1, not supported: 24, partially supported: 12 |
+| cb_cegar | False | 1.03 | 0.625 | -0.0619 | 0.00233 | 0.993 | 0.391 | 0.957 | 0 | - | compact causal state discovered: 12, compact causal state discovered (microstate equivalence untestable): 1, not supported: 19, partially supported: 14 |
+
