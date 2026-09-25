@@ -186,4 +186,64 @@ Five oracle-free developers worked in parallel in the clean room, each on a fami
 | cb | E intervention-aware causal bottleneck (interchange training, microstate PSR, CEGAR) | — |
 | sd | G shared cross-implementation models (multi-encoder, unit-space low-rank RNN) | — |
 
-<!-- tournament results, composer, selection: filled after Level B -->
+**Development:**
+- 23:07 to 08:30. On the shared 16-thread machine, the developers' own dev-suite validation chains had grown to 2-12 h. At 08:30 each
+  session was stopped and resumed with a generic wrap-up note: freeze the code, finish notes and tests with the results at hand,
+  declare candidates vs baselines. All five finished within 7 minutes.
+- 19 registered methods: 12 candidates and 7 baselines (goal4 section 23). All transcript audits are clean: 0 forbidden-path inputs;
+  the only answer-token hit was a numeric false positive (a file size).
+
+**Level B round 1 (pre-registered pilot, 16 heldout systems, no shared fits).** Run on Modal in 74 min, about $11. By mean rank
+(S1-S7), the top 10 survive:
+
+| rank | method | family | mean rank | P(rank 1) |
+|---|---|---|---|---|
+| 1 | nn_closed | neural closed SSM | 5.57 | 0.28 |
+| 2 | lin_falds | baseline (FA + LDS) | 6.07 | 0.08 |
+| 3 | ks_sindy | SINDy on learned coordinates | 6.29 | 0.52 |
+| 4 | lin_subspace | CVA subspace ID | 6.57 | 0.04 |
+| 5 | lin_balanced | balanced reduction | 7.07 | 0.04 |
+| 6 | lin_dmdc | baseline (DMDc) | 8.36 | 0.01 |
+| 7 | ks_edmd | EDMD / Koopman | 8.79 | 0.00 |
+| 8 | nn_aelin | baseline (AE + linear) | 8.93 | 0.02 |
+| 9 | ks_hankel | baseline (Hankel / delay) | 9.21 | 0.01 |
+| 10 | cb_cegar | counterexample-guided | 9.50 | 0.00 |
+
+Eliminated: cb_psr, lin_pcadyn, cb_interchange, nn_seqbottleneck, ks_kae, sd_shared, sd_lowrank, nn_rssm, nn_pred_bottleneck. The
+pilot has no shared fits, so the sharing-specialised candidates got no credit for sharing.
+
+**Level B round 2 (all 48 heldout systems, G seeds, sharing groups and nulls with leave-one-out).** Run on Modal in 70 min, about
+$26.
+
+| method | S1 A/A_full | S2 C | S3 D | S4 E | S5 K R^2 | S6 dim | S7 abst. | S8 sharing | mean rank (7 eligible) |
+|---|---|---|---|---|---|---|---|---|---|
+| lin_subspace | 0.999 | 0.564 | -0.083 | 0.002 | 0.996 | 0.674 | 0.457 | 0.500 | **3.31** (P(rank 1) 0.57) |
+| lin_falds (baseline) | 1.157 | 0.550 | -0.005 | 0.001 | 0.997 | 0.587 | 0.891 | 0.500 | 3.69 |
+| nn_closed | 0.938 | 0.746 | -0.008 | 0.002 | 0.991 | 0.783 | 0.978 | 0.500 | 3.88 |
+| lin_dmdc (baseline) | 1.079 | 0.613 | -0.049 | 0.002 | 0.995 | 0.565 | 0.902 | 0.500 | 3.94 |
+| ks_sindy | 0.969 | 0.585 | -0.035 | 0.002 | 0.995 | 0.652 | 0.696 | 0.167 | 4.12 |
+| nn_aelin (baseline) | 1.095 | 0.983 | -0.071 | 0.003 | 0.991 | 0.783 | 0.989 | 0.500 | 4.38 |
+| lin_balanced | 1.027 | 0.680 | -0.046 | 0.002 | 0.997 | 0.543 | 0.500 | 0.500 | 4.69 |
+
+**Eligibility.** ks_edmd, ks_hankel and cb_cegar are independent-only by design. Their 18 attempted shared / leave-one-out fits
+count as failures, just above the pre-registered 10 % limit, so they are ineligible under the literal rule. This conflicts with the
+"untestable" provision for methods that cannot share. As a sensitivity check, ranking all 10 as eligible leaves the first candidate
+(lin_subspace) and the best baseline (lin_falds) unchanged; the three rank 7th, 9th and 10th.
+
+**Sharing.** No candidate obtains support for either implementation group (Hopf x4, gated integrator x3):
+- shared models are measurably worse than independent ones (paired A differences +0.02 to +0.15 NMSE, CIs above 0);
+- encoder-only adaptation rarely beats from-scratch fits on 25 % of the held-out implementation's data;
+- the unrelated pairs are correctly rejected by every sharing-capable method (S8 = 0.5 = groups 0 %, pairs 100 %).
+
+**Review G, the new adversarial traps (oracle-free reviewer; 10 systems no developer saw).** On the round-2 top five, every candidate
+is confidently wrong on at least one trap ("compact causal state discovered" where the truth disagrees):
+- G4, a 9-stage delay chain: 4 of 5 claim a compact state with k = 3-4 (lin_dmdc: k = 14, E untestable);
+- G10, a non-compressible system that looks low-dimensional: lin_falds claims a compact state; only lin_dmdc abstains;
+- G7: ks_sindy claims a compact state with k = 1 against 3;
+- G9, a hidden parameter drift: the dimension is right, the drift unreported.
+
+The symmetry-hidden mode of G1 (k = 4) is found only by lin_dmdc; the others choose k = 2, as the trap intends, but none claims a
+compact state there. The verdict's conditions certify sufficiency on the tested horizons and interventions, NOT the minimality or
+correctness of k.
+
+<!-- composer, round 3, selection: filled after round 3 -->
