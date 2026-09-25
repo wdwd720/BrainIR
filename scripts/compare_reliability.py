@@ -121,6 +121,11 @@ def main(argv=None) -> int:
     out["identity_consistency"] = {"a": ja, "b": jb, "a_ci95": _ci(boot_a), "b_ci95": _ci(boot_b), "diff": jb - ja, "diff_ci95": _ci(boot_d),
                                    "a_modal_frequency": max(ca.count(c) for c in set(ca)) / len(ca),
                                    "b_modal_frequency": max(cb.count(c) for c in set(cb)) / len(cb)}
+    # run-by-run agreement of the two sweeps (same order and seed): e.g. one method under two problem definitions (review D, D4)
+    same = [float(a == b and bool(a)) for a, b in zip(ca, cb)]
+    pj = [len(a & b) / len(a | b) if (a | b) else 0.0 for a, b in zip(ca, cb)]
+    out["paired_core_agreement"] = {"identical_rate": float(np.mean(same)), "n_identical": int(sum(same)), "jaccard_mean": float(np.mean(pj)),
+                                    "a_modal_core_equals_b_modal_core": max(set(ca), key=ca.count) == max(set(cb), key=cb.count)}
     if args.hidden:
         ha, hb = da["summary"].get("hidden_eval"), db["summary"].get("hidden_eval")
         if not ha or not hb:
@@ -152,6 +157,9 @@ def main(argv=None) -> int:
     lines.append(f"| identity consistency (pairwise Jaccard, no self-pairs) | {ic['a']:.3f} | {ic['b']:.3f} | {ic['diff']:+.3f} "
                  f"[{ic['diff_ci95'][0]:+.3f}, {ic['diff_ci95'][1]:+.3f}] |")
     lines.append(f"| modal-core frequency | {ic['a_modal_frequency']:.2f} | {ic['b_modal_frequency']:.2f} | |")
+    pa = out["paired_core_agreement"]
+    lines.append(f"| same core in the paired run (A vs B, same order and seed) | {pa['n_identical']} of {out['n_paired']} | | paired Jaccard "
+                 f"{pa['jaccard_mean']:.3f}; modal cores {'equal' if pa['a_modal_core_equals_b_modal_core'] else 'differ'} |")
     if "hidden_structural_success" in out:
         h = out["hidden_structural_success"]
         lines.append(f"| HIDDEN structural success | {h['a_rate']:.2f} | {h['b_rate']:.2f} | {h['diff']:+.2f} [{h['diff_ci95'][0]:+.2f}, "

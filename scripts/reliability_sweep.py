@@ -49,6 +49,14 @@ def _sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def _resolve_record_path(s: str) -> Path:
+    """Inverse of `paths.relpath_for_record` for $DATA/... and $REPO/... (older records hold absolute paths, used as they are)."""
+    for prefix, base in (("$DATA/", paths.data_root()), ("$REPO/", paths.repo_root())):
+        if s.startswith(prefix):
+            return base / s[len(prefix):]
+    return Path(s)
+
+
 def _make_variants(bundle: Path, network: str, orders: int, work: Path) -> list[tuple[Path, list[int], bool]]:
     variants = []
     for k in range(orders):
@@ -197,7 +205,7 @@ def main(argv=None) -> int:
         p_common = pdir / f"{r['variant']}_s{r['seed']}_common.json"
         p_common.write_text(json.dumps(r.pop("prediction_common_frame"), indent=1) + "\n", encoding="utf-8", newline="\n")
         (pdir / f"{r['variant']}_s{r['seed']}.json").write_text(json.dumps(r.pop("prediction"), indent=1) + "\n", encoding="utf-8", newline="\n")
-        r["common_frame_path"] = str(p_common)
+        r["common_frame_path"] = paths.relpath_for_record(p_common)  # $DATA/...: no machine-specific path in the results file
     cons = consistency([r["core_common"] for r in ok])
     cons_all = consistency([r.get("core_common", []) for r in runs])
     problem = DiscoveryProblem.from_bundle(args.bundle, args.network)
@@ -284,7 +292,8 @@ def _hidden_eval(args, ok: list[dict]) -> dict:
     rows = []
     for r in ok:
         out = tmp / f"eval_{r['variant']}_s{r['seed']}.json"
-        cmd = [sys.executable, str(evaluator), r["common_frame_path"], "--bundle", str(args.bundle), "--out", str(out), "--no-simulation"]
+        cmd = [sys.executable, str(evaluator), str(_resolve_record_path(r["common_frame_path"])), "--bundle", str(args.bundle), "--out",
+               str(out), "--no-simulation"]
         proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(ROOT))
         if proc.returncode != 0:
             rows.append({"variant": r["variant"], "seed": r["seed"], "error": proc.stderr[-300:]})

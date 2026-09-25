@@ -11,4 +11,5 @@ network `male-cns_v1.0`; A = `greedy_prune_sim_frozen`, B = `brainir_v1`; 24 pai
 | simulated_seconds | 550.000 | 772.250 | +222.250 [+195.417, +252.667] |
 | identity consistency (pairwise Jaccard, no self-pairs) | 0.872 | 1.000 | +0.128 [+0.000, +0.288] |
 | modal-core frequency | 0.92 | 1.00 | |
+| same core in the paired run (A vs B, same order and seed) | 22 of 24 | | paired Jaccard 0.933; modal cores equal |
 | HIDDEN structural success | 0.92 | 1.00 | +0.08 [+0.00, +0.21] (runs: 2 B-only / 0 A-only, McNemar p = 0.5; order clusters 2 B / 0 A / 6 tied, sign test p = 0.5) |

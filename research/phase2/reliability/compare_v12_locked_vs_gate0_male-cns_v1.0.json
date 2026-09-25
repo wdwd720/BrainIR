@@ -1,13 +1,13 @@
 {
- "label": "v12_vs_greedy_male-cns_v1.0",
+ "label": "v12_locked_vs_gate0_male-cns_v1.0",
  "network": "male-cns_v1.0",
  "a": {
-  "method": "greedy_prune_sim_frozen",
-  "file": "greedy_frozen_male-cns_v1.0.json"
+  "method": "brainir_v1",
+  "file": "v12_male-cns_v1.0.json"
  },
  "b": {
   "method": "brainir_v1",
-  "file": "v12_male-cns_v1.0.json"
+  "file": "v12_gate0_male-cns_v1.0.json"
  },
  "n_paired": 24,
  "n_order_clusters": 8,
@@ -19,22 +19,22 @@
  "metrics": {
   "functional_fidelity": {
    "n": 24,
-   "a_mean": 0.890625,
-   "b_mean": 0.96875,
-   "diff_mean": 0.078125,
+   "a_mean": 0.96875,
+   "b_mean": 1.0,
+   "diff_mean": 0.03125,
    "diff_ci95": [
     0.0,
-    0.1875
+    0.0625
    ]
   },
   "functional_pass": {
    "n": 24,
-   "a_mean": 0.9166666666666666,
+   "a_mean": 1.0,
    "b_mean": 1.0,
-   "diff_mean": 0.08333333333333333,
+   "diff_mean": 0.0,
    "diff_ci95": [
     0.0,
-    0.20833333333333334
+    0.0
    ]
   },
   "core_size": {
@@ -49,48 +49,48 @@
   },
   "calls": {
    "n": 24,
-   "a_mean": 550.0,
-   "b_mean": 386.125,
-   "diff_mean": -163.875,
+   "a_mean": 386.125,
+   "b_mean": 374.4166666666667,
+   "diff_mean": -11.708333333333334,
    "diff_ci95": [
-    -177.29166666666666,
-    -148.66666666666666
+    -18.0,
+    -6.125
    ]
   },
   "simulated_seconds": {
    "n": 24,
-   "a_mean": 550.0,
-   "b_mean": 772.25,
-   "diff_mean": 222.25,
+   "a_mean": 772.25,
+   "b_mean": 748.8333333333334,
+   "diff_mean": -23.416666666666668,
    "diff_ci95": [
-    195.41666666666666,
-    252.66666666666666
+    -36.0,
+    -12.25
    ]
   }
  },
  "identity_consistency": {
-  "a": 0.8724637681159421,
+  "a": 1.0,
   "b": 1.0,
   "a_ci95": [
-   0.7121212121212122,
+   1.0,
    1.0
   ],
   "b_ci95": [
    1.0,
    1.0
   ],
-  "diff": 0.12753623188405794,
+  "diff": 0.0,
   "diff_ci95": [
    0.0,
-   0.28787878787878785
+   0.0
   ],
-  "a_modal_frequency": 0.9166666666666666,
+  "a_modal_frequency": 1.0,
   "b_modal_frequency": 1.0
  },
  "paired_core_agreement": {
-  "identical_rate": 0.9166666666666666,
-  "n_identical": 22,
-  "jaccard_mean": 0.9333333333333332,
+  "identical_rate": 1.0,
+  "n_identical": 24,
+  "jaccard_mean": 1.0,
   "a_modal_core_equals_b_modal_core": true
  }
 }
