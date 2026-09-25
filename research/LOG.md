@@ -574,6 +574,16 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   - report within about 45 min.
 
   The note carried no evaluation information.
+- **2026-09-25 08:45-09:55: Level B round 1 (pilot).** 19 methods (12 candidates, 7 baselines) on the 16 pre-registered pilot systems
+  of the heldout suite. Five parts on Modal (74 min wall; about $11.3), merged with the design check. Every candidate was eligible.
+  - Mean ranks (S1-S7; S8 left out as all-missing): nn_closed 5.57, lin_falds 6.07, ks_sindy 6.29 (the highest P(rank 1), 0.52),
+    lin_subspace 6.57, lin_balanced 7.07, lin_dmdc 8.36, ks_edmd 8.79, nn_aelin 8.93, ks_hankel 9.21, cb_cegar 9.50, then cb_psr, lin_pcadyn,
+    cb_interchange, nn_seqbottleneck, ks_kae, sd_shared, sd_lowrank, nn_rssm, nn_pred_bottleneck.
+  - The top 10 survive (`research/phase3/tournament/r1/ROUND_DECISION.json`). The comparator baseline is lin_falds (P3-D16).
+  - Caveat: the pilot has no shared fits (pre-registered), so the sharing-specialised candidates (sd_*) got no credit for sharing.
+
+  The aggregate feedback was published to the room (`publish_feedback.py`: the frozen feedback.py, with the S8 wording brought to v2).
+  The composer was launched in parallel with round 2.
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete

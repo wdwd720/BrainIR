@@ -1,0 +1,2209 @@
+{
+ "profile": {
+  "S1_A_over_full": 1.2445795364933763,
+  "S2_C_heldout": 1.5920326823650595,
+  "S3_D_micro_gain": 0.0007374724516528158,
+  "S4_E_ratio": NaN,
+  "S5_K_r2_rff": 0.9935735733376792,
+  "S6_dim_rate": 0.0,
+  "S7_abstention": 0.5,
+  "S8_sharing_correct": NaN,
+  "n_systems": 15,
+  "n_E_untestable": 15
+ },
+ "verdict_counts_compressible": {
+  "not supported": 8,
+  "partially supported": 7
+ },
+ "abstention": {
+  "n_noncompressible": 1,
+  "n_compressible": 15,
+  "abstention_recall": 1.0,
+  "false_alarm_rate": 1.0,
+  "confident_wrong_rate": 0.0
+ },
+ "n_fits": 16,
+ "n_fit_failures": 0,
+ "n_evaluations": 16,
+ "n_evaluation_failures": 0,
+ "eligible": true,
+ "transition_params_median": 5836.0,
+ "fit_wall_s_median": 236.35500000000002,
+ "fit_wall_s_total": 3868.68,
+ "design": {
+  "suite": "heldout",
+  "pilot": true,
+  "systems": [
+   "syn-191d593fc0",
+   "syn-1b421315d5",
+   "syn-380742fb33",
+   "syn-3d38f143c5",
+   "syn-4edae2950e",
+   "syn-4fea71cd9a",
+   "syn-52d74c61fd",
+   "syn-7cf49d4e3c",
+   "syn-7e7c5ca4aa",
+   "syn-8665cde1ee",
+   "syn-a27688970c",
+   "syn-a5823117aa",
+   "syn-b14b6978bd",
+   "syn-c4dfaaa040",
+   "syn-ee2fc3b737",
+   "syn-eeb930b9cf"
+  ],
+  "compressible": [
+   "syn-191d593fc0",
+   "syn-1b421315d5",
+   "syn-380742fb33",
+   "syn-3d38f143c5",
+   "syn-4edae2950e",
+   "syn-4fea71cd9a",
+   "syn-52d74c61fd",
+   "syn-7e7c5ca4aa",
+   "syn-8665cde1ee",
+   "syn-a27688970c",
+   "syn-a5823117aa",
+   "syn-b14b6978bd",
+   "syn-c4dfaaa040",
+   "syn-ee2fc3b737",
+   "syn-eeb930b9cf"
+  ],
+  "g_systems": 0,
+  "skip_shared": true,
+  "sim_budget": 250,
+  "timeout_s": 1800.0,
+  "benchmark_version": 2
+ },
+ "per_system": {
+  "syn-191d593fc0": {
+   "k": 12,
+   "k_true": 2,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 45,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.8036514295754591,
+     "ci95": [
+      -0.9534953913400419,
+      -0.6419264165215413
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.6252739947434223,
+     "ci95": [
+      -0.7733325941912933,
+      -0.47737524104254364
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.35710362694378384,
+    "A_full": 0.15088963919402945,
+    "predictive": false,
+    "C": 0.9353101391775394,
+    "C_ci95": [
+     0.9171553112312489,
+     0.9948276732385469
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 2.90805338830664,
+    "interventional": true,
+    "C_structural": 0.8539207871979262,
+    "C_structural_ci95": [
+     0.7892270782104789,
+     1.034610366978829
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.03488212292731319,
+    "D_ci95": [
+     -0.0634890170950831,
+     -0.008846261782534535
+    ],
+    "closed": true,
+    "E_ratio": 0.041504588969082774,
+    "E_ci95": [
+     0.010563042967242763,
+     0.11219310348275197
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.455 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9937655723905574,
+    "r2_true_from_model_rff": 0.9796167093487369,
+    "r2_model_from_true_linear": 0.6506417134916612,
+    "r2_model_from_true_rff": 0.6363731758979276,
+    "cca": [
+     0.9998774099061782,
+     0.9966472282484117
+    ],
+    "cca_mean": 0.998262319077295
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.3571272643300476,
+     "ci95": [
+      0.33938487653946836,
+      0.37756576066755365
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.7066647033123853,
+     "ci95": [
+      0.4748379336126055,
+      0.9527155298766761
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.6588266720996993,
+     "ci95": [
+      0.4420873215088443,
+      0.8942092476673482
+     ]
+    },
+    "future_div_same_shift": 0.08800765038777453,
+    "future_div_different_shift": 0.08322474754543593,
+    "implementation_invariance_ratio": 1.0574697188444748,
+    "true_latent_shift_spread_rel": 1.42164403432034
+   },
+   "A_over_full": 2.3666543896004892,
+   "eval_wall_s": 45.2
+  },
+  "syn-1b421315d5": {
+   "k": 12,
+   "k_true": 3,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 90,
+    "compact": true,
+    "A_minus_input_only": {
+     "diff": -0.5847457478693683,
+     "ci95": [
+      -0.9771566912572882,
+      -0.27559903649662904
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.11712124290683619,
+     "ci95": [
+      -0.17196149285348636,
+      -0.07068047771832016
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.07883990189365075,
+    "A_full": 0.03198677392905551,
+    "predictive": false,
+    "C": 3.3037028531105603,
+    "C_ci95": [
+     1.0898637413872472,
+     4.402869608402783
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 2.1703909426059167,
+    "interventional": false,
+    "C_structural": 3.262960043519505,
+    "C_structural_ci95": [
+     0.9472719777622068,
+     3.421802887624374
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.05442280618890994,
+    "D_ci95": [
+     -0.007206417100384143,
+     0.11231002060685627
+    ],
+    "closed": true,
+    "E_ratio": 0.31333842700799114,
+    "E_ci95": [
+     0.04957117458243641,
+     0.6325032445601648
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.328 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 3,
+    "r2_true_from_model_linear": 0.9958818206208009,
+    "r2_true_from_model_rff": 0.995620556445006,
+    "r2_model_from_true_linear": 0.3416777699742921,
+    "r2_model_from_true_rff": 0.6765681159682899,
+    "cca": [
+     0.9978411648893855,
+     0.996946741511316,
+     0.9979381766261646
+    ],
+    "cca_mean": 0.9975753610089554
+   },
+   "K_dim": {
+    "k_true": 3,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 9
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.804352208205005,
+     "ci95": [
+      0.5472229884121985,
+      1.0941915824699868
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.07320510838120893,
+     "ci95": [
+      0.038912775795613204,
+      0.11814881669595031
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.04196246999798633,
+     "ci95": [
+      0.025936431936705032,
+      0.06185173623772212
+     ]
+    },
+    "future_div_same_shift": 0.0072465488156365715,
+    "future_div_different_shift": 0.05976085774087432,
+    "implementation_invariance_ratio": 0.12125911657857928,
+    "true_latent_shift_spread_rel": 0.7047239535698259
+   },
+   "A_over_full": 2.4647656580970714,
+   "eval_wall_s": 45.5
+  },
+  "syn-380742fb33": {
+   "k": 12,
+   "k_true": 2,
+   "trap": "A",
+   "verdict": {
+    "k": 12,
+    "n_observed": 70,
+    "compact": true,
+    "A_minus_input_only": {
+     "diff": -0.3947656305549904,
+     "ci95": [
+      -0.5123273944706168,
+      -0.28440006652776983
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.30988622246633984,
+     "ci95": [
+      -0.42507999867217827,
+      -0.2054775852562375
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.10339906707250882,
+    "A_full": 0.0877689741435702,
+    "predictive": true,
+    "C": 0.7271013872199336,
+    "C_ci95": [
+     0.6614811626547593,
+     1.1130115841333303
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 1.7833271523224772,
+    "interventional": false,
+    "C_structural": 0.9951931462436387,
+    "C_structural_ci95": [
+     0.9907669323442299,
+     0.9977344550464391
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.06043178070100118,
+    "D_ci95": [
+     -0.02118660805608674,
+     0.14527811696622805
+    ],
+    "closed": true,
+    "E_ratio": 0.11828849686594509,
+    "E_ci95": [
+     0.029683902289350517,
+     0.29750062211471656
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.507 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9957859131709802,
+    "r2_true_from_model_rff": 0.9935735733376792,
+    "r2_model_from_true_linear": 0.21825280436135897,
+    "r2_model_from_true_rff": 0.18427953279148013,
+    "cca": [
+     0.998274319226718,
+     0.9973959283810843
+    ],
+    "cca_mean": 0.9978351238039012
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.2245620804315209,
+     "ci95": [
+      0.2151027255016368,
+      0.23398423877831068
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.19588514905905108,
+     "ci95": [
+      0.12395434694072567,
+      0.2781685381865428
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.18963695107781156,
+     "ci95": [
+      0.11897377236013687,
+      0.2686629541675265
+     ]
+    },
+    "future_div_same_shift": 0.010059676332890831,
+    "future_div_different_shift": 0.03800805322963635,
+    "implementation_invariance_ratio": 0.26467223333203793,
+    "true_latent_shift_spread_rel": 0.9903267513921082
+   },
+   "A_over_full": 1.17808221050153,
+   "eval_wall_s": 28.4
+  },
+  "syn-3d38f143c5": {
+   "k": 12,
+   "k_true": 2,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 50,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.8201952799082172,
+     "ci95": [
+      -0.8750688837255403,
+      -0.7690834916651055
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": 0.01683230974939973,
+     "ci95": [
+      -0.013023835008492706,
+      0.0499804019197355
+     ],
+     "n": 40,
+     "p": 0.2768615692153923
+    },
+    "A": 0.19294061018642672,
+    "A_full": 0.175271268616081,
+    "predictive": false,
+    "C": 2.0295139565446503,
+    "C_ci95": [
+     1.1506340456957327,
+     3.9830433946139068
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 3.0205207109645067,
+    "interventional": false,
+    "C_structural": 0.5083063383730572,
+    "C_structural_ci95": [
+     0.3581805813415488,
+     0.5139032683421929
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.030413580512399417,
+    "D_ci95": [
+     -0.014984222288549663,
+     0.07819683700532845
+    ],
+    "closed": true,
+    "E_ratio": 0.00861414108125046,
+    "E_ci95": [
+     0.002588651921757639,
+     0.013417917973209851
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.296 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9972979639586611,
+    "r2_true_from_model_rff": 0.9971963413907823,
+    "r2_model_from_true_linear": 0.575270087817922,
+    "r2_model_from_true_rff": 0.9029197931108178,
+    "cca": [
+     0.9994864817773699,
+     0.9980656965634573
+    ],
+    "cca_mean": 0.9987760891704136
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 2.561102056695953,
+     "ci95": [
+      1.8611342302715448,
+      3.3878671576443598
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.3120702741602248,
+     "ci95": [
+      0.24327852686728613,
+      0.38039710014133715
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.27152384107056604,
+     "ci95": [
+      0.218983931637589,
+      0.3259643930720847
+     ]
+    },
+    "future_div_same_shift": 0.03381579904810594,
+    "future_div_different_shift": 0.15422043397768115,
+    "implementation_invariance_ratio": 0.21926925100599692,
+    "true_latent_shift_spread_rel": 0.8742962689964502
+   },
+   "A_over_full": 1.1008113977257112,
+   "eval_wall_s": 53.4
+  },
+  "syn-4edae2950e": {
+   "k": 12,
+   "k_true": 2,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 25,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.7190568984534933,
+     "ci95": [
+      -0.952804436928751,
+      -0.5149709553671401
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.43332717677477045,
+     "ci95": [
+      -0.6007726303418697,
+      -0.2873274411794375
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.099702509738245,
+    "A_full": 0.09336491086185175,
+    "predictive": true,
+    "C": 3.8632285908913917,
+    "C_ci95": [
+     2.519317035244626,
+     11.777701343467696
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 1.6871829771233036,
+    "interventional": false,
+    "C_structural": 0.4730106845718537,
+    "C_structural_ci95": [
+     0.3363272480441396,
+     0.7391919876290621
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.0007374724516528158,
+    "D_ci95": [
+     -0.09326460944293247,
+     0.10283749556259839
+    ],
+    "closed": true,
+    "E_ratio": 0.2037931538301514,
+    "E_ci95": [
+     0.12034682717365497,
+     0.3778410552123102
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.545 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9963325377261333,
+    "r2_true_from_model_rff": 0.9949215088748957,
+    "r2_model_from_true_linear": 0.600758794614004,
+    "r2_model_from_true_rff": 0.5556950072080297,
+    "cca": [
+     0.9986553710945613,
+     0.9971602474725733
+    ],
+    "cca_mean": 0.9979078092835673
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.39149626532092235,
+     "ci95": [
+      0.34721529346647356,
+      0.44351259199303056
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.08148343606226316,
+     "ci95": [
+      0.0636169020367049,
+      0.10106215655662083
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.06615091953413464,
+     "ci95": [
+      0.050874166867737436,
+      0.0832647020357904
+     ]
+    },
+    "future_div_same_shift": 0.019598628974312873,
+    "future_div_different_shift": 0.024465650090210483,
+    "implementation_invariance_ratio": 0.8010671656811986,
+    "true_latent_shift_spread_rel": 1.3332988013217204
+   },
+   "A_over_full": 1.0678798792596798,
+   "eval_wall_s": 28.4
+  },
+  "syn-4fea71cd9a": {
+   "k": 12,
+   "k_true": 2,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 49,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -3.133992429812862,
+     "ci95": [
+      -4.1502273699752505,
+      -2.1922316730766553
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": 0.002975727928334511,
+     "ci95": [
+      -0.03992593572749228,
+      0.04616453917822496
+     ],
+     "n": 40,
+     "p": 0.9135432283858071
+    },
+    "A": 0.06998427529744145,
+    "A_full": 0.006319236032960249,
+    "predictive": false,
+    "C": 0.6829201424958624,
+    "C_ci95": [
+     0.4581487605062279,
+     1.3313287993857967
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 3.600282422319032,
+    "interventional": false,
+    "C_structural": 0.5543243434348663,
+    "C_structural_ci95": [
+     0.5445731073506059,
+     0.5814234658868663
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.21682137187449863,
+    "D_ci95": [
+     0.09124818896929042,
+     0.3249633729174281
+    ],
+    "closed": true,
+    "E_ratio": 0.035392769643939864,
+    "E_ci95": [
+     0.010520005159973546,
+     0.0800498878777301
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.321 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9862397558833947,
+    "r2_true_from_model_rff": 0.9830776381245181,
+    "r2_model_from_true_linear": 0.34637565493554834,
+    "r2_model_from_true_rff": 0.4828198004662789,
+    "cca": [
+     0.9913909502532069,
+     0.9928264146000906
+    ],
+    "cca_mean": 0.9921086824266487
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.49842870293727654,
+     "ci95": [
+      0.3774226921074845,
+      0.6496677227119261
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.17323663724680394,
+     "ci95": [
+      0.09821697212197295,
+      0.2672734442903275
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.10194741247431639,
+     "ci95": [
+      0.06684615518344961,
+      0.14123482808442958
+     ]
+    },
+    "future_div_same_shift": 0.031145492113979482,
+    "future_div_different_shift": 0.029226577205706688,
+    "implementation_invariance_ratio": 1.065656504857439,
+    "true_latent_shift_spread_rel": 1.1319882381077317
+   },
+   "A_over_full": 11.07480001259856,
+   "eval_wall_s": 30.9
+  },
+  "syn-52d74c61fd": {
+   "k": 12,
+   "k_true": 2,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 40,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.22813786525603916,
+     "ci95": [
+      -0.30707621605947655,
+      -0.1531015328956304
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": 0.0959119246726177,
+     "ci95": [
+      0.03715001447898667,
+      0.1748940844170194
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.6885361066101094,
+    "A_full": 1.1919631613643769,
+    "predictive": false,
+    "C": 2.969538162842088,
+    "C_ci95": [
+     1.0570431764906305,
+     10.621410166074446
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 4.231471622228052,
+    "interventional": false,
+    "C_structural": 1.0041870183176616,
+    "C_structural_ci95": [
+     1.0017919234653474,
+     1.0102645375502755
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.009612956668908776,
+    "D_ci95": [
+     -0.023612186952974692,
+     0.004875727799320141
+    ],
+    "closed": true,
+    "E_ratio": 0.21369738908565364,
+    "E_ci95": [
+     0.12841526852179752,
+     0.36110823736133857
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.513 > 0.2); random-pair divergence 0.578 < 2.0 x floor 1.98",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); latent explains too little beyond the input (val 0.613 vs input floor 0.985); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.8614054289736564,
+    "r2_true_from_model_rff": 0.7956086788420689,
+    "r2_model_from_true_linear": 0.491645350507109,
+    "r2_model_from_true_rff": 0.46789534706407954,
+    "cca": [
+     0.9993031722536949,
+     0.7362875902150545
+    ],
+    "cca_mean": 0.8677953812343747
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.28072833934396213,
+     "ci95": [
+      0.2668279012519171,
+      0.29546625101344787
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.5942308717297653,
+     "ci95": [
+      0.4422192799903628,
+      0.7410071017775296
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.5825436824771165,
+     "ci95": [
+      0.43409728805205733,
+      0.7295138391828387
+     ]
+    },
+    "future_div_same_shift": 0.012270863144970768,
+    "future_div_different_shift": 0.020019298981223527,
+    "implementation_invariance_ratio": 0.612951690090639,
+    "true_latent_shift_spread_rel": 1.3303015660134072
+   },
+   "A_over_full": 0.5776488140975589,
+   "eval_wall_s": 37.0
+  },
+  "syn-7cf49d4e3c": {
+   "k": 12,
+   "k_true": "none",
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 200,
+    "compact": true,
+    "A_minus_input_only": {
+     "diff": -0.4298176978866528,
+     "ci95": [
+      -0.5469783058911931,
+      -0.31846946338533366
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.18541146014085036,
+     "ci95": [
+      -0.25243450268834894,
+      -0.12247606565727119
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.5637839967796177,
+    "A_full": 2.521524984797355,
+    "predictive": true,
+    "C": 1.783708310161429,
+    "C_ci95": [
+     1.041253262925844,
+     3.192191349422217
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 5.7897994213476895,
+    "interventional": false,
+    "C_structural": 0.96012549259454,
+    "C_structural_ci95": [
+     0.721613978819436,
+     1.001197037589438
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.013398171104905602,
+    "D_ci95": [
+     -0.015223564749786036,
+     0.043196074188220884
+    ],
+    "closed": true,
+    "E_ratio": 0.64030011995283,
+    "E_ci95": [
+     0.3980781250976611,
+     0.8938547009701552
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.519 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); latent explains too little beyond the input (val 0.585 vs input floor 0.956); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "note": "non-compressible"
+   },
+   "K_dim": {
+    "k_true": "none",
+    "k_selected": 12,
+    "applicable": false
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.12865062119380863,
+     "ci95": [
+      0.12044532910754767,
+      0.13697929871631973
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.9131429265922891,
+     "ci95": [
+      0.8083036972136954,
+      1.0191640757216287
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.8995176834016806,
+     "ci95": [
+      0.7881804420600829,
+      1.0052585440057775
+     ]
+    },
+    "future_div_same_shift": 0.06780088185601094,
+    "future_div_different_shift": 0.2072854279032357,
+    "implementation_invariance_ratio": 0.3270894753280077,
+    "true_latent_shift_spread_rel": 0.9020214384988722
+   },
+   "A_over_full": 0.2235885030601538,
+   "eval_wall_s": 37.5
+  },
+  "syn-7e7c5ca4aa": {
+   "k": 12,
+   "k_true": 3,
+   "trap": "B",
+   "verdict": {
+    "k": 12,
+    "n_observed": 44,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.36470068591987054,
+     "ci95": [
+      -0.4948263679119037,
+      -0.25769831134165416
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.2790384911250288,
+     "ci95": [
+      -0.38642642300500074,
+      -0.18918556459852606
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.021783246103710664,
+    "A_full": 0.016295982885496267,
+    "predictive": true,
+    "C": 1.5920326823650595,
+    "C_ci95": [
+     0.8792900954217173,
+     3.853574919317543
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 2.790011185604849,
+    "interventional": false,
+    "C_structural": 0.991329003584425,
+    "C_structural_ci95": [
+     0.9814201978212977,
+     0.9982214866013616
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.15661524385218334,
+    "D_ci95": [
+     -0.27380846053938623,
+     -0.06035248365319031
+    ],
+    "closed": true,
+    "E_ratio": 0.04015065796601033,
+    "E_ci95": [
+     0.014572995793049303,
+     0.1287700420698114
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.502 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 3,
+    "r2_true_from_model_linear": 0.9894888030593914,
+    "r2_true_from_model_rff": 0.985708006648709,
+    "r2_model_from_true_linear": 0.16364578582355127,
+    "r2_model_from_true_rff": 0.10112206016036251,
+    "cca": [
+     0.9973641544064579,
+     0.9720428735882309,
+     0.9735080881132895
+    ],
+    "cca_mean": 0.980971705369326
+   },
+   "K_dim": {
+    "k_true": 3,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 9
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.2651593891482501,
+     "ci95": [
+      0.26189118130949146,
+      0.26887268718364166
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.014902075671300795,
+     "ci95": [
+      0.011980077434692352,
+      0.017979460637369705
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.014843252691688964,
+     "ci95": [
+      0.011909484365389961,
+      0.01790124336083142
+     ]
+    },
+    "future_div_same_shift": 0.00022820870343796067,
+    "future_div_different_shift": 0.0011870552912874107,
+    "implementation_invariance_ratio": 0.19224774541922043,
+    "true_latent_shift_spread_rel": 1.1643412422338502
+   },
+   "A_over_full": 1.3367249006562325,
+   "eval_wall_s": 42.8
+  },
+  "syn-8665cde1ee": {
+   "k": 12,
+   "k_true": 1,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 40,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -3.5117420907643413,
+     "ci95": [
+      -4.609730901698536,
+      -2.458542705364032
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": 0.1428000396284928,
+     "ci95": [
+      -0.02339909513373353,
+      0.3683852795762287
+     ],
+     "n": 40,
+     "p": 0.12593703148425786
+    },
+    "A": 0.2535617945010268,
+    "A_full": 0.01932251031171071,
+    "predictive": false,
+    "C": 2.672244027951736,
+    "C_ci95": [
+     1.9432496921862021,
+     4.380281868098762
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 3.434358969048549,
+    "interventional": false,
+    "C_structural": 1.499679273924951,
+    "C_structural_ci95": [
+     0.799016185442245,
+     2.160001783821258
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.013643396746891162,
+    "D_ci95": [
+     -0.13014612297950606,
+     0.20226296453918904
+    ],
+    "closed": true,
+    "E_ratio": 0.026120156526526828,
+    "E_ci95": [
+     0.007456288300527652,
+     0.06710514965799132
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.416 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 1,
+    "r2_true_from_model_linear": 0.9906176196193582,
+    "r2_true_from_model_rff": 0.9904850228926009,
+    "r2_model_from_true_linear": 0.744798482894582,
+    "r2_model_from_true_rff": 0.8802049877983599,
+    "cca": [
+     0.9948470736815331
+    ],
+    "cca_mean": 0.9948470736815331
+   },
+   "K_dim": {
+    "k_true": 1,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 11
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 1.4810438079107553,
+     "ci95": [
+      1.143328306649409,
+      1.8349752460160316
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 2.4572355235438237,
+     "ci95": [
+      1.728217079519835,
+      3.1949285766520235
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 1.2676948420383738,
+     "ci95": [
+      0.8991855851272367,
+      1.626051925315465
+     ]
+    },
+    "future_div_same_shift": 0.3224919385361521,
+    "future_div_different_shift": 0.40502898501697476,
+    "implementation_invariance_ratio": 0.7962194076619886,
+    "true_latent_shift_spread_rel": 1.3067359387912376
+   },
+   "A_over_full": 13.122611421112902,
+   "eval_wall_s": 33.0
+  },
+  "syn-a27688970c": {
+   "k": 12,
+   "k_true": 2,
+   "trap": "I",
+   "verdict": {
+    "k": 12,
+    "n_observed": 50,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -1.6140339714360394,
+     "ci95": [
+      -2.037705006219997,
+      -1.2165892096260575
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": 0.08723049835655731,
+     "ci95": [
+      0.02874713133721337,
+      0.15604843500741672
+     ],
+     "n": 40,
+     "p": 0.00399800099950025
+    },
+    "A": 0.494885927400715,
+    "A_full": 0.3853130676255126,
+    "predictive": false,
+    "C": 0.9041834285014932,
+    "C_ci95": [
+     0.3310712757730109,
+     1.549230396217587
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 5.991907009092637,
+    "interventional": false,
+    "C_structural": 0.47536607656814284,
+    "C_structural_ci95": [
+     0.3589823299390654,
+     0.8906214214110247
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.08043478453844603,
+    "D_ci95": [
+     0.029614657732901353,
+     0.1311236931976111
+    ],
+    "closed": true,
+    "E_ratio": 0.1793373198310377,
+    "E_ci95": [
+     0.08361604039368283,
+     0.3119855252530071
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.569 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9989986960816641,
+    "r2_true_from_model_rff": 0.9977563365977957,
+    "r2_model_from_true_linear": 0.8359236196717242,
+    "r2_model_from_true_rff": 0.8262086366722529,
+    "cca": [
+     0.9994688477792418,
+     0.9993069783802
+    ],
+    "cca_mean": 0.999387913079721
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.4902607938067188,
+     "ci95": [
+      0.43237925902813934,
+      0.5527860601299286
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.38616600923894445,
+     "ci95": [
+      0.30031314375018464,
+      0.48643248288758195
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.2295341681100539,
+     "ci95": [
+      0.18759018163553062,
+      0.2712828516010116
+     ]
+    },
+    "future_div_same_shift": 0.00660233845855859,
+    "future_div_different_shift": 0.44116930034967217,
+    "implementation_invariance_ratio": 0.014965543734175418,
+    "true_latent_shift_spread_rel": 0.18890835315144328
+   },
+   "A_over_full": 1.2843735886001582,
+   "eval_wall_s": 33.7
+  },
+  "syn-a5823117aa": {
+   "k": 12,
+   "k_true": 1,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 20,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -1.1350793540562123,
+     "ci95": [
+      -1.5537271398871797,
+      -0.7656373633430631
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.18236421656198784,
+     "ci95": [
+      -0.3057809335021623,
+      -0.07037728168039797
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.06470930949148666,
+    "A_full": 0.07247630895724652,
+    "predictive": true,
+    "C": 1.621590697882152,
+    "C_ci95": [
+     0.7725293881095997,
+     8.14959208885859
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 1.9487315230433664,
+    "interventional": false,
+    "C_structural": 1.6071109361174816,
+    "C_structural_ci95": [
+     1.527600171354111,
+     1.8579169803985869
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.08825848439046728,
+    "D_ci95": [
+     -0.18965190170901755,
+     0.005750367947397856
+    ],
+    "closed": true,
+    "E_ratio": 0.004434611213355571,
+    "E_ci95": [
+     0.0003806115011402031,
+     0.015485614812170269
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.496 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 1,
+    "r2_true_from_model_linear": 0.9981313247838284,
+    "r2_true_from_model_rff": 0.9979916396858685,
+    "r2_model_from_true_linear": 0.5194401058317459,
+    "r2_model_from_true_rff": 0.5602198388900832,
+    "cca": [
+     0.9984186348662917
+    ],
+    "cca_mean": 0.9984186348662917
+   },
+   "K_dim": {
+    "k_true": 1,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 11
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 1.7388412114074694,
+     "ci95": [
+      1.2693827454920117,
+      2.275726159021231
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.010868418939511518,
+     "ci95": [
+      0.007729493170028904,
+      0.014038292932069757
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.003925165641678348,
+     "ci95": [
+      0.002749555780275626,
+      0.005240100576147885
+     ]
+    },
+    "future_div_same_shift": 0.009755413238705636,
+    "future_div_different_shift": 0.009553470660223258,
+    "implementation_invariance_ratio": 1.021138137716085,
+    "true_latent_shift_spread_rel": 1.516466419218877
+   },
+   "A_over_full": 0.8928339539153191,
+   "eval_wall_s": 31.1
+  },
+  "syn-b14b6978bd": {
+   "k": 12,
+   "k_true": 1,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 15,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.31883768504783977,
+     "ci95": [
+      -0.3958063704064847,
+      -0.2504646740358812
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.13058883953769646,
+     "ci95": [
+      -0.17755381646065727,
+      -0.09347241188441802
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.023161851732132206,
+    "A_full": 0.018610182035766965,
+    "predictive": true,
+    "C": 0.7286509417959464,
+    "C_ci95": [
+     0.4367167036583267,
+     5.181591259977221
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 2.596973649968001,
+    "interventional": false,
+    "C_structural": 0.03882086548461238,
+    "C_structural_ci95": [
+     0.035743413922590346,
+     0.2355933672502304
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.03971736901478304,
+    "D_ci95": [
+     -0.03312078102798552,
+     0.1120622801734595
+    ],
+    "closed": true,
+    "E_ratio": 0.13484386187170494,
+    "E_ci95": [
+     0.032549403235800106,
+     0.3226627698012765
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.569 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 1,
+    "r2_true_from_model_linear": 0.9978350285083389,
+    "r2_true_from_model_rff": 0.9965783774187643,
+    "r2_model_from_true_linear": 0.10868238092110849,
+    "r2_model_from_true_rff": 0.09610956517532165,
+    "cca": [
+     0.9989416204604097
+    ],
+    "cca_mean": 0.9989416204604097
+   },
+   "K_dim": {
+    "k_true": 1,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 11
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.2547500017932734,
+     "ci95": [
+      0.25324898048529954,
+      0.2561461371014015
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.009369902870358746,
+     "ci95": [
+      0.006614113282489443,
+      0.012506881167594679
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.00940914419556098,
+     "ci95": [
+      0.006605378101019274,
+      0.012531006809860504
+     ]
+    },
+    "future_div_same_shift": 3.3759874005982164e-05,
+    "future_div_different_shift": 0.00241788491093994,
+    "implementation_invariance_ratio": 0.01396256449313718,
+    "true_latent_shift_spread_rel": 0.300044495110289
+   },
+   "A_over_full": 1.2445795364933763,
+   "eval_wall_s": 31.7
+  },
+  "syn-c4dfaaa040": {
+   "k": 12,
+   "k_true": 3,
+   "trap": null,
+   "verdict": {
+    "k": 12,
+    "n_observed": 32,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.6925775588957082,
+     "ci95": [
+      -0.8814566766260857,
+      -0.5160740927371328
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.41759021328393436,
+     "ci95": [
+      -0.5819683562790825,
+      -0.2681790397491304
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.059080496142502756,
+    "A_full": 0.05614894234573754,
+    "predictive": true,
+    "C": 2.53033663603319,
+    "C_ci95": [
+     0.7273112735007007,
+     15.634228869204433
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 3.3821429018856026,
+    "interventional": false,
+    "C_structural": 0.985282206930733,
+    "C_structural_ci95": [
+     0.9031522210603267,
+     1.037378519077373
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": 0.029167107774733813,
+    "D_ci95": [
+     -0.1422049415937305,
+     0.15935219239512655
+    ],
+    "closed": true,
+    "E_ratio": 0.07536736659744778,
+    "E_ci95": [
+     0.023888121736901854,
+     0.17127332253954836
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.475 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 3,
+    "r2_true_from_model_linear": 0.9918373019041318,
+    "r2_true_from_model_rff": 0.9915701023104696,
+    "r2_model_from_true_linear": 0.26375086409491333,
+    "r2_model_from_true_rff": 0.4015350781886702,
+    "cca": [
+     0.9973134386718712,
+     0.9940551725087978,
+     0.993968844289264
+    ],
+    "cca_mean": 0.9951124851566444
+   },
+   "K_dim": {
+    "k_true": 3,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 9
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.7523915523738489,
+     "ci95": [
+      0.45434246168509457,
+      1.136125840335846
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.08793483938513552,
+     "ci95": [
+      0.03759879419460537,
+      0.1639442132775508
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.029740533395980977,
+     "ci95": [
+      0.023737066967566205,
+      0.036191567504188504
+     ]
+    },
+    "future_div_same_shift": 0.09286948338452135,
+    "future_div_different_shift": 0.08192510168992283,
+    "implementation_invariance_ratio": 1.1335900898362232,
+    "true_latent_shift_spread_rel": 1.0098421355542453
+   },
+   "A_over_full": 1.0522103119719362,
+   "eval_wall_s": 25.4
+  },
+  "syn-ee2fc3b737": {
+   "k": 12,
+   "k_true": 2,
+   "trap": "G",
+   "verdict": {
+    "k": 12,
+    "n_observed": 40,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.32854293924917954,
+     "ci95": [
+      -0.4739258062547813,
+      -0.19010458785280437
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.16897738417590655,
+     "ci95": [
+      -0.29986580863695655,
+      -0.05158042270534629
+     ],
+     "n": 40,
+     "p": 0.004997501249375313
+    },
+    "A": 0.21010722023454784,
+    "A_full": 0.09176571781774465,
+    "predictive": false,
+    "C": 0.9999999124743459,
+    "C_ci95": [
+     0.7514297372569396,
+     1.8118362477125736
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 1.000000020240463,
+    "interventional": false,
+    "C_structural": 1.5955759555543647,
+    "C_structural_ci95": [
+     1.5689832561135235,
+     1.6981493156394083
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.07940114014616051,
+    "D_ci95": [
+     -0.1494849807738278,
+     -0.00808091307225128
+    ],
+    "closed": true,
+    "E_ratio": 0.21268336572953267,
+    "E_ci95": [
+     0.10383644248708025,
+     0.3991748797360707
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.534 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "not supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 2,
+    "r2_true_from_model_linear": 0.9829755722078746,
+    "r2_true_from_model_rff": 0.9770664264117703,
+    "r2_model_from_true_linear": 0.2710862940416593,
+    "r2_model_from_true_rff": 0.2541776045713894,
+    "cca": [
+     0.9988920788323706,
+     0.9798004342479634
+    ],
+    "cca_mean": 0.989346256540167
+   },
+   "K_dim": {
+    "k_true": 2,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 10
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.7739184405114872,
+     "ci95": [
+      0.5591411493465738,
+      1.028735533941882
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 1.0565441336330141,
+     "ci95": [
+      0.6938710400897942,
+      1.4646349005063313
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.6157699029705028,
+     "ci95": [
+      0.369378405358003,
+      0.8839770590506666
+     ]
+    },
+    "future_div_same_shift": 0.8602930693200191,
+    "future_div_different_shift": 1.0132084204172425,
+    "implementation_invariance_ratio": 0.8490780889540454,
+    "true_latent_shift_spread_rel": 1.6117643058869013
+   },
+   "A_over_full": 2.289604715475997,
+   "eval_wall_s": 37.7
+  },
+  "syn-eeb930b9cf": {
+   "k": 12,
+   "k_true": 1,
+   "trap": "C",
+   "verdict": {
+    "k": 12,
+    "n_observed": 31,
+    "compact": false,
+    "A_minus_input_only": {
+     "diff": -0.5165221459202571,
+     "ci95": [
+      -0.6690777617193654,
+      -0.3747730429015656
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A_minus_readout_hist": {
+     "diff": -0.24508003196704445,
+     "ci95": [
+      -0.34940107752238636,
+      -0.14621038183826382
+     ],
+     "n": 40,
+     "p": 0.0009995002498750624
+    },
+    "A": 0.11036054192729974,
+    "A_full": 0.10703647481065053,
+    "predictive": true,
+    "C": 0.3723531927733781,
+    "C_ci95": [
+     0.23738827802367254,
+     0.49552834540955293
+    ],
+    "C_abstained_pairs": 0,
+    "C_n_eff": 5.79595648687769,
+    "interventional": true,
+    "C_structural": 0.5650602439397864,
+    "C_structural_ci95": [
+     0.11064846965663479,
+     0.6444168992106523
+    ],
+    "C_structural_abstained_pairs": 0,
+    "D_micro_gain": -0.09463212872763117,
+    "D_ci95": [
+     -0.14723004158027952,
+     -0.03863788929091159
+    ],
+    "closed": true,
+    "E_ratio": 0.07051284461717602,
+    "E_ci95": [
+     0.01520086031839808,
+     0.18458619744751914
+    ],
+    "E_testable": false,
+    "E_untestable_reason": "matched pairs not close (median distance ratio 0.428 > 0.2)",
+    "microstate_equivalent": null,
+    "verdict": "partially supported",
+    "abstention": {
+     "no_compact_state": true,
+     "dimension_unresolved": null,
+     "causal_equivalence_failed": false,
+     "reason": "validation error still falling at the largest candidate k (no plateau); all bottleneck dimensions active at k_max"
+    }
+   },
+   "K": {
+    "n_samples": 480,
+    "k_model": 12,
+    "k_true": 1,
+    "r2_true_from_model_linear": 0.9989364456461408,
+    "r2_true_from_model_rff": 0.9983416562835172,
+    "r2_model_from_true_linear": 0.14395743910016767,
+    "r2_model_from_true_rff": 0.1759406142716997,
+    "cca": [
+     0.9994679305411006
+    ],
+    "cca_mean": 0.9994679305411006
+   },
+   "K_dim": {
+    "k_true": 1,
+    "k_selected": 12,
+    "k_range": [
+     12,
+     12
+    ],
+    "exact": false,
+    "in_range": false,
+    "error": 11
+   },
+   "lift": {
+    "n_requested": 24,
+    "n_lifted": 24,
+    "supported": true,
+    "achieved_shift_rel_error": {
+     "mean": 0.526717664993855,
+     "ci95": [
+      0.4092595168703836,
+      0.6734458983258323
+     ]
+    },
+    "model_nmse_after_lift": {
+     "mean": 0.02747054850708719,
+     "ci95": [
+      0.019818210830555624,
+      0.03541140320328756
+     ]
+    },
+    "model_nmse_twin": {
+     "mean": 0.02738503582552769,
+     "ci95": [
+      0.019806611647185515,
+      0.03533296118181985
+     ]
+    },
+    "future_div_same_shift": 0.0007516741091840667,
+    "future_div_different_shift": 0.0014074743123929684,
+    "implementation_invariance_ratio": 0.5340588475153629,
+    "true_latent_shift_spread_rel": 1.2006613893029634
+   },
+   "A_over_full": 1.0310554614446108,
+   "eval_wall_s": 30.5
+  }
+ },
+ "abstention_rows": [
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": "A",
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": false,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": true,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": true,
+   "missed_abstention": false,
+   "false_alarm": false,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": "B",
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": "I",
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": null,
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": "G",
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  },
+  {
+   "noncompressible": false,
+   "trap": "C",
+   "closed_dynamics": true,
+   "abstained": true,
+   "dimension_unresolved": false,
+   "correct_abstention": false,
+   "missed_abstention": false,
+   "false_alarm": true,
+   "confident_wrong": false
+  }
+ ],
+ "G": {},
+ "I": []
+}
