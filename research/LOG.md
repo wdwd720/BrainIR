@@ -555,6 +555,14 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   The smoke on the dev suite then ran end to end (lin_pcadyn: 94 fits, 84 evaluations, 66 reference prefetches, G, shared and
   leave-one-out fits, profile and ranks; 4 fits failed inside the developer's in-progress shared-fit code). The lock was rewritten
   and the tag moved.
+- **Milestone transcript audit (2026-09-25 05:00, after the v2 sync).** All 10 agent streams were audited, about 22,000 events:
+  - 0 forbidden-path inputs;
+  - 0 web use outside the literature agent;
+  - 0 tool calls that the current guard would deny beyond the ones denied at the time.
+
+  One "answer token" hit in m_lin was a false positive. A 5-digit file size in an `ls -la` listing equals a numeric body id of the
+  answer. The audit now reports the CLASS of each hit (numeric length / non-numeric), never the value. There are no non-numeric
+  hits anywhere.
 - **Pitfall (headless agents).** A headless `claude -p` agent that starts a background job and ends its turn "to wait for the
   notification" terminates, because nothing can wake it. Resume such sessions (`launch.py --resume <session id>`) with the note
   `scratchpad/resume_note.txt`: poll in the foreground and never end a turn to wait. Check every finished agent for complete

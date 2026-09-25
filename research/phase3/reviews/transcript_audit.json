@@ -4,9 +4,44 @@
    "m_cb.20260924T230706.jsonl"
   ],
   "tool_calls": {
-   "Bash": 37,
-   "Read": 4,
-   "Write": 7,
+   "Bash": 149,
+   "Read": 8,
+   "Write": 21,
+   "Edit": 3,
+   "PowerShell": 8,
+   "ToolSearch": 1,
+   "Monitor": 6
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 3,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 3713,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 3,
+  "guard_denial_reasons": {
+   "path outside the clean room": 1,
+   "'/./' path components are not allowed": 1,
+   "script content": 1
+  },
+  "n_web_queries": 0
+ },
+ "m_ks": {
+  "streams": [
+   "m_ks.20260924T230659.jsonl",
+   "m_ks.20260925T000538.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 113,
+   "Read": 7,
+   "Write": 12,
+   "ToolSearch": 1,
+   "Monitor": 1,
+   "PowerShell": 3,
+   "Grep": 1,
    "Edit": 1
   },
   "web_queries": [],
@@ -15,7 +50,7 @@
   "outputs_with_forbidden_names": 2,
   "outputs_with_answer_tokens": 0,
   "blocked_tool_uses": 0,
-  "events": 1084,
+  "events": 2654,
   "denied_by_current_guard": [],
   "guard_log_unparsable_lines": 0,
   "guard_denials": 1,
@@ -24,52 +59,37 @@
   },
   "n_web_queries": 0
  },
- "m_ks": {
-  "streams": [
-   "m_ks.20260924T230659.jsonl"
-  ],
-  "tool_calls": {
-   "Bash": 48,
-   "Read": 3,
-   "Write": 11,
-   "ToolSearch": 1,
-   "Monitor": 1
-  },
-  "web_queries": [],
-  "forbidden_path_inputs": 0,
-  "forbidden_name_inputs": 0,
-  "outputs_with_forbidden_names": 2,
-  "outputs_with_answer_tokens": 0,
-  "blocked_tool_uses": 0,
-  "events": 1245,
-  "denied_by_current_guard": [],
-  "guard_log_unparsable_lines": 0,
-  "guard_denials": 0,
-  "guard_denial_reasons": {},
-  "n_web_queries": 0
- },
  "m_lin": {
   "streams": [
    "m_lin.20260924T230655.jsonl"
   ],
   "tool_calls": {
-   "Bash": 39,
-   "Read": 1,
-   "Write": 9
+   "Bash": 153,
+   "Read": 4,
+   "Write": 14,
+   "PowerShell": 1,
+   "ToolSearch": 1,
+   "TaskStop": 8,
+   "Edit": 1
   },
   "web_queries": [],
   "forbidden_path_inputs": 0,
   "forbidden_name_inputs": 0,
-  "outputs_with_forbidden_names": 2,
-  "outputs_with_answer_tokens": 0,
+  "outputs_with_forbidden_names": 3,
+  "outputs_with_answer_tokens": 1,
   "blocked_tool_uses": 0,
-  "events": 983,
+  "events": 3261,
   "denied_by_current_guard": [],
+  "answer_token_hit_classes": {
+   "numeric-5-digits": 1
+  },
   "guard_log_unparsable_lines": 0,
-  "guard_denials": 3,
+  "guard_denials": 5,
   "guard_denial_reasons": {
    "path outside the clean room": 1,
-   "the clean room's .claude settings and CLAUDE.md are read-onl": 2
+   "the clean room's .claude settings and CLAUDE.md are read-onl": 2,
+   "forbidden pattern '\\\\bpy(thon)?[0-9.]*(\\\\.exe)?\\\\s+(-[a-zA-Z": 1,
+   "embedded script": 1
   },
   "n_web_queries": 0
  },
@@ -78,26 +98,30 @@
    "m_nn.20260924T230702.jsonl"
   ],
   "tool_calls": {
-   "Bash": 43,
-   "Read": 3,
-   "PowerShell": 1,
-   "Write": 9,
+   "Bash": 115,
+   "Read": 7,
+   "PowerShell": 11,
+   "Write": 13,
    "ToolSearch": 1,
-   "Edit": 2
+   "Edit": 7,
+   "TaskStop": 7,
+   "Monitor": 4
   },
   "web_queries": [],
   "forbidden_path_inputs": 0,
   "forbidden_name_inputs": 0,
-  "outputs_with_forbidden_names": 1,
+  "outputs_with_forbidden_names": 2,
   "outputs_with_answer_tokens": 0,
   "blocked_tool_uses": 0,
-  "events": 964,
+  "events": 2901,
   "denied_by_current_guard": [],
   "guard_log_unparsable_lines": 0,
-  "guard_denials": 3,
+  "guard_denials": 5,
   "guard_denial_reasons": {
    "variables used as path prefixes are not allowed": 1,
-   "path outside the clean room": 2
+   "path outside the clean room": 2,
+   "forbidden pattern '\\\\bpy(thon)?[0-9.]*(\\\\.exe)?\\\\s+(-[a-zA-Z": 1,
+   "'/./' path components are not allowed": 1
   },
   "n_web_queries": 0
  },
@@ -106,26 +130,29 @@
    "m_sd.20260924T230709.jsonl"
   ],
   "tool_calls": {
-   "Bash": 58,
-   "Read": 3,
+   "Bash": 175,
+   "Read": 7,
    "ToolSearch": 1,
-   "Write": 15,
-   "PowerShell": 5,
-   "Edit": 9,
-   "Monitor": 2
+   "Write": 38,
+   "PowerShell": 10,
+   "Edit": 11,
+   "Monitor": 6,
+   "Grep": 2
   },
   "web_queries": [],
   "forbidden_path_inputs": 0,
   "forbidden_name_inputs": 0,
-  "outputs_with_forbidden_names": 1,
+  "outputs_with_forbidden_names": 2,
   "outputs_with_answer_tokens": 0,
   "blocked_tool_uses": 0,
-  "events": 1163,
+  "events": 3908,
   "denied_by_current_guard": [],
   "guard_log_unparsable_lines": 0,
-  "guard_denials": 2,
+  "guard_denials": 5,
   "guard_denial_reasons": {
-   "path outside the clean room": 2
+   "path outside the clean room": 3,
+   "script content": 1,
+   "'/./' path components are not allowed": 1
   },
   "n_web_queries": 0
  },
@@ -758,6 +785,45 @@
   },
   "n_web_queries": 558
  },
+ "review_e": {
+  "streams": [
+   "review_e.20260925T014314.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 39,
+   "Read": 2,
+   "ToolSearch": 1,
+   "TaskStop": 1,
+   "Grep": 1,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 427,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "forbidden pattern '\\\\bpythonpath\\\\b'",
+    "input": "{\"command\": \"sed -i 's#sys.path.insert(0, \\\"src\\\")#sys.path.insert(0, \\\"src\\\"); sys.path.insert(0, \\\".tmp/E\\\")#' .tmp/E/common.py && OMP_NUM_THREADS=3 MKL_NUM_THREADS=3 OPENBLAS_NUM_THREADS=3 PYTHONPATH=.tmp/E uv run python .tmp/E/t.py\", \"description\": \"Time one PCA-k evaluation on a dev system\"}"
+   },
+   {
+    "tool": "Bash",
+    "reason": "stop processes only by their explicit id (Stop-Process -Id <pid>); other work runs on this machine",
+    "input": "{\"command\": \"pkill -f exp3.py; sleep 1; sed -i 's|q\\\\[\\\"traj\\\"\\\\] = f\\\"{tg\\\\[ti\\\\]}#{j}\\\"; newpool.append(q)|newpool.append(q)  # keep the original trajectory id: copies of one trajectory never pair|' .tmp/E/exp3.py && grep -n \\\"newpool.append\\\" .tmp/E/exp3.py\", \"description\": \"Fix bootstrap duplica"
+   }
+  ],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 2,
+  "guard_denial_reasons": {
+   "forbidden pattern '\\\\bpythonpath\\\\b'": 1,
+   "stop processes only by their explicit id (Stop-Process -Id <": 1
+  },
+  "n_web_queries": 0
+ },
  "review_g": {
   "streams": [
    "review_g.20260924T230843.jsonl"
@@ -782,6 +848,28 @@
    "path outside the clean room": 1,
    "forbidden pattern 'brainir_p3review'": 2
   },
+  "n_web_queries": 0
+ },
+ "review_h": {
+  "streams": [
+   "review_h.20260925T014316.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 44,
+   "Read": 3,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 1,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 675,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
   "n_web_queries": 0
  }
 }

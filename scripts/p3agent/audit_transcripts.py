@@ -100,8 +100,14 @@ def audit(audit_dir: Path) -> dict:
                     text = json.dumps(c.get("content"))
                     if NAMES.search(text):
                         r["outputs_with_forbidden_names"] += 1
-                    if tok_re.search(text):
+                    mt = tok_re.search(text)
+                    if mt:
                         r["outputs_with_answer_tokens"] += 1
+                        # the token class, never its value (the value is answer-bearing): a short numeric token can coincide with
+                        # an unrelated number (file sizes, counts); non-numeric tokens are the real alarm
+                        tok = mt.group(0)
+                        cls = f"numeric-{len(tok)}-digits" if tok.isdigit() else "non-numeric"
+                        r.setdefault("answer_token_hit_classes", Counter())[cls] += 1
         glog = audit_dir / f"guard_{name}.jsonl"
         if glog.exists():
             rows, bad = [], 0
