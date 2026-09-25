@@ -508,7 +508,10 @@ crash on some hosts, `research/phase3/level_c/modal_pinning_crash_experiment.jso
 evaluation statistics, may differ between hosts in the last digits (fits agree to ~1e-13 in parameters; evaluation statistics to ~3e-4
 relative, a D CI endpoint near 0 by up to ~0.003; `research/phase3/level_c/MODAL_BACKEND_CHECK.md`). All fits of one Level C run come
 from one environment (Modal). A worker killed by a signal is re-run once in its container and then in a fresh container (up to 3
-times); every such event is recorded and is an infrastructure retry, never a retry of a scientific failure. The hidden real data are generated on the pinned Modal image (`generate_real_hidden.py --backend modal`): the protocols
+times); every such event is recorded and is an infrastructure retry, never a retry of a scientific failure. Every job records the
+peak memory of its container, and a run may size its containers from those measurements (`P3_MODAL_CPU`, `P3_MODAL_MEM_MB`): an
+execution parameter that does not change any computation (re-lock 1 of version 3, section 10.1). The hidden real data are generated
+on the pinned Modal image (`generate_real_hidden.py --backend modal`): the protocols
 are built locally from the salt, simulated on Modal, and the records and the assembled dataset are written to the EVAL volume only;
 the local copy is downloaded and checked against hashes computed at write time. Every test trajectory, its twin and every
 microstate restart are simulated on that one platform. Before the lock this code path reproduced the stored PUBLIC records of all
@@ -538,6 +541,10 @@ POST-LOCK ANALYSES (pre-registered here; `research/phase3/POSTLOCK_RUNBOOK.md`):
 - **Version 3:** locked 2026-09-25 (tag `state-discovery-benchmark-v3`), after the pre-lock reviews A-D. At that point no method was
   locked, the FINAL suite had never been used and no hidden real data existed. The developers were told the changes of the public
   evaluator (not the reviews).
+- **Version 3, re-lock 1 (execution only):** 2026-09-25 (tag `state-discovery-benchmark-v3-relock1`), while the version-3 round 3 was
+  running: per-job container memory recorded, container size configurable per run, and the room builder's recovery from an
+  interrupted sync (`scripts/p3/modal_tournament.py`, `scripts/p3/p3modal/remote.py`, `scripts/make_phase3_cleanroom.py`). No
+  evaluation module changed (the evaluator code tag is the same), and no computation or result depends on these changes.
 
 Version 2 changes:
 

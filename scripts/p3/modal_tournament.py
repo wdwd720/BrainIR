@@ -29,6 +29,7 @@ import argparse
 import hashlib
 import io
 import json
+import os
 import sys
 import tarfile
 import tempfile
@@ -48,7 +49,9 @@ PKG_DIR = ROOT / "phase3" / "src" / "brainir_state"
 P3M_DIR = ROOT / "scripts" / "p3" / "p3modal"
 PRICE_PER_CORE_S = 0.192 / 3600       # Modal CPU list price (2026), per physical core-second; approximate cost notes only
 PRICE_PER_GIB_S = 0.024 / 3600
-CPU, MEM_MB = 2.0, 6144           # Modal cpu = physical cores (2 hyperthreads each): room for the 3 fit / evaluation threads
+# Modal cpu = physical cores (2 hyperthreads each): room for the 3 fit / evaluation threads. Execution parameters only (benchmark version
+# 3): a run may size its containers from measured per-job memory (peak_container_mb in the records) with P3_MODAL_CPU / P3_MODAL_MEM_MB
+CPU, MEM_MB = float(os.environ.get("P3_MODAL_CPU", "2.0")), int(os.environ.get("P3_MODAL_MEM_MB", "6144"))
 
 _STATE: dict = {"costs": [], "methods_keys": {}}
 
@@ -235,7 +238,10 @@ def _model_files(p: Path) -> dict:
 
 def _cost(recs: list[dict], label: str) -> None:
     s = sum(float(r.get("container_wall_s") or 0.0) for r in recs if isinstance(r, dict))
-    _STATE["costs"].append({"label": label, "calls": len(recs), "container_s": round(s, 1),
+    peaks = [float(r["peak_container_mb"]) for r in recs if isinstance(r, dict) and r.get("peak_container_mb") is not None]
+    _STATE["costs"].append({"label": label, "calls": len(recs), "container_s": round(s, 1), "cpu": CPU, "memory_mb": MEM_MB,
+                            "peak_container_mb_max": max(peaks) if peaks else None,
+                            "peak_container_mb_p95": sorted(peaks)[int(0.95 * (len(peaks) - 1))] if peaks else None,
                             "usd_approx": round(s * (CPU * PRICE_PER_CORE_S + MEM_MB / 1024 * PRICE_PER_GIB_S), 3)})
 
 

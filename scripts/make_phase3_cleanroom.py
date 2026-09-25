@@ -188,8 +188,10 @@ def sync(dest: Path, reason: str) -> dict:
         src, dst = it["source"], dest / it["path"]
         if not src.exists():
             raise SystemExit(f"allowlisted source missing: {src}")
-        if dst.exists() and _sha(dst) == _sha(src):
+        if dst.exists() and _sha(dst) == _sha(src) and (by_path.get(it["path"]) or {}).get("sha256") == _sha(dst):
             continue
+        # (a file that is already identical but whose manifest entry is stale was copied by an interrupted sync: it is checked and
+        # recorded like any changed file)
         if FORBIDDEN_NAMES.search(it["path"]):
             raise SystemExit(f"forbidden name: {it['path']}")
         if src.suffix in TEXT_SUFFIXES:

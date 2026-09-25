@@ -120,6 +120,7 @@ class _Sim:
 
 
 # ------------------------------------------------------------------------------------------------ job kinds
+@with_mem
 def run_fit(p: dict) -> dict:
     from brainir_state.suite_eval import fit_sandboxed
     t0 = time.time()
@@ -185,6 +186,62 @@ def run_fit(p: dict) -> dict:
     return res
 
 
+class MemPeak:
+    """Peak memory of the CONTAINER while a job runs (cgroup counters sampled every 0.25 s): the per-job-kind sizing input of the
+    Modal resource classes (the orchestrator's request: containers sized from measured needs)."""
+
+    FILES = ("/sys/fs/cgroup/memory.current", "/sys/fs/cgroup/memory/memory.usage_in_bytes")
+
+    def __init__(self):
+        import threading
+        self.peak = 0
+        self._stop = threading.Event()
+        self._thread = threading.Thread(target=self._loop, daemon=True)
+        self._file = next((f for f in self.FILES if os.path.exists(f)), None)
+
+    def _read(self) -> int:
+        try:
+            with open(self._file) as fh:
+                return int(fh.read().strip())
+        except Exception:  # noqa: BLE001
+            return 0
+
+    def _loop(self):
+        while not self._stop.is_set():
+            self.peak = max(self.peak, self._read())
+            self._stop.wait(0.25)
+
+    def __enter__(self):
+        if self._file:
+            self._thread.start()
+        return self
+
+    def __exit__(self, *exc):
+        self._stop.set()
+        if self._file:
+            self._thread.join(timeout=2)
+            self.peak = max(self.peak, self._read())
+        return False
+
+    @property
+    def mb(self) -> float | None:
+        return round(self.peak / 2**20, 1) if self._file else None
+
+
+def with_mem(fn):
+    """Decorator: run a job function under MemPeak and add peak_container_mb to its dict result."""
+    import functools
+
+    @functools.wraps(fn)
+    def wrapped(p):
+        with MemPeak() as mp:
+            res = fn(p)
+        if isinstance(res, dict):
+            res["peak_container_mb"] = mp.mb
+        return res
+    return wrapped
+
+
 SIGNAL_RETRIES = 1      # a worker killed by a signal (an infrastructure fault) is re-run once in the container; crashes follow the
 #                         host (research/phase3/level_c/modal_pinning_crash_experiment.json), so the input then moves to another
 #                         container through Modal's retry policy (modal_tournament.make_app, max_retries 3)
@@ -231,6 +288,7 @@ def _run_worker(kind: str, job: dict, jd: Path, env: dict, timeout_s: float) -> 
     return {"error": "unreachable"}
 
 
+@with_mem
 def run_eval(p: dict) -> dict:
     """kind eval (one model) or repro (several models of one method); the result of the frozen worker, unchanged."""
     t0 = time.time()
@@ -254,6 +312,7 @@ def run_eval(p: dict) -> dict:
     return res
 
 
+@with_mem
 def run_call(p: dict) -> dict:
     """An orchestrator function (no method code) in a fresh subprocess: module.func(*args), with /repo/scripts/p3 importable and the
     requested data links (e.g. /repo/data/phase3/synthetic_dev -> the eval volume's dev suite)."""
@@ -309,6 +368,7 @@ def run_extract(p: dict) -> dict:
     return {"extracted_files": n, "dest": str(dest), "container_wall_s": round(time.time() - t0, 1)}
 
 
+@with_mem
 def run_refs(p: dict) -> dict:
     """The frozen reference controls of one (system, k) on the held-out suite; returns the cache files written."""
     t0 = time.time()
@@ -389,6 +449,7 @@ def _subview(d: dict, dest: Path) -> tuple[Path, Path]:
     return dest, base
 
 
+@with_mem
 def run_fit_real(p: dict) -> dict:
     """run_fit for the real suite: datasets of kind view / tar / subview, and a simulation service with the bundle."""
     from brainir_state.suite_eval import fit_sandboxed
@@ -489,6 +550,7 @@ def eval_real_inproc(kind: str, job: dict) -> dict:
     return evaluate_model_job(job) if kind == "eval_real" else reproducibility_job(job)
 
 
+@with_mem
 def run_eval_real(p: dict) -> dict:
     """kind eval_real / repro_real: the frozen worker on the real suite (hidden data from the eval volume)."""
     t0 = time.time()
@@ -525,6 +587,7 @@ def refs_real_inproc(spec: dict, sid: str, k: int, cache_dir: str, seed: int = 0
     return {"ok": True, "evaluator_code_tag": evaluator_code_tag()}
 
 
+@with_mem
 def run_refs_real(p: dict) -> dict:
     """kind refs_real: reference controls of one real (system, k); returns the cache files written."""
     t0 = time.time()

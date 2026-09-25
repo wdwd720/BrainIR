@@ -1,7 +1,7 @@
 {
  "benchmark": "state_discovery_v3",
  "benchmark_version": 3,
- "created_utc": "2026-09-25T23:17:43Z",
+ "created_utc": "2026-09-25T23:39:50Z",
  "datasets": {
   "data/phase3/real_public/index.jsonl": "0514d864211b30c15d304286924af1fd262e32f02591a8ee794f5a2856e8f8d3",
   "data/phase3/real_public/manifest.json": "d3a11c9effa0483212655b71f2cd9a6768343a32440ae83089643dc3d0e45634",
@@ -32,7 +32,7 @@
   "data/phase3/synthetic_truth/dev/truth_index.jsonl": "002b235c056f9caea8adde132087b05721e7a02b0014ca6ba356b202250edc62"
  },
  "files": {
-  "benchmarks/state_discovery_v1/PROTOCOL.md": "d3e698092945ad40da085cf165542d11e602e7f24106ecbaf364cca744ad26fb",
+  "benchmarks/state_discovery_v1/PROTOCOL.md": "e2e0fe6976a6e2731839e3b25ad2463464eea19c27f683dda8d55fa9fb87252e",
   "benchmarks/state_discovery_v1/calibration.json": "9dbb8e7c31daba5fad48dababd9e20d9cad27a6c4e6c8f8a2fec9922dad698ca",
   "benchmarks/state_discovery_v1/generator/CONTRACT.md": "882c6e4f5167cbb14804f991494e9454f6a517d7fa4ec135673ee83a47aca379",
   "benchmarks/state_discovery_v1/generator/SYNTHETIC_BENCHMARK.md": "bdc77997a13be0188c2978d990101578e0b8e06eeca41c4948dfb7b159b0f3c9",
@@ -101,7 +101,7 @@
   "research/phase3/contracts/METHODS_REVIEW_CONTRACT.md": "4ba99eb5b008f27f0940330de8cbd783aaa602d963dba6b49cc958d022ea16aa",
   "research/phase3/contracts/METHOD_DEV_CONTRACT.md": "98ba80c7961ae1749edaf8b4bdc38e13113e8a22ad95b2a590d3613d00eca93f",
   "research/phase3/contracts/SYNTHETIC_BENCHMARK_CONTRACT.md": "882c6e4f5167cbb14804f991494e9454f6a517d7fa4ec135673ee83a47aca379",
-  "scripts/make_phase3_cleanroom.py": "98690ed3a585e87a9a0447fa570bd4e715916650647e6538fb562db701f49b71",
+  "scripts/make_phase3_cleanroom.py": "a4158932d6eee22404e68effa446642e8c9edda72f461feae1d5c1cefaf04e77",
   "scripts/p3/ablations.py": "ca0ae94d6574e57ba5c9c987979a76210f06f6da6d8395c03ab27674cad2686a",
   "scripts/p3/build_synthetic_suites.py": "3e08044463f8c7f71ad46e92e74229ecb1d54253874a6fa715b65ffd04746f16",
   "scripts/p3/calibrate.py": "fda910e1c95729b6e0c544b5dbc20b9860c6c69d3bc3a16c1f2875befa8f863e",
@@ -115,12 +115,12 @@
   "scripts/p3/kick_clip_pairs.py": "4e498e764ed40650b1f89f7f92a690f38ea45a9b19cc817806e6bbef4e42ef2f",
   "scripts/p3/level_c.py": "93a8f7d10de68f89ca9311258981a6ad7df3d9211df77a9965f9f637c887f9b6",
   "scripts/p3/merge_rounds.py": "ed2592fbaac7938e365b602cac9a7ff948dea9426bbbacadffb8a6b0beb64a3c",
-  "scripts/p3/modal_tournament.py": "61be55952aedb6feb21046a8ee43226c3fd64ceab1fd749d7e4fa72ba8ba7be5",
+  "scripts/p3/modal_tournament.py": "d1d806aec70506fd4ce6931dccb59cd63e4432b4a17b80005f7f3e5f77e85bcd",
   "scripts/p3/p3modal/__init__.py": "a48e27a75e18a8af7cf9641c9164869c67e698fd7f420c5c6b54fb8fdb10e62e",
   "scripts/p3/p3modal/evaljob.py": "be26f5de1b49eadd7b49b226d47b078c2f4ea8a58e226510a9d1e5f883982fd6",
   "scripts/p3/p3modal/guard.py": "6e27823373e6806e96e96c0d8b434487abbac3645fbaa1a85cdce3d170e95f46",
   "scripts/p3/p3modal/postlock.py": "852c6af2e2e6dc57cd14aac3f8ee1fea98368ad3b6bdf8984c215f50894cd96e",
-  "scripts/p3/p3modal/remote.py": "dfcdacf1ee99265f25ef9453d2a6fc343b4dd89e11b68e8339a72e13199fa7fe",
+  "scripts/p3/p3modal/remote.py": "8ee1669cbb08f631cfb06e0bb0912f8b4b2d554e609b3d796c78d660aa6e6f33",
   "scripts/p3/p3modal/site/sitecustomize.py": "ac8e84b163390f3e43991f3e7c790424fdaa5bb2a454ed2fd31b4633c48d8b72",
   "scripts/p3/regen_in_room.py": "be18a73fdf60d577329ed3a66b79b668a0f9211caf2ff1aa814ebe244a7b733e",
   "scripts/p3/regenerate_candidates.py": "b0f9199f26ef0cf667bacbe37701a20c2d8e65aba02c7780c0c7b492308d4a8c",
@@ -132,6 +132,26 @@
  },
  "git_tag": "state-discovery-benchmark-v3",
  "note": "Changing any hashed file requires a new benchmark version (PROTOCOL.md section 10).",
+ "relocks": [
+  {
+   "evaluator_code_tag": "365f7ad6d9",
+   "files_changed": [
+    "scripts/p3/modal_tournament.py",
+    "scripts/p3/p3modal/remote.py",
+    "scripts/make_phase3_cleanroom.py",
+    "benchmarks/state_discovery_v1/PROTOCOL.md"
+   ],
+   "kind": "execution only",
+   "n": 1,
+   "note": "made while the version-3 round 3 was running; no evaluation module changed and no computation depends on it",
+   "of": {
+    "commit": "d056d35cf4e3ab15c5856765a180af6c67d81b9f",
+    "git_tag": "state-discovery-benchmark-v3"
+   },
+   "reason": "per-job container memory recording and per-run container sizing (the orchestrator's request to size remote containers from measured memory needs); room builder recovery from an interrupted sync; PROTOCOL section 10 text for both",
+   "tag": "state-discovery-benchmark-v3-relock1"
+  }
+ ],
  "salt_sha256": "4fe1d860a3a3f87997c8b0738a42187bc775b3c53e74e64071786eb48cb3d276",
  "supersedes": {
   "benchmark": "state_discovery_v2",

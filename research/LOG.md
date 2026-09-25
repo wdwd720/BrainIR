@@ -497,6 +497,8 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 | P3-D20 | 2026-09-25 | The evaluator's reference controls (`refmodels`) are not copied by the rollout isolation (`evaluate.Fresh`) | They are orchestrator code; the true-latent reference carries a lookup of every recorded state (tens of MB), which a per-rollout copy would make prohibitively slow. Method models are always copied |
 | P3-D21 | 2026-09-25 | An independent BASELINE TUNER (fresh clean-room agent, no competing candidate, ~3 h budget, dev data only, `<baseline>_t` variants) before the version-3 round 3; the Level C comparator is ranked on S1-S5 among markov-valid baselines only | Review C M2: baselines were smoke-tested only; the round-2 comparator was chosen on components the Level C family does not test |
 | P3-D22 | 2026-09-25 | Parallel orchestration (the user's acceleration directive): forks of the orchestrator implement disjoint parts of version 3 and the post-lock infrastructure (files owned per fork); clean-room agents (composer, baseline tuner) run concurrently; every Modal job runs in parallel apps | Serial barriers kept: v3 fixes and recalibration before the round-3 re-run; the method lock before the FINAL suite and before hidden data exist; hidden data never on the fit volume |
+| P3-D23 | 2026-09-25 | REMOTE RUNNER for clean-room development experiments (`scripts/p3/devrun.py`): agents queue their own scripts; the orchestrator runs them on network-blocked Modal containers (up to 8 CPUs / 64 GB) with no repository code and only a hash-verified copy of the room's public `data/`; outputs come back into the requester's `runs/<prefix>/remote/` | The user asked not to throttle scientifically independent work because of local RAM; agents have no Modal access, so the orchestrator mediates (LEAKAGE_POLICY.md section 3.2) |
+| P3-D24 | 2026-09-25 | Execution-only re-lock of version 3 (`state-discovery-benchmark-v3-relock1`): per-job container memory recording, per-run container sizing, the room builder's interrupted-sync recovery | Made while the version-3 round 3 was running; no evaluation module changed (same evaluator code tag), so no computation or result depends on it; the version-3 tag stays on the commit the round started from |
 
 ### 11.2 Pitfalls hit
 
@@ -651,3 +653,13 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   dense linear algebra, hence fits and evaluation statistics, may differ between Modal hosts in the last digits (documented tolerance
   in PROTOCOL.md section 10). The first v3 calibration run had no crash (whether its image already carried the pins was not
   recorded); the calibration of record is the run made with the final image.
+- **2026-09-25 ~16:20-17:00: memory incident and execution changes.** Claude Code stopped every background shell for low memory
+  (13 local tournament drivers each with a local simulation service, two clean-room agents' experiments and a room sync ran together
+  on 28.7 GB). With the user's approval the work restarted memory-capped: the idle local simulation services of the Modal-backed
+  drivers were stopped (Modal fits run their own), the composer and the baseline tuner were resumed from their sessions (the
+  composer with both requirement batches), the interrupted room sync was completed (a builder bug: an interrupted sync left files
+  copied but unrecorded; fixed), and `lin_dmdc`'s round-3 part was re-run after a Modal client SSL crash (fits cached). The user then
+  asked to move memory-heavy work to sized Modal containers instead of throttling: every Modal job now records its container's peak
+  memory, container size is set per run (`P3_MODAL_CPU`, `P3_MODAL_MEM_MB`), and clean-room agents get a remote runner (P3-D23).
+  These execution-only changes were re-locked (`state-discovery-benchmark-v3-relock1`); no evaluation module changed (evaluator code
+  tag 365f7ad6d9 before and after).

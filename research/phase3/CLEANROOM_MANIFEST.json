@@ -52696,7 +52696,7 @@
    "path": "data/tolerances.json",
    "source": "$REPO/benchmarks/state_discovery_v1/public/tolerances.json",
    "reason": "calibrated verdict tolerances (PROTOCOL.md section 6; values only)",
-   "sha256": "a02ead8a52b7e583f9d4346718316c60a5d03556f1d11ab18087967985e68701",
+   "sha256": "8321334b16e5f7051fc5516520f8d3d38c3fc1442673bde88f1c08ee2077755b",
    "leakage_class": "benchmark-public"
   },
   {
@@ -52717,7 +52717,7 @@
    "path": "docs/PROTOCOL.md",
    "source": "$REPO/benchmarks/state_discovery_v1/PROTOCOL.md",
    "reason": "the frozen public evaluation protocol",
-   "sha256": "28afc7635319eab0dfd9cfc3ab3d0080398b4babcbb5d86de62b7a6d4bb6e393",
+   "sha256": "d3e698092945ad40da085cf165542d11e602e7f24106ecbaf364cca744ad26fb",
    "leakage_class": "benchmark-public"
   },
   {
@@ -52752,28 +52752,28 @@
    "path": "src/brainir_state/evaluate.py",
    "source": "$REPO/phase3/src/brainir_state/evaluate.py",
    "reason": "public Phase 3 module (formats, API, public evaluator)",
-   "sha256": "f53e28739f108e3156aef8f93a9bb842ea777fa94e81600d886f61c628529c5f",
+   "sha256": "c41ae275ba7745e69a792a97f0fbcc9217c8a8febbcc4ea9e230670712aa99b6",
    "leakage_class": "generic-public"
   },
   {
    "path": "src/brainir_state/evaluate_cross.py",
    "source": "$REPO/phase3/src/brainir_state/evaluate_cross.py",
    "reason": "public Phase 3 module (formats, API, public evaluator)",
-   "sha256": "14f5fafd2b2f7aa9111b71ba548a98b96c7ff8635d390c83ab91b03e0eb8d1d8",
+   "sha256": "78360167dd13a6b6fcb43f64d3e584bf32a22b407193a60afca4d1cb7cb9167f",
    "leakage_class": "generic-public"
   },
   {
    "path": "src/brainir_state/evaluate_lift.py",
    "source": "$REPO/phase3/src/brainir_state/evaluate_lift.py",
    "reason": "public Phase 3 module (formats, API, public evaluator)",
-   "sha256": "0ebaecc3f1d393ff5f42873cd866476667e5251c9b5d3069c9295ddcdc17791b",
+   "sha256": "617b8e41ed5fb7f0808fe338509c3159edd7c06f745ff927106179ea459686d3",
    "leakage_class": "generic-public"
   },
   {
    "path": "src/brainir_state/harness.py",
    "source": "$REPO/phase3/src/brainir_state/harness.py",
    "reason": "public Phase 3 module (formats, API, public evaluator)",
-   "sha256": "92721e981ce6ee1ff093244987e221c99310c8b32370dc50e5e9564a4c19f198",
+   "sha256": "3b032738f2f1f44fdf1bccd518906d30a31e2b480f7267940be6936086ee12d2",
    "leakage_class": "generic-public"
   },
   {
@@ -52826,6 +52826,18 @@
    "files": [
     "src/brainir_state/evaluate.py",
     "src/brainir_state/refmodels.py",
+    "src/brainir_state/harness.py",
+    "src/brainir_state/evaluate_cross.py",
+    "src/brainir_state/evaluate_lift.py",
+    "docs/PROTOCOL.md",
+    "data/tolerances.json"
+   ]
+  },
+  {
+   "time_utc": "2026-09-25T23:37:52Z",
+   "reason": "benchmark version 3 (pre-lock reviews A-D; generic evaluator changes; tag state-discovery-benchmark-v3); completes the interrupted sync",
+   "files": [
+    "src/brainir_state/evaluate.py",
     "src/brainir_state/harness.py",
     "src/brainir_state/evaluate_cross.py",
     "src/brainir_state/evaluate_lift.py",

@@ -109,6 +109,23 @@ Level B fits and evaluations, the reference controls and the calibration run on 
   - evaluation containers read them under the same guard as the synthetic held-out suites;
   - counterexample searches with HIDDEN real parameter draws run locally only (`counterexamples.py` refuses Modal for them).
 
+### 3.2 Remote runner for clean-room development experiments (LOG P3-D23, 2026-09-25)
+
+The local machine ran out of memory while two clean-room agents, the tournament drivers and a room sync ran together. Development
+experiments can therefore run on Modal through an orchestrator-run queue (`scripts/p3/devrun.py`), without giving any agent Modal
+access:
+- **Request.** The agent writes a request file with the room client `runs/_remote/remote_run.py`: one of its own scripts
+  (`runs/<prefix>/...py`), plain-string arguments and a resource class (up to 8 CPUs / 64 GB). The daemon validates every field
+  (path inside the requester's work area, no `..`, a character whitelist for arguments, known class, bounded time).
+- **Container.** The image has the room's pinned numerical stack and no repository code. The job brings the room's `src/` and the
+  requester's `runs/<prefix>/` as a tar. The only volume is `brainir-p3-devdata`, an exact, hash-verified copy of the room's `data/`
+  directory (`research/phase3/devrun_volume_check.json`). The network is blocked. No held-out, hidden, truth or orchestrator material
+  is reachable, and there is no simulation service.
+- **Results.** Only new or changed files under the requester's `runs/<prefix>/` come back, into `runs/<prefix>/remote/<job id>/`
+  (size-capped).
+- **Audit.** Every request, rejection, code-tar hash, result hash, exit code, peak memory and wall time is logged outside the room
+  (`C:\Dev\BrainIR_p3audit\remote_runner.jsonl`).
+
 ## 4. Audits
 
 `scripts/p3agent/audit_transcripts.py` (to be run at every milestone and by review F) scans every agent's event stream and guard log
