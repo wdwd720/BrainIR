@@ -135,16 +135,43 @@ L4c repeats L3b / L4a with B's models (`.../B/indep/...`).
 After the run, delete the permutation probe's temporary copies (`data/phase3/p3perm_*`).
 
 **L6: post-lock reviews (parallel).**
-- Build a post-lock review room `C:\Dev\BrainIR_p3postreview` (answer-aware, copies only). It holds:
-  - PROTOCOL.md, goal4.md, METHOD_LOCK.json;
-  - `phase3/src/brainir_state`, `scripts/p3`;
-  - under `results/`: the rounds, `level_c/`, `ablations/`, `counterexamples/`, SELF_AUDIT, COMPUTE_SUMMARY, HIDDEN_EVALUATIONS.md,
-    LEVELB_LOG.md;
-  - the draft PHASE3_REPORT.md.
-- Launch reviewers S, C, Y and R as separate sessions: `scripts/p3agent/launch.py --clean C:\Dev\BrainIR_p3postreview --name postlock_<X>
-  --prompt-file <COMMON + TASK>`.
+- Build the post-lock review room `C:\Dev\BrainIR_p3postreview` after L5, once the draft is in PHASE3_REPORT.md (or still in
+  `research/phase3/REPORT_WORKING.md`, the fallback). The builder is answer-aware and makes copies only:
+```
+"$UV" run --project phase3 --no-sync python scripts/p3/make_postlock_review_room.py --sync-env --prompts "C:\Dev\BrainIR_p3audit\prompts\postlock"
+"$UV" run --project phase3 --no-sync python scripts/p3/make_postlock_review_room.py --check
+```
+  - It copies an explicit list:
+    - docs/: PROTOCOL.md, the review contracts (COMMON + S, C, Y, R; never L), and goal4.md sections 7, 53, 59, 68, 70, 84-88 and 91
+      only, redacted;
+    - METHOD_LOCK.json, PHASE3_REPORT.md;
+    - `src/brainir_state` (with the locked `methods/`) and `scripts/`;
+    - under `results/`: every tournament round incl. `_failed/` (without `_refcache/`), `level_c/`, `ablations/`, `counterexamples/`,
+      `postlock_infra/`, review G's results, the benchmark calibration, tolerances, public systems and lock, SELF_AUDIT,
+      COMPUTE_SUMMARY, LEVELB_LOG.md, COSTS_LEDGER.md, and the hidden-evaluation log as `results/EVALUATION_LOG.md`. The agents'
+      tool guard refuses paths containing `hidden_eval`; CLAUDE.md and the prompts tell the reviewers.
+  - Every text is redacted with the review-room class plus the transcript audit's source names. Binary files are listed, not copied.
+  - The build happens in a staging directory. It is refused, and an existing room is left untouched, on any of:
+    - a forbidden name or content;
+    - a Phase 1 answer token (self_audit I7 rule; classes only);
+    - code that no longer parses;
+    - a results file the tool guard would block.
+  - Manifest: `research/phase3/POSTLOCK_REVIEW_ROOM_MANIFEST.json` (a failure writes `...MANIFEST.FAILED.json`). Required sources
+    missing (METHOD_LOCK.json, Level C, ablations, counterexamples, SELF_AUDIT, ...) stop the build: build only after L5.
+  - After report fixes, rebuild with `--update` (keeps `reviews/`, `.tmp/`, `.venv/`), then `--check`.
+  - `self_audit.py` I6 / I7 scan only the clean and pre-lock review rooms (the script is benchmark-locked). The builder's own scans
+    and `--check` cover this room; reviewer L re-runs `--check`.
+- Launch reviewers S, C, Y and R as separate sessions, in parallel:
+```
+for X in S C Y R; do
+  "$UV" run --project phase3 --no-sync python scripts/p3agent/launch.py --clean "C:\Dev\BrainIR_p3postreview" --name postlock_$X \
+      --prompt-file "C:\Dev\BrainIR_p3audit\prompts\postlock\postlock_$X.txt" > "C:\Dev\BrainIR_p3audit\agents\postlock_$X.out" 2>&1 &
+done; wait
+```
 - Run L as an answer-aware subagent in the main repository.
-- Each writes `reviews/POSTLOCK_<X>.md`. The orchestrator archives them to `research/phase3/reviews/`.
+- Each writes `reviews/POSTLOCK_<X>.md`. Before archiving them to `research/phase3/reviews/`, the orchestrator runs:
+  - the transcript audit (`scripts/p3agent/audit_transcripts.py`);
+  - the builder's `--check`, which also scans `reviews/`.
 
 **L7: resolve and finalise.** Fix reporting findings (never the method), rerun the self-audit, finalise PHASE3_REPORT.md, then create
 the final Phase 3 tag.
