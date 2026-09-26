@@ -1,0 +1,84 @@
+{
+ "source": "$EXTERNAL/BrainIR_p3audit/agents",
+ "streams": 27,
+ "tool_calls": 1653,
+ "checked": 1653,
+ "denied": 597,
+ "denied_by_tool": {
+  "Bash": 557,
+  "PowerShell": 13,
+  "Read": 13,
+  "Monitor": 10,
+  "TaskStop": 3,
+  "Grep": 1
+ },
+ "denied_by_reason": {
+  "host interpreter / tool refused (uv)": 462,
+  "forbidden pattern 'phase\\\\d_report'": 41,
+  "host interpreter / tool refused (python)": 33,
+  "PowerShell is disabled in the room": 13,
+  "host interpreter / tool refused (bash)": 13,
+  "Monitor is disabled in the room": 10,
+  "forbidden pattern 'real_hidden'": 8,
+  "forbidden pattern '\\\\bgoal\\\\d+\\\\.md\\\\b'": 4,
+  "TaskStop is disabled in the room": 3,
+  "host interpreter / tool refused (ps)": 3,
+  "host interpreter / tool refused (powershell)": 2,
+  "host command not allowlisted (wmic)": 1,
+  "host interpreter / tool refused (python3)": 1,
+  "redirection": 1,
+  "forbidden pattern '\\\\bpythonpath\\\\b'": 1,
+  "host command not allowlisted (pkill)": 1
+ },
+ "allowed_by_tool": {
+  "WebFetch": 461,
+  "Bash": 284,
+  "WebSearch": 97,
+  "Read": 81,
+  "Write": 80,
+  "Edit": 19,
+  "ToolSearch": 14,
+  "Grep": 13,
+  "Agent": 7
+ },
+ "rooms": {
+  "BrainIR_p3clean": 10,
+  "BrainIR_p3review": 7,
+  "BrainIR_p3postreview": 6,
+  "BrainIR_p3bench": 2,
+  "BrainIR_p3lit": 1,
+  "BrainIR_p3reviewG": 1
+ },
+ "per_room": {
+  "BrainIR_p3clean": {
+   "calls": 282,
+   "denied": 166,
+   "denied_host_interpreter": 147
+  },
+  "BrainIR_p3bench": {
+   "calls": 89,
+   "denied": 59,
+   "denied_host_interpreter": 56
+  },
+  "BrainIR_p3lit": {
+   "calls": 627,
+   "denied": 10,
+   "denied_host_interpreter": 10
+  },
+  "BrainIR_p3postreview": {
+   "calls": 293,
+   "denied": 217,
+   "denied_host_interpreter": 166
+  },
+  "BrainIR_p3review": {
+   "calls": 286,
+   "denied": 104,
+   "denied_host_interpreter": 94
+  },
+  "BrainIR_p3reviewG": {
+   "calls": 76,
+   "denied": 41,
+   "denied_host_interpreter": 41
+  }
+ }
+}

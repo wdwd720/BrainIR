@@ -1,0 +1,14 @@
+{
+ "rule": {
+  "seed": 20260926,
+  "synthetic": "for each synthetic type of the val tier (sorted by the generator's type label), the system at position rng.integers(n) of that type's systems sorted by opaque id, with rng = numpy default_rng(sha256('pilot|<seed>|<type>'))",
+  "real": "for each real network letter (sorted), the mechanism system at position rng.integers(n) of that network's mechanism systems sorted by id, with rng = numpy default_rng(sha256('pilot-real|<seed>|<letter>'))"
+ },
+ "real": [
+  "real:A:m2",
+  "real:B:m1",
+  "real:C:m2"
+ ],
+ "synthetic": null,
+ "note": "PROTOCOL section 10: the Level B pilot = one validation system per synthetic type + one real mechanism per network"
+}

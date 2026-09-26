@@ -1,0 +1,11 @@
+{
+ "tag": "brainir-p4-sandbox:1",
+ "id": "sha256:9604f491883e614371a16bc365f4f544119b6f3d3b60516fecca7faf1dc18076",
+ "base": "python@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f",
+ "built_utc": "2026-09-26T17:52:00Z",
+ "size_bytes": 478693719,
+ "stack": {"python": "3.12.14", "numpy": "2.5.3", "scipy": "1.18.1", "pandas": "3.0.6", "pyarrow": "25.0.1", "pydantic": "2.13.5",
+           "scikit-learn": "1.9.1", "threadpoolctl": "3.7.0", "torch": "2.14.0+cpu", "matplotlib": "3.11.2", "pytest": "9.1.1",
+           "networkx": "3.7", "filelock": "4.0.3", "fsspec": "2026.9.0", "setuptools": "84.0.0"},
+ "notes": "Built from docker/p4sandbox/Dockerfile + requirements.txt (every package pinned; torch's dependencies aligned with phase3/uv.lock; torch installed --no-deps from the CPU index; pip check clean). The room wrapper `sbx` pins the image by id. Superseded build (same numerical stack, torch dependencies from the CPU index): sha256:d2e3a225c5232a8fc372c46e04ef29bc71486e2b1a30a6c10827f954321af7dd."
+}

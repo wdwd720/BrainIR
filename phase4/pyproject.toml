@@ -1,0 +1,64 @@
+[project]
+name = "brainir-causal"
+version = "0.1.0"
+description = "BrainIR Phase 4: interventionally trained causal state models and active experiment design (generic infrastructure, simulation, benchmark tooling and evaluation)."
+requires-python = ">=3.12,<3.13"
+# The root project (Phase 1 benchmark lock, Phase 2 method lock) and the phase3 project (Phase 3 locks) are never edited, so Phase 4
+# lives in this separate project with its own environment. It depends on both (editable path dependencies) so that the frozen
+# Phase 1 simulator and the frozen Phase 3 code (incl. the locked BrainIR State v1, a Phase 4 baseline) run unchanged. The numerical
+# stack is pinned to the versions the phase3 project resolves, and every other package is constrained to phase3's lock
+# (`constraint-dependencies` below), so Phase 3 code computes the same numbers here as in its own environment.
+dependencies = [
+    "brainir",
+    "brainir-state",
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "pandas==3.0.6",
+    "pyarrow==25.0.1",
+    "pydantic==2.13.5",
+    "modal==1.5.5",
+    "torch==2.14.0",
+    "scikit-learn==1.9.1",
+    "threadpoolctl==3.7.0",
+]
+
+[tool.uv.sources]
+brainir = { path = "..", editable = true }
+brainir-state = { path = "../phase3", editable = true }
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/brainir_causal"]
+
+[tool.uv]
+python-preference = "only-managed"
+# every package version as resolved in phase3/uv.lock (2026-09-26)
+constraint-dependencies = [
+    "aiohappyeyeballs==2.7.1", "aiohttp==3.14.3", "aiosignal==1.4.0", "annotated-types==0.8.0", "anyio==4.15.1", "asciitree==0.3.3",
+    "attrs==26.1.0", "cbor2==6.1.4", "certifi==2026.7.22", "charset-normalizer==3.5.1", "click==8.5.0", "cloudpickle==3.1.2",
+    "colorama==0.4.6", "duckdb==1.5.5", "filelock==4.0.3", "frozenlist==1.8.0", "fsspec==2026.9.0", "google-crc32c==1.9.0",
+    "grpclib==0.4.9", "h2==4.4.1", "hpack==4.2.0", "hyperframe==6.1.0", "idna==3.20", "iniconfig==2.3.0", "jinja2==3.1.6",
+    "joblib==1.6.0", "markdown-it-py==4.2.0", "markupsafe==3.0.3", "mdurl==0.1.2", "mpmath==1.3.0", "multidict==6.9.1",
+    "narwhals==2.26.0", "networkx==3.7", "neuprint-python==0.6.3", "packaging==26.3", "pluggy==1.6.0", "propcache==0.5.4",
+    "protobuf==6.33.6", "pydantic-core==2.46.5", "pygments==2.21.0", "pytest==9.1.1", "python-dateutil==2.9.0.post0",
+    "requests==2.34.2", "rich==15.0.0", "ruff==0.16.9", "setuptools==84.0.0", "six==1.17.0", "sympy==1.14.0", "synchronicity==0.12.5",
+    "toml==0.10.2", "tqdm==4.70.1", "triton==3.8.0", "types-certifi==2021.10.8.3", "types-toml==0.10.8.20260518",
+    "typing-extensions==4.16.0", "typing-inspection==0.4.4", "tzdata==2026.4", "ujson==6.0.0", "urllib3==2.8.0", "watchfiles==1.3.0",
+    "yarl==1.25.1",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "slow: longer tests (a full-network trajectory)",
+]
+
+[tool.ruff]
+line-length = 155

@@ -19,8 +19,12 @@ interventions were tested only post hoc, by an evaluator-side lift through its e
   `state-discovery-benchmark-v3`, `-v3-relock1`, `-v3-relock2`).
 - Hidden-evaluation log: `research/phase3/HIDDEN_EVALUATIONS.md`. Final tag: `brainir-state-v1-phase3-final`.
 - Conclusion: not supported for the connectome-constrained rate-model simulations; partially supported on the synthetic FINAL suite.
-- Phase 4 has not started; the report recommends one step (§24). Any method change is a new, separately locked version with new
-  hidden data.
+- Any method change is a new, separately locked version with new hidden data.
+**Phase 4 (causal state models trained with interventions + active experiment design, spec `goal5.md`) is IN PROGRESS** since
+2026-09-26: code `phase4/` (package `brainir_causal`), benchmark `benchmarks/causal_state_v1/`, plan `research/phase4/PLAN.md`
+(orchestrator only), decisions LOG §12, leakage policy `research/phase4/LEAKAGE_POLICY.md`. Phase 4 rooms (`C:\Dev\BrainIR_p4*`)
+are built only by `scripts/make_phase4_cleanroom.py`; agents are launched only by `scripts/p4agent/launch.py` (Docker sandbox for
+all their code). Nothing Phase 2-3 answer-bearing, no goal file, no LOG and no PLAN ever enters a Phase 4 room or prompt.
 Read `research/LOG.md` (decisions, discrepancies, pitfalls; Phase 3 in §11) before changing anything.
 
 ## Phase 3 rules (summary; details in `research/phase3/LEAKAGE_POLICY.md`, LOG §11)

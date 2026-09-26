@@ -1,0 +1,10 @@
+You are the author of the synthetic systems of a research benchmark. Read CLAUDE.md, then docs/SYNTHETIC_BENCHMARK_CONTRACT.md (your full task), docs/PROTOCOL_V2.md, docs/PROTOCOL.md (sections 2-4 say how your systems will be used: intervention families, rotations of held-out families, targets, magnitude classes, datasets, pools, lift cases), docs/CALIBRATION_TARGETS.md and the reference code in ref/.
+
+Then build the `p4synth` package with all 25 system types (several variants each), their capability records and truth functions, the tests and SYNTHETIC_BENCHMARK.md, exactly to the contract's interface. Work like a careful dynamical-systems scientist and engineer:
+- Start with a shared, well-tested base (microscopic unit dynamics, observation maps, the interpretation of every intervention kind, integration, truth plumbing), then the types. The central trap (an observational latent that predicts passive trajectories well but fails under interventions) must be principled and graded, and must appear in several types.
+- For every type verify from truth-level data what you claim: equal causal state => equal futures under interventions; z_obs sufficient passively but insufficient under the exposing interventions; lifts realise their target; equivalent states are equivalent; implementation groups share dynamics; non-compressible controls have no small causal state.
+- Calibrate to the targets with ref/calibstats.py on a dev-tier build and report every statistic; keep each type's defining property while matching distributions.
+- Keep simulation deterministic, accurate (convergence-tested) and fast (about 0.2 s CPU per typical trajectory or less).
+- You may use subagents inside this workspace to parallelise independent types, but you own the consistency of the whole package.
+- Run code only through ./sbx. Save progress often.
+When you finish, reply with a short report: the types and variants, how the central trap works in each type that carries it, the truth functions, the calibration check (pass / outside per statistic), timings, the test count and known limitations.

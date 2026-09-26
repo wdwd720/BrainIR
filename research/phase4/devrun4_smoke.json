@@ -1,0 +1,53 @@
+{
+ "small:runs/smoke/smoke_job.py": {
+  "exit_code": 0,
+  "stdout_tail": "{\"python\": \"3.12.14\", \"cpus_env\": \"2\", \"gpu_env\": \"\", \"numpy\": \"2.5.3\", \"torch\": \"2.14.0+cpu\", \"cuda\": false, \"torch_threads\": 2, \"numpy_det_check\": 2629.7589485305934, \"network\": \"blocked (PermissionError: remote runner: network access is not allowed (socket.getaddr)\", \"exec_other_program\": \"blocked (PermissionError)\", \"mounted_repo_paths\": []}\n",
+  "stderr_tail": "",
+  "changed": [
+   "runs/smoke/out/result.json"
+  ],
+  "dropped_for_size": [],
+  "peak_rss_mb": 570.0,
+  "container_wall_s": 3.6,
+  "class": "small",
+  "gpu": null,
+  "job_id": "20260926T105847_smoke",
+  "n_output_files": 1,
+  "wall_s": 8.9,
+  "time_utc": "2026-09-26T17:58:56Z"
+ },
+ "gpu-t4:runs/smoke/smoke_job.py": {
+  "exit_code": 0,
+  "stdout_tail": "{\"python\": \"3.12.14\", \"cpus_env\": \"4\", \"gpu_env\": \"T4\", \"numpy\": \"2.5.3\", \"torch\": \"2.14.0+cu130\", \"cuda\": true, \"torch_threads\": 4, \"numpy_det_check\": 2629.7589485305934, \"device\": \"Tesla T4\", \"matmul_4096_s\": 0.0709, \"network\": \"blocked (PermissionError: remote runner: network access is not allowed (socket.getaddr)\", \"exec_other_program\": \"blocked (PermissionError)\", \"mounted_repo_paths\": []}\n",
+  "stderr_tail": "",
+  "changed": [
+   "runs/smoke/out/result.json"
+  ],
+  "dropped_for_size": [],
+  "peak_rss_mb": 3308.4,
+  "container_wall_s": 4.7,
+  "class": "gpu-t4",
+  "gpu": "T4",
+  "job_id": "20260926T105857_smoke",
+  "n_output_files": 1,
+  "wall_s": 11.2,
+  "time_utc": "2026-09-26T17:59:08Z"
+ },
+ "small:runs/smoke/data_job.py": {
+  "exit_code": 0,
+  "stdout_tail": "{\"data/b.txt\": \"5891b5b522d5\", \"data/sub/a.json\": \"e8c628edc996\"}\n",
+  "stderr_tail": "",
+  "changed": [
+   "runs/smoke/out/data_listing.json"
+  ],
+  "dropped_for_size": [],
+  "peak_rss_mb": 59.5,
+  "container_wall_s": 0.1,
+  "class": "small",
+  "gpu": null,
+  "job_id": "20260926T105909_smoke",
+  "n_output_files": 1,
+  "wall_s": 5.5,
+  "time_utc": "2026-09-26T17:59:14Z"
+ }
+}

@@ -1,0 +1,138 @@
+{
+ "started_utc": "2026-09-26T18:07:52Z",
+ "system": "real:A:m1",
+ "full_system": "real:A:full",
+ "app_id": "ap-pWCOpLBX0j5Rn7VZ00LI4B",
+ "costs": {
+  "app_id": "ap-pWCOpLBX0j5Rn7VZ00LI4B",
+  "calls": [
+   {
+    "label": "smoke method (fit guard)",
+    "class": "fit_s",
+    "calls": 1,
+    "container_s": 17.2,
+    "peak_container_mb_max": 1208.4,
+    "usd_approx": 0.0015
+   },
+   {
+    "label": "smoke method (eval guard)",
+    "class": "eval_s",
+    "calls": 1,
+    "container_s": 22.5,
+    "peak_container_mb_max": 1210.8,
+    "usd_approx": 0.0028
+   },
+   {
+    "label": "smoke method (full network, 1st)",
+    "class": "fit_s",
+    "calls": 1,
+    "container_s": 13.2,
+    "peak_container_mb_max": 1218.4,
+    "usd_approx": 0.0012
+   },
+   {
+    "label": "smoke method (full network, 2nd)",
+    "class": "fit_s",
+    "calls": 1,
+    "container_s": 7.4,
+    "peak_container_mb_max": 1374.4,
+    "usd_approx": 0.0006
+   }
+  ],
+  "usd_approx_total": 0.0061,
+  "refusals": {
+   "eval_s": 9
+  },
+  "hosts": {
+   "unknown": 4
+  }
+ },
+ "full_first": {
+  "sim_public_ok": true,
+  "x_shape": [
+   301,
+   211
+  ],
+  "remote_computed": 1,
+  "error": null
+ },
+ "full_second": {
+  "sim_public_ok": true,
+  "x_shape": [
+   301,
+   211
+  ],
+  "remote_computed": 0,
+  "error": null
+ },
+ "full_cache_ok": true,
+ "fit": {
+  "probe": {
+   "read_own_input": "ALLOWED",
+   "list_storevol": "blocked",
+   "list_fitvol": "blocked",
+   "read_repo_bundle": "blocked",
+   "list_other_jobs": "blocked",
+   "list_root_home": "blocked",
+   "read_proc_1_environ": "blocked",
+   "read_proc_self_status": "ALLOWED",
+   "read_proc_1_via_chdir": "blocked",
+   "read_proc_1_via_self_root": "blocked",
+   "list_storevol_via_self_root": "blocked",
+   "subprocess": "blocked",
+   "socket": "blocked",
+   "sim_public_ok": true,
+   "sim_x_shape": [
+    301,
+    3
+   ],
+   "sim_hidden_seed_refused": "params_seed outside the public range [0, 1000000000)"
+  },
+  "files": [
+   "out/result.json"
+  ],
+  "sim": {
+   "remote_computed": 0
+  },
+  "ledger_agents": [
+   "smoke"
+  ]
+ },
+ "eval": {
+  "probe": {
+   "read_own_input": "ALLOWED",
+   "list_storevol": "blocked",
+   "list_fitvol": "blocked",
+   "read_repo_bundle": "blocked",
+   "list_other_jobs": "blocked",
+   "list_root_home": "blocked",
+   "read_proc_1_environ": "blocked",
+   "read_proc_self_status": "ALLOWED",
+   "read_proc_1_via_chdir": "blocked",
+   "read_proc_1_via_self_root": "blocked",
+   "list_storevol_via_self_root": "blocked",
+   "subprocess": "blocked",
+   "socket": "blocked",
+   "sim_public_ok": true,
+   "sim_x_shape": [
+    301,
+    3
+   ],
+   "sim_hidden_seed_refused": "params_seed outside the public range [0, 1000000000)"
+  },
+  "files": [
+   "out/result.json"
+  ],
+  "sim": {
+   "remote_computed": 0
+  },
+  "ledger_agents": [
+   "smoke"
+  ]
+ },
+ "fit_guard_ok": true,
+ "fit_sim_ok": true,
+ "eval_guard_ok": true,
+ "eval_sim_ok": true,
+ "finished_utc": "2026-09-26T18:09:30Z"
+}

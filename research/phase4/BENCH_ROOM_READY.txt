@@ -1,0 +1,31 @@
+p4bench room: builder + agent stack ready (fork E3, 2026-09-26)
+
+Build (all sources present as of 10:45 local; refuses if the room exists; manifest -> research/phase4/CLEANROOM_MANIFEST_bench.json):
+  uv run --no-sync --project phase4 python scripts/make_phase4_cleanroom.py --room bench --build
+Update after a source changes (work areas untouched, logged in the manifest):
+  uv run --no-sync --project phase4 python scripts/make_phase4_cleanroom.py --room bench --sync "<reason>"
+Check / audit:
+  uv run --no-sync --project phase4 python scripts/make_phase4_cleanroom.py --room bench --check
+  uv run --no-sync --project phase4 python scripts/make_phase4_cleanroom.py --room bench --audit
+
+Launch the author (separate headless session; guard + Docker sandbox rule active; run in the background):
+  uv run --no-sync --project phase4 python scripts/p4agent/launch.py --name p4bench_author --room C:/Dev/BrainIR_p4bench \
+      --prompt-file research/phase4/contracts/agent_prompts/p4bench.txt --model opus --sbx-cpus 4 --sbx-mem-gb 12
+  (resume: add --resume <session id>; streams + guard logs: C:\Dev\BrainIR_p4audit\agents\, guard_<name>.jsonl)
+
+Verified on a scratch build (C:\Dev\BrainIR_p4bench_test, 13 files, scan clean) with a live headless agent (sonnet):
+  ./sbx and bare `sbx` (outside copy on PATH) run in brainir-p4-sandbox:1, cwd mapped to /room/<rel>, write-back works;
+  host `python` refused by the guard; docs readable; pytest 9.1.1 in the sandbox.
+Sandbox: image sha256:d2e3a225c523..., --network none, read-only root, cap-drop ALL, seccomp without symlink creation,
+  allowlisted paths (CLAUDE.md, CLAUDE.local.md, .mcp.json, .claude, docs, ref, sbx, manifest) mounted READ-ONLY; caps default
+  2 CPUs / 6 GB (bench max 4 / 12 via --sbx-cpus / --sbx-mem-gb).
+Note: p4bench_CLAUDE.md says "./sbx python ..." (works from the room root); bare `sbx ...` also works from any subdirectory.
+
+UPDATE 10:55 local (E3): the sandbox image was rebuilt with torch's dependencies pinned to phase3/uv.lock (networkx 3.7,
+filelock 4.0.3, fsspec 2026.9.0, setuptools 84.0.0; numerical stack unchanged): brainir-p4-sandbox:1 = sha256:9604f491883e...
+Rebuilding under the same tag DELETED the previous image, which the already-built p4bench room's sbx referenced by id. I ran
+  make_phase4_cleanroom.py --room bench --sync "..."   (twice: new image id; then sbx --pull never)
+at ~10:53-10:56 local; both sbx copies now use the new id (verified: sbx python works in C:\Dev\BrainIR_p4bench). The running
+p4bench_author's last sbx call was at 10:44 (before the rebuild) and succeeded; no failed sbx call in its stream.
+Rule from now on: never rebuild an image tag in place; build a new tag, then --sync each room. The launcher now refuses to start an
+agent if the room's sandbox image is missing.
