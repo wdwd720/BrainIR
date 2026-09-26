@@ -1,6 +1,6 @@
 # Phase 3 compute summary (goal4 sections 58-59)
 
-Generated 2026-09-26T11:03:45Z by scripts/p3/compute_summary.py.
+Generated 2026-09-26T12:02:08Z by scripts/p3/compute_summary.py.
 Modal list prices: $0.192 per physical core-hour, $0.024 per GiB-hour; containers 2 cores / 6 GiB.
 
 **Modal total: about $271.9** over 20486 container calls (405.96 container-hours).
@@ -115,8 +115,8 @@ not used: all methods are frozen CPU code; GPU use would require changing method
 ## Post-lock correction and billed amount
 
 - Duplicate ledger rows removed (Level B round 1 (pilot, Level B round 2 (10 survivors, Level B round 3 attempt 1): estimate {"usd": 311.57, "container_h": 481.07, "containers": 23704} -> {"usd": 271.9, "container_h": 405.96, "containers": 20486}.
-- **Billed by Modal: $135.39** (124 apps, 2026-09-25T03:00:00+00:00 to the hour 2026-09-26T10:00Z; `research/phase3/MODAL_BILLING.md`). The list-price estimate above assumes a 2-core / 6 GiB reservation per container; Modal bills measured usage, including the containers that refused non-gated hosts.
-- By stage (billed): {"lock hour 01:00 UTC (end of round 3 + start of the FINAL confirmation)": 11.09, "post-lock (FINAL, hidden data, Level C, sweeps, ablations, reviews G)": 79.16, "pre-lock (development, calibration, Level B)": 45.14}.
+- **Billed by Modal: $136.03** (126 apps, 2026-09-25T03:00:00+00:00 to the hour 2026-09-26T11:00Z; `research/phase3/MODAL_BILLING.md`). The list-price estimate above assumes a 2-core / 6 GiB reservation per container; Modal bills measured usage, including the containers that refused non-gated hosts.
+- By stage (billed): {"lock hour 01:00 UTC (end of round 3 + start of the FINAL confirmation)": 11.09, "post-lock (FINAL, hidden data, Level C, sweeps, ablations, reviews G)": 79.8, "pre-lock (development, calibration, Level B)": 45.14}.
 
 ## Simulated data
 

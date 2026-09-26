@@ -958,6 +958,37 @@
   },
   "n_web_queries": 0
  },
+ "postlock_V": {
+  "streams": [
+   "postlock_V.20260926T044027.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 38,
+   "Read": 9,
+   "Write": 2,
+   "Edit": 2
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 6,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 532,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "parent / environment path APIs are not allowed",
+    "input": "{\"command\": \"sed -e 's#ROOT = Path(__file__).resolve().parents\\\\[2\\\\]#ROOT = Path(r\\\"$ROOMS/BrainIR_p3postreview\\\")#' \\\\\\n -e 's#ROOT / \\\"phase3\\\" / \\\"src\\\"#ROOT / \\\"src\\\"#' \\\\\\n -e 's#P3 = ROOT / \\\"research\\\" / \\\"phase3\\\"#P3 = ROOT / \\\"results\\\"#' \\\\\\n -e 's#OUT = P3 / \\\"reviews\\\" / \\\"POSTLOCK_NUMB"
+   }
+  ],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 1,
+  "guard_denial_reasons": {
+   "parent / environment path APIs are not allowed": 1
+  },
+  "n_web_queries": 0
+ },
  "postlock_Y": {
   "streams": [
    "postlock_Y.20260926T033303.jsonl"

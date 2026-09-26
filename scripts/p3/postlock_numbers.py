@@ -476,8 +476,10 @@ def _component(ps: dict, s: str, key: str):
         return fnum(x.get("A_over_full"))
     if key == "S2":
         return fnum(v.get("C"))
-    if key == "S3":
-        return fnum(v.get("D_micro_gain"))
+    if key == "S3":                                       # PROTOCOL.md section 9: S3 = max(0, upper 95 % CI of the D micro-gain)
+        ci = v.get("D_ci95") or []
+        up = fnum(ci[1]) if len(ci) == 2 else None
+        return max(0.0, up) if up is not None else None
     if key == "S4":
         return fnum(v.get("E_ratio"))
     if key == "S5":
@@ -513,10 +515,13 @@ def ablations() -> dict:
                         ci = boot_ci(dd)
                         means[key] = {"mean": r(np.mean(dd), 3), "ci95": [r(x, 3) for x in ci], "n": len(dd),
                                       "excludes_0": bool(ci[0] > 0 or ci[1] < 0)}
+            stored = {k: {"mean_diff": x.get("mean_diff"), "mean_ci95": x.get("mean_ci95")}
+                      for k, x in (v.get("paired_vs_full") or {}).items() if isinstance(x, dict) and "mean_ci95" in x}
             rows[sw] = {"verdict_counts_compressible": v.get("verdict_counts_compressible"), "S7": r(v["profile"].get("S7_abstention")),
                         "abstention": v.get("abstention"), "failures": v.get("failures") or {"fits": vf.get("n_fit_failures"),
                                                                                             "evaluations": vf.get("n_evaluation_failures")},
-                        "mean_paired_vs_full_descriptive": means}
+                        "mean_paired_vs_full_descriptive": means,
+                        "stored_summary_mean_ci95": stored}   # the frozen ablation summariser's own mean-based CIs (the ones the report cites)
         out[run] = rows
     return out
 

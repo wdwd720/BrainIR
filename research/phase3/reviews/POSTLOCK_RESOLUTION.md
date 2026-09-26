@@ -1,4 +1,4 @@
-# Resolution of the post-lock reviews S, C, Y, R and L (ANSWER-BEARING)
+# Resolution of the post-lock reviews S, C, Y, R and L, verified by review V (ANSWER-BEARING)
 
 Scope: reporting, statistics, claims and process only. **No finding led to a method change, and none could**: the method stays locked
 (`method_lock_p3.py --check` passes). All numbers below were re-derived by `scripts/p3/postlock_numbers.py`
@@ -14,8 +14,12 @@ to the final `PHASE3_REPORT.md`.
 | Y, M4 | "k = N = 3 on net2 mechanism a" | k = 2 for N = 3 | section 14 |
 | Y, M3 | "3 of the 8 G systems change k across seeds" | 4 of 8 | section 8 |
 | R, M7 | "Q14 median over the 6 finite ratios 1.04" | 1.12 (Y's value) | section 21 |
-| Y, m2 | mean-based CI of nn_dim_rule S3 excludes 0 | at the boundary; includes 0 with the script's bootstrap | section 10.1 |
+| C, M9 | "no abstention on the non-compressible G10" | the locked method declared no compact state on G10 (`no_compact_state = true`, abstention recall 1 of 1), with verdict "partially supported" and k = 1. The first correction adopted C's sentence; verification review V found it false | summary; section 18 |
 | S, B1 vs C / R, B1 | "2 of 10 significantly" vs "3 of 10" | both true: 3 by point estimate, 2 significant (paired CIs), method significantly better on 6 | section 14 |
+
+Wrongly rejected at first: Y m2, "the mean-based CI of nn_dim_rule S3 excludes 0". Y is right: the stored ablation summary gives
+-0.031 [-0.066, -0.0013]. The first version of `postlock_numbers.py` computed S3 from the point estimate of the D micro-gain instead of
+the pre-registered max(0, upper CI); verification review V found the error, and the script and section 10.1 are corrected.
 
 ## Blockers
 
@@ -28,7 +32,7 @@ to the final `PHASE3_REPORT.md`.
 | C B3 | "never predicts held-out effects better than no effect" false for net3 mechanism b | "on no FULL network"; net3 mechanism b's pass reported as not state-mediated |
 | Y B2 | Markov "with events" zero on every system | corrected: untested on 4 real mechanisms and 2 FINAL systems; markov_ok counts untested as passed (sections 8, 14) |
 | Y B3 | counterexample mechanism ("huge spurious effects") contradicted by the job rows | rewritten: near-null true effects, in- and out-of-family, init-state rates, missing state (sections 9, 16) |
-| R B2 | Modal total double-counted three runs | `compute_summary_postlock.py` removes them ($272); the BILLED amount ($135, `modal_billing.py`) is now the headline (section 22) |
+| R B2 | Modal total double-counted three runs | `compute_summary_postlock.py` removes them ($272); the BILLED amount ($136 through the 11:00 UTC hour, `modal_billing.py`) is now the headline (section 22) |
 
 ## Majors (grouped)
 
@@ -48,7 +52,7 @@ to the final `PHASE3_REPORT.md`.
 | C M6: additive-composition scope | sections 8, 23, summary |
 | C M7, Y M2: kick-clip sensitivity; "conditional on the calibration"; closure power | section 8 (kick-clip S2 0.483 to 0.456); sections 4.2, 8, 14, 17 |
 | C M8, Y M7: sharing wording; parameter counts; method's internal law; Q9 / Q17 | section 14 sharing table; Q9 reported n/a; Q17 non-discriminating (section 21) |
-| C M9: traps missing from the summary | summary "Traps and abstention"; section 8 |
+| C M9: traps missing from the summary | summary "Traps and abstention"; section 8. C's G10 sentence was false; corrected after review V (see above) |
 | C M10, R M7: Q8 and other self-audit readings | section 21 notes (Q5, Q6, Q8, Q9, Q12, Q14, Q16, Q17, Q18, Q19); orchestrator notes labelled as such |
 | C M11: conclusion basis and scope; fragile positive verdict | section 23; net3 full's latent reproducibility stated |
 | Y M1: event kinds, unsearchable systems, typical errors, thresholds, init states, Q19 denominator | section 16 |
@@ -83,3 +87,17 @@ to the final `PHASE3_REPORT.md`.
   annotated; log errata (ABORTED row, Level B launcher); snapshot provenance recorded (`scripts/p3/postlock_provenance.py`); P3-D27
   timing and "decided after the confirmation results, on public evidence only" disclosed (section 12); tool gaps listed (section 12);
   the family-H DONE row written.
+
+## Verification review V (reviews/POSTLOCK_V.md; a separate session in the post-lock room, after the corrections)
+
+V re-derived every blocker and major correction of S, C, Y and R from the result files. Verdict: all original blockers resolved; 35 of
+39 majors resolved, 3 partly and 1 not; 1 new blocker, 3 majors and 14 minors in the corrections. All are fixed in this version:
+
+| id | finding | resolution |
+|---|---|---|
+| V-B1 | "does not abstain on the non-compressible G10" (summary, section 18) is false | corrected: it declares no compact state there (recall 1 of 1), yet G10 meets the "partially supported" conditions with k = 1; false alarm on G3 (1 of 9) added; merge_self_audit Q18 note corrected |
+| V-M1 | Y's nn_dim_rule S3 interval wrongly rejected; the script's S3 was not the pre-registered one | `postlock_numbers.py` uses S3 = max(0, upper CI of D) and records the stored summary's CIs; section 10.1 cites the stored `mean_ci95` (draw_folds S1, sparsity S5 [0.0015, 0.072], nn_dim_rule S3 [-0.066, -0.0013], float-level S3 of 8 switches) and its reading is rewritten |
+| V-M2 | the permitted claim still called the net2-full latent "sufficient" | the claim, the summary and section 23 are split: net1 full and net3 full (R1, 2-dimensional, the method's own claim) against net2 full (R2: predictive against the controls, but the method declared no compact state and PCA-k and the comparator predict significantly better) |
+| V-M3 | lineage missing from most Level C tables; pooled counts | lineage columns in the intervention, prediction, reproducibility and robustness tables; per-lineage counts for PCA-k, verdicts, abstentions, microstate equivalence, closure, seeds and the counterexample breakdown |
+| minors 1-14 | "same to 3 decimals"; the all-abstained mechanisms' stored status; Q15 wording (lin_falds_t); seed-0 vs modal k (net2 mechanism b); FINAL leave-one-component-out rankings; capped marks and incomparable lower bounds; untraceable numbers; closure power next to "predictive and closed"; category names in trap sentences; billing window; family H ran twice; S7 wording; both alternative normaliser floors; "all corrected here" | all applied (sections 8, 14, 17, 18, 18.1, 21, 22, 23, 24, summary). The untraceable numbers now point to `POSTLOCK_NUMBERS.json` (fit records and public data), and the test runs to `research/phase3/TEST_RUNS.md` |
+

@@ -91,6 +91,8 @@ def main() -> int:
     cs = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(cs)
     before = _json(P3 / "COMPUTE_SUMMARY.json") or {}
+    if (before.get("postlock_correction") or {}).get("totals_before"):   # a re-run keeps the ORIGINAL (double-counted) totals
+        before = {"totals_modal": before["postlock_correction"]["totals_before"]}
     cs.LEDGER_COVERED.update(DUPLICATE_LEDGER_ROWS)
     cs.main(["--out-dir", str(P3)])
     rec = _json(P3 / "COMPUTE_SUMMARY.json")

@@ -43,13 +43,14 @@ NOTES = {
     "Q14": "Post-lock reviews Y and R: the recorded median is NaN (4 real systems have no defined ratio) and NaN > 3 is false. Over the "
            "6 finite ratios the median is 1.12 (a pass), but 2 exceed 3: 5.8 (net1 mechanism b) and 6.7 (net2 mechanism b).",
     "Q16": "Post-lock reviews S, C, Y and R: the REAL-SYSTEM EVIDENCE IS VOID. It compares PCA-k's first A key (10 ms) with the method's "
-           "verdict A (250 ms). At matched horizons (primary 250 ms) PCA-k is significantly better on 2 of 10 real systems (both on net2), "
-           "the method on 6 (research/phase3/reviews/POSTLOCK_NUMBERS.json). The pass rests on the synthetic criterion, which uses "
-           "matched keys.",
+           "verdict A (250 ms). At matched horizons (primary 250 ms) PCA-k is significantly better on 2 of 10 real systems (both of "
+           "reconstruction R2), the method on 6 (5 of R1; research/phase3/reviews/POSTLOCK_NUMBERS.json). The pass rests on the synthetic "
+           "criterion, which uses matched keys.",
     "Q17": "Post-lock review Y: the unrelated pairs are rejected, but so are the true implementation groups (one untestable, one "
            "rejected) because the method never returns a shared law; the rejection does not discriminate.",
-    "Q18": "Post-lock review R: no compact claim on the two FINAL controls, but abstention on only 1 of 2 (the other returned k = 3), and "
-           "on review G's non-compressible G10 the method rates 'partially supported' with k = 1.",
+    "Q18": "Post-lock review R: no compact claim on the two FINAL controls, but abstention on only 1 of 2 (the other returned k = 3). On "
+           "review G's non-compressible G10 the method declares no compact state (recall 1 of 1), yet G10 still meets the 'partially "
+           "supported' conditions with k = 1 (verification review V corrected the first draft's 'does not abstain').",
     "Q19": "Post-lock reviews S, Y and R: pooled over four sweeps (116 system-runs; 0.185 over the 108 searchable). Per sweep: FINAL "
            "effect 0.19, FINAL post 0.06, real hidden draws 0.30, real public draws 0.50: the real public-draw sweep alone reaches the "
            "fail threshold.",

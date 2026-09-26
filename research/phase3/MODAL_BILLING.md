@@ -1,18 +1,18 @@
 # Phase 3 Modal billing (billed, not estimated)
 
-Source: Modal workspace billing report, hourly, 2026-09-25T03:00:00+00:00 to the last complete hour 2026-09-26T10:00Z (`scripts/p3/modal_billing.py`).
+Source: Modal workspace billing report, hourly, 2026-09-25T03:00:00+00:00 to the last complete hour 2026-09-26T11:00Z (`scripts/p3/modal_billing.py`).
 
-**Total billed: $135.39** over 124 apps.
+**Total billed: $136.03** over 126 apps.
 
 | stage | USD |
 |---|---|
 | lock hour 01:00 UTC (end of round 3 + start of the FINAL confirmation) | 11.09 |
-| post-lock (FINAL, hidden data, Level C, sweeps, ablations, reviews G) | 79.16 |
+| post-lock (FINAL, hidden data, Level C, sweeps, ablations, reviews G) | 79.80 |
 | pre-lock (development, calibration, Level B) | 45.14 |
 
 | app name | USD |
 |---|---|
-| brainir-p3-tournament | 85.45 |
+| brainir-p3-tournament | 86.09 |
 | brainir-p3-levelc-fast | 39.20 |
 | brainir-p3-devrun | 5.00 |
 | brainir-p3-postlock | 3.47 |
@@ -42,5 +42,6 @@ Source: Modal workspace billing report, hourly, 2026-09-25T03:00:00+00:00 to the
 | 2026-09-26T08:00Z | brainir-p3-levelc-fast 13.08, brainir-p3-postlock 1.44, brainir-p3-tournament 4.41 |
 | 2026-09-26T09:00Z | brainir-p3-tournament 1.76, brainir-p3-levelc-fast 0.18 |
 | 2026-09-26T10:00Z | brainir-p3-tournament 0.24 |
+| 2026-09-26T11:00Z | brainir-p3-tournament 0.64 |
 
 Billed amounts (measured usage). The job records' list-price estimates assume a 2-core / 6 GiB reservation per container and overstate the bill; they remain the per-task attribution.

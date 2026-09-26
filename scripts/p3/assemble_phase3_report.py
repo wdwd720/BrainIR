@@ -67,7 +67,9 @@ def compute_section() -> str:
         f"and start of the FINAL confirmation) ${lockh:.0f}; post-lock ${post:.0f}. By app: "
         + ", ".join(f"{k} ${v:.1f}" for k, v in apps.items() if v >= 0.05)
         + f". By resource: CPU ${res.get('CPU', 0):.0f}, memory ${res.get('Memory', 0):.0f}, GPU $0. The billed amount includes the {n_ref:,} "
-        "containers of Level C that started on an AVX-512 host and stopped at once (host gate); the job records do not price them.\n"
+        "containers of Level C that started on an AVX-512 host and stopped at once (host gate); the job records do not price them. The "
+        f"window ends with the hour starting {bill['last_hour']}; the last Phase 3 Modal job was the family-H extraction (11:18-11:24 UTC), "
+        "and the post-lock reviews used no Modal.\n"
         f"- **Job-record estimate:** ${est['usd']:.0f} over {est['containers']:,} container calls and {est['container_h']:.0f} container-hours "
         "(`research/phase3/COMPUTE_SUMMARY.{json,md}`, `COSTS_LEDGER.md`). It prices every container as 2 cores and 6 GiB at list price, "
         "while Modal bills measured usage, so the bill is about half. The first draft's total ($312) counted Level B rounds 1-2 and round-3 "
@@ -99,7 +101,7 @@ def compute_section() -> str:
         "- **Not recorded:** training samples and optimisation steps per fit (the locked method's fits are closed-form least squares; "
         "no per-fit step counter is stored).\n"
         f"- **Job ids:** the billing record lists every Modal app id with its cost ({bill.get('n_apps', len(bill.get('apps') or []))} apps); "
-        "the job records carry app ids for 32 of their 85 rows.\n\n")
+        f"the job records carry app ids for {sum(1 for r in cs['rows'] if r.get('app_id'))} of their {len(cs['rows'])} rows.\n\n")
 
 
 def main() -> int:
