@@ -1,0 +1,41 @@
+{
+ "n": 83,
+ "n_previously_differing_from_local": 20,
+ "n_keys_match": 83,
+ "n_stored": 83,
+ "n_identical_to_stored": 83,
+ "differing_now": [],
+ "hosts": {
+  "calls": 11,
+  "models": {
+   "unknown": 11
+  },
+  "any_avx512": false,
+  "all_avx2": true,
+  "by_func": {
+   "remote_resim_compare": 11
+  },
+  "stages": [
+   {
+    "func": "remote_resim_compare",
+    "n": 11,
+    "refused": 37,
+    "failed_calls": 0,
+    "max_attempts": 15,
+    "wall_s": 153.6
+   }
+  ]
+ },
+ "costs": [
+  {
+   "label": "call:remote_resim_compare (gated)",
+   "calls": 48,
+   "container_s": 552.1,
+   "cpu": 2.0,
+   "memory_mb": 6144,
+   "peak_container_mb_max": 1348.7,
+   "peak_container_mb_p95": 1314.8,
+   "usd_approx": 0.081
+  }
+ ]
+}

@@ -473,3 +473,101 @@ against the full method over the compressible systems (median [system-bootstrap 
   `sharing` (the shared law is never supported).
 
 The FINAL-suite ablations (the primary, unbiased ones) are reported in section 10.1.
+
+## 11. The hidden real test (generated after the lock) and its numerical checks
+
+The hidden test was generated once, after the method lock, from the committed salt, by the frozen generator.
+- **Contents:** 3,360 trajectories (10 systems; every intervention with its counterfactual twin; held-out targets, group silencing,
+  out-of-distribution input and weight noise) and 1,920 microstate restarts. 1.59 GB.
+- **Where it ran.** On Modal, only on hosts without AVX-512 (`scripts/p3/hidden_gen_gate.py`, LOG P3-D25 / P3-D26), with 32 GiB
+  containers. The salt never left the machine: protocols are built locally and carry only derived seeds. Records and the dataset
+  went to the eval volume, and the local copy was downloaded with an end-to-end sha256 check.
+- **Why gated.** After the OpenBLAS pin was dropped, AVX-512 hosts ran other BLAS kernels: 13 of 20 public records were not
+  reproduced bit for bit on the ungated path, against 60 of 60 on the gated path.
+- **Cross-platform check.** 1,727 of 1,764 hidden trajectories are identical to records a stopped local (Windows) run had produced.
+  The other 37 differ where the adaptive solver's step sequence differs between Windows and Linux (the documented real-engine
+  tolerance).
+- **Determinism of the generating platform.** 83 of 83 re-simulated hidden protocols, including the 20 known to differ from the local
+  run, are bit-identical to the stored records. Every trajectory, twin and restart therefore comes from one platform that reproduces
+  itself exactly.
+
+## 12. Failures, incidents and deviations (all logged; none hidden)
+
+**Method failures (counted, never retried or fixed after the lock).**
+- brainir_state_v1's leave-one-implementation-out ADAPTATION fits crash when its internal sharing test has rejected sharing, because
+  the source model then holds independent laws of different k:
+  - 7 of 7 in round 3 (heldout);
+  - 4 in the FINAL confirmation;
+  - the corresponding Level C fits (section 13).
+- The partial-sharing mode is not implemented (NotImplementedError), so the cross-connectome model (4) fails by design.
+- On one FINAL system the model supports no event kind, so its counterexample search had nothing to search.
+
+**Infrastructure incidents (re-run or worked around, with logs kept).**
+- Transient DNS / SSL failures of the Modal client crashed tournament drivers. They were re-run over cached fits, and a hung
+  duplicate driver was killed.
+- Two parts ran under the broken execution re-lock 1 and are archived as invalid.
+- Twice, Claude Code stopped background work for low local memory:
+  - the memory-capped restart;
+  - the sequential plan approved by the user.
+- The final-suite ablations were aborted after 8 minutes, before any result, and re-run. The Modal workspace runs at most about 100
+  containers at once, and they competed with the critical path.
+- The gated tar step of the hidden-data generation looped on one warm AVX-512 container. It was finished with the frozen tar and a
+  verified transfer.
+
+**Deviations from the runbook (execution only, decided before the affected results existed).**
+- Hidden real data were generated on Modal with a host gate instead of locally (P3-D25, P3-D26).
+- Level C ran through a gated per-size scheduler (P3-D27).
+- The method-lock tool stores the developer's full notes instead of the first 20,000 characters.
+- The confirmation ran as 13 parallel parts, merged.
+- One store-index repair: orphaned line fragments from concurrent appends, records intact, backup kept.
+
+**Reproducibility finding.**
+- On Modal hosts with AVX-512, the locked method's fits are not reproducible run to run: the same public fit gave the same k but a
+  different delay configuration.
+- Gated hosts reproduce it exactly (timing fields aside).
+- The Level B rounds and the FINAL confirmation ran on mixed hosts. Their numbers are one realisation; a re-run could flip
+  configuration choices on some systems. Level C and the hidden data ran only on gated hosts.
+
+## 13. The final algorithm: BrainIR State v1 (brainir_state_v1; locked)
+
+Source: `research/phase3/METHOD_NOTES.md` (the developer's notes, locked) and `phase3/src/brainir_state/methods/brainir_state_v1.py`.
+
+**Plain English.** From the recorded population activity x and the input u, the method:
+1. builds causal features: the current activity and, where it helps, delayed copies;
+2. finds a small number k of linear combinations of them that best predict the future readout and the future population (a
+   reduced-rank "predictive basis");
+3. fits a sparse polynomial law of motion for those k coordinates by bagged sparse regression (E-SINDy), and a polynomial readout;
+4. represents interventions as instantaneous or continuous pushes on the latent state, through the encoder's current-sample
+   weights. Their per-kind gains are calibrated on training interventions, with "no effect" as a fallback, and the method abstains
+   on kinds it has no calibrated evidence for;
+5. picks k by a generic plateau rule on held-out validation trajectories, and abstains ("no compact state") when k is too large for
+   the observed population, when the error never plateaus, when the fit is poor, or when the latent explains less than half of
+   what the input alone leaves unexplained.
+
+**Mathematical formulation.** Per system, with x~, u~ standardised and a model grid of about T/400 steps:
+- **encoder:** z_t = (f_t - mean f) C_k. Here f_t = [x~_t, x~_{t-l_1}, ..., x~_{t-l_m}] are causal delay features, and C_k holds the
+  leading k columns of the reduced-rank ridge map from f to the future targets [y~_{t+h}, P x~_{t+h} / 4], with h up to T/4 and P
+  the top-16 PCs. Future-input summaries are partialled out of both sides. The encoder never sees y except as a regression target;
+- **dynamics:** z_{t+1} = z_t + Theta(z_t, u_t) Xi, where Theta holds the control-affine monomials of degree <= p (at most 60
+  terms). Xi is fitted in integral form over windows of T/100 steps by sequential thresholding, and E-SINDy keeps the terms with
+  bootstrap inclusion probability >= 0.6. Rollouts are confined to the training latent box, widened by its span;
+- **readout:** y_t = ridge regression on the monomials of (z_t, u_t) of degree 1 or 2;
+- **interventions:**
+  - a kick is z <- z + g_kick (dx / sd) C_0;
+  - a current adds z <- z + g_cur (gamma I / sd) C_0 per step;
+  - silencing removes the silenced units' outgoing couplings, from a ridge estimate of the microscopic one-step map, or clamps them
+    to rest;
+  - the gains g in {0, 0.25, 0.5, 1} are chosen on training interventions;
+- **objective:** least squares throughout (no gradient training in an independent fit). Model selection (k, delays, degree,
+  threshold, readout degree) minimises the open-loop window NMSE of the readout on validation trajectories.
+
+**Latent dimension rule (generic, validation data only).**
+- Sweep k over (1, 2, 3, 4, 5, 6, 8), extended to (10, 12, 16) while the error still falls.
+- Choose each k's configuration on one half of the validation units and score it on the other (nested).
+- Compute e* = min_k mean error from a cross-fitted reference, and set tol = max(0.1 e*, 0.005).
+- Take k = the smallest k >= k_min with error <= e* + tol, where k_min = 2 if the training data oscillate under constant input,
+  otherwise 1.
+- A range from one-sided paired bounds is reported (descriptive). k is never set by hand.
+
+**Not implemented:** lifting of latent interventions to neural interventions (`lift()` returns nothing), and partial sharing.
+Shared fits use ks_share's joint training and return the shared law only if an internal held-out non-inferiority test supports it.
