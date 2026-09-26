@@ -1,0 +1,82 @@
+{
+ "generated_utc": "2026-09-26T10:02:00Z",
+ "method": "brainir_state_v1",
+ "final_round": "final_b",
+ "locked": true,
+ "thresholds": {
+  "trap_k_handled": 0.8,
+  "trap_k_fooled": 0.5,
+  "beats_control_frac": 0.5,
+  "underestimate_frac": 0.25,
+  "underestimate_fast_frac": 0.5,
+  "not_closed_frac": 0.5,
+  "not_equivalent_frac": 0.5,
+  "c_collapse_frac": 0.5,
+  "loio_worse_frac": 0.5,
+  "g_r2_min": 0.8,
+  "g_k_agree_frac": 0.5,
+  "transient_ratio": 3.0,
+  "pca_as_good_frac": 0.5,
+  "broken_immediately_frac": 0.5,
+  "perm_a_rel": 0.05
+ },
+ "counts": {
+  "integrity": {
+   "pass": 0,
+   "fail": 0,
+   "n/a": 0
+  },
+  "science": {
+   "pass": 1,
+   "fail": 0,
+   "n/a": 0
+  }
+ },
+ "checks": [
+  {
+   "status": "pass",
+   "note": "",
+   "evidence": {
+    "systems_broken_immediately_fraction": 0.1724137931034483,
+    "n": 116,
+    "overall": [
+     {
+      "n_systems": 48,
+      "n_systems_with_counterexamples": 47,
+      "n_distinct_total": 2558,
+      "median_worst_over_random_median": 2357.464094990129,
+      "systems_broken_immediately": 9
+     },
+     {
+      "n_systems": 48,
+      "n_systems_with_counterexamples": 39,
+      "n_distinct_total": 698,
+      "median_worst_over_random_median": 30.972796410804836,
+      "systems_broken_immediately": 3
+     },
+     {
+      "n_systems": 10,
+      "n_systems_with_counterexamples": 7,
+      "n_distinct_total": 430,
+      "median_worst_over_random_median": 836976.3921485222,
+      "systems_broken_immediately": 5
+     },
+     {
+      "n_systems": 10,
+      "n_systems_with_counterexamples": 7,
+      "n_distinct_total": 416,
+      "median_worst_over_random_median": 165452.73526914138,
+      "systems_broken_immediately": 3
+     }
+    ]
+   },
+   "id": "Q19",
+   "group": "science",
+   "title": "Can the counterexample search break it immediately? (post-lock sweeps)",
+   "criteria": [
+    37
+   ],
+   "seconds": 0.0
+  }
+ ]
+}

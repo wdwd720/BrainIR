@@ -21,6 +21,7 @@ prediction and dimension, tied on interventions, and worse on closure, latent re
 **Real circuits** (Level C: 10 connectome-constrained rate-model systems, hidden test generated after the lock, run once):
 - A 2-3 dimensional latent predicts the held-out readout of all three full networks better than input-only and persistence
   controls.
+- A PCA latent of the same dimension predicts even better, on 9 of 10 systems.
 - It never predicts the effects of held-out interventions better than "no effect". Held-out C is 1.27, 0.96 and 1.04, with upper
   CIs >= 1.
 - The verdict is "not supported" on 9 of 10 systems and partially supported on net3 full.
