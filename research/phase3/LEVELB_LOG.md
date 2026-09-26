@@ -47,3 +47,6 @@ Note (2026-09-25, orchestrator): the row `r3v3_nn_aelin_t` at 23:46:46Z is INVAL
 that first launch failed at import in the Modal containers under re-lock 1: 95 of 95 fits failed, no evaluation ran). Its output was
 moved to `research/phase3/tournament/_failed/r3v3_nn_aelin_t_launch1_infra/`; the part was relaunched under re-lock 2. The other
 tuned-variant parts of that first launch were stopped before writing results.
+| 2026-09-26T00:32:25Z | r3v3_lin_falds_t | heldout | lin_falds_t | research/phase3/tournament/r3v3_lin_falds_t/ |
+| 2026-09-26T01:13:15Z | r3v3_nn_aelin_t | heldout | nn_aelin_t | research/phase3/tournament/r3v3_nn_aelin_t/ |
+| 2026-09-26T01:26:03Z | r3v3_brainir_state_v1 | heldout | brainir_state_v1 | research/phase3/tournament/r3v3_brainir_state_v1/ |

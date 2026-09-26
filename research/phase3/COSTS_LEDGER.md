@@ -25,7 +25,7 @@ The per-job container seconds come from the jobs' own records: `modal_costs.json
 | 15:40-15:55 | hidden-data generator: Modal pipeline smoke tests on PUBLIC protocols (4 runs incl. 2 failed attempts) | ap-kvch... and others | ~40 | ~600 | 0.10 |
 | 15:52-16:05 | numerics-pinning crash experiment (4 variants x 4 systems x 5) | ap-9iV3e4VAPveQwgf92HrrGo | 76 | 22,484 | 3.30 |
 | (forks) | fork A: Level C backend staging and equivalence checks; fork C: counterexample / ablation smoke tests | several | ~100 | ~2,300 | 0.33 |
-
+| 16:54-17:55 | remote runner (`devrun.py`) for the composer's development experiments: 190 jobs in classes small (2 CPU / 8 GiB, 72), medium (4 / 16 GiB, 114) and large (8 / 32 GiB, 4) + 2 orchestrator smoke jobs; priced per class | brainir-p3-devrun | 192 | 48,200 | 14.34 |
 Running total so far: about **$58.3** (Modal list prices; container-seconds from the jobs' own records).
 
 The per-round records are `research/phase3/tournament/*/modal_costs.json`. Parallelism: each round's methods ran as independent Modal

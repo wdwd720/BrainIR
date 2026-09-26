@@ -1,4 +1,96 @@
 {
+ "bt": {
+  "streams": [
+   "bt.20260925T143834.jsonl",
+   "bt.20260925T163323.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 116,
+   "Read": 3,
+   "Grep": 3,
+   "Write": 9,
+   "Edit": 9,
+   "PowerShell": 7,
+   "ToolSearch": 1,
+   "Monitor": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 4,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 1804,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 1,
+  "guard_denial_reasons": {
+   "'/./' path components are not allowed": 1
+  },
+  "n_web_queries": 0
+ },
+ "composer": {
+  "streams": [
+   "composer.20260925T095830.jsonl",
+   "composer.20260925T101813.jsonl",
+   "composer.20260925T142552.jsonl",
+   "composer.20260925T163304.jsonl",
+   "composer.20260925T165822.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 151,
+   "Read": 25,
+   "PowerShell": 4,
+   "Grep": 9,
+   "Write": 19,
+   "Edit": 21,
+   "ToolSearch": 1,
+   "Monitor": 3,
+   "TaskStop": 2,
+   "Glob": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 3727,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "encoded or escaped command text is not allowed",
+    "input": "{\"command\": \"uv run python runs/_remote/remote_run.py submit runs/brainir/unit.py --class medium --timeout 3600 -- --system syn-9853fca40a --seed 0 --mode eval --tag smoke 2>&1 | tail -3\", \"description\": \"Submit remote smoke job\"}"
+   },
+   {
+    "tool": "Bash",
+    "reason": "encoded or escaped command text is not allowed",
+    "input": "{\"command\": \"uv run python runs/_remote/remote_run.py submit runs/brainir/unit.py --class medium --timeout 3600 -- --system syn-9853fca40a --seed 0 --mode eval --tag smoke\", \"description\": \"Submit remote smoke job\"}"
+   },
+   {
+    "tool": "Bash",
+    "reason": "encoded or escaped command text is not allowed",
+    "input": "{\"command\": \"uv run python runs/brainir/rsubmit.py smoke medium eval smoke 0 syn-9853fca40a\", \"description\": \"Submit smoke job via helper\"}"
+   },
+   {
+    "tool": "PowerShell",
+    "reason": "encoded or escaped command text is not allowed",
+    "input": "{\"command\": \"uv run python runs/brainir/rsubmit.py smoke medium eval smoke 0 syn-9853fca40a\", \"description\": \"Submit smoke job via PowerShell\"}"
+   },
+   {
+    "tool": "Bash",
+    "reason": "encoded or escaped command text is not allowed",
+    "input": "{\"command\": \"sed -i 's#glob.glob(\\\"runs/brainir/remote/\\\\*/runs/brainir/out/stab/\\\\*.json\\\")#glob.glob(f\\\"runs/brainir/remote/*/runs/brainir/out/{__import__(\\\\x27sys\\\\x27).argv[1] if len(__import__(\\\\x27sys\\\\x27).argv) > 1 else \\\\x27stab\\\\x27}/*.json\\\")#' runs/brainir/stabsum.py; grep -n \\\"glob.glob"
+   }
+  ],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 7,
+  "guard_denial_reasons": {
+   "'/./' path components are not allowed": 2,
+   "encoded or escaped command text is not allowed": 5
+  },
+  "n_web_queries": 0
+ },
  "m_cb": {
   "streams": [
    "m_cb.20260924T230706.jsonl",
@@ -790,6 +882,110 @@
    "changing directory outside the clean room": 1
   },
   "n_web_queries": 558
+ },
+ "review_a": {
+  "streams": [
+   "review_a.20260925T135859.jsonl",
+   "review_a.20260925T141756.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 51,
+   "Read": 2,
+   "Write": 6,
+   "ToolSearch": 1,
+   "Monitor": 3,
+   "Edit": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 3,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 624,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
+  "n_web_queries": 0
+ },
+ "review_b": {
+  "streams": [
+   "review_b.20260925T135914.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 37,
+   "Read": 4,
+   "Edit": 1,
+   "ToolSearch": 1,
+   "Monitor": 1,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 429,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
+  "n_web_queries": 0
+ },
+ "review_c": {
+  "streams": [
+   "review_c.20260925T135929.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 43,
+   "Read": 2,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 2,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 349,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "path outside the clean room: /tmp/rk.py",
+    "input": "{\"command\": \"cat > /tmp/rk.py <<'EOF'\\nimport numpy as np, itertools\\nfrom scipy.stats import rankdata\\nK=[\\\"S1\\\",\\\"S2\\\",\\\"S3\\\",\\\"S4\\\",\\\"S5\\\",\\\"S6\\\",\\\"S7\\\",\\\"S8\\\"]; low={\\\"S1\\\",\\\"S2\\\",\\\"S3\\\",\\\"S4\\\"}\\nr2={\\\"lin_subspace\\\":[0.999,0.564,-0.0827,0.00175,0.996,0.674,0.457,0.5],\\n\\\"lin_falds\\\":[1.16,0.55,"
+   }
+  ],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 1,
+  "guard_denial_reasons": {
+   "path outside the clean room": 1
+  },
+  "n_web_queries": 0
+ },
+ "review_d": {
+  "streams": [
+   "review_d.20260925T135944.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 27,
+   "Read": 8,
+   "Grep": 2,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 0,
+  "outputs_with_forbidden_names": 3,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 797,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
+  "n_web_queries": 0
  },
  "review_e": {
   "streams": [

@@ -26,6 +26,11 @@ The per-file sha256 digests are recorded in `modal_staging.json`. The hidden rea
      `ATEN_CPU_CAPABILITY=avx2`. These are the AVX2 code paths of the development machine.
    - With pinning, 24 of 24 simulations on Modal equal the stored and local trajectories bitwise
      (`modal_sim_hardware_check.json`).
+   - **Later change (same day, benchmark v3 before any use):** `OPENBLAS_CORETYPE` was dropped again because it made workers on
+     some hosts die with SIGSEGV (`modal_pinning_crash_experiment.json`; research/LOG.md section 11.3). numpy and torch stay pinned.
+     The real engine's bit-identity was re-checked with the final image: the Modal backend of the hidden-data generator reproduced
+     30 of 30 public records bitwise (`hidden_generator_modal_smoke.json`). Dense linear algebra in fits and evaluation statistics
+     may now differ between Modal hosts in the last digits (PROTOCOL.md section 10).
 2. **Evaluation of a given fitted model is bitwise identical between local and Modal.**
    - This covers every family, including lifting through the real engine: 0 mismatching leaves out of 490 and 622.
    - The evaluator code tag was the same on both sides (`modal_equivalence.json`, `same_evaluator_code: true`).

@@ -162,6 +162,58 @@ the calibrated tolerances:
 The verdict counts barely move at the CI ends of any tolerance. A candidate's verdict counts must be read against this reference
 distribution.
 
+### 4.2 Benchmark version 3: the pre-lock reviews A-D, and the correction before the method lock
+
+Four independent pre-lock reviewers examined the composed candidate (brainir_state_v1) and benchmark version 2 on public data:
+A (system identification), B (causal inference), C (representation learning) and D (computational neuroscience)
+(`research/phase3/reviews/{A,B,C,D}_prelock.md`). They found 7 blockers and 19 major issues. Every evaluation fix went into
+**version 3** (tag `state-discovery-benchmark-v3`, 2026-09-25). At that point no method was locked, the FINAL suite had never been
+used and no hidden real data existed. Method findings went to the developer as generic requirements only. The mapping of every
+finding: `research/phase3/reviews/ABCD_prelock_resolution.md`.
+
+The most consequential corrections:
+- **Hidden memory was not tested.** A model could store the full microstate when encoding and use it when rolling out while
+  reporting a 1-D latent; reviewers demonstrated it. Version 3 runs every rollout on a fresh copy of the model and requires the model's
+  own rollout, restarted from its predicted z (also after interventions), to reproduce itself. A model that fails carries memory
+  beyond z: its k is invalid, and it cannot be "compact" or "closed".
+- **"Closed" had almost no power.** Random k-dimensional projections passed it on 25 of 45 dev systems. While fixing it we found an
+  artefact: the ridge penalty shrank the base (z, u) of the closure regressions, so extra columns that merely repeat z "helped", even
+  for the exact state. On a toy system with the exact 2-D state the history gain was 0.74 under version 2; it is 0 under version 3.
+  With the base fitted without shrinkage, the residual computed inside each fold and a history-gain condition added, random
+  projections pass "closed" on 24 % of the dev systems and the true latent on 80 %.
+- **C could not show a causal STATE.** The interventional condition is decided by "held-out effects predicted better than no
+  effect" (tau_C cannot bind); version 3 words the claim that way, adds a leave-one-pair-out condition (the claim must not rest on one
+  pair), scores events on unobserved neurons apart, and reports whether the prediction depends on the state at all (C with the
+  pre-event state replaced by the mean training state).
+- **Two components rewarded the wrong thing.** The dimension score gave credit for any reported k range containing the truth (a wider
+  range never cost anything); it now scores the point k. Latent recovery (K) measured only one direction; it is now the minimum of
+  both.
+- **Real systems.** On the real systems the readout NMSE was dominated by near-silent readout neurons weighted up to 1000x; it is now
+  pooled. The predictive condition compared with a readout-history control that sees each trajectory's parameters of neurons outside
+  x; it now compares with the input-only control and the persistence floor. On mechanism systems the "held-out target" families
+  used the public targets; there the held-out C is now group silencing only.
+- **Claims and lineage.** "Real" is worded as connectome-constrained rate-model simulations; net1 and net3 are one reconstruction
+  and are never counted as two confirmations.
+
+**Version 3 calibration** (45 dev systems on Modal):
+
+| tolerance | value | 95 % CI |
+|---|---|---|
+| tau_A | 0.784 | [0.26, 2.30] |
+| tau_C (does not bind) | 3.69 | [2.10, 51.0] |
+| tau_D | 0.092 | [0.051, 0.248] |
+| tau_H (history gain) | 0.234 | [0.147, 0.293] |
+| tau_gap | reported only (pre-registered power rule failed: random projections pass it as often as the true latent) | |
+| tau_E | 0.0179 | [0.0065, 0.027] |
+
+The true-latent reference reaches "compact causal state discovered" on 3 of 45 dev systems (one with E untestable), partially
+supported on 22, not supported on 20. PCA-k reaches "partially supported" on 6, random-k on 2.
+
+**Execution.** The version-3 round 3 ran on Modal. Two execution-only re-locks followed while it ran (per-job container memory
+recording and container sizing; a builder recovery fix; then a fix of a module-level error that re-lock 1 introduced and that made
+every Modal job fail at import). No evaluation module changed in either (the same evaluator code tag). Two round-3 parts that ran
+under the broken re-lock 1 are archived as invalid and were re-run (`research/phase3/LEVELB_LOG.md`).
+
 ## 5. Methods-only literature review (goal4 section 24)
 
 An oracle-free agent with filtered web access wrote `research/phase3/METHODS_REVIEW.md` (584 KB):

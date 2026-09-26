@@ -1,0 +1,224 @@
+{
+ "plan": {
+  "round": "ablations_smoke_dev",
+  "suite": "dev",
+  "method": "brainir_state_v1",
+  "methods_dir": "C:\\Dev\\BrainIR_p3run\\r3_brainir_state_v1\\methods",
+  "switches": [
+   "domain_clip"
+  ],
+  "table": {
+   "domain_clip": "latent rollouts confined to the widened training box -> unconstrained rollouts"
+  },
+  "systems": [
+   "syn-0dccdf2720",
+   "syn-12db9981b8"
+  ],
+  "n_compressible": 1,
+  "seed": 0,
+  "shared_variants": [],
+  "n_shared_sets": 0,
+  "sim_budget": 0,
+  "timeout_s": 1800.0,
+  "backend": "modal",
+  "locked": false,
+  "lock_commit": null,
+  "hidden_material": false,
+  "n_fits_planned": 4
+ },
+ "wall_s": 180.1,
+ "variants": {
+  "full": {
+   "removes": "(the full locked method)",
+   "profile": {
+    "S1_A_over_full": 0.922499901967581,
+    "S2_C_heldout": 0.9805733823834734,
+    "S3_D_micro_gain": 0.08114592404636961,
+    "S4_E_ratio": 0.007807057590943939,
+    "S5_K_r2_rff": -0.17207065526125742,
+    "S6_dim_rate": 0.0,
+    "S7_abstention": 1.0,
+    "S8_sharing_correct": NaN,
+    "n_systems": 1,
+    "n_E_untestable": 0
+   },
+   "verdict_counts_compressible": {
+    "not supported": 1
+   },
+   "abstention": {
+    "n_noncompressible": 1,
+    "n_compressible": 1,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.0,
+    "confident_wrong_rate": 0.5
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   }
+  },
+  "domain_clip": {
+   "removes": "latent rollouts confined to the widened training box -> unconstrained rollouts",
+   "profile": {
+    "S1_A_over_full": 0.9224999019675861,
+    "S2_C_heldout": 0.9805733823834724,
+    "S3_D_micro_gain": 0.08114592404641094,
+    "S4_E_ratio": 0.007807057590943939,
+    "S5_K_r2_rff": -0.17207065526124588,
+    "S6_dim_rate": 0.0,
+    "S7_abstention": 1.0,
+    "S8_sharing_correct": NaN,
+    "n_systems": 1,
+    "n_E_untestable": 0
+   },
+   "verdict_counts_compressible": {
+    "not supported": 1
+   },
+   "abstention": {
+    "n_noncompressible": 1,
+    "n_compressible": 1,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.0,
+    "confident_wrong_rate": 0.5
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 1,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 5.10702591327572e-15,
+     "median_ci95": [
+      5.10702591327572e-15,
+      5.10702591327572e-15
+     ],
+     "mean_diff": 5.10702591327572e-15,
+     "mean_ci95": [
+      5.10702591327572e-15,
+      5.10702591327572e-15
+     ],
+     "frac_variant_worse": 1.0,
+     "frac_variant_better": 0.0
+    },
+    "S2_C_heldout": {
+     "n": 1,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": -9.992007221626409e-16,
+     "median_ci95": [
+      -9.992007221626409e-16,
+      -9.992007221626409e-16
+     ],
+     "mean_diff": -9.992007221626409e-16,
+     "mean_ci95": [
+      -9.992007221626409e-16,
+      -9.992007221626409e-16
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 1.0
+    },
+    "S3_D_micro_gain": {
+     "n": 1,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 4.132805209167145e-14,
+     "median_ci95": [
+      4.132805209167145e-14,
+      4.132805209167145e-14
+     ],
+     "mean_diff": 4.132805209167145e-14,
+     "mean_ci95": [
+      4.132805209167145e-14,
+      4.132805209167145e-14
+     ],
+     "frac_variant_worse": 1.0,
+     "frac_variant_better": 0.0
+    },
+    "S4_E_ratio": {
+     "n": 1,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 1,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 1.1546319456101628e-14,
+     "median_ci95": [
+      1.1546319456101628e-14,
+      1.1546319456101628e-14
+     ],
+     "mean_diff": 1.1546319456101628e-14,
+     "mean_ci95": [
+      1.1546319456101628e-14,
+      1.1546319456101628e-14
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 1.0
+    },
+    "S6_exact_k_rate": {
+     "full": 0.0,
+     "variant": 0.0,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 1
+    }
+   },
+   "verdict_transitions": {
+    "not supported -> not supported": 1
+   }
+  }
+ },
+ "mean_rank_descriptive": {
+  "domain_clip": 1.5,
+  "full": 1.5
+ },
+ "modal": {
+  "calls": [
+   {
+    "label": "evaluations",
+    "calls": 4,
+    "container_s": 72.4,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 991.0,
+    "peak_container_mb_p95": 983.5,
+    "usd_approx": 0.011
+   },
+   {
+    "label": "references",
+    "calls": 2,
+    "container_s": 263.8,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1010.6,
+    "peak_container_mb_p95": 821.4,
+    "usd_approx": 0.039
+   }
+  ],
+  "usd_approx_total": 0.05
+ }
+}

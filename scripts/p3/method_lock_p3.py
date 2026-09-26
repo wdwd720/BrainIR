@@ -30,6 +30,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 LOCK = ROOT / "research" / "phase3" / "METHOD_LOCK.json"
 LOCKED_DIR = ROOT / "phase3" / "src" / "brainir_state" / "methods"
+NOTES_COPY = ROOT / "research" / "phase3" / "METHOD_NOTES.md"
 TEXT = {".py", ".md", ".txt", ".json", ".jsonl", ".toml", ".lock"}
 
 
@@ -101,12 +102,15 @@ def main(argv=None) -> int:
             inputs[rel] = sha(ROOT / rel)
     commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     notes = Path(args.notes).read_text(encoding="utf-8") if args.notes and Path(args.notes).exists() else ""
+    if notes:       # the developer's full notes at lock time (dimension rule, objective, changes since the tournament), hash-checked
+        NOTES_COPY.write_text(notes.replace("\r\n", "\n"), encoding="utf-8", newline="\n")
+        inputs[NOTES_COPY.relative_to(ROOT).as_posix()] = sha(NOTES_COPY)
     rec = {"method": args.method, "method_version": getattr(m, "version", "?"), "name": "BrainIR State v1", "locked_utc":
            time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "commit_at_lock": commit, "tag": "brainir-state-v1-preblind",
            "strongest_baseline": args.baseline, "selection_record": args.selection,
            "configuration": {"default_config": getattr(m, "default_config", {}), "supported_sharing": list(getattr(m, "supported_sharing", ())),
                              "supports_adaptation": bool(getattr(m, "supports_adaptation", False))},
-           "dimension_rule_and_objective": notes[:20000],
+           "dimension_rule_and_objective": notes, "notes_file": NOTES_COPY.relative_to(ROOT).as_posix() if notes else None,
            "seeds": {"level_c": "seeds 0-4 for the locked method (G), seed 0 for everything else", "level_b_confirmation": "seed 0; seeds 1-2 on 8 systems"},
            "budgets": {"fit_timeout_s": {"synthetic": 1800, "real": 3600, "shared": "2x"}, "sim_budget_units_per_fit": 250,
                        "threads_per_fit": 3},

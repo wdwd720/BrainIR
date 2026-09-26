@@ -668,3 +668,36 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   map returns. Remedy used: re-run the driver (idempotent over cached fits); the launcher now retries a crashed driver up to 3 times
   and keeps every attempt's log. Two parts that ran under the broken re-lock 1 (`r3v3_lin_dmdc` attempt 2, `r3v3_nn_aelin_t` first
   launch) are archived as invalid under `research/phase3/tournament/_failed/` and annotated in LEVELB_LOG.md.
+- **2026-09-25 17:58: composer finished its version-3 work** (session resumed 16:58 with the corrected remote-runner path; $17.2, 66
+  turns). Both requirement batches were answered in code, notes (section 10: every change since the tournament version and why) and
+  37 passing tests; no local process left running. Transcript audit of all streams after it: 0 forbidden-path inputs, 0 answer-token
+  outputs in the composer's streams, 0 web use. The guard denied 7 of the composer's calls, all false positives of a conservative rule
+  (a hexadecimal system id read as encoded text; `\.` in grep patterns read as a `/./` path component); the replay through the
+  current guard denies nothing else. The remote runner served 192 of its jobs (190 exit 0, 2 infrastructure errors) and refused 12
+  requests whose arguments failed the character whitelist; 13.4 container-hours, about $14.3.
+- **Memory profile for container sizing (remote-runner records):** synthetic development jobs peak at about 1.1 GB (p95); the six
+  largest jobs, fits on the real full networks, peaked at 6.9-8.2 GB. Level B keeps the default 2 CPU / 6 GiB containers (tournament
+  records: fits at most 2.1 GB, evaluations at most 1.1 GB); Level C fits need containers of 16 GiB.
+- **Pitfall: a driver can survive a failed Modal heartbeat without finishing.** The second attempt of `r3v3_lin_falds_t` hit the DNS
+  failure in the client's heartbeat and then idled for 45 min (0 CPU) while its relaunch completed; it was killed at 18:04. Check for
+  duplicate drivers of a round before merging, because two drivers write to the same round directory.
+- **2026-09-25 16:40-18:30: Level B round 3 under version 3 and the round decision** (`research/phase3/tournament/r3v3/`, 19 parts,
+  one Modal app each; design hash identical across parts). brainir_state_v1 (fresh fits: 1,292 s wall, $3.7) has 7 failed fits,
+  ALL leave-one-implementation-out ADAPTATION fits of the two implementation groups: a deterministic ValueError in the method's own
+  adaptation code (inhomogeneous latent covariance shapes across the source model's systems). They count as failures and were not
+  retried or fixed: a fix after seeing this held-out round would be a second chance no other participant had. For both groups its
+  "shared" model equals its independent fits (identical parameters), so its sharing verdict is "untestable" there. One evaluation
+  failed (a descriptive leave-one-out row of an unrelated pair). 8 of 204 units fail: eligible.
+  - Ineligible (18 failed shared / leave-one-out fits each, i.e. no sharing by design): cb_cegar, ks_edmd, ks_hankel, ks_hankel_t,
+    nn_rssm, nn_seqbottleneck.
+  - Primary ranking (S1-S8, 13 eligible): brainir_state_v1 5.00 (P(rank 1) 0.519, 90 % rank interval [1, 5]), lin_dmdc_t 5.50,
+    lin_subspace 5.81, lin_dmdc 5.88, lin_falds 5.88, nn_closed 6.62, lin_pcadyn 6.88, lin_pcadyn_t 7.00, lin_balanced 7.25,
+    ks_sindy 7.62, nn_aelin 7.75, nn_aelin_t 8.31, lin_falds_t 11.50.
+  - Decision (pre-registered rule, `ROUND_DECISION.json`): brainir_state_v1 selected by the primary rule (P(rank 1) = 0.519 >= 0.5; a
+    narrow margin, reported as such). Comparator: lin_dmdc_t, the best of the 8 eligible baselines on S1-S5 (nn_aelin, nn_aelin_t,
+    nn_rssm and nn_seqbottleneck fail the Markov criterion on more than 10 % of the systems). lin_dmdc_t is lin_dmdc without its
+    wall-clock branch (the tuner's "determinism only" variant): identical k and verdicts on all 46 systems and profiles equal to
+    ~1e-14, so the order between the two was set by float-level differences and is immaterial; the deterministic variant is the
+    one the protocol's determinism rule asks for.
+  - The tuned lin_falds_t ranks last (S2 1.27, S6 0.09): the tuner's dev-suite gain did not carry to the heldout suite.
+  - The v3 ablation pipeline was smoke-tested after the re-lock (dev suite, 2 systems; v3 verdicts, 0 failures, $0.05).
