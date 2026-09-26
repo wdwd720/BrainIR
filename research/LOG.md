@@ -663,3 +663,8 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
   memory, container size is set per run (`P3_MODAL_CPU`, `P3_MODAL_MEM_MB`), and clean-room agents get a remote runner (P3-D23).
   These execution-only changes were re-locked (`state-discovery-benchmark-v3-relock1`); no evaluation module changed (evaluator code
   tag 365f7ad6d9 before and after).
+- **Pitfall: a transient network failure kills a tournament driver.** A DNS blip on the development machine (`getaddrinfo failed`)
+  crashed two Level B drivers mid-fit, and their completed fits were lost because `modal_run_fits` writes fits only after the whole
+  map returns. Remedy used: re-run the driver (idempotent over cached fits); the launcher now retries a crashed driver up to 3 times
+  and keeps every attempt's log. Two parts that ran under the broken re-lock 1 (`r3v3_lin_dmdc` attempt 2, `r3v3_nn_aelin_t` first
+  launch) are archived as invalid under `research/phase3/tournament/_failed/` and annotated in LEVELB_LOG.md.

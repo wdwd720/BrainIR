@@ -35,3 +35,15 @@ time in the Modal containers (a NameError in `scripts/p3/p3modal/remote.py` intr
 definition). An infrastructure failure, not a result of the method. Its output was moved to
 `research/phase3/tournament/_failed/r3v3_lin_dmdc_attempt2_infra/`. The first attempt of that part (23:2x) had died on a Modal client
 SSL error before writing results. The part is re-run after re-lock 2 (execution only), with the same cached fits.
+| 2026-09-25T23:46:46Z | r3v3_nn_aelin_t | heldout | nn_aelin_t | research/phase3/tournament/r3v3_nn_aelin_t/ |
+| 2026-09-25T23:48:09Z | r3v3_lin_dmdc | heldout | lin_dmdc | research/phase3/tournament/r3v3_lin_dmdc/ |
+| 2026-09-25T23:55:03Z | r3v3_ks_hankel_t | heldout | ks_hankel_t | research/phase3/tournament/r3v3_ks_hankel_t/ |
+| 2026-09-25T23:58:01Z | r3v3_nn_seqbottleneck | heldout | nn_seqbottleneck | research/phase3/tournament/r3v3_nn_seqbottleneck/ |
+| 2026-09-25T23:58:45Z | r3v3_lin_dmdc_t | heldout | lin_dmdc_t | research/phase3/tournament/r3v3_lin_dmdc_t/ |
+| 2026-09-25T23:58:59Z | r3v3_lin_pcadyn_t | heldout | lin_pcadyn_t | research/phase3/tournament/r3v3_lin_pcadyn_t/ |
+| 2026-09-26T00:05:36Z | r3v3_nn_rssm | heldout | nn_rssm | research/phase3/tournament/r3v3_nn_rssm/ |
+
+Note (2026-09-25, orchestrator): the row `r3v3_nn_aelin_t` at 23:46:46Z is INVALID for the same infrastructure reason (every fit of
+that first launch failed at import in the Modal containers under re-lock 1: 95 of 95 fits failed, no evaluation ran). Its output was
+moved to `research/phase3/tournament/_failed/r3v3_nn_aelin_t_launch1_infra/`; the part was relaunched under re-lock 2. The other
+tuned-variant parts of that first launch were stopped before writing results.
