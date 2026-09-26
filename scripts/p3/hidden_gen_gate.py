@@ -78,7 +78,24 @@ def gated(target: str, args: list, tag: int | None = None, mode: str = "refuse")
             os.kill(os.getpid(), signal.SIGKILL)
         return {"tag": tag, "refused": True, "host": h}
     import generate_real_hidden as G
-    return {"tag": tag, "refused": False, "host": h, "value": getattr(G, target)(*args)}
+    fn = getattr(G, target, None) or globals()[target]
+    return {"tag": tag, "refused": False, "host": h, "value": fn(*args)}
+
+
+def remote_resim_compare(items: list) -> list:
+    """Container side (eval volume mounted): re-simulate [(sysdef, protocol)] into a scratch store and compare every array of each
+    record with the record the generation stored on the eval volume (a determinism check of the generating platform)."""
+    import numpy as np
+    import generate_real_hidden as G
+    from brainir_state.store import TrajectoryStore
+    scratch, stored = TrajectoryStore("/tmp/resim_store"), TrajectoryStore(G.REMOTE_STORE)
+    out = []
+    for d, proto in items:
+        key, rec, _ = scratch.get_or_run(G._engine(d["network"]), G._sys(d), proto, d["system_hash"], meta={"source": "resim-check"})
+        old = stored.get(key)
+        same = old is not None and all(np.array_equal(np.asarray(rec[k]), np.asarray(old[k])) for k in ("t", "neurons", "rates", "u"))
+        out.append({"key": key, "stored": old is not None, "identical": bool(same)})
+    return out
 
 
 # ------------------------------------------------------------------------------------------------ orchestrator side
@@ -256,6 +273,78 @@ def generate(containers: int) -> int:
     return 0
 
 
+def remote_hashes(directory: str, names: list) -> dict:
+    """Container side: sha256 and size of files of a directory on the eval volume (the transfer check of `finish`)."""
+    out = {}
+    for n in names:
+        p = Path(directory) / n
+        h = hashlib.sha256()
+        with open(p, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                h.update(chunk)
+        out[n] = {"sha256": h.hexdigest(), "bytes": p.stat().st_size}
+    out["_n_traj"] = sum(1 for _ in (Path(directory) / "traj").glob("*.npz"))
+    return out
+
+
+def finish(containers: int = 4) -> int:
+    """The frozen run_modal's tail after an assembled dataset exists on the eval volume (2026-09-26: the gated remote_tar call, a single
+    input, kept landing on one warm AVX-512 container and gave up after 400 refusals; every data-producing stage had completed on gated
+    hosts). A tar is a byte copy, so it runs through the frozen, ungated _modal_calls. Then: download, tar sha256 end to end, extraction,
+    the text files' sha256 against hashes computed on the volume, the trajectory count, the move into data/phase3/real_hidden."""
+    import posixpath
+    import shutil
+    import tarfile
+    import generate_real_hidden as G
+    import modal_tournament as MT
+    out = G.DATA / "real_hidden"
+    if out.exists():
+        raise SystemExit("refusing: data/phase3/real_hidden exists")
+    if not _remote_exists("/suites/real/hidden"):
+        raise SystemExit("refusing: no assembled dataset on the eval volume")
+    names = ["index.jsonl", "manifest.json", "micro_index.json", "micro_futures.npz"]
+    build = posixpath.dirname(G.REMOTE_STORE)
+    app = MT._open_app(containers)
+    t0 = time.time()
+    with MT._output(), app.run():
+        tar = G._modal_calls("remote_tar", [[G.REMOTE_DATASET, f"{build}/dataset.tar"]], commit=True)[0]
+        payload = {"job_id": uuid.uuid4().hex, "kind": "call", "module": "hidden_gen_gate", "func": "remote_hashes",
+                   "args": [G.REMOTE_DATASET, names], "links": {}, "timeout_s": 1800}
+        rh = MT._eval_map([payload], "call:remote_hashes")[0]
+        if not isinstance(rh, dict) or "result" not in rh:
+            raise SystemExit(f"remote hashing failed: {rh!r}"[:2000])
+        rhash = rh["result"]
+    print(f"tar {tar['bytes'] / 1e6:.0f} MB on the volume; {rhash['_n_traj']} trajectory files", flush=True)
+    dl = out.parent / f"_{out.name}_dl"
+    shutil.rmtree(dl, ignore_errors=True)
+    dl.mkdir(parents=True)
+    got = G._download(tar["path"].replace("/evalvol/", "", 1), dl / "dataset.tar")
+    if got != tar["sha256"]:
+        raise SystemExit("transfer check failed: the downloaded tar differs from the one written on the volume")
+    with tarfile.open(dl / "dataset.tar") as tf:
+        tf.extractall(dl, filter="data")
+    (dl / "dataset.tar").unlink()
+    src = dl / posixpath.basename(G.REMOTE_DATASET.rstrip("/"))
+    local = {n: hashlib.sha256((src / n).read_bytes()).hexdigest() for n in names}
+    bad = [n for n in names if local[n] != rhash[n]["sha256"]]
+    n_traj = len(list((src / "traj").glob("*.npz")))
+    if bad or n_traj != rhash["_n_traj"]:
+        raise SystemExit(f"transfer check failed: {bad} / {n_traj} trajectory files for {rhash['_n_traj']} on the volume")
+    shutil.move(str(src), str(out))
+    shutil.rmtree(dl, ignore_errors=True)
+    n_items = sum(1 for line in (out / "index.jsonl").read_text(encoding="utf-8").splitlines() if line.strip())
+    n_micro = len(json.loads((out / "micro_index.json").read_text(encoding="utf-8")))
+    gen = {"backend": "modal, host-gated (no AVX-512) for every data-producing stage; tar / download by the frozen ungated call",
+           "remote": G.REMOTE_DATASET, "n_items": n_items, "n_micro": n_micro,
+           "sha256": {n: local[n] for n in ("index.jsonl", "manifest.json", "micro_index.json")}, "tar_sha256": tar["sha256"],
+           "tar_bytes": tar["bytes"], "n_traj_files": n_traj, "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    (out / "GENERATION.json").write_text(json.dumps(gen, indent=1) + "\n", encoding="utf-8", newline="\n")
+    rec = dict(gen, stage="finish", wall_s=round(time.time() - t0, 1), costs=MT._STATE["costs"])
+    (REC_DIR / "hidden_generation_record.json").write_text(json.dumps(rec, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(f"downloaded and verified {out}: {n_items} trajectories, {n_micro} microstate restarts", flush=True)
+    return 0
+
+
 def crosscheck() -> int:
     """Compare every generated hidden trajectory with a local store record of the same key (when one exists): t, u, and the dense
     observed / readout arrays, bit for bit. A numerical check only (no method is involved)."""
@@ -297,12 +386,50 @@ def main(argv=None) -> int:
     g = sub.add_parser("generate")
     g.add_argument("--containers", type=int, default=300)
     sub.add_parser("crosscheck")
+    sub.add_parser("finish")
+    rs = sub.add_parser("resim-check")
+    rs.add_argument("--n-extra", type=int, default=63)
     a = ap.parse_args(argv)
     if a.cmd == "verify-public":
         return verify_public(a.n, a.containers)
     if a.cmd == "generate":
         return generate(a.containers)
+    if a.cmd == "finish":
+        return finish()
+    if a.cmd == "resim-check":
+        return resim_check(a.n_extra)
     return crosscheck()
+
+
+def resim_check(n_extra: int) -> int:
+    """Determinism of the generating platform: re-simulate on gated hosts every hidden trajectory that differed from a local record
+    in `crosscheck`, plus n_extra seeded random others, and compare them with the stored Modal records (orchestrator-side numerics
+    check; no method involved; the protocols come from the local index, the records stay on the eval volume)."""
+    import numpy as np
+    import generate_real_hidden as G
+    import modal_tournament as MT
+    systems = json.loads((G.BENCH / "hidden" / "systems_internal.json").read_text(encoding="utf-8"))
+    rows = [json.loads(line) for line in (G.DATA / "real_hidden" / "index.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+    cc = json.loads((REC_DIR / "hidden_generation_crosscheck.json").read_text(encoding="utf-8"))
+    differing = {d["key"] for d in cc.get("first_differences", [])}
+    if cc.get("n_with_local_record", 0) - cc.get("n_identical", 0) > len(differing):
+        print("note: crosscheck listed only the first differences; the extra sample covers the rest", flush=True)
+    rng = np.random.default_rng(20260926)
+    others = [r["key"] for r in rows if r["key"] not in differing]
+    pick = sorted(differing) + [others[i] for i in rng.choice(len(others), size=min(n_extra, len(others)), replace=False)]
+    by_key = {r["key"]: r for r in rows}
+    items = [(systems[by_key[k]["system_id"]], by_key[k]["protocol"]) for k in pick]
+    batches = [items[i: i + 8] for i in range(0, len(items), 8)]
+    app = MT._open_app(len(batches))
+    with MT._output(), app.run():
+        res = [x for b in gated_modal_calls("remote_resim_compare", [[b] for b in batches], commit=False) for x in b]
+    key_ok = sum(1 for r, k in zip(res, pick) if r["key"] == k)
+    rep = {"n": len(res), "n_previously_differing_from_local": len(differing), "n_keys_match": key_ok,
+           "n_stored": sum(r["stored"] for r in res), "n_identical_to_stored": sum(r["identical"] for r in res),
+           "differing_now": [r["key"][:12] for r in res if not r["identical"]][:20], "hosts": _host_summary(), "costs": MT._STATE["costs"]}
+    (REC_DIR / "hidden_generation_resim_check.json").write_text(json.dumps(rep, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps({k: v for k, v in rep.items() if k not in ("costs", "hosts")}, indent=1), flush=True)
+    return 0 if rep["n_identical_to_stored"] == rep["n"] else 1
 
 
 if __name__ == "__main__":

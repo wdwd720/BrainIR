@@ -1,0 +1,2292 @@
+{
+ "plan": {
+  "round": "ablations_dev",
+  "suite": "dev",
+  "method": "brainir_state_v1",
+  "methods_dir": "C:\\Dev\\BrainIR\\phase3\\src\\brainir_state\\methods",
+  "switches": [
+   "abstention",
+   "delays",
+   "domain_clip",
+   "draw_folds",
+   "esindy",
+   "event_calibration",
+   "fold_repeats",
+   "grid_extension",
+   "input_floor",
+   "nested_selection",
+   "nn_dim_rule",
+   "oscillation_check",
+   "sharing",
+   "sharing_test",
+   "sparsity"
+  ],
+  "table": {
+   "abstention": "abstention rules -> never abstain",
+   "delays": "causal delay features in the encoder -> the current microstate only",
+   "domain_clip": "latent rollouts confined to the widened training box -> unconstrained rollouts",
+   "draw_folds": "configuration (delays, degree, threshold, readout degree) chosen on parameter-draw folds -> on trajectory folds",
+   "esindy": "E-SINDy bagging (support = inclusion probability >= 0.6) -> one STLSQ fit",
+   "event_calibration": "per-kind event gains and silencing mechanism calibrated on training events -> raw mechanisms (gain 1)",
+   "fold_repeats": "dimension sweep scored on 2 random trajectory splits (units pooled) -> on one split",
+   "grid_extension": "k sweep continued past 8 (10, 12, 16) while the error still falls -> the base grid (1-6, 8) only",
+   "input_floor": "input-floor abstention (latent explains < half of what the input leaves) -> ks_sindy's abstention rules only",
+   "nested_selection": "configuration per k chosen on validation units disjoint from those comparing k -> on the same units",
+   "nn_dim_rule": "plateau tolerance max(0.1 e*, 0.005) -> ks_sindy's paired log-error rule (tol = max(SE, log 1.05))",
+   "oscillation_check": "k >= 2 when the data oscillate under constant input -> no minimum k",
+   "sharing": "shared-law fit and encoder-only adaptation -> independent fits (config sharing='shared' / adapt_from ignored)",
+   "sharing_test": "internal non-inferiority test of the shared law -> the shared law is always returned under sharing='shared'",
+   "sparsity": "sequential thresholding (threshold grid) -> plain ridge least squares on the full library (threshold 0)"
+  },
+  "systems": [
+   "syn-0dccdf2720",
+   "syn-12db9981b8",
+   "syn-154d77eb23",
+   "syn-1e61c72597",
+   "syn-1edfa10118",
+   "syn-1f16e42a17",
+   "syn-290fca687b",
+   "syn-3296f4ad79",
+   "syn-358d98ba4f",
+   "syn-3b07d98ae3",
+   "syn-3fb72d57cd",
+   "syn-438c5fb10d",
+   "syn-44f7fa1051",
+   "syn-501418528a",
+   "syn-566e16b512",
+   "syn-567a33cb55",
+   "syn-58bf7d0101",
+   "syn-5f1b4fcec5",
+   "syn-6f252b24d5",
+   "syn-70f6a863dd",
+   "syn-74c2a90450",
+   "syn-78aa168dd6",
+   "syn-7b6200bacc",
+   "syn-7bc1b50022",
+   "syn-7f8bce040d",
+   "syn-94a60083e6",
+   "syn-9853fca40a",
+   "syn-acc9812084",
+   "syn-b3e6273583",
+   "syn-b8ba1e6d77",
+   "syn-b8dafc4f01",
+   "syn-b9728fd1f7",
+   "syn-bceac2a8c8",
+   "syn-bff91420cc",
+   "syn-c011bcadf5",
+   "syn-c2039b13ea",
+   "syn-c2a119aa19",
+   "syn-c37b6a1b4d",
+   "syn-d18eff9b51",
+   "syn-dcd0fb3818",
+   "syn-dd35c5444e",
+   "syn-de38f805b3",
+   "syn-e8bb5a2e46",
+   "syn-f045d5c494",
+   "syn-f365aa5a73",
+   "syn-f60f07a27f",
+   "syn-f62c10260a",
+   "syn-fe868499dd"
+  ],
+  "n_compressible": 46,
+  "seed": 0,
+  "shared_variants": [
+   "full",
+   "sharing",
+   "sharing_test"
+  ],
+  "n_shared_sets": 5,
+  "sim_budget": 250,
+  "timeout_s": 1800.0,
+  "backend": "modal",
+  "locked": true,
+  "lock_commit": "6c7c2cdded527762c76edb47eae9fb36f62750bf",
+  "hidden_material": false,
+  "n_fits_planned": 861
+ },
+ "wall_s": 2948.2,
+ "variants": {
+  "full": {
+   "removes": "(the full locked method)",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513943,
+    "S2_C_heldout": 0.6219744550165787,
+    "S3_D_micro_gain": 0.03247543726954637,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016894,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": 0.5,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 5,
+    "evaluations": 1
+   }
+  },
+  "abstention": {
+   "removes": "abstention rules -> never abstain",
+   "profile": {
+    "S1_A_over_full": 0.960641638751385,
+    "S2_C_heldout": 0.6219744550165849,
+    "S3_D_micro_gain": 0.03247543726939203,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016892,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.5,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.0,
+    "false_alarm_rate": 0.0,
+    "confident_wrong_rate": 0.75
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -6.661338147750939e-16,
+      0.0
+     ],
+     "mean_diff": -2.3839625925510834e-14,
+     "mean_ci95": [
+      -1.5683103970077147e-13,
+      7.965620916495627e-14
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      5.551115123125783e-16
+     ],
+     "mean_diff": -8.973377596532828e-15,
+     "mean_ci95": [
+      -4.786677998414035e-14,
+      3.2692822214840235e-14
+     ],
+     "frac_variant_worse": 0.37777777777777777,
+     "frac_variant_better": 0.4222222222222222
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.689893001203927e-16,
+      0.0
+     ],
+     "mean_diff": -7.932680096850863e-15,
+     "mean_ci95": [
+      -2.2107765538743807e-14,
+      9.889762242838534e-16
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.551115123125783e-17,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": 4.858673849723701e-14,
+     "mean_ci95": [
+      -4.547208020750057e-15,
+      1.5014583779181183e-13
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  },
+  "delays": {
+   "removes": "causal delay features in the encoder -> the current microstate only",
+   "profile": {
+    "S1_A_over_full": 1.0295032881345916,
+    "S2_C_heldout": 0.6989786131296243,
+    "S3_D_micro_gain": 0.030399229595422926,
+    "S4_E_ratio": 0.001979633459537136,
+    "S5_K_r2_rff": 0.9958013106121975,
+    "S6_dim_rate": 0.8260869565217391,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 5
+   },
+   "verdict_counts_compressible": {
+    "not supported": 22,
+    "compact causal state discovered": 6,
+    "partially supported": 17,
+    "compact causal state discovered (microstate equivalence untestable)": 1
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.7083333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.3306690738754696e-15,
+      1.1333156635373598e-12
+     ],
+     "mean_diff": -0.3303362612926584,
+     "mean_ci95": [
+      -1.1189155340701877,
+      0.12020349547212102
+     ],
+     "frac_variant_worse": 0.45652173913043476,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -9.103828801926284e-15,
+      3.9968028886505635e-13
+     ],
+     "mean_diff": 0.06187254507854044,
+     "mean_ci95": [
+      -0.030633080150928676,
+      0.16734547687184484
+     ],
+     "frac_variant_worse": 0.4666666666666667,
+     "frac_variant_better": 0.4444444444444444
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1449174941446927e-15,
+      8.465450562766819e-16
+     ],
+     "mean_diff": -0.010008284514408444,
+     "mean_ci95": [
+      -0.02987168032511134,
+      0.005094575046580414
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.45652173913043476
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.00021315234726157603,
+     "mean_ci95": [
+      -0.00039837952702217306,
+      0.0008165278594692814
+     ],
+     "frac_variant_worse": 0.2894736842105263,
+     "frac_variant_better": 0.18421052631578946
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.220446049250313e-16,
+      1.6593115770290066e-13
+     ],
+     "mean_diff": 0.05753147098359158,
+     "mean_ci95": [
+      0.014982212943512235,
+      0.1100827504877796
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.8260869565217391,
+     "diff": 0.08695652173913043,
+     "diff_ci95": [
+      -0.021739130434782608,
+      0.21739130434782608
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 6,
+    "compact causal state discovered -> partially supported": 2,
+    "not supported -> not supported": 17,
+    "not supported -> partially supported": 1,
+    "partially supported -> compact causal state discovered (microstate equivalence untestable)": 1,
+    "partially supported -> not supported": 5,
+    "partially supported -> partially supported": 14
+   }
+  },
+  "domain_clip": {
+   "removes": "latent rollouts confined to the widened training box -> unconstrained rollouts",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513952,
+    "S2_C_heldout": 0.6219744550165847,
+    "S3_D_micro_gain": 0.032475437269430585,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016889,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      2.220446049250313e-16
+     ],
+     "mean_diff": 0.041249276686301156,
+     "mean_ci95": [
+      0.0008385333627446698,
+      0.11580988847670502
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      5.551115123125783e-16
+     ],
+     "mean_diff": -3.622380173595729e-14,
+     "mean_ci95": [
+      -1.0265966317775839e-13,
+      1.9236464273338503e-14
+     ],
+     "frac_variant_worse": 0.37777777777777777,
+     "frac_variant_better": 0.35555555555555557
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1449174941446927e-16,
+      0.0
+     ],
+     "mean_diff": -6.443602657221227e-15,
+     "mean_ci95": [
+      -1.7502708997758306e-14,
+      1.578399877540089e-15
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      0.0
+     ],
+     "mean_diff": -2.710875002736904e-14,
+     "mean_ci95": [
+      -7.816133006522324e-14,
+      -1.2731361858473591e-16
+     ],
+     "frac_variant_worse": 0.43478260869565216,
+     "frac_variant_better": 0.2391304347826087
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  },
+  "draw_folds": {
+   "removes": "configuration (delays, degree, threshold, readout degree) chosen on parameter-draw folds -> on trajectory folds",
+   "profile": {
+    "S1_A_over_full": 0.9945357255047227,
+    "S2_C_heldout": 0.7832640705270744,
+    "S3_D_micro_gain": 0.03234809571586662,
+    "S4_E_ratio": 0.0025914371084527384,
+    "S5_K_r2_rff": 0.9869065016278573,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "partially supported": 20,
+    "compact causal state discovered": 8
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.7083333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.6653345369377348e-14,
+      1.4099832412739488e-14
+     ],
+     "mean_diff": -0.40907414060037545,
+     "mean_ci95": [
+      -1.1899409943305497,
+      0.018314527216306282
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S2_C_heldout": {
+     "n": 44,
+     "n_failed_either": 2,
+     "n_failed_variant_only": 1,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1006993927420438e-14,
+      2.886579864025407e-14
+     ],
+     "mean_diff": 0.04879688931768848,
+     "mean_ci95": [
+      -0.13851562252400712,
+      0.23772492496867598
+     ],
+     "frac_variant_worse": 0.45454545454545453,
+     "frac_variant_better": 0.4318181818181818
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.707240235963695e-16,
+      0.0
+     ],
+     "mean_diff": -0.0007781669106461472,
+     "mean_ci95": [
+      -0.022059296046523222,
+      0.01702329583929359
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.00018517402498948845,
+     "mean_ci95": [
+      -3.9436128533302e-05,
+      0.0005669114869086662
+     ],
+     "frac_variant_worse": 0.07894736842105263,
+     "frac_variant_better": 0.13157894736842105
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.220446049250313e-16,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": -0.0015789727709130022,
+     "mean_ci95": [
+      -0.005056810369551078,
+      0.001240350400778836
+     ],
+     "frac_variant_worse": 0.43478260869565216,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 16,
+    "not supported -> partially supported": 2,
+    "partially supported -> not supported": 2,
+    "partially supported -> partially supported": 18
+   }
+  },
+  "esindy": {
+   "removes": "E-SINDy bagging (support = inclusion probability >= 0.6) -> one STLSQ fit",
+   "profile": {
+    "S1_A_over_full": 0.960641638751397,
+    "S2_C_heldout": 0.6219744550165849,
+    "S3_D_micro_gain": 0.032475437269393004,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016894,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.35148575558719e-16,
+      0.0
+     ],
+     "mean_diff": -0.018696352941143517,
+     "mean_ci95": [
+      -0.04759244407721177,
+      -2.9417690350359184e-05
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.7755575615628914e-17,
+      5.551115123125783e-16
+     ],
+     "mean_diff": -0.03917004990552948,
+     "mean_ci95": [
+      -0.11126557667047557,
+      -0.0002687366849384839
+     ],
+     "frac_variant_worse": 0.4,
+     "frac_variant_better": 0.37777777777777777
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -7.892991815694472e-17,
+      0.0
+     ],
+     "mean_diff": 1.8378935620531588e-16,
+     "mean_ci95": [
+      -1.69013817916257e-14,
+      2.211436997984711e-14
+     ],
+     "frac_variant_worse": 0.2608695652173913,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 4.877740723407481e-15,
+     "mean_ci95": [
+      -5.427542473428374e-15,
+      1.9113213427416386e-14
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.30434782608695654
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  },
+  "event_calibration": {
+   "removes": "per-kind event gains and silencing mechanism calibrated on training events -> raw mechanisms (gain 1)",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513952,
+    "S2_C_heldout": 1.078715732224008,
+    "S3_D_micro_gain": 0.032475437269546575,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016889,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 20,
+    "compact causal state discovered": 3,
+    "partially supported": 23
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.8333333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.7755575615628914e-16,
+      0.0
+     ],
+     "mean_diff": 4.566606754577067e-14,
+     "mean_ci95": [
+      -1.0797582634766108e-14,
+      1.2599408231704089e-13
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.2640474592924489,
+     "median_ci95": [
+      0.10135533194709202,
+      0.5950352326804161
+     ],
+     "mean_diff": 17.12091169624986,
+     "mean_ci95": [
+      -0.5210979697452727,
+      51.19708516348954
+     ],
+     "frac_variant_worse": 0.7777777777777778,
+     "frac_variant_better": 0.2222222222222222
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.491862189340054e-16,
+      1.0581813203458523e-16
+     ],
+     "mean_diff": -6.332276895998477e-16,
+     "mean_ci95": [
+      -7.11724598621753e-15,
+      6.289319156051725e-15
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      1.6653345369377348e-16
+     ],
+     "mean_diff": 9.668594427496471e-15,
+     "mean_ci95": [
+      -1.9091008966923887e-16,
+      2.622944132422432e-14
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 3,
+    "compact causal state discovered -> partially supported": 5,
+    "not supported -> not supported": 18,
+    "partially supported -> not supported": 2,
+    "partially supported -> partially supported": 18
+   }
+  },
+  "fold_repeats": {
+   "removes": "dimension sweep scored on 2 random trajectory splits (units pooled) -> on one split",
+   "profile": {
+    "S1_A_over_full": 0.9398817854135904,
+    "S2_C_heldout": 0.5670769614586331,
+    "S3_D_micro_gain": 0.027843473977032122,
+    "S4_E_ratio": 0.0029954887188685486,
+    "S5_K_r2_rff": 0.9807341765893127,
+    "S6_dim_rate": 0.6304347826086957,
+    "S7_abstention": 0.9891304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 7
+   },
+   "verdict_counts_compressible": {
+    "not supported": 19,
+    "partially supported": 19,
+    "compact causal state discovered": 8
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.7083333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.885780586188048e-15,
+      7.216449660063518e-16
+     ],
+     "mean_diff": 0.06354545884163905,
+     "mean_ci95": [
+      -0.7141769447203435,
+      0.9306563444769788
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.45652173913043476
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 1.9984014443252818e-15,
+     "median_ci95": [
+      -2.3592239273284576e-16,
+      5.995204332975845e-15
+     ],
+     "mean_diff": 0.015158683476653168,
+     "mean_ci95": [
+      -0.1393889597719698,
+      0.17312415551658455
+     ],
+     "frac_variant_worse": 0.5333333333333333,
+     "frac_variant_better": 0.37777777777777777
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -6.661338147750939e-16,
+      1.2836953722228372e-16
+     ],
+     "mean_diff": 0.009309606737925505,
+     "mean_ci95": [
+      -0.01364086277894822,
+      0.03727431685837944
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S4_E_ratio": {
+     "n": 37,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.00033380591632149,
+     "mean_ci95": [
+      -5.6594506318151285e-05,
+      0.0007696177440216359
+     ],
+     "frac_variant_worse": 0.1891891891891892,
+     "frac_variant_better": 0.05405405405405406
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": -5.551115123125783e-17,
+     "median_ci95": [
+      -1.4432899320127035e-15,
+      3.885780586188048e-16
+     ],
+     "mean_diff": -0.08325463776756589,
+     "mean_ci95": [
+      -0.1897187848929159,
+      0.00812778859343036
+     ],
+     "frac_variant_worse": 0.5,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.6304347826086957,
+     "diff": -0.10869565217391304,
+     "diff_ci95": [
+      -0.2608695652173913,
+      0.021739130434782608
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 16,
+    "not supported -> partially supported": 2,
+    "partially supported -> not supported": 3,
+    "partially supported -> partially supported": 17
+   }
+  },
+  "grid_extension": {
+   "removes": "k sweep continued past 8 (10, 12, 16) while the error still falls -> the base grid (1-6, 8) only",
+   "profile": {
+    "S1_A_over_full": 0.960641638751397,
+    "S2_C_heldout": 0.6219744550165883,
+    "S3_D_micro_gain": 0.032475437269367226,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.987550881601689,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9565217391304348,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.08695652173913043,
+    "confident_wrong_rate": 0.6458333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.886579864025407e-15,
+      2.220446049250313e-16
+     ],
+     "mean_diff": -1.4534209584652395e-11,
+     "mean_ci95": [
+      -4.3732625250616206e-11,
+      1.0585855863385143e-13
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.45652173913043476
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.6637359812630166e-15,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": 3.6054708601401193e-13,
+     "mean_ci95": [
+      -7.492075632726309e-14,
+      1.187680239649818e-12
+     ],
+     "frac_variant_worse": 0.35555555555555557,
+     "frac_variant_better": 0.4888888888888889
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.3877787807814457e-16,
+      5.48172618408671e-16
+     ],
+     "mean_diff": -3.2722058286854334e-15,
+     "mean_ci95": [
+      -2.0353964052441342e-14,
+      8.778828329240012e-15
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": 2.445145535321187e-14,
+     "mean_ci95": [
+      -1.8505728350681269e-16,
+      6.230294058440213e-14
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  },
+  "input_floor": {
+   "removes": "input-floor abstention (latent explains < half of what the input leaves) -> ks_sindy's abstention rules only",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513849,
+    "S2_C_heldout": 0.6219744550165828,
+    "S3_D_micro_gain": 0.0324754372693931,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016891,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.7291666666666666
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.4424906541753444e-15,
+      0.0
+     ],
+     "mean_diff": -1.5019699252443562e-11,
+     "mean_ci95": [
+      -4.511770552572753e-11,
+      6.350336922977817e-14
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.6637359812630166e-15,
+      1.2212453270876722e-15
+     ],
+     "mean_diff": 3.650334664169937e-13,
+     "mean_ci95": [
+      -7.074004962051263e-14,
+      1.1894714534320548e-12
+     ],
+     "frac_variant_worse": 0.37777777777777777,
+     "frac_variant_better": 0.4666666666666667
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.3877787807814457e-17,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": 3.2560223435401537e-15,
+     "mean_ci95": [
+      -1.443033011452243e-14,
+      2.4244281288170843e-14
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.551115123125783e-17,
+      2.220446049250313e-16
+     ],
+     "mean_diff": -1.799044005555634e-14,
+     "mean_ci95": [
+      -7.335744330823648e-14,
+      1.4724694893338275e-14
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  },
+  "nested_selection": {
+   "removes": "configuration per k chosen on validation units disjoint from those comparing k -> on the same units",
+   "profile": {
+    "S1_A_over_full": 0.974543106790493,
+    "S2_C_heldout": 0.6588845936473836,
+    "S3_D_micro_gain": 0.02392592419874015,
+    "S4_E_ratio": 0.002654984012495338,
+    "S5_K_r2_rff": 0.9823973222505199,
+    "S6_dim_rate": 0.6521739130434783,
+    "S7_abstention": 0.9891304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 19,
+    "compact causal state discovered": 8,
+    "partially supported": 19
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.7083333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.220446049250313e-16,
+      3.2751579226442118e-15
+     ],
+     "mean_diff": -0.2568515847454063,
+     "mean_ci95": [
+      -0.8592270469295352,
+      0.14931272141971616
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": -1.1102230246251565e-16,
+     "median_ci95": [
+      -4.163336342344337e-15,
+      0.0
+     ],
+     "mean_diff": -0.6284988552693718,
+     "mean_ci95": [
+      -2.8422806322846736,
+      0.6690557473937873
+     ],
+     "frac_variant_worse": 0.3333333333333333,
+     "frac_variant_better": 0.5111111111111111
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.011913635164731e-16,
+      0.0
+     ],
+     "mean_diff": 0.001182596270380786,
+     "mean_ci95": [
+      -0.024089874895970517,
+      0.027629735869587155
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S4_E_ratio": {
+     "n": 36,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 7.093928617268294e-05,
+     "mean_ci95": [
+      -0.0006914627115959125,
+      0.0006503999067933483
+     ],
+     "frac_variant_worse": 0.16666666666666666,
+     "frac_variant_better": 0.027777777777777776
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.6653345369377348e-16,
+      0.0
+     ],
+     "mean_diff": -0.05288277574809494,
+     "mean_ci95": [
+      -0.15401252377361324,
+      0.02859732469830514
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.6521739130434783,
+     "diff": -0.08695652173913043,
+     "diff_ci95": [
+      -0.21739130434782608,
+      0.021739130434782608
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 17,
+    "not supported -> partially supported": 1,
+    "partially supported -> not supported": 2,
+    "partially supported -> partially supported": 18
+   }
+  },
+  "nn_dim_rule": {
+   "removes": "plateau tolerance max(0.1 e*, 0.005) -> ks_sindy's paired log-error rule (tol = max(SE, log 1.05))",
+   "profile": {
+    "S1_A_over_full": 0.9601276307072932,
+    "S2_C_heldout": 0.6588845936476829,
+    "S3_D_micro_gain": 0.03247543726954637,
+    "S4_E_ratio": 0.0029954887188685486,
+    "S5_K_r2_rff": 0.9746964229700086,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.9891304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 7
+   },
+   "verdict_counts_compressible": {
+    "not supported": 19,
+    "partially supported": 20,
+    "compact causal state discovered": 7
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.7291666666666666
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.95516952522712e-16,
+      9.547918011776346e-15
+     ],
+     "mean_diff": 0.38820519873629367,
+     "mean_ci95": [
+      0.0012025131063521449,
+      1.084722387420794
+     ],
+     "frac_variant_worse": 0.45652173913043476,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 1.3322676295501878e-15,
+     "median_ci95": [
+      -2.220446049250313e-16,
+      1.5765166949677223e-14
+     ],
+     "mean_diff": -0.8483787357119797,
+     "mean_ci95": [
+      -2.889220247834998,
+      0.2801156131537341
+     ],
+     "frac_variant_worse": 0.5333333333333333,
+     "frac_variant_better": 0.37777777777777777
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.3877787807814457e-17,
+      1.953775682905776e-15
+     ],
+     "mean_diff": 0.014996815978075017,
+     "mean_ci95": [
+      -0.013946863202472843,
+      0.04918520333149431
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 2.3479260458834825e-05,
+     "mean_ci95": [
+      -0.0007316207631112117,
+      0.0006536576072859834
+     ],
+     "frac_variant_worse": 0.23684210526315788,
+     "frac_variant_better": 0.07894736842105263
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": -5.551115123125783e-17,
+     "median_ci95": [
+      -8.881784197001252e-16,
+      0.0
+     ],
+     "mean_diff": -0.06650902484252477,
+     "mean_ci95": [
+      -0.16933677856109425,
+      0.01892959866410718
+     ],
+     "frac_variant_worse": 0.5,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.5869565217391305,
+     "diff": -0.15217391304347827,
+     "diff_ci95": [
+      -0.30434782608695654,
+      -0.021739130434782608
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 6,
+    "compact causal state discovered -> partially supported": 2,
+    "not supported -> compact causal state discovered": 1,
+    "not supported -> not supported": 17,
+    "partially supported -> not supported": 2,
+    "partially supported -> partially supported": 18
+   }
+  },
+  "oscillation_check": {
+   "removes": "k >= 2 when the data oscillate under constant input -> no minimum k",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513961,
+    "S2_C_heldout": 0.6219744550165818,
+    "S3_D_micro_gain": 0.035132645096473666,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016889,
+    "S6_dim_rate": 0.717391304347826,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.4432899320127035e-15,
+      1.942890293094024e-15
+     ],
+     "mean_diff": -1.49862658514683e-11,
+     "mean_ci95": [
+      -4.509534934481136e-11,
+      1.0897137660824812e-13
+     ],
+     "frac_variant_worse": 0.43478260869565216,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -4.163336342344337e-15,
+      1.9984014443252818e-15
+     ],
+     "mean_diff": 0.00041586941637964856,
+     "mean_ci95": [
+      -4.010867255605572e-14,
+      0.0012476082491792312
+     ],
+     "frac_variant_worse": 0.4444444444444444,
+     "frac_variant_better": 0.4444444444444444
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.3877787807814457e-17,
+      3.1285737889241385e-16
+     ],
+     "mean_diff": 0.007925611048701727,
+     "mean_ci95": [
+      -9.768660100993614e-17,
+      0.023776833146089808
+     ],
+     "frac_variant_worse": 0.43478260869565216,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0029028421115401865,
+     "mean_ci95": [
+      0.0,
+      0.00870852633462056
+     ],
+     "frac_variant_worse": 0.02631578947368421,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": -1.1102230246251565e-16,
+     "median_ci95": [
+      -2.220446049250313e-16,
+      0.0
+     ],
+     "mean_diff": -0.009311931069949056,
+     "mean_ci95": [
+      -0.02793579320985369,
+      1.838692241940481e-14
+     ],
+     "frac_variant_worse": 0.5217391304347826,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.717391304347826,
+     "diff": -0.021739130434782608,
+     "diff_ci95": [
+      -0.06521739130434782,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  },
+  "sharing": {
+   "removes": "shared-law fit and encoder-only adaptation -> independent fits (config sharing='shared' / adapt_from ignored)",
+   "profile": {
+    "S1_A_over_full": 0.960641638751397,
+    "S2_C_heldout": 0.6219744550165904,
+    "S3_D_micro_gain": 0.032475437269367524,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016894,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": 0.5,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -4.996003610813204e-16,
+      0.0
+     ],
+     "mean_diff": -1.205403409937597e-11,
+     "mean_ci95": [
+      -3.612251633077357e-11,
+      6.910112578757977e-15
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      1.6653345369377348e-16
+     ],
+     "mean_diff": -5.63456688714344e-14,
+     "mean_ci95": [
+      -1.1705122210998237e-13,
+      -7.347455976969317e-15
+     ],
+     "frac_variant_worse": 0.4,
+     "frac_variant_better": 0.4
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.551115123125783e-16,
+      0.0
+     ],
+     "mean_diff": -7.511891805864262e-15,
+     "mean_ci95": [
+      -2.3538212624631175e-14,
+      2.4909344129218426e-15
+     ],
+     "frac_variant_worse": 0.21739130434782608,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      0.0
+     ],
+     "mean_diff": 5.945002944036273e-14,
+     "mean_ci95": [
+      -6.448344274004917e-16,
+      1.6733009905214986e-13
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   },
+   "S8_diff": 0.0
+  },
+  "sharing_test": {
+   "removes": "internal non-inferiority test of the shared law -> the shared law is always returned under sharing='shared'",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513869,
+    "S2_C_heldout": 0.6219744550165847,
+    "S3_D_micro_gain": 0.03247543726957614,
+    "S4_E_ratio": 0.002689072824574982,
+    "S5_K_r2_rff": 0.9875508816016887,
+    "S6_dim_rate": 0.7391304347826086,
+    "S7_abstention": 0.9782608695652174,
+    "S8_sharing_correct": 0.3333333333333333,
+    "n_systems": 46,
+    "n_E_untestable": 8
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 8
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.6645352591003757e-15,
+      5.551115123125783e-16
+     ],
+     "mean_diff": -1.1954393694753136e-11,
+     "mean_ci95": [
+      -3.600099189925335e-11,
+      1.1011725197144265e-13
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -9.103828801926284e-15,
+      3.847963614411733e-15
+     ],
+     "mean_diff": 7.080755734831554e-16,
+     "mean_ci95": [
+      -1.968151721845304e-14,
+      1.7686616060608172e-14
+     ],
+     "frac_variant_worse": 0.4222222222222222,
+     "frac_variant_better": 0.4666666666666667
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 9.540979117872439e-18,
+     "median_ci95": [
+      0.0,
+      5.342948306008566e-16
+     ],
+     "mean_diff": -9.187346545145713e-16,
+     "mean_ci95": [
+      -7.591152405683815e-15,
+      4.238114237572905e-15
+     ],
+     "frac_variant_worse": 0.5,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 5.551115123125783e-17,
+     "median_ci95": [
+      0.0,
+      3.3306690738754696e-16
+     ],
+     "mean_diff": -9.019355310922196e-15,
+     "mean_ci95": [
+      -6.651593527181539e-14,
+      2.7235520602083014e-14
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.5
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.7391304347826086,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   },
+   "S8_diff": -0.16666666666666669
+  },
+  "sparsity": {
+   "removes": "sequential thresholding (threshold grid) -> plain ridge least squares on the full library (threshold 0)",
+   "profile": {
+    "S1_A_over_full": 0.9606416387513981,
+    "S2_C_heldout": 0.5979561483055745,
+    "S3_D_micro_gain": 0.02727216119024492,
+    "S4_E_ratio": 0.0029954887188685486,
+    "S5_K_r2_rff": 0.986906501627857,
+    "S6_dim_rate": 0.6739130434782609,
+    "S7_abstention": 0.9891304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 7
+   },
+   "verdict_counts_compressible": {
+    "not supported": 18,
+    "compact causal state discovered": 8,
+    "partially supported": 20
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 1.0,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.7083333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -6.661338147750939e-15,
+      0.0
+     ],
+     "mean_diff": -0.0930128647483099,
+     "mean_ci95": [
+      -0.37003034510090943,
+      0.1149187115635043
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.317349007656787e-14,
+      0.0
+     ],
+     "mean_diff": 0.010962077770371505,
+     "mean_ci95": [
+      -2.849894771186117,
+      2.7417052690830865
+     ],
+     "frac_variant_worse": 0.3111111111111111,
+     "frac_variant_better": 0.4888888888888889
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": -6.938893903907228e-17,
+     "median_ci95": [
+      -7.4593109467002705e-16,
+      0.0
+     ],
+     "mean_diff": -0.01101720931852183,
+     "mean_ci95": [
+      -0.028496908107020005,
+      0.0011152998882034378
+     ],
+     "frac_variant_worse": 0.21739130434782608,
+     "frac_variant_better": 0.5
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0005602361231582568,
+     "mean_ci95": [
+      0.0,
+      0.0013301832489594114
+     ],
+     "frac_variant_worse": 0.10526315789473684,
+     "frac_variant_better": 0.02631578947368421
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.3306690738754696e-16,
+      0.0
+     ],
+     "mean_diff": -0.00733220698226561,
+     "mean_ci95": [
+      -0.035133064796316685,
+      0.013137063210376774
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.7391304347826086,
+     "variant": 0.6739130434782609,
+     "diff": -0.06521739130434782,
+     "diff_ci95": [
+      -0.15217391304347827,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "not supported -> not supported": 18,
+    "partially supported -> partially supported": 20
+   }
+  }
+ },
+ "mean_rank_descriptive": {
+  "abstention": 8.3125,
+  "delays": 7.0,
+  "domain_clip": 8.5,
+  "draw_folds": 9.3125,
+  "esindy": 8.1875,
+  "event_calibration": 10.0625,
+  "fold_repeats": 7.8125,
+  "full": 6.25,
+  "grid_extension": 9.125,
+  "input_floor": 8.0,
+  "nested_selection": 8.8125,
+  "nn_dim_rule": 10.875,
+  "oscillation_check": 9.6875,
+  "sharing": 7.1875,
+  "sharing_test": 8.0625,
+  "sparsity": 8.8125
+ },
+ "modal": {
+  "calls": [
+   {
+    "label": "fits",
+    "calls": 822,
+    "container_s": 129937.1,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1843.2,
+    "peak_container_mb_p95": 1546.4,
+    "usd_approx": 19.057
+   },
+   {
+    "label": "fits",
+    "calls": 78,
+    "container_s": 2997.2,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1382.3,
+    "peak_container_mb_p95": 1349.4,
+    "usd_approx": 0.44
+   },
+   {
+    "label": "evaluations",
+    "calls": 880,
+    "container_s": 18295.2,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1007.5,
+    "peak_container_mb_p95": 985.6,
+    "usd_approx": 2.683
+   },
+   {
+    "label": "references",
+    "calls": 92,
+    "container_s": 12166.0,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1052.4,
+    "peak_container_mb_p95": 1004.5,
+    "usd_approx": 1.784
+   }
+  ],
+  "usd_approx_total": 23.96
+ }
+}

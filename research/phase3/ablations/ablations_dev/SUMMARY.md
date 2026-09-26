@@ -1,0 +1,25 @@
+# Ablations of brainir_state_v1 (dev suite, round ablations_dev)
+
+- 15 switches x 48 systems (46 compressible), seed 0; locked: True; hidden material: False; backend modal
+- Paired differences = variant minus full per compressible system (median [system-bootstrap 95 % CI]); S1-S4 lower is better, S5 higher is better; S6 = exact-k rate difference.
+
+| variant | removes | S1 | S2 | S3 | S4 | S5 | S6 | verdicts (compressible) | failures |
+|---|---|---|---|---|---|---|---|---|---|
+| full | (the full locked method) | 0.961 | 0.622 | 0.0325 | 0.00269 | 0.988 | 0.739 | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 5+1 |
+| abstention | abstention rules -> never abstain | 0 [-6.66e-16, 0] | 0 [-1.11e-16, 5.55e-16] | 0 [-5.69e-16, 0] | 0 [0, 0] | 0 [-5.55e-17, 1.11e-16] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| delays | causal delay features in the encoder -> the current microsta | 0 [-3.33e-15, 1.13e-12] | 0 [-9.1e-15, 4e-13] | 0 [-1.14e-15, 8.47e-16] | 0 [0, 0] | 0 [-2.22e-16, 1.66e-13] | 0.087 [-0.0217, 0.217] | compact causal state discovered: 6, compact causal state discovered (microstate equivalence untestable): 1, not supported: 22, partially supported: 17 | 0+0 |
+| domain_clip | latent rollouts confined to the widened training box -> unco | 0 [0, 2.22e-16] | 0 [0, 5.55e-16] | 0 [-1.14e-16, 0] | 0 [0, 0] | 0 [-1.11e-16, 0] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| draw_folds | configuration (delays, degree, threshold, readout degree) ch | 0 [-1.67e-14, 1.41e-14] | 0 [-1.1e-14, 2.89e-14] | 0 [-5.71e-16, 0] | 0 [0, 0] | 0 [-2.22e-16, 1.11e-16] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| esindy | E-SINDy bagging (support = inclusion probability >= 0.6) ->  | 0 [-3.35e-16, 0] | 0 [-2.78e-17, 5.55e-16] | 0 [-7.89e-17, 0] | 0 [0, 0] | 0 [0, 0] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| event_calibration | per-kind event gains and silencing mechanism calibrated on t | 0 [-2.78e-16, 0] | 0.264 [0.101, 0.595] | 0 [-1.49e-16, 1.06e-16] | 0 [0, 0] | 0 [-1.11e-16, 1.67e-16] | 0 [0, 0] | compact causal state discovered: 3, not supported: 20, partially supported: 23 | 0+0 |
+| fold_repeats | dimension sweep scored on 2 random trajectory splits (units  | 0 [-3.89e-15, 7.22e-16] | 2e-15 [-2.36e-16, 6e-15] | 0 [-6.66e-16, 1.28e-16] | 0 [0, 0] | -5.55e-17 [-1.44e-15, 3.89e-16] | -0.109 [-0.261, 0.0217] | compact causal state discovered: 8, not supported: 19, partially supported: 19 | 0+0 |
+| grid_extension | k sweep continued past 8 (10, 12, 16) while the error still  | 0 [-2.89e-15, 2.22e-16] | 0 [-3.66e-15, 1.11e-16] | 0 [-1.39e-16, 5.48e-16] | 0 [0, 0] | 0 [-1.11e-16, 1.11e-16] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| input_floor | input-floor abstention (latent explains < half of what the i | 0 [-2.44e-15, 0] | 0 [-3.66e-15, 1.22e-15] | 0 [-1.39e-17, 1.11e-16] | 0 [0, 0] | 0 [-5.55e-17, 2.22e-16] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| nested_selection | configuration per k chosen on validation units disjoint from | 0 [-2.22e-16, 3.28e-15] | -1.11e-16 [-4.16e-15, 0] | 0 [-3.01e-16, 0] | 0 [0, 0] | 0 [-1.67e-16, 0] | -0.087 [-0.217, 0.0217] | compact causal state discovered: 8, not supported: 19, partially supported: 19 | 0+0 |
+| nn_dim_rule | plateau tolerance max(0.1 e*, 0.005) -> ks_sindy's paired lo | 0 [-3.96e-16, 9.55e-15] | 1.33e-15 [-2.22e-16, 1.58e-14] | 0 [-1.39e-17, 1.95e-15] | 0 [0, 0] | -5.55e-17 [-8.88e-16, 0] | -0.152 [-0.304, -0.0217] | compact causal state discovered: 7, not supported: 19, partially supported: 20 | 0+0 |
+| oscillation_check | k >= 2 when the data oscillate under constant input -> no mi | 0 [-1.44e-15, 1.94e-15] | 0 [-4.16e-15, 2e-15] | 0 [-1.39e-17, 3.13e-16] | 0 [0, 0] | -1.11e-16 [-2.22e-16, 0] | -0.0217 [-0.0652, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| sharing | shared-law fit and encoder-only adaptation -> independent fi | 0 [-5e-16, 0] | 0 [-1.11e-16, 1.67e-16] | 0 [-5.55e-16, 0] | 0 [0, 0] | 0 [-1.11e-16, 0] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+| sharing_test | internal non-inferiority test of the shared law -> the share | 0 [-2.66e-15, 5.55e-16] | 0 [-9.1e-15, 3.85e-15] | 9.54e-18 [0, 5.34e-16] | 0 [0, 0] | 5.55e-17 [0, 3.33e-16] | 0 [0, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+8 |
+| sparsity | sequential thresholding (threshold grid) -> plain ridge leas | 0 [-6.66e-15, 0] | 0 [-1.32e-14, 0] | -6.94e-17 [-7.46e-16, 0] | 0 [0, 0] | 0 [-3.33e-16, 0] | -0.0652 [-0.152, 0] | compact causal state discovered: 8, not supported: 18, partially supported: 20 | 0+0 |
+
+The full method's row shows its profile values; the other rows show paired differences against it.

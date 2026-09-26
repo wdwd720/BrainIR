@@ -1,0 +1,39 @@
+{
+ "backend": "modal, host-gated (no AVX-512) for every data-producing stage; tar / download by the frozen ungated call",
+ "remote": "/evalvol/suites/real/hidden",
+ "n_items": 3360,
+ "n_micro": 1920,
+ "sha256": {
+  "index.jsonl": "6c759b9803a83474e0c87ac6df42593e98eef4691d725d617a6b17b2ba54a34a",
+  "manifest.json": "849ee2e8259b7a6430732a0659ed08da06d3d5afdc7b012e14e1b49973128252",
+  "micro_index.json": "79006a49a6a1183aafd2225bf530449a80698cac5f75572ae2cbf9944bdeb99e"
+ },
+ "tar_sha256": "9e118880d48c6561275742c3bea683910e507d6c6672fbafcea0a24868ccb6d3",
+ "tar_bytes": 1593610240,
+ "n_traj_files": 3360,
+ "finished_utc": "2026-09-26T07:29:25Z",
+ "stage": "finish",
+ "wall_s": 395.1,
+ "costs": [
+  {
+   "label": "call:remote_tar",
+   "calls": 1,
+   "container_s": 129.3,
+   "cpu": 2.0,
+   "memory_mb": 6144,
+   "peak_container_mb_max": 954.8,
+   "peak_container_mb_p95": 954.8,
+   "usd_approx": 0.019
+  },
+  {
+   "label": "call:remote_hashes",
+   "calls": 1,
+   "container_s": 3.6,
+   "cpu": 2.0,
+   "memory_mb": 6144,
+   "peak_container_mb_max": 595.8,
+   "peak_container_mb_p95": 595.8,
+   "usd_approx": 0.001
+  }
+ ]
+}

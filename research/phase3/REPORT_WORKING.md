@@ -429,3 +429,47 @@ winner's curse of a narrow selection. Against the comparator, component by compo
 - seeds (G, 8 systems x 3 seeds): the same k on 4 of 8; latent agreement min(R^2 both ways) 0.69-1.00;
 - sharing: neither implementation group is supported (one untestable, one rejected); all 3 unrelated pairs are rejected (S8 = 0.5);
 - failures: 4 of 108 fits (the leave-one-out adaptation fits, the known defect) and 0 of 99 evaluations.
+
+## 9. Counterexample search (goal4 sections 52-54, 87; post-lock, FINAL suite, hidden)
+
+`scripts/p3/counterexamples.py sweep` searched the FINAL synthetic suite, with 48 systems x 3 seeds x 4 strategies and 60 protocols
+per search (random, evolutionary, structured single-target probes, Bayesian optimisation), including perturbed initial states. It
+ran for the locked method and for the comparator, with two objectives:
+- effect: the counterfactual effect error of family C, where 1 = predicting no effect;
+- post: the post-event readout error.
+
+The search domain is deliberately wider than the public protocol families. A protocol is a counterexample candidate when its error
+is at least max(1, 2 x the system's random-protocol p90). A system is "broken immediately" when at least half of its searches find
+a candidate among their first 10 protocols. The results are in `research/phase3/counterexamples/final_*` (0 failed searches in all
+four sweeps).
+
+| sweep | systems with counterexamples | distinct counterexamples | median worst / random-median error | broken immediately |
+|---|---|---|---|---|
+| brainir_state_v1, effect | 47 of 48 (one system cannot be searched: the model abstains on every event kind) | 2,558 | 2,357 | **9** |
+| lin_dmdc_t, effect | 48 of 48 | 2,414 | 1,048 | 3 |
+| brainir_state_v1, post | 39 of 48 | 698 | 31 | 3 |
+| lin_dmdc_t, post | 41 of 48 | 729 | 23 | 3 |
+
+The locked method's median effect error on random protocols is moderate: 0.57 (median over systems), against 0.70 for the
+comparator. Its worst cases, however, are extreme: effect errors of 10^3 to 10^9 on searched protocols, where the model predicts
+huge spurious effects. Such protocols are easy to find, and on 9 systems they appear almost immediately (the comparator: 3).
+Answer to "can the counterexample search break it immediately?": yes, on 9 of 48 FINAL systems for the interventional error, and
+on 3 of 48 for the post-event error.
+
+## 10. Ablations (goal4 sections 84, 85 criterion 40)
+
+The ablations switch off one component of the locked method at a time (its own `ablate` switches), with paired differences
+against the full method over the compressible systems (median [system-bootstrap 95 % CI]).
+
+**Dev suite** (development data, 15 switches x 48 systems; `research/phase3/ablations/ablations_dev/`; $24):
+- `event_calibration`: calibrated per-kind event gains and silencing mechanism replaced by raw mechanisms. Held-out C worsens by
+  +0.26 [0.10, 0.60], and "compact" verdicts fall from 8 to 3. This is the component that carries S2.
+- `nn_dim_rule`: the rebuilt plateau tolerance replaced by ks_sindy's rule. The exact-k rate falls by 0.15 [0.30, 0.02]. This is the
+  component that carries S6.
+- `fold_repeats`, `nested_selection` and `sparsity` lower the exact-k rate (-0.11, -0.09, -0.07), with CIs that include 0.
+- `delays` raises it (+0.09, CI includes 0).
+- Every other switch leaves every median at 0: on most systems the variant produces the same model, because the switch acts only
+  where its condition fires. Examples are `abstention` (it changes flags only), `domain_clip` (the latent box is rarely active) and
+  `sharing` (the shared law is never supported).
+
+The FINAL-suite ablations (the primary, unbiased ones) are reported in section 10.1.
