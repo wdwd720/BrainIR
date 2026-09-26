@@ -28,7 +28,7 @@ SOURCES = {
     "research/phase3/review_contracts/POSTLOCK_COMMON.txt": ("COMMON CONTRACT: read results/HIDDEN_EVALUATIONS.md\n",
                                                              "docs/review_contracts/POSTLOCK_COMMON.txt"),
     **{f"research/phase3/review_contracts/POSTLOCK_{x}_TASK.txt": (f"TASK {x}\n", f"docs/review_contracts/POSTLOCK_{x}_TASK.txt")
-       for x in "SCYR"},
+       for x in "SCYRV"},
     "research/phase3/METHOD_LOCK.json": ('{"method": "brainir_state_v1"}\n', "METHOD_LOCK.json"),
     "phase3/src/brainir_state/__init__.py": ('"""pkg"""\n', "src/brainir_state/__init__.py"),
     "phase3/src/brainir_state/evaluate.py": (f'NAME = "{DATASET}:v1"\n\n\ndef f(x):\n    return x\n', "src/brainir_state/evaluate.py"),
@@ -62,6 +62,11 @@ SOURCES = {
     "research/phase3/HIDDEN_EVALUATIONS.md": ("| time | run |\n", "results/EVALUATION_LOG.md"),
     "research/phase3/LEVELB_LOG.md": ("# Level B log\n", "results/LEVELB_LOG.md"),
     "research/phase3/COSTS_LEDGER.md": ("# costs\n", "results/COSTS_LEDGER.md"),
+    # reviewer V's inputs: the one file of research/phase3/reviews/ that may enter, the billed costs, the snapshot provenance
+    "research/phase3/reviews/POSTLOCK_RESOLUTION.md": ("# resolution\n", "docs/POSTLOCK_RESOLUTION.md"),
+    "research/phase3/MODAL_BILLING.json": ('{"total_usd": 1}\n', "results/MODAL_BILLING.json"),
+    "research/phase3/MODAL_BILLING.md": ("# billing\n", "results/MODAL_BILLING.md"),
+    "research/phase3/POSTLOCK_PROVENANCE.json": ('{"key": "k"}\n', "results/POSTLOCK_PROVENANCE.json"),
     "research/phase3/REPORT_WORKING.md": ("# Draft report\n", "PHASE3_REPORT.md"),
     "phase3/cleanroom/pyproject.toml": ('[project]\nname = "room"\n', "pyproject.toml"),
     ".python-version": ("3.12.14\n", ".python-version"),
@@ -72,7 +77,7 @@ DECOYS = [
     "PHASE2_REPORT.md", "research/phase2/HIDDEN_EVAL_LOG.md", "research/LOG.md", "CLAUDE.md", f"benchmarks/{BENCH}_walking_cpg/answer.md",
     f"benchmarks/{BENCH}/oracle/oracle.json", f"benchmarks/{BENCH}/evaluator/evaluate.py", "data/phase3/hidden/index.jsonl",
     "benchmarks/state_discovery_v1/hidden/salt.json", "benchmarks/state_discovery_v1/generator/truth/t.json",
-    "research/phase3/reviews/F_leakage.md", "research/phase3/review_contracts/POSTLOCK_L_TASK.txt", "research/phase3/REVIEW_PLAN.md",
+    "research/phase3/reviews/F_leakage.md", "research/phase3/reviews/POSTLOCK_L.md", "research/phase3/review_contracts/POSTLOCK_L_TASK.txt", "research/phase3/REVIEW_PLAN.md",
     "research/phase3/review_g/suite_record.json", "research/phase3/tournament/_refcache/net1.json", "research/phase3/level_c/01/truth/t.json",
     "research/phase3/counterexamples/final_real/salt_record.json",
 ]
@@ -184,10 +189,10 @@ def test_manifest_is_complete_hashed_and_path_free(built):
 
 def test_prompts_and_room_notes(built):
     repo, room, prompts = built
-    for x in "SCYR":
+    for x in "SCYRV":
         text = (prompts / f"postlock_{x}.txt").read_text(encoding="utf-8")
         assert text.startswith("COMMON CONTRACT") and f"TASK {x}" in text and "results/EVALUATION_LOG.md" in text
-    assert sorted(p.name for p in prompts.iterdir()) == sorted(f"postlock_{x}.txt" for x in "SCYR")
+    assert sorted(p.name for p in prompts.iterdir()) == sorted(f"postlock_{x}.txt" for x in "SCYRV")
     claude = (room / "CLAUDE.md").read_text(encoding="utf-8")
     assert "reviews/POSTLOCK_<your letter>.md" in claude and "results/EVALUATION_LOG.md" in claude
     assert "scripts/devrun_site/sitecustomize.py" in (room / "README.md").read_text(encoding="utf-8")

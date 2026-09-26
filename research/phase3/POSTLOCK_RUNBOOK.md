@@ -111,6 +111,10 @@ about 150 evaluations of 5-15 min each.
 - Real-engine numerics differ between Windows and Linux at the solver tolerance (see "Numerical equivalence"). The hidden data
   must therefore be generated on one platform (local). The evaluation reads stored trajectories, so where it runs does not change
   the data.
+- **Superseded (note of 2026-09-26, post-lock review L m6).** The version-3 amendment of LEAKAGE_POLICY.md section 3.1 moved Level C
+  to Modal. The hidden data were generated on Modal on one platform, host-gated to non-AVX-512 hosts (LOG P3-D26), and written to
+  the eval volume `brainir-p3-eval`. No separate volume `brainir-p3-hidden` was created; the retention decision is in the section
+  3.1 errata.
 
 **L4a / L4b / L4c: counterexamples on the real systems.**
 ```

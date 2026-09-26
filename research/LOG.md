@@ -503,6 +503,11 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
 | P3-D26 | 2026-09-25 | The hidden real data are generated ON MODAL after all, by the FROZEN generator on hosts without AVX-512 (`scripts/p3/hidden_gen_gate.py`), in 32 GiB containers; supersedes P3-D25 | The user asked to keep the local machine for light orchestration (the local generation's parent process holds every trajectory in memory, about 4-7 GB at the end, and a first local run was stopped by the host for low memory). The wrapper changes NO hashed file: every call of `generate_real_hidden.run_modal` goes through a gate that, on a host with AVX-512, ends its own worker before any computation, so that the frozen crash handling moves the input to another host; inputs that exhaust Modal's retries are re-submitted. A benchmark re-lock was therefore not needed, and would have broken the method lock, which records the benchmark-lock hash. Validity checks: the gated path must reproduce 60 stored PUBLIC records bit for bit before use (`hidden_generator_modal_gated_verification.json`); after the run, every generated trajectory that the stopped local run had also simulated is compared array by array (`hidden_generation_crosscheck.json`) |
 | P3-D27 | 2026-09-26 | Level C runs the FROZEN driver through `scripts/p3/level_c_fast.py`, which changes placement only: host-gated (no AVX-512) fits and evaluations; per-size worker classes (mechanism 16 GiB, one full network 32 GiB, joint fits 128 GiB, all with 4 physical cores for the locked 3 threads; non-preemptible for the long classes); all independent fits submitted at once, longest first; the frozen payloads, container callables, evaluation / reference / reproducibility functions and output files | The user asked for the fastest scientifically identical execution. Measured first, on PUBLIC data: (1) the workspace runs at most about 100 containers at once, whatever their memory (quota probe: 99); (2) the locked fits are single-configuration only on one kind of host: the same public fit run through the frozen app twice gave the same k but a different delay configuration (480 parameters differ, up to 55 % relative), whereas two runs on gated hosts are identical apart from timing fields (`research/phase3/level_c/levelc_fast_validation.json`); gated Modal fits still differ from the development machine's (Windows) fits, so one platform must produce all fits of a run, as the runbook requires. Threads per fit stay at the locked 3 (more threads would change the locked compute budget), so more cores cannot speed up one fit; GPUs cannot help (the only torch code is ks_share's joint training on k x k CPU tensors without device handling). No hashed file changed, so no re-lock |
 | P3-D28 | 2026-09-26 | The real counterexample searches with HIDDEN parameter draws stay LOCAL, run at low process priority | PROTOCOL.md section 10 (hashed) pre-registers them as local ('searches with hidden real draws run after Level C, locally'). Modal would not expose the salt (the jobs carry only draws derived locally), but changing a pre-registered execution rule needs a benchmark re-lock, and a re-lock would break the method lock, which records the benchmark-lock hash |
+| P3-D29 | 2026-09-26 | The post-lock reviews (S, C, Y, R in the post-lock room; L answer-aware) are resolved at the REPORTING level only: every corrected number is re-derived by `scripts/p3/postlock_numbers.py` (`research/phase3/reviews/POSTLOCK_NUMBERS.json`); reviewer numbers that do not reproduce are not adopted (listed in `reviews/POSTLOCK_RESOLUTION.md`); the hashed self-audit is not edited: each check keeps its computed status, with orchestrator notes and a `reported_status` (Q9 n/a; Q16's real evidence void) via `scripts/p3/merge_self_audit.py` | The method is locked, so no finding may change it. Four reviewers independently found the same first-draft error (PCA-k 'better on 9 of 10', a horizon mismatch inside self-audit Q16), one reviewer (C) repeated the mismatch in its own correction, and two others made small arithmetic slips; re-deriving every number from the result files is the only way to keep the corrections themselves correct |
+| P3-D30 | 2026-09-26 | The headline Modal cost is the BILLED amount (Modal workspace billing report, hourly per app, `scripts/p3/modal_billing.py` -> `research/phase3/MODAL_BILLING.json`); the job-record list-price estimate is kept for per-task attribution, corrected for a double count by `scripts/p3/compute_summary_postlock.py` (the hashed `compute_summary.py` is run unchanged except its LEDGER_COVERED table) | Review R found three ledger rows counted twice ($312 -> $272). The billing report gives $135 for the Phase 3 window: the estimate prices every container as 2 cores + 6 GiB at list price, while Modal bills measured usage (and it includes the 1,713 host-gate refusals the records do not price) |
+| P3-D31 | 2026-09-26 | Synthetic family H (the pre-registered `noise_heldout` robustness readout) is recovered by re-evaluating the STORED seed-0 FINAL fits of the locked method and the comparator (`scripts/p3/final_h_family.py`, 92 evaluations on Modal, logged START / DONE as a post-hoc extraction; no refit) | The frozen tournament summariser keeps only verdicts, K, dimension and lifting per system, so the evaluator's `res['H_ood']` was never stored (review R M10). The re-evaluated in-distribution A reproduces the stored verdict A exactly (max relative difference 9e-16), which also confirms the determinism of the evaluation on stored fits. The first run read the real-system horizon keys (the synthetic primary horizon is 1 s); its summary was discarded and the run repeated |
+| P3-D32 | 2026-09-26 | Phase 3 is reported but NOT declared complete: 49 of 50 acceptance criteria are met; criterion 26 (lifting exists or a rigorous reason is documented) is only partly met, because the locked v1 has no `lift()` (lifting exists in the benchmark and 8 baselines lift). The final tag `brainir-state-v1-phase3-final` marks the evaluated and reported state | goal4 section 85: do not declare Phase 3 complete until all criteria are satisfied. Adding `lift()` now would be a post-hidden change to v1 (criterion 48); it needs a new clean-room method version, lock and hidden test |
+| P3-D33 | 2026-09-26 | Review L's process findings: the 126 fake-salt dry-run records are moved from `data/phase3/store` to `data/phase3/store_quarantine_fakesalt/` (index backup kept); the hidden real data stay on the eval volume `brainir-p3-eval` for reproducibility, marked answer-bearing, never to be mounted by a later phase's fit or development containers; stale passages of LEAKAGE_POLICY.md 3.1 and POSTLOCK_RUNBOOK.md are annotated (errata appended, not rewritten); snapshot provenance of every post-lock run is recorded (`scripts/p3/postlock_provenance.py`) | The dry run's spawn workers re-imported the generator module, so its redirected DATA path did not reach them and they wrote into the production store (0 of 126 match the committed salt; none is in the dataset). An orchestrator reference-control precompute also touched 2 FINAL systems on 2026-09-25 08:32-08:58 UTC before the lock (4 cache files, a superseded key, never read, no method involved): the report's 'the FINAL suite had never been used' is corrected to 'no method had been fitted or evaluated on it' |
 
 ### 11.2 Pitfalls hit
 
@@ -729,3 +734,55 @@ seeds); registry run `e6c3f46ed826f4c7`, $3.0.
     internal determinism is checked by re-simulation (`hidden_generation_resim_check.json`).
   - Pitfall: a refusal gate needs the refusing container to stop taking inputs (`modal.experimental.stop_fetching_inputs`, callable
     only in the container's main process), or a single input can loop on one warm container. Level C's gate does this.
+- **2026-09-26 00:30-10:35: Level C, post-lock analyses, report draft, post-lock reviews.**
+  - Level C (attempt 01, the only one) ran 07:30-09:04 UTC through `level_c_fast.py` (P3-D27): 163 fits (8 failures in the
+    method's own code: 2 partial-sharing NotImplementedError, 6 leave-one-out adaptation crashes), 128 evaluations, about $42 at
+    the real container sizes.
+    - Verdicts: brainir_state_v1 not supported on 9 of 10 real systems, partially supported on net3 full.
+    - Predictive on the three full networks (better than input-only and persistence). [Corrected after the post-lock reviews: the
+      first draft's 'a PCA latent of the same k predicts better on 9 of 10 systems' was an artefact of self-audit Q16, which
+      compared PCA at 10 ms with the method at 250 ms; at the matched primary horizon PCA-k is significantly better on 2 of 10
+      systems (both net2) and the method on 6 (P3-D29).]
+    - Held-out C >= 1 on every full network (no interventional claim). No sharing across mechanisms or reconstructions.
+  - FINAL-suite ablations (re-run after the scheduling abort): only event_calibration matters on S1-S5 (S2 +0.30 [0.13, 0.47]); the
+    dev-suite dimension-rule effect does not replicate.
+  - Counterexample sweeps: synthetic FINAL (effect and post, method and comparator, Modal), real public draws (Modal) and real
+    HIDDEN draws (locally, below-normal priority, 56 min, as pre-registered, P3-D28). Q19 passes (0.17 < 0.5), but worst cases are
+    extreme.
+  - Review G's traps on the LOCKED method (descriptive): no full compact claim; k wrong on 5 of 9 compressible traps; no abstention
+    on the non-compressible G10.
+  - Self-audit (merged full run + Q19 / I14 re-runs): science 16 pass / 3 fail (Q11 implementation memorisation, Q12 seed
+    stability, Q13 parameter uncertainty); integrity 12 pass / 3 fail (I3, I8, I11: check artefacts whose properties were
+    verified; the checks are hashed and were not edited). Tests: phase3 194 passed; root 534 passed, 1 skipped.
+  - The salt was revealed after Level C (`research/phase3/level_c/SALT_REVEAL.json`; matches its commitment).
+  - PHASE3_REPORT.md was assembled from the working draft (conclusion: NOT SUPPORTED for the real circuits; partially supported on
+    synthetic systems). The post-lock review room was built and checked (answer scan clean); reviewers S, C, Y and R run as
+    separate sessions, and L as an answer-aware subagent.
+- **Pitfalls (post-lock).**
+  - The Modal workspace runs at most about 100 containers at once, whatever their size. Cap concurrent apps (the ablations at 30
+    containers) so that the critical path keeps its slots.
+  - Pricing records use the default container size: re-price runs made with other sizes (Level C, +$31).
+  - A self-audit check can fail on the layout it was written for (I8's `_refcache`, I11's `bundles`): verify the property, report
+    the failure, and do not edit hashed checks.
+  - Select metric keys by the configured primary horizon (`harness.key_a(cfg)`), never by position: self-audit Q16 took the first A
+    key (10 ms) and compared it with the verdict's 250 ms A, and a reviewer repeated the error. The synthetic primary horizon is 1 s,
+    the real one 250 ms.
+  - Summaries that drop the evaluator's per-family results lose pre-registered readouts (synthetic family H was never stored):
+    keep the full `res` next to every summary.
+  - Ledger de-duplication by name is fragile (three Level B rows were counted twice); take totals from Modal's billing report.
+  - Spawn workers re-import modules: monkeypatching a module constant (a data path) in the parent does not reach them. Run dry runs
+    in a separate data root chosen by environment variable or command-line option.
+  - Post-lock records must name the method snapshot they ran (methods key, raw and LF-normalised hashes); the working tree has CRLF
+    line endings, so raw hashes differ from METHOD_LOCK's LF hashes while the code is identical.
+- **2026-09-26 10:30-12:10 UTC: post-lock reviews and their resolution (reporting only; P3-D29 to P3-D33).**
+  - Reviews S (statistics; 4 blockers / 8 majors), C (claims; 3 / 11), Y (dynamics; 3 / 9) and R (report accuracy; 2 / 11) ran as
+    separate sessions in the post-lock room (transcript audit: 0 inputs outside the room, 0 answer tokens); L (leakage and process,
+    answer-aware subagent) found no blocker and 1 major (the FINAL reference-control precompute before the lock, no method).
+  - Main corrections: the PCA claim retracted (matched horizons: PCA-k better on 2 of 10, the method on 6); the E-untestable verdicts
+    split (17 + 2); the method's own abstentions reported (no compact state on 8 of 10 real systems; every kick and current pair
+    abstained on the full networks; C covers silencing only and is not state-mediated); lineage-based counts; robustness at the
+    primary horizon (net1 OOD 235-fold); the counterexample mechanism (near-null true effects, inside and outside the families);
+    paired FINAL comparisons (only S1 and S6 significant); K distribution; self-audit readings (Q9 n/a; Q16 real evidence void).
+  - Completed items: the 18 real-data root tests (18 passed; the root suite is 552 passed, 1 opt-in skipped); billed Modal cost $135
+    (estimate $272 after the de-duplication); synthetic family H (P3-D31); retrospective log rows and errata; snapshot provenance; the
+    fake-salt records quarantined; Phase 3 status stated as not declared complete (P3-D32).

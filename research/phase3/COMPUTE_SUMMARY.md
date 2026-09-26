@@ -1,9 +1,9 @@
 # Phase 3 compute summary (goal4 sections 58-59)
 
-Generated 2026-09-26T10:18:19Z by scripts/p3/compute_summary.py.
+Generated 2026-09-26T11:03:45Z by scripts/p3/compute_summary.py.
 Modal list prices: $0.192 per physical core-hour, $0.024 per GiB-hour; containers 2 cores / 6 GiB.
 
-**Modal total: about $311.57** over 23704 container calls (481.07 container-hours).
+**Modal total: about $271.9** over 20486 container calls (405.96 container-hours).
 
 | task | backend | containers | container-s | wall-s | ~USD | source |
 |---|---|---|---|---|---|---|
@@ -13,10 +13,7 @@ Modal list prices: $0.192 per physical core-hour, $0.024 per GiB-hour; container
 | heldout suite extract (tar upload) | Modal CPU | 2 | 57 | - | 0.01 | COSTS_LEDGER.md |
 | heldout reference controls (k-independent + k = 1), 48 systems | Modal CPU | 48 | 9242 | - | 1.36 | COSTS_LEDGER.md |
 | final suite extract, fit views, review G suite upload | Modal CPU | 6 | 200 | - | 0.03 | COSTS_LEDGER.md |
-| Level B round 1 (pilot, 19 methods; 5 developer parts in parallel) | Modal CPU | 727 | 76727 | - | 11.26 | COSTS_LEDGER.md |
-| Level B round 2 (10 survivors, full heldout, G, sharing, LOIO; 10 parts in parallel) | Modal CPU | 2276 | 179718 | - | 26.36 | COSTS_LEDGER.md |
 | review G trap suite, round-2 top five | Modal CPU | 150 | 11386 | - | 1.67 | COSTS_LEDGER.md |
-| Level B round 3 attempt 1 (brainir_state_v1, benchmark v2) | Modal CPU | 215 | 13972 | - | 2.05 | COSTS_LEDGER.md |
 | review G trap suite, brainir_state_v1 | Modal CPU | 30 | 1261 | - | 0.18 | COSTS_LEDGER.md |
 | CALIBRATION v3, 45 dev systems (benchmark v3; 486 s wall) | Modal CPU | 45 | 13417 | - | 1.97 | COSTS_LEDGER.md |
 | kick-clip lists staged on the eval volume (3 files) | Modal CPU | 3 | 0 | - | 0.00 | COSTS_LEDGER.md |
@@ -115,3 +112,41 @@ Reference-control cache files per suite: {"dev": 294, "final": 377, "heldout": 8
 
 not used: all methods are frozen CPU code; GPU use would require changing method code (forbidden by the lock).
 
+## Post-lock correction and billed amount
+
+- Duplicate ledger rows removed (Level B round 1 (pilot, Level B round 2 (10 survivors, Level B round 3 attempt 1): estimate {"usd": 311.57, "container_h": 481.07, "containers": 23704} -> {"usd": 271.9, "container_h": 405.96, "containers": 20486}.
+- **Billed by Modal: $135.39** (124 apps, 2026-09-25T03:00:00+00:00 to the hour 2026-09-26T10:00Z; `research/phase3/MODAL_BILLING.md`). The list-price estimate above assumes a 2-core / 6 GiB reservation per container; Modal bills measured usage, including the containers that refused non-gated hosts.
+- By stage (billed): {"lock hour 01:00 UTC (end of round 3 + start of the FINAL confirmation)": 11.09, "post-lock (FINAL, hidden data, Level C, sweeps, ablations, reviews G)": 79.16, "pre-lock (development, calibration, Level B)": 45.14}.
+
+## Simulated data
+
+| dataset | trajectories | simulated seconds | restart index entries |
+|---|---|---|---|
+| real_public | 3005 | 6010.0 | None |
+| real_hidden | 3360 | 6720.0 | 1920 |
+| synthetic_dev | 4512 | 18048.0 | 6144 |
+| synthetic_heldout | 7487 | 29948.0 | 6144 |
+| synthetic_final | 10464 | 41856.0 | 6144 |
+| synthetic_review_g | 1559 | 6236.0 | 1280 |
+
+## Counterexample protocols
+
+| sweep | protocols scored | searches | wall-s | backend |
+|---|---|---|---|---|
+| final_brainir_state_v1_effect | 32872 | 576 | 1434.6 | modal |
+| final_brainir_state_v1_post | 33827 | 576 | 440.4 | modal |
+| final_lin_dmdc_t_effect | 33582 | 576 | 1426.1 | modal |
+| final_lin_dmdc_t_post | 34545 | 576 | 471.6 | modal |
+| real_hidden_brainir_state_v1_effect | 3126 | 120 | 3340.2 | local |
+| real_public_brainir_state_v1_effect | 3153 | 120 | 1086.3 | modal |
+| real_public_lin_dmdc_t_effect | 4891 | 120 | 1210.3 | modal |
+
+## Fits
+
+- Level C: brainir_state_v1 {"fit_records": 145, "fit_cpu_h": 31.72, "fit_wall_h": 16.12, "simulator_calls_during_fits": 0}; lin_dmdc_t {"fit_records": 10, "fit_cpu_h": 0.17, "fit_wall_h": 0.17, "simulator_calls_during_fits": 10}; host-gate refusals {'fits:fit_joint': 458, 'fits:fit_full': 1006, 'fits:fit_small': 121, 'real evaluations': 78, 'real references': 38, 'real reproducibility': 12}.
+- FINAL confirmation fit wall time: {"brainir_state_v1": {"fit_wall_s_total": 24088.170000000002, "fit_wall_s_median": 190.49}, "lin_dmdc_t": {"fit_wall_s_total": 1835.4499999999998, "fit_wall_s_median": 10.945}}.
+
+## Not recorded
+
+- training samples and optimisation steps per fit (the locked method's fits are closed-form least squares; the joint shared fits use a fixed optimiser schedule; no per-fit step counter is stored)
+- local CPU-hours (the local machine was not metered; wall-clock and worker counts are listed under 'local')

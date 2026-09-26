@@ -114,6 +114,15 @@ Level B fits and evaluations, the reference controls and the calibration run on 
   - The data paths are unchanged: the salt stays local; records and the dataset are written to the eval volume only; the local copy
     is downloaded with the frozen transfer check.
   - The gate's public check is `hidden_generator_modal_gated_verification.json`.
+- **Errata (2026-09-26, post-lock review L, m2 and m6; appended, nothing above rewritten).**
+  - The "Volumes" bullet's "No real hidden data ... is uploaded" is superseded by the version-3 amendment above.
+  - The host-gated bullet's "before the hidden data existed" should read "before any hidden data existed on Modal". Partial local
+    records already existed: 1,761 salt-derived trajectories from three stopped local starts (01:46Z, 01:48Z and 05:46Z on
+    2026-09-26). No dataset was written from them. The permission to generate on Modal is the version-3 amendment (commit d056d35,
+    2026-09-25T23:19:47Z), which predates every salt-derived record.
+  - Retention decision: the hidden real data stay on the eval volume `brainir-p3-eval` (`/suites/real/hidden`,
+    `/real_hidden_build`) so that Level C can be re-evaluated. The volume is ANSWER-BEARING. No later phase may mount it in a fit or
+    development container, and a later phase uses new volumes. Deletion is decided when Phase 3 is archived.
 
 ### 3.2 Remote runner for clean-room development experiments (LOG P3-D23, 2026-09-25)
 

@@ -84,14 +84,15 @@ SKIP_WALK = (".venv", ".pytest_cache")
 #   7 success criteria, 53 counterexamples, 59 cost accounting, 68 statistics, 70 post-lock reviews, 84 reporting,
 #   85 acceptance criteria, 86 method lock / tag, 87 self-audit, 88 claim language, 91 final response
 GOAL4_SECTIONS = (7, 53, 59, 68, 70, 84, 85, 86, 87, 88, 91)
-REVIEWERS = ("S", "C", "Y", "R")
+REVIEWERS = ("S", "C", "Y", "R", "V")   # V (added after the first four): verification of the post-lock corrections
 EVAL_LOG = "results/EVALUATION_LOG.md"
 
 # (source relative to the repository, destination relative to the room, required for a real post-lock build)
 INCLUDE: list[tuple[str, str, bool]] = [
     ("benchmarks/state_discovery_v1/PROTOCOL.md", "docs/PROTOCOL.md", True),
     ("research/phase3/review_contracts/POSTLOCK_COMMON.txt", "docs/review_contracts/POSTLOCK_COMMON.txt", True),
-    *[(f"research/phase3/review_contracts/POSTLOCK_{x}_TASK.txt", f"docs/review_contracts/POSTLOCK_{x}_TASK.txt", True) for x in REVIEWERS],
+    # V's task is optional: the verification reviewer runs only after the corrections
+    *[(f"research/phase3/review_contracts/POSTLOCK_{x}_TASK.txt", f"docs/review_contracts/POSTLOCK_{x}_TASK.txt", x != "V") for x in REVIEWERS],
     ("research/phase3/METHOD_LOCK.json", "METHOD_LOCK.json", True),
     ("phase3/src/brainir_state", "src/brainir_state", True),
     ("scripts/p3", "scripts", True),
@@ -114,6 +115,11 @@ INCLUDE: list[tuple[str, str, bool]] = [
     ("research/phase3/HIDDEN_EVALUATIONS.md", EVAL_LOG, True),
     ("research/phase3/LEVELB_LOG.md", "results/LEVELB_LOG.md", True),
     ("research/phase3/COSTS_LEDGER.md", "results/COSTS_LEDGER.md", False),
+    # for reviewer V: the resolution map of the post-lock reviews, the billed Modal costs and the snapshot provenance
+    ("research/phase3/reviews/POSTLOCK_RESOLUTION.md", "docs/POSTLOCK_RESOLUTION.md", False),
+    ("research/phase3/MODAL_BILLING.json", "results/MODAL_BILLING.json", False),
+    ("research/phase3/MODAL_BILLING.md", "results/MODAL_BILLING.md", False),
+    ("research/phase3/POSTLOCK_PROVENANCE.json", "results/POSTLOCK_PROVENANCE.json", False),
     ("phase3/cleanroom/pyproject.toml", "pyproject.toml", True),
     (".python-version", ".python-version", True),
 ]
@@ -122,7 +128,7 @@ INCLUDE: list[tuple[str, str, bool]] = [
 DENY = re.compile(r"(?i)((^|/)phase[0-2]_report\.md$|^claude\.md$|^research/phase2/|^research/log\.md$|^benchmarks/dng100_walking_cpg/|"
                   r"^benchmarks/dng100/(oracle|evaluator|baselines)/|^data/|^benchmarks/state_discovery_v1/(hidden|generator)/|"
                   r"(^|/)truth(/|$)|salt|network_map|systems_internal|synthetic_suites\.json|(^|/)_refcache(/|$)|"
-                  r"^research/phase3/reviews/|postlock_l_task|(^|/)__pycache__(/|$)|\.pyc$|(^|/)\.pytest_cache(/|$))")
+                  r"^research/phase3/reviews/(?!POSTLOCK_RESOLUTION\.md$)|postlock_l_task|(^|/)__pycache__(/|$)|\.pyc$|(^|/)\.pytest_cache(/|$))")
 
 
 def _alternatives(pattern: str) -> list[str]:
@@ -508,7 +514,10 @@ def write_prompts(dest: Path, out: Path) -> list[Path]:
     common = (dest / "docs" / "review_contracts" / "POSTLOCK_COMMON.txt").read_text(encoding="utf-8")
     paths = []
     for x in REVIEWERS:
-        task = (dest / "docs" / "review_contracts" / f"POSTLOCK_{x}_TASK.txt").read_text(encoding="utf-8")
+        tf = dest / "docs" / "review_contracts" / f"POSTLOCK_{x}_TASK.txt"
+        if not tf.exists():                      # an optional task (V) that this room does not hold
+            continue
+        task = tf.read_text(encoding="utf-8")
         p = out / f"postlock_{x}.txt"
         p.write_text(common.rstrip() + "\n\n" + task.rstrip() + "\n\n" + ROOM_NOTES, encoding="utf-8", newline="\n")
         paths.append(p)

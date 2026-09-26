@@ -15,3 +15,31 @@
 | 2026-09-26T09:04:08Z | 01 | Level C DONE (5647 s) | brainir_state_v1 / lin_dmdc_t | results written | research/phase3/level_c/01/level_c_results.json |
 | 2026-09-26T09:05:51Z | real_hidden_brainir_state_v1_effect | counterexample search START (real final; 10 systems x 4 strategies x 3 seeds, budget 60, objective effect) | brainir_state_v1 | post-lock counterexample search, real HIDDEN parameter draws, after Level C (local, as pre-registered) | research\phase3\counterexamples\real_hidden_brainir_state_v1_effect |
 | 2026-09-26T10:01:59Z | real_hidden_brainir_state_v1_effect | counterexample search DONE (120 searches, 0 failures, 3,340 s locally at below-normal priority) | brainir_state_v1 | as pre-registered (after Level C, locally) | research/phase3/counterexamples/real_hidden_brainir_state_v1_effect/ |
+
+Rows appended RETROSPECTIVELY on 2026-09-26T11:10Z after post-lock review R (M6) found them missing. Each time is taken from the run's
+own SUMMARY file (write time; start = write time minus the recorded wall time). No run was repeated or changed.
+
+| time (UTC) | attempt | what | method / baseline | reason | outputs |
+|---|---|---|---|---|---|
+| 2026-09-26T06:13:53Z | final_brainir_state_v1_effect | counterexample search DONE (576 searches, 0 failures, 1,435 s on Modal) [retrospective row] | brainir_state_v1 | as registered at START | research/phase3/counterexamples/final_brainir_state_v1_effect/ |
+| 2026-09-26T06:13:45Z | final_lin_dmdc_t_effect | counterexample search DONE (576 searches, 0 failures, 1,426 s on Modal) [retrospective row] | lin_dmdc_t | as registered at START | research/phase3/counterexamples/final_lin_dmdc_t_effect/ |
+| 2026-09-26T06:24:46Z | final_brainir_state_v1_post | counterexample search DONE (576 searches, 0 failures, 440 s on Modal) [retrospective row] | brainir_state_v1 | as registered at START | research/phase3/counterexamples/final_brainir_state_v1_post/ |
+| 2026-09-26T06:26:23Z | final_lin_dmdc_t_post | counterexample search DONE (576 searches, 0 failures, 472 s on Modal) [retrospective row] | lin_dmdc_t | as registered at START | research/phase3/counterexamples/final_lin_dmdc_t_post/ |
+| ~2026-09-26T07:54:30Z | real_public_brainir_state_v1_effect | counterexample search START (real, PUBLIC parameter draws; 10 systems x 4 strategies x 3 seeds, budget 60, objective effect) on the Level C seed-0 fits [retrospective row] | brainir_state_v1 | post-lock search on public draws (no hidden material: SUMMARY hidden_material = false); logged because it used post-lock fits | research/phase3/counterexamples/real_public_brainir_state_v1_effect/ |
+| ~2026-09-26T07:54:30Z | real_public_lin_dmdc_t_effect | counterexample search START (as above) [retrospective row] | lin_dmdc_t | as above | research/phase3/counterexamples/real_public_lin_dmdc_t_effect/ |
+| 2026-09-26T08:12:38Z | real_public_brainir_state_v1_effect | counterexample search DONE (120 searches, 0 failures, 1,086 s on Modal) [retrospective row] | brainir_state_v1 | as above | research/phase3/counterexamples/real_public_brainir_state_v1_effect/ |
+| 2026-09-26T08:14:42Z | real_public_lin_dmdc_t_effect | counterexample search DONE (120 searches, 0 failures, 1,210 s on Modal) [retrospective row] | lin_dmdc_t | as above | research/phase3/counterexamples/real_public_lin_dmdc_t_effect/ |
+| 2026-09-26T09:33:23Z | ablations_final | ablations DONE (re-run; 16 variants x 48 systems, 7,154 s on Modal; 4 fit failures of the full method as in the confirmation, 3 evaluation failures of the sharing_test variant) [retrospective row] | brainir_state_v1 | as registered at START 07:34:07Z | research/phase3/ablations/ablations_final/ |
+| 2026-09-26T10:07:20Z | review_g_locked_v3 | review G trap suite (10 systems no developer saw) on the LOCKED method under the version-3 evaluator, descriptive, not pre-registered (results written at this time) [retrospective row] | brainir_state_v1 / lin_dmdc_t | post-lock descriptive check requested by review G's scope | research/phase3/review_g/results_locked_v3.json |
+| 2026-09-26T11:18:51Z | final_b_H | family H extraction START: re-evaluation of the STORED seed-0 FINAL fits (46 compressible systems x 2 models; no refit) with the frozen evaluation job on Modal, to recover the pre-registered synthetic family H (noise_heldout) that the tournament summariser did not keep (post-lock review R, M10) | brainir_state_v1 / lin_dmdc_t | post-hoc extraction of a pre-registered readout; descriptive; nothing selected or tuned | research/phase3/tournament/final_b_H/ |
+| 2026-09-26T11:23:40Z | final_b_H | family H extraction DONE: 92 evaluations, 0 failures, 97 s on Modal (job-record estimate $0.39). Run twice: the first run's summary read the real-system horizon keys and was discarded; the second run is the record. The re-evaluated in-distribution A reproduces the stored verdict A (max relative difference 9e-16) | brainir_state_v1 / lin_dmdc_t | as registered at START | research/phase3/tournament/final_b_H/FINAL_H_FAMILY.json |
+
+Errata appended 2026-09-26 after post-lock review L (m3); the rows above are not rewritten.
+- The ABORTED row of 06:23:08Z says "nothing was written or read back". The aborted attempt did write `fitview_final/` and 48
+  staged, byte-identical copies of the confirmation's full-method fits (98 files, all at 06:17:13Z). It computed no result.
+- The Level B confirmation DONE row says the launcher shell "was stopped by the host for low memory at about 02:00 UTC". The launcher
+  script itself completed ("all done" at 02:49:45Z in `final_b_launch.log`); no part was retried.
+- The FINAL suite was touched once before the method lock (post-lock review L, M1). An orchestrator precompute of k-independent
+  reference controls (`scripts/p3/precompute_refs.py --suite final`, 2026-09-25 08:32:40-08:58:49Z) was stopped after writing 4 cache
+  files for 2 of the 48 FINAL systems. No method was fitted or evaluated, nothing reached a developer, and the files use a
+  superseded cache key that no later run reads.

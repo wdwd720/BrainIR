@@ -1,5 +1,5 @@
 {
- "generated_utc": "2026-09-26T10:18:21Z",
+ "generated_utc": "2026-09-26T11:24:55Z",
  "method": "brainir_state_v1",
  "final_round": "final_b",
  "locked": true,
@@ -50,7 +50,8 @@
     1
    ],
    "seconds": 9.5,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -67,7 +68,8 @@
     3
    ],
    "seconds": 6.7,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "fail",
@@ -91,7 +93,8 @@
    ],
    "seconds": 3.0,
    "provenance": "full run 2026-09-26T10:14:48Z",
-   "orchestrator_note": "FAILS AS WRITTEN (check artefact): it compares the working benchmark lock with the copy at tag state-discovery-benchmark-v3, but the two logged execution-only re-locks rewrote the lock after that tag. The property holds: freeze_benchmark.py --check passes, tag state-discovery-benchmark-v3-relock2 holds the current lock file exactly, and the salt matches its commitment."
+   "orchestrator_note": "FAILS AS WRITTEN (check artefact): it compares the working benchmark lock with the copy at tag state-discovery-benchmark-v3, but the two logged execution-only re-locks rewrote the lock after that tag. The property holds: freeze_benchmark.py --check passes, tag state-discovery-benchmark-v3-relock2 holds the current lock file exactly, and the salt matches its commitment.",
+   "reported_status": "fail"
   },
   {
    "status": "pass",
@@ -112,7 +115,8 @@
     46
    ],
    "seconds": 0.9,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -131,7 +135,8 @@
     7
    ],
    "seconds": 174.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -160,7 +165,8 @@
     6
    ],
    "seconds": 93.5,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -198,7 +204,8 @@
     7
    ],
    "seconds": 77.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "fail",
@@ -238,7 +245,8 @@
    ],
    "seconds": 0.0,
    "provenance": "full run 2026-09-26T10:14:48Z",
-   "orchestrator_note": "FAILS AS WRITTEN (check artefact): the only problem it lists is 'Level C attempt _refcache has no log row'. _refcache is the reference-control cache directory that the frozen Level C driver creates next to its attempts, not an attempt. Attempt 01 has START and DONE rows, and all 13 confirmation parts are logged."
+   "orchestrator_note": "FAILS AS WRITTEN (check artefact): the only problem it lists is 'Level C attempt _refcache has no log row'. _refcache is the reference-control cache directory that the frozen Level C driver creates next to its attempts, not an attempt. Attempt 01 has START and DONE rows, and all 13 confirmation parts are logged. (Post-lock review R later found other rows missing: DONE rows of the 4 FINAL sweeps and the ablation re-run, and the 2 public-draw sweeps; they were appended retrospectively, marked.)",
+   "reported_status": "fail"
   },
   {
    "status": "pass",
@@ -255,7 +263,8 @@
     46
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -282,7 +291,8 @@
     43
    ],
    "seconds": 485.7,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "fail",
@@ -310,7 +320,8 @@
    "criteria": [],
    "seconds": 7.5,
    "provenance": "full run 2026-09-26T10:14:48Z",
-   "orchestrator_note": "FAILS AS WRITTEN (check artefact): the allowlist of top-level entries lacks 'bundles'. bundles/dng100_public_blind holds exactly the 18 files of the public tier-A bundle (byte-identical, verified 2026-09-26), staged under the logged version-3 amendment of the leakage policy (section 3.1) for Level C's fit-time simulator. _incoming is empty, and every view holds only train / val splits."
+   "orchestrator_note": "FAILS AS WRITTEN (check artefact): the check's list of allowed top-level entries of the Modal fit volume lacks 'bundles'. bundles/dng100_public_blind holds exactly the 18 files of the public tier-A bundle (byte-identical, verified 2026-09-26), staged under the logged version-3 amendment of the leakage policy (section 3.1) for Level C's fit-time simulator. _incoming is empty, and every view holds only train / val splits.",
+   "reported_status": "fail"
   },
   {
    "status": "pass",
@@ -333,7 +344,8 @@
     45
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -350,7 +362,8 @@
     41
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -371,7 +384,8 @@
     50
    ],
    "seconds": 0.0,
-   "provenance": "re-run 2026-09-26T10:18:21Z after PHASE3_REPORT.md was written"
+   "provenance": "re-run 2026-09-26T10:18:21Z after PHASE3_REPORT.md was written",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -390,7 +404,8 @@
     8
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -418,7 +433,8 @@
     28
    ],
    "seconds": 0.2,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -492,7 +508,8 @@
     22
    ],
    "seconds": 0.5,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -524,7 +541,8 @@
     22
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -557,7 +575,8 @@
     23
    ],
    "seconds": 2.5,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -577,7 +596,9 @@
     28
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock review Y: tested on synthetic systems only, where the native time step equals the model grid; the down-sampling of the real 1 ms data to the model grid (about 5 ms) is untested.",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -606,7 +627,9 @@
     25
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock review R: passes on the synthetic fraction not closed (0.22); on the real systems 7 of 10 are not closed, which would fail the same threshold.",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -634,7 +657,8 @@
     25
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -752,7 +776,9 @@
     23
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock reviews C and R: the check decides only on the fraction of FINAL systems whose held-out C upper CI is >= 1 (19 of 46 = 0.41 < 0.5); it is not a held-out vs in-distribution comparison. Its recorded real CIs are read at the first window (100 ms), not the primary 250 ms. On the real full networks held-out C is no better than no effect on 3 of 3.",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -783,7 +809,9 @@
     33
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock reviews Y and R: VACUOUS, reported as n/a. The method never returned a shared model (its internal test declined to share everywhere), so no model with a different capacity exists to test.",
+   "reported_status": "n/a"
   },
   {
    "status": "pass",
@@ -834,7 +862,8 @@
     32
    ],
    "seconds": 272.2,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "fail",
@@ -856,7 +885,8 @@
     34
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "fail"
   },
   {
    "status": "fail",
@@ -874,7 +904,9 @@
     29
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock review S: the 18 systems pool 8 synthetic (k agrees on 4) and 10 real (k agrees on 2) systems.",
+   "reported_status": "fail"
   },
   {
    "status": "fail",
@@ -948,7 +980,8 @@
     35
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "fail"
   },
   {
    "status": "pass",
@@ -989,7 +1022,9 @@
     36
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock reviews Y and R: the recorded median is NaN (4 real systems have no defined ratio) and NaN > 3 is false. Over the 6 finite ratios the median is 1.12 (a pass), but 2 exceed 3: 5.8 (net1 mechanism b) and 6.7 (net2 mechanism b).",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -1288,7 +1323,8 @@
     16
    ],
    "seconds": 0.1,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -1346,7 +1382,9 @@
     39
    ],
    "seconds": 0.9,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock reviews S, C, Y and R: the REAL-SYSTEM EVIDENCE IS VOID. It compares PCA-k's first A key (10 ms) with the method's verdict A (250 ms). At matched horizons (primary 250 ms) PCA-k is significantly better on 2 of 10 real systems (both on net2), the method on 6 (research/phase3/reviews/POSTLOCK_NUMBERS.json). The pass rests on the synthetic criterion, which uses matched keys.",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -1368,7 +1406,9 @@
     34
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock review Y: the unrelated pairs are rejected, but so are the true implementation groups (one untestable, one rejected) because the method never returns a shared law; the rejection does not discriminate.",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -1391,7 +1431,9 @@
     38
    ],
    "seconds": 0.0,
-   "provenance": "full run 2026-09-26T10:14:48Z"
+   "provenance": "full run 2026-09-26T10:14:48Z",
+   "orchestrator_note": "Post-lock review R: no compact claim on the two FINAL controls, but abstention on only 1 of 2 (the other returned k = 3), and on review G's non-compressible G10 the method rates 'partially supported' with k = 1.",
+   "reported_status": "pass"
   },
   {
    "status": "pass",
@@ -1437,11 +1479,27 @@
     37
    ],
    "seconds": 0.0,
-   "provenance": "re-run 2026-09-26T10:02:00Z with all four sweeps of the locked method (incl. the hidden-draw real sweep that finished after the full run); replaces the full run's Q19"
+   "provenance": "re-run 2026-09-26T10:02:00Z with all four sweeps of the locked method (incl. the hidden-draw real sweep that finished after the full run); replaces the full run's Q19",
+   "orchestrator_note": "Post-lock reviews S, Y and R: pooled over four sweeps (116 system-runs; 0.185 over the 108 searchable). Per sweep: FINAL effect 0.19, FINAL post 0.06, real hidden draws 0.30, real public draws 0.50: the real public-draw sweep alone reaches the fail threshold.",
+   "reported_status": "pass"
   }
  ],
+ "counts_reported": {
+  "integrity": {
+   "pass": 12,
+   "fail": 3,
+   "n/a": 0
+  },
+  "science": {
+   "pass": 15,
+   "fail": 3,
+   "n/a": 1
+  }
+ },
  "merged_from": [
   "research/phase3/self_audit_full/SELF_AUDIT.json",
-  "research/phase3/self_audit_q19/SELF_AUDIT.json"
- ]
+  "research/phase3/self_audit_q19/SELF_AUDIT.json",
+  "research/phase3/self_audit_i14/SELF_AUDIT.json"
+ ],
+ "thresholds_fixed_at": "commit d056d35 (scripts/p3/self_audit.py hashed in the benchmark lock, tag state-discovery-benchmark-v3-relock2), before the method lock and before any post-lock evidence"
 }

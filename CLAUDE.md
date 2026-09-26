@@ -8,8 +8,30 @@ BrainIR aims to decompile biological neural circuits into compact, executable, t
 **Phase 2 (blind causal mechanism discovery, spec `goal3.md`) is complete**: report `PHASE2_REPORT.md` (answer-bearing),
 locked method BrainIR v1.2.0 (`research/phase2/METHOD_LOCK.json`, tag `brainir-v1-preblind`, commit 959d689), protocol
 `research/phase2/SELECTION_PROTOCOL.md`, hidden-evaluation log `research/phase2/HIDDEN_EVAL_LOG.md`. Any change to the
-method is a new, separately locked version (goal3 §29). Phase 3 has not started; the report recommends one step (§18).
-Read `research/LOG.md` (decisions, discrepancies, pitfalls) before changing anything.
+method is a new, separately locked version (goal3 §29).
+**Phase 3 (causal state-variable discovery, spec `goal4.md`) has been run and reported but is NOT declared complete**: 49 of 50
+acceptance criteria are met, and criterion 26 is only partly met because the locked method has no `lift()` (LOG P3-D32).
+- Report: `PHASE3_REPORT.md` (ANSWER-BEARING), corrected after the post-lock reviews (`research/phase3/reviews/POSTLOCK_*.md`,
+  resolution map `POSTLOCK_RESOLUTION.md`).
+- Locked method: BrainIR State v1 (`research/phase3/METHOD_LOCK.json`, tag `brainir-state-v1-preblind`).
+- Benchmark: `state_discovery_v1` version 3 (`benchmarks/state_discovery_v1/BENCHMARK_LOCK.json`; tags
+  `state-discovery-benchmark-v3`, `-v3-relock1`, `-v3-relock2`).
+- Hidden-evaluation log: `research/phase3/HIDDEN_EVALUATIONS.md`. Final tag: `brainir-state-v1-phase3-final`.
+- Conclusion: not supported for the connectome-constrained rate-model simulations; partially supported on the synthetic FINAL suite.
+- Phase 4 has not started; the report recommends one step (§24). Any method change is a new, separately locked version with new
+  hidden data.
+Read `research/LOG.md` (decisions, discrepancies, pitfalls; Phase 3 in §11) before changing anything.
+
+## Phase 3 rules (summary; details in `research/phase3/LEAKAGE_POLICY.md`, LOG §11)
+- Phase 3 answer-bearing files (never into any clean room): `PHASE3_REPORT.md`, `research/phase3/HIDDEN_EVALUATIONS.md`,
+  `research/phase3/level_c/**` (incl. `SALT_REVEAL.json`), `research/phase3/tournament/**`, `ablations/`, `counterexamples/`,
+  `review_g/`, `reviews/`, `SELF_AUDIT.*`, `REPORT_*`, `benchmarks/state_discovery_v1/hidden/**`, `data/phase3/hidden/**`,
+  `data/phase3/real_hidden/**`.
+- Never modify files hashed by the Phase 3 benchmark lock or the method lock: `METHOD_LOCK.json` records the benchmark-lock hash,
+  so a benchmark re-lock would break `method_lock_p3.py --check`. Execution tools go in new unhashed scripts
+  (`hidden_gen_gate.py`, `level_c_fast.py`).
+- Numerics: the locked method's fits change configuration across Modal host types; for reproducible runs use the host gate
+  (no AVX-512; LOG P3-D26 / P3-D27). The Modal workspace runs at most about 100 containers at once.
 
 ## Phase 2 rules (anti-leakage; goal3 §4)
 - This repository's sessions have seen the dng100 oracle. **Method design happens only in fresh agents** working in

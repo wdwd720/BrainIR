@@ -883,6 +883,112 @@
   },
   "n_web_queries": 558
  },
+ "postlock_C": {
+  "streams": [
+   "postlock_C.20260926T033255.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 41,
+   "Read": 4,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 2,
+  "outputs_with_forbidden_names": 8,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 357,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
+  "n_web_queries": 0
+ },
+ "postlock_R": {
+  "streams": [
+   "postlock_R.20260926T033310.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 59,
+   "Read": 2,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 1,
+  "outputs_with_forbidden_names": 6,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 445,
+  "denied_by_current_guard": [],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 0,
+  "guard_denial_reasons": {},
+  "n_web_queries": 0
+ },
+ "postlock_S": {
+  "streams": [
+   "postlock_S.20260926T033248.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 44,
+   "Read": 9,
+   "Grep": 3,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 1,
+  "outputs_with_forbidden_names": 7,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 522,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "variable $D used as a path prefix (assign it from a literal or a script argument in the same command)",
+    "input": "{\"command\": \"D=.tmp/postlock_S && cat > $D/show.py <<'EOF'\\nimport json,sys\\nd=json.load(open(sys.argv[1]))\\npath=sys.argv[2] if len(sys.argv)>2 else ''\\nmaxd=int(sys.argv[3]) if len(sys.argv)>3 else 2\\no=d\\nfor p in [x for x in path.split('/') if x]:\\n    o=o[int(p)] if isinstance(o,list) else o[p]"
+   }
+  ],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 1,
+  "guard_denial_reasons": {
+   "variable $D used as a path prefix (assign it from a literal ": 1
+  },
+  "n_web_queries": 0
+ },
+ "postlock_Y": {
+  "streams": [
+   "postlock_Y.20260926T033303.jsonl"
+  ],
+  "tool_calls": {
+   "Bash": 44,
+   "Read": 6,
+   "Grep": 2,
+   "Write": 1
+  },
+  "web_queries": [],
+  "forbidden_path_inputs": 0,
+  "forbidden_name_inputs": 1,
+  "outputs_with_forbidden_names": 5,
+  "outputs_with_answer_tokens": 0,
+  "blocked_tool_uses": 0,
+  "events": 451,
+  "denied_by_current_guard": [
+   {
+    "tool": "Bash",
+    "reason": "variable $d used as a path prefix (assign it from a literal or a script argument in the same command)",
+    "input": "{\"command\": \"ls results/counterexamples/*/ | head -30; for d in results/counterexamples/*/; do echo \\\"== $d\\\"; uv run --no-sync python .tmp/show.py $d/SUMMARY.json 1 | head -40; done 2>&1 | head -150\", \"description\": \"Read counterexample summaries\"}"
+   }
+  ],
+  "guard_log_unparsable_lines": 0,
+  "guard_denials": 1,
+  "guard_denial_reasons": {
+   "variable $d used as a path prefix (assign it from a literal ": 1
+  },
+  "n_web_queries": 0
+ },
  "review_a": {
   "streams": [
    "review_a.20260925T135859.jsonl",
