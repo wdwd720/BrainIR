@@ -472,7 +472,25 @@ against the full method over the compressible systems (median [system-bootstrap 
   where its condition fires. Examples are `abstention` (it changes flags only), `domain_clip` (the latent box is rarely active) and
   `sharing` (the shared law is never supported).
 
-The FINAL-suite ablations (the primary, unbiased ones) are reported in section 10.1.
+### 10.1 FINAL-suite ablations (primary; hidden, logged; `research/phase3/ablations/ablations_final/`)
+
+This run is the pre-registered primary ablation analysis: the only data that neither selected nor tuned the method. It covers 15
+switches x 48 systems, reusing the confirmation's fits of the full method, in 7,154 s ($27.8). An earlier attempt was aborted
+before any result, for Modal scheduling, and re-run; both rows are logged.
+- **`event_calibration`:** held-out C worsens by +0.30 [0.13, 0.47], and "compact" verdicts fall from 19 to 10. This is the only
+  component with a significant effect on S1-S5.
+- **Dimension components.** The dev-suite effect of `nn_dim_rule` (-0.15 exact-k rate) does not replicate here: -0.04 [-0.15,
+  0.07].
+  - `nested_selection` -0.07 [-0.20, 0.07];
+  - `fold_repeats` 0 [-0.11, 0.11];
+  - `sparsity` +0.07 [-0.02, 0.15];
+  - `delays` +0.07 [0, 0.13]: removing the delay features, if anything, helps the exact-k rate. "Compact" verdicts fall from 19
+    to 15 without delays.
+- **All other switches** (`abstention`, `domain_clip`, `draw_folds`, `esindy`, `grid_extension`, `input_floor`,
+  `oscillation_check`, `sharing`, `sharing_test`) leave every median at 0. Their conditions rarely fire on this suite, or (sharing)
+  the shared law is never supported.
+- **Reading.** Of the composer's additions to ks_sindy, only the calibrated event machinery measurably matters on unbiased data. The
+  dimension-rule changes are not shown to help or hurt.
 
 ## 11. The hidden real test (generated after the lock) and its numerical checks
 
@@ -571,3 +589,291 @@ Source: `research/phase3/METHOD_NOTES.md` (the developer's notes, locked) and `p
 
 **Not implemented:** lifting of latent interventions to neural interventions (`lift()` returns nothing), and partial sharing.
 Shared fits use ks_share's joint training and return the shared law only if an internal held-out non-inferiority test supports it.
+
+## 14. Level C: the real hidden evaluation (run once; `research/phase3/level_c/01/`)
+
+**Design (PROTOCOL.md sections 7-8; frozen driver `scripts/p3/level_c.py`).**
+- **Fits:** the locked method on the 10 real systems with seeds 0-4 (G), plus 5 fits on seeded half-samples of the training data
+  (the data arm of G); the comparator lin_dmdc_t with seed 0; per-network shared fits with leave-one-implementation-out adaptation
+  (I); cross-connectome models on the full networks (J): net1 + net2 (independent reconstructions) and, reported apart, net1 + net3
+  (the same reconstruction).
+- **Evaluation:** on the hidden test.
+- **Pre-registered primary family:** 13 paired comparisons against the comparator (A, C, D, E per full network, and K on the
+  synthetic FINAL suite), Holm-corrected, with non-inferiority margins; two-sided differences as the secondary family.
+- **Scale:** 163 fits and 128 evaluations. 5,647 s wall on Modal (gated scheduler, P3-D27), under a 100-container workspace limit.
+  The critical path was the joint fits (57 min for the first stage).
+- **Failures, all in the method's own code:**
+  - 2 partial-sharing fits (not implemented);
+  - 6 leave-one-out adaptation fits (the known defect).
+
+**Verdicts per system (the frozen verdict rule).**
+
+| system | mode | brainir_state_v1: k, verdict | predictive | held-out C (CI upper) | closed | microstate-equiv. | lin_dmdc_t: k, verdict |
+|---|---|---|---|---|---|---|---|
+| net1 full | full | 2, not supported | yes | 1.27 (1.89) | no | no | 16, not supported |
+| net1 mechanism a | keep-only | 2, not supported | no | n/a (abstained on events) | no | yes | 3, not supported |
+| net1 mechanism b | keep-only | 3, not supported | yes | 0.91 | no | yes | 1, not supported |
+| net2 full | full | 3, not supported | yes | 0.96 (1.02) | no | yes | 64, not supported |
+| net2 mechanism a | keep-only | 2, not supported | no | n/a | no | yes | 3, not supported |
+| net2 mechanism b | keep-only | 3, not supported | yes | 0.79 | no | yes | 4, partially supported |
+| net2 mechanism c | keep-only | 5, not supported | no | n/a | yes | yes | 3, not supported |
+| net3 full | full | 2, **partially supported** | yes | 1.04 (1.20) | yes | no | 64, not supported |
+| net3 mechanism a | keep-only | 3, not supported | no | n/a | no | yes | 1, not supported |
+| net3 mechanism b | keep-only | 2, not supported | no | 0.39 | yes | yes | 3, not supported |
+
+The Markov / rollout-consistency check passes on all systems for both methods. Mechanism labels: net1 a = mech:02fa13b8, b = mech:cce0c6c4; net2 a = mech:3aa95ab7, b = mech:3e8f8895, c = mech:6883ab7b; net3 a = mech:362044b4, b = mech:92614efe.
+
+**What is and is not supported on the real circuits.**
+- **Supported:** a compact predictive state for the three full networks. k = 2-3 predicts the held-out readout better than the
+  input-only control and than persistence, with the paired 95 % CIs below 0 on all three full networks (for example net3 full:
+  A - input-only = -0.0067 [-0.0077, -0.0056]; net2 full: -0.30 [-0.58, -0.11]).
+- **Not supported:** interventional sufficiency. On no full network is the method's held-out intervention error below the
+  no-effect value 1 with confidence (C = 1.27, 0.96 and 1.04, all with upper CIs >= 1). The one mechanism with a clear
+  interventional pass (net3 mechanism b, C = 0.39) is not predictive there.
+- Closure holds on net3 full and on 2 mechanisms. Microstate equivalence holds on 8 of 10 systems.
+
+**Pre-registered primary comparisons against the comparator (Holm).**
+- Non-inferiority is established on 5 of 13: net2 C, D and E; net3 A and C.
+- Significant two-sided differences:
+  - the locked method is better on net3 A and net3 C. The C difference comes from the comparator's large error, not from a good
+    C;
+  - it is worse on net1 E, net2 A and net3 E.
+- K on the synthetic FINAL suite is not shown non-inferior (difference 0.007 [-0.040, 0.055], Holm p = 0.30).
+
+The comparator is high-dimensional on the full networks (k = 16 and 64) where the locked method uses 2-3.
+
+**Sharing and cross-connectome dynamics (descriptive; neither Holm family).**
+- Within networks (mechanisms and the full system): sharing is rejected on net1 and net3, and untestable on net2. Every shared model
+  is the independent models (the method's internal test declines to share).
+- Across connectomes: both pairs are rejected.
+  - Between the independently reconstructed networks (net1 + net2), dynamics fitted on one network and adapted to the other are
+    far worse than a fit from scratch (A difference +4.9, C +251).
+  - Within one reconstruction (net1 + net3), adaptation beats a fit from scratch on C (-0.17 [-0.62, -0.01]) and ties on A. This is
+    expected for two builds of one dataset, and it is NOT counted as a confirmation.
+
+**Reproducibility on the real systems.**
+- Seeds 0-4 give the same k on only 2 of 10 systems. On the full networks k is 2-3 and the latents agree well (median min-R^2 0.99,
+  0.99 and 0.69).
+- On the mechanisms k varies between 2 and 8.
+- The data arm (5 half-samples) gives the same k on 4 of 10 systems, with latent agreement from -1.2 to 0.93.
+
+Lineage rules apply throughout: net1 and net3 come from one reconstruction and are never counted as two confirmations; overlapping
+mechanisms of one network are one mechanism family.
+
+## 15. Acceptance criteria (goal4 section 85)
+
+| # | criterion | status | evidence |
+|---|---|---|---|
+| 1 | Phase 1 benchmark remains frozen | met | `benchmarks/dng100/freeze.py --check` ok (self-audit I1) |
+| 2 | Phase 2 locked method unchanged | met | `scripts/method_lock.py check` OK; nothing under `src/brainir` changed (I2) |
+| 3 | Main repository integrity passes | met | lock checks, tests (I1-I4, I10) |
+| 4 | Genuinely clean Phase 3 workspace | met | `C:\Dev\BrainIR_p3clean` from an allowlist (7,542 files), `--check` (I5) |
+| 5 | PHASE2_REPORT.md cannot enter the clean room | met | builder forbidden list, guards, hash scans (I6) |
+| 6 | Hidden oracle / evaluation artifacts cannot enter | met | same; transcript audit: 0 forbidden inputs, 0 non-numeric answer tokens (I6, I7) |
+| 7 | Allowlist machine-readable and audited | met | `CLEANROOM_MANIFEST.json` (hash, source, reason, class per file) |
+| 8 | Phase 2 candidates regenerated from public evidence | met | 7 candidates, 8/8 public seeds each (I15) |
+| 9 | Protocol frozen before method development | met, with disclosure | v1 locked before any method; corrected to v2 (early reviews) and v3 (pre-lock reviews) before any held-out / FINAL / hidden use of the affected evaluations |
+| 10 | Hidden real-intervention generation locked | met | generator hashed in the benchmark lock, salt committed by sha256 (I3's property; I3 as written fails only because of the re-lock tags, section 7) |
+| 11 | Synthetic state-discovery benchmark exists | met | 48 systems x 3 suites, oracle-free author, 237 tests |
+| 12 | Multiple physical implementations of the same hidden dynamics | met | two implementation groups (Hopf x4, gated integrator x3) |
+| 13 | Non-compressible controls | met | 2 per suite |
+| 14 | Shortcut / adversarial traps | met | traps A-L + review G's 10 new traps |
+| 15 | Strong system-identification baselines | met | 7 declared baselines + 5 independently tuned variants |
+| 16 | Several candidate algorithm families evaluated | met | 5 families, 12 candidates + the composer's hybrid |
+| 17 | Method selection without hidden real evaluation | met | rounds 1-3 on the synthetic heldout suite only (I9) |
+| 18 | Clear mathematical definition of the final method | met | section 13; METHOD_NOTES.md |
+| 19 | Latent dimension selected generically | met | the plateau rule (section 13); k never set by hand |
+| 20 | Full-state predictive upper bound | met | A_full reference in every verdict |
+| 21 | Input-only and output-history shortcut baselines | met | references in every verdict; A - input-only and A - readout-history reported |
+| 22 | Multi-step predictive sufficiency measured | met | family A (horizons up to T/4) |
+| 23 | Hidden intervention fidelity measured | met | family C on held-out types and targets (Level C) |
+| 24 | Markov closure measured | met | D (micro / history gain), closure gap, Markov restart checks |
+| 25 | Residual microstate dependence measured | met | D micro-gain, E microstate restarts |
+| 26 | Latent intervention lifting exists or a rigorous reason is documented | partly | lifting is implemented in the benchmark and exercised by 7 baselines on the FINAL suite. The LOCKED method does not implement lift(), and its notes give no reason beyond "not supported". This is reported as a gap of v1 (section 13) |
+| 27 | Multiple low-level implementations of equivalent latent interventions tested | met at benchmark level | up to 72 distinct implementations per system; implementation-invariance ratio median 0.03-0.30 for the baselines that lift; not testable for v1 |
+| 28 | Synthetic latent ground truth recovered on held-out systems | met | K (min R^2 both ways) 0.987 median on the FINAL suite |
+| 29 | Reproducibility across seeds quantified | met | G on the FINAL suite and on the real systems (5 seeds + half-sample arm); host determinism study (P3-D27) |
+| 30 | Latent coordinate equivalence up to valid transforms | met | K and G use affine / CCA alignment |
+| 31 | Alternative neuron-level mechanisms tested for shared dynamics | met | Level C I (mechanisms of each network) and the synthetic groups |
+| 32 | Cross-connectome shared dynamics tested | met | Level C J (net1 + net2; net1 + net3 apart) |
+| 33 | Independent vs shared dynamics compared fairly | met | held-out comparisons with parameter counts |
+| 34 | Cross-implementation generalisation evaluated | met, method failed | leave-one-implementation-out adaptation (v1's adaptation code fails; counted) |
+| 35 | Robustness under parameter uncertainty | met | held-out parameter draws (synthetic and real), trap H, the self-audit's Q13 |
+| 36 | OOD input / intervention behaviour | met | real H_stim_ood, H_weight_ood; counterexample search domain wider than the public families |
+| 37 | Counterexample search | met | 6 sweeps (sections 9 and 16) |
+| 38 | Negative controls | met | non-compressible controls, unrelated pairs, null pairs, scrambled-z0, random-k |
+| 39 | Model-capacity controls | met | PCA-k and random-k references, parameter counts |
+| 40 | Important ablations complete | met | dev suite (15 switches) and FINAL suite (section 10) |
+| 41 | Simulation / query / compute costs recorded | met | COSTS_LEDGER.md, COMPUTE_SUMMARY, per-run Modal records |
+| 42 | All old tests green | see section 18 | root test suite |
+| 43 | Phase 3 tests green | see section 18 | `phase3` test suite |
+| 44 | Independent reviews A-H complete | met | reviews E and H early, F, G, A-D before the lock (section 17) |
+| 45 | Blockers resolved before method lock | met | benchmark v2 and v3 |
+| 46 | Final method locked before hidden real evaluation | met | METHOD_LOCK.json, tag brainir-state-v1-preblind (I4, I9) |
+| 47 | Hidden evaluation attempts logged | met | HIDDEN_EVALUATIONS.md, incl. the aborted ablation attempt (I8) |
+| 48 | No post-hidden-evaluation tuning folded into v1 | met | no method change after the lock (method_lock_p3.py --check) |
+| 49 | PHASE3_REPORT.md exists | met | this report |
+| 50 | Clear scientific conclusion | met | section 19: NOT SUPPORTED for the real circuits; partially supported on synthetic systems |
+
+## 19. Conclusion (goal4 section 85, criterion 50) and claim language (section 88)
+
+**Conclusion: NOT SUPPORTED for the real connectome-constrained circuits; partially supported on synthetic systems with known state.**
+
+The claim tested: BrainIR can discover the smallest causal state of a circuit's computation, meaning one that is predictively
+sufficient, closed, interventionally sufficient, microstate-invariant, compressed, stable, and shared across implementations and
+connectomes. That claim is not supported by the evidence.
+
+- **Real circuits (Level C, run once, hidden).**
+  - Within the tested connectome-constrained rate model and intervention domain, a 2-3 dimensional latent state learned from public
+    data predicts the held-out readout of each of the three full networks better than an input-only model and than persistence.
+  - It does NOT predict the effects of held-out interventions better than "no effect" on any full network.
+  - It is not shared across alternative mechanisms of one network or across independently reconstructed connectomes. Its dimension
+    agrees across seeds on only 2 of 10 systems.
+  - The pre-registered verdict is "not supported" on 9 of 10 real systems and "partially supported" on one (net3 full: predictive
+    and closed, not interventional).
+- **Synthetic systems with known latent state (FINAL suite, untouched until after the lock).**
+  - The locked method finds a compact causal state (all verdict conditions met) on 19 of 46 compressible systems, the exact
+    dimension on 27 of 46, and the true latent up to an affine map (K = 0.987).
+  - It does not beat the strongest baseline overall: third of nine on the aggregate profile, better on prediction and dimension,
+    worse on closure and abstention.
+  - Its intervention predictions break easily outside the public protocol domain (counterexample search: 9 of 48 systems broken
+    immediately).
+
+**Claim language.**
+- **Permitted:** "Within the tested connectome-constrained dynamical model and intervention domain, a 2-3 dimensional state
+  representation learned from public data was sufficient to predict the held-out readout of the three full networks better than
+  input-only and persistence controls (e.g. net3: NMSE difference -0.0067 [-0.0077, -0.0056]), but not to predict the effects of
+  held-out interventions (held-out effect error 0.96-1.27 against 1 for predicting no effect)."
+- **Not claimed:**
+  - true state variables of the fly nervous system;
+  - biological truth (all evidence is simulator-based);
+  - formal causal abstraction (the interventional and sharing conditions fail);
+  - independence of net1 and net3 (one reconstruction).
+
+## 20. One recommended next phase (not started)
+
+**Interventionally trained causal state models.** The measured failure that decides the verdict is interventional sufficiency.
+- The locked method never used its simulation budget: its fits ignore the simulator.
+- It calibrated its intervention read-in from a handful of public training interventions per system.
+
+The next phase should learn the intervention map from designed interventions: active experiment design within the budgeted
+public simulator, with the read-in and the dynamics fitted jointly on interventional data. It should be evaluated on a new,
+separately locked benchmark version with the same pre-registration, clean-room and single-platform (host-gated) execution
+discipline.
+
+## 16. Counterexample search on the real systems (post-lock; after Level C's fits)
+
+The searches used the Level C seed-0 fits and the same protocol domain and criteria as section 9. The domain extends past the
+public protocol families; real kicks are absolute rate offsets that the engine clips at 0 Hz.
+- **Public parameter draws:** development domain, on Modal.
+- **Hidden parameter draws:** derived from the salt, run locally as pre-registered (P3-D28).
+
+| sweep | systems with counterexamples | distinct | median worst / random-median error | broken immediately |
+|---|---|---|---|---|
+| brainir_state_v1, public draws, effect | 7 of 10 | 430 | 8.4 x 10^5 | 5 of 10 |
+| lin_dmdc_t, public draws, effect | 10 of 10 | 564 | 3.6 x 10^7 | 4 of 10 |
+| brainir_state_v1, hidden draws, effect | (section 16.1) | | | |
+
+On the real systems both models are broken almost at once by interventions outside the calibrated domain: worst-case effect errors
+five to seven orders of magnitude above their typical ones. For the locked method this matches Level C: no interventional claim
+holds on any real full network.
+
+## 17. Robustness, statistics and limitations
+
+**Robustness (Level C hidden families on the full networks; A = readout NMSE at the 100 ms horizon).**
+
+| full network | model | held-out draws / states | out-of-distribution stimulus | out-of-distribution weight noise |
+|---|---|---|---|---|
+| net1 | brainir_state_v1 | 0.024 | 1.82 | 0.046 |
+| net1 | lin_dmdc_t | 0.018 | 0.47 | 0.059 |
+| net2 | brainir_state_v1 | 0.53 | 3.52 | 1.25 |
+| net2 | lin_dmdc_t | 0.20 | 2.09 | 1.06 |
+| net3 | brainir_state_v1 | 0.005 | 0.13 | 0.022 |
+| net3 | lin_dmdc_t | 0.005 | 0.13 | 0.052 |
+
+- An out-of-distribution stimulus degrades the compact model strongly: 75-fold on net1, where the comparator loses a factor of
+  26.
+- Weight noise outside the training range is tolerated about as well as, or better than, by the comparator.
+- The parameter-identity probe decodes the hidden parameter draw from z with accuracy 0.33-0.58 (chance 0.17), against 0.96-0.98
+  for the comparator's high-dimensional state. The compact state carries much less draw-specific information.
+- The Markov / rollout-consistency checks (restart from the model's own z, with and without events, and a decoy) show zero
+  inconsistency on every system.
+
+**Statistics (PROTOCOL.md sections 5-9; unchanged since version 3).**
+- Units are trajectories within a system, and systems across a suite. CIs are bootstrap 95 % intervals over units, with paired
+  designs throughout. Failures and non-finite values count as the worst value.
+- Selection: rank aggregation over the fixed compressible list, with the selection's bootstrap P(rank 1).
+- Level C: 13 one-sided non-inferiority tests (margins fixed per family), Holm-corrected, with a two-sided secondary family, also
+  Holm-corrected.
+- Every tolerance was calibrated on the dev suite before any held-out use (calibration v3: tau_A 0.784, tau_C 3.69, tau_D 0.092,
+  tau_H 0.234, tau_E 0.0179; tau_gap descriptive).
+- The number of candidates (19 registered + the hybrid), rounds (3, one of them repeated under version 3) and feedback releases (2)
+  is disclosed. The selection's advantage did not replicate on the FINAL suite (section 8).
+
+**Limitations.**
+1. **Simulator-only evidence.** The "real" systems are connectome-constrained rate-model simulations with assumed neuron
+   parameters, deterministic dynamics (no noise), and kicks given as absolute rate offsets that the engine clips at 0 Hz. Nothing
+   here is a statement about the living nervous system.
+2. **Two reconstructions.** net1 and net3 are two builds of one reconstruction, so cross-connectome evidence rests on one pair
+   (net1 + net2).
+3. **Missing capabilities of the locked method:** no lifting of latent interventions, no partial sharing, and a defect in
+   leave-one-out adaptation (it crashes when sharing is rejected).
+4. **Host-dependent fits.** Model selection amplifies last-digit numerical differences, so the Level B rounds and the FINAL
+   confirmation (mixed Modal hosts) are single realisations. Level C and the hidden data ran on one deterministic platform, which
+   still differs from the development machine.
+5. **Selection instability.** A narrow selection margin (P(rank 1) = 0.52) that did not replicate; heldout selection bias is
+   possible (winner's curse).
+6. **Interventions** were calibrated from a handful of public training interventions per system; the simulator budget was never
+   used by the locked method.
+7. **Reproducibility of k across seeds** is poor on the real mechanisms (2 of 10 systems agree).
+
+## 18. Reviews (goal4 sections 60-70)
+
+Each review ran as a separate agent session in a redacted room. Every finding was resolved by an evaluation fix (a new benchmark
+version), a generic requirement to the developers, or a disclosure. The records are under `research/phase3/reviews/`
+(answer-bearing) and `research/phase3/review_g/`.
+
+| review | when | scope | outcome |
+|---|---|---|---|
+| E (statistics) | early, on the evaluator | ranks, units, CIs, medians, controls | 5 blockers, 6 majors: benchmark v2 |
+| H (numerics) | early | solvers, normalisers, invariances | 1 blocker, 7 majors: benchmark v2 |
+| F (leakage) | after development started; answer-aware | isolation of the rooms, guards, transcripts | 2 blockers (substring guards): guard version 2; no leak had occurred (replay of every executed call) |
+| G (adversarial traps) | on the round-2 top five and on brainir_state_v1 | 10 new trap systems no developer saw | every candidate is confidently wrong on at least one trap; the verdicts certify sufficiency, not minimality or correctness of k |
+| A (system identification), B (causal inference), C (representation learning), D (computational neuroscience) | before the lock, on the composed candidate | the method and the version-2 evaluation | 7 blockers, 19 majors: benchmark v3 (evaluation) and generic method requirements (the composer's version-3 changes) |
+| Post-lock S (statistics), C (claims), Y (dynamics), R (report accuracy), L (leakage and process) | after Level C, on this draft | reporting, statistics and claims only | section 18.1 |
+
+Transcript audits of all agent sessions found 0 forbidden-path inputs, no web use outside the literature agent, and no
+non-numeric answer tokens. One numeric hit was a coincidental 5-digit file size.
+
+## 21. Latent intervention results (lifting; goal4 sections 45-49, criteria 26-27)
+
+Lifting means mapping a desired latent intervention (a shift of z) to concrete neural interventions and checking, through the
+simulator, that they achieve the shift and are interchangeable.
+- The benchmark scores it where a model implements `lift()`.
+- **The locked method does not**, so its latent interventions are untested. This is a stated gap of v1.
+- On the FINAL suite, seven baselines lift. For each requested shift they propose several distinct low-level implementations (up to
+  72 per system).
+
+| model (FINAL suite, 46 systems) | achieved-shift relative error (median) | readout NMSE after lifting / on the twin | implementation-invariance ratio (median; < 1 on) |
+|---|---|---|---|
+| lin_dmdc_t | 0.37 | 0.35 / 0.14 | 0.16 (92 % of 39 systems) |
+| lin_falds | 0.64 | 0.22 / 0.13 | 0.12 (100 % of 43) |
+| lin_pcadyn | 0.89 | 0.49 / 0.13 | 0.30 (89 % of 35) |
+| nn_aelin | 0.31 | 0.27 / 0.09 | 0.03 (96 % of 45) |
+
+The implementation-invariance ratio is the future divergence between implementations of the SAME latent shift, divided by the
+divergence between DIFFERENT shifts.
+- **Favourable:** different neural implementations of one latent intervention produce similar futures, much more similar than
+  different interventions do.
+- **Unfavourable:** the achieved latent shift misses the requested one by 31-89 %.
+
+So latent interventions are implementation-invariant but imprecisely realised in the baselines' models, and untested for v1.
+
+## 22. Uncertainty
+
+Every reported effect carries a bootstrap 95 % CI over its units (trajectories, systems or protocols), with paired designs. The
+largest uncertainties that bear on the conclusions:
+1. **The selection itself:** P(rank 1) 0.52 on the heldout suite and 0.25 on the FINAL suite, with rank intervals [1, 5] and [1, 8].
+2. **Real held-out C:** the per-network CIs are wide (net1: 1.27 [1.03, 1.89]), but every upper bound is at or above 1.
+3. **k on the real mechanisms**, which varies across seeds (2-8) and half-samples.
+4. **Platform:** host-dependent configuration choices for fits on mixed hosts (section 12).

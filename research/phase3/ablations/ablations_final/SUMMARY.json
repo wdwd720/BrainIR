@@ -1,0 +1,2330 @@
+{
+ "plan": {
+  "round": "ablations_final",
+  "suite": "final",
+  "method": "brainir_state_v1",
+  "methods_dir": "C:\\Dev\\BrainIR\\phase3\\src\\brainir_state\\methods",
+  "switches": [
+   "abstention",
+   "delays",
+   "domain_clip",
+   "draw_folds",
+   "esindy",
+   "event_calibration",
+   "fold_repeats",
+   "grid_extension",
+   "input_floor",
+   "nested_selection",
+   "nn_dim_rule",
+   "oscillation_check",
+   "sharing",
+   "sharing_test",
+   "sparsity"
+  ],
+  "table": {
+   "abstention": "abstention rules -> never abstain",
+   "delays": "causal delay features in the encoder -> the current microstate only",
+   "domain_clip": "latent rollouts confined to the widened training box -> unconstrained rollouts",
+   "draw_folds": "configuration (delays, degree, threshold, readout degree) chosen on parameter-draw folds -> on trajectory folds",
+   "esindy": "E-SINDy bagging (support = inclusion probability >= 0.6) -> one STLSQ fit",
+   "event_calibration": "per-kind event gains and silencing mechanism calibrated on training events -> raw mechanisms (gain 1)",
+   "fold_repeats": "dimension sweep scored on 2 random trajectory splits (units pooled) -> on one split",
+   "grid_extension": "k sweep continued past 8 (10, 12, 16) while the error still falls -> the base grid (1-6, 8) only",
+   "input_floor": "input-floor abstention (latent explains < half of what the input leaves) -> ks_sindy's abstention rules only",
+   "nested_selection": "configuration per k chosen on validation units disjoint from those comparing k -> on the same units",
+   "nn_dim_rule": "plateau tolerance max(0.1 e*, 0.005) -> ks_sindy's paired log-error rule (tol = max(SE, log 1.05))",
+   "oscillation_check": "k >= 2 when the data oscillate under constant input -> no minimum k",
+   "sharing": "shared-law fit and encoder-only adaptation -> independent fits (config sharing='shared' / adapt_from ignored)",
+   "sharing_test": "internal non-inferiority test of the shared law -> the shared law is always returned under sharing='shared'",
+   "sparsity": "sequential thresholding (threshold grid) -> plain ridge least squares on the full library (threshold 0)"
+  },
+  "systems": [
+   "syn-00d5084cf9",
+   "syn-0cf4f43f95",
+   "syn-0f1a2b2092",
+   "syn-146831129f",
+   "syn-1c5ebb1701",
+   "syn-1de2b0aa08",
+   "syn-27e0511d5b",
+   "syn-2b793e0c85",
+   "syn-313036b921",
+   "syn-39a4bcadd3",
+   "syn-43acfc0126",
+   "syn-46002470ba",
+   "syn-51f33cdec0",
+   "syn-5501045d59",
+   "syn-5eb9367677",
+   "syn-5f0a0fa085",
+   "syn-6028d90a05",
+   "syn-607919433f",
+   "syn-69ed284cd3",
+   "syn-6a7b88532a",
+   "syn-6b76c3f5b6",
+   "syn-7128410d49",
+   "syn-727dfb5695",
+   "syn-7b832ad60a",
+   "syn-7c501452c1",
+   "syn-7f3c457ee1",
+   "syn-82a1192491",
+   "syn-8e0956913a",
+   "syn-9694709828",
+   "syn-97797327b3",
+   "syn-991cc10212",
+   "syn-a11648e5da",
+   "syn-ae5a5dad80",
+   "syn-b09f780157",
+   "syn-b4de18e88a",
+   "syn-bbeb09adcc",
+   "syn-bdbd40e793",
+   "syn-c6548ec008",
+   "syn-cad61b0acb",
+   "syn-cbf9ad9942",
+   "syn-d4f6b8983e",
+   "syn-d753e608fc",
+   "syn-d7a7574c7e",
+   "syn-db916fdcea",
+   "syn-e309661b06",
+   "syn-e6e4dd04ab",
+   "syn-f8ae37d6fb",
+   "syn-fe069050cb"
+  ],
+  "n_compressible": 46,
+  "seed": 0,
+  "shared_variants": [
+   "full",
+   "sharing",
+   "sharing_test"
+  ],
+  "n_shared_sets": 5,
+  "sim_budget": 250,
+  "timeout_s": 1800.0,
+  "backend": "modal",
+  "locked": true,
+  "lock_commit": "6c7c2cdded527762c76edb47eae9fb36f62750bf",
+  "hidden_material": true,
+  "n_fits_planned": 861
+ },
+ "wall_s": 7154.2,
+ "variants": {
+  "full": {
+   "removes": "(the full locked method)",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729576,
+    "S2_C_heldout": 0.4829114442480864,
+    "S3_D_micro_gain": 0.03088308644971515,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137879,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": 0.5,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 4,
+    "evaluations": 0
+   }
+  },
+  "abstention": {
+   "removes": "abstention rules -> never abstain",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729576,
+    "S2_C_heldout": 0.4829114442480966,
+    "S3_D_micro_gain": 0.03088308644971546,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137896,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.5,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.0,
+    "false_alarm_rate": 0.0,
+    "confident_wrong_rate": 0.5625
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 4.647852151460642e-15,
+     "mean_ci95": [
+      -1.3854964880691387e-14,
+      2.5537105642686016e-14
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.551115123125783e-17,
+      0.0
+     ],
+     "mean_diff": -7.2656593126200575e-12,
+     "mean_ci95": [
+      -2.1942380728748014e-11,
+      1.4373834539668474e-13
+     ],
+     "frac_variant_worse": 0.3333333333333333,
+     "frac_variant_better": 0.4
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -4.248648911551479e-15,
+     "mean_ci95": [
+      -1.2165977059184135e-14,
+      7.627171369574684e-16
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -1.2550347234893073e-16,
+     "mean_ci95": [
+      -3.294526487367292e-15,
+      3.4521298862977716e-15
+     ],
+     "frac_variant_worse": 0.2608695652173913,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   }
+  },
+  "delays": {
+   "removes": "causal delay features in the encoder -> the current microstate only",
+   "profile": {
+    "S1_A_over_full": 1.0240924815810346,
+    "S2_C_heldout": 0.464932761037132,
+    "S3_D_micro_gain": 0.02053878221331331,
+    "S4_E_ratio": 0.0017767418290649854,
+    "S5_K_r2_rff": 0.9908330306349025,
+    "S6_dim_rate": 0.6521739130434783,
+    "S7_abstention": 0.7173913043478262,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 7
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 13,
+    "not supported": 18,
+    "partially supported": 13,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.06521739130434782,
+    "confident_wrong_rate": 0.5625
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 9.43689570931383e-16,
+     "median_ci95": [
+      0.0,
+      6.150635556423367e-14
+     ],
+     "mean_diff": 0.0728234523640838,
+     "mean_ci95": [
+      -0.0720607021649591,
+      0.2325519018396162
+     ],
+     "frac_variant_worse": 0.5217391304347826,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.6375789613221059e-15,
+      2.0372592501871623e-14
+     ],
+     "mean_diff": -0.23323354937316132,
+     "mean_ci95": [
+      -0.666514032870569,
+      0.07028989448036443
+     ],
+     "frac_variant_worse": 0.4222222222222222,
+     "frac_variant_better": 0.4
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -7.216449660063518e-16,
+      0.0
+     ],
+     "mean_diff": -0.004114675452326623,
+     "mean_ci95": [
+      -0.012355390818748785,
+      0.0032647224681373868
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S4_E_ratio": {
+     "n": 38,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.00020612601128208721,
+     "mean_ci95": [
+      -0.0008185007458616718,
+      0.0002721973363394449
+     ],
+     "frac_variant_worse": 0.2894736842105263,
+     "frac_variant_better": 0.15789473684210525
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -6.106226635438361e-16,
+      1.4432899320127035e-15
+     ],
+     "mean_diff": 0.002825540484473708,
+     "mean_ci95": [
+      -0.02957727191238487,
+      0.03545525364223929
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.45652173913043476
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.6521739130434783,
+     "diff": 0.06521739130434782,
+     "diff_ci95": [
+      0.0,
+      0.13043478260869565
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 13,
+    "compact causal state discovered -> not supported": 1,
+    "compact causal state discovered -> partially supported": 3,
+    "not supported -> not supported": 14,
+    "not supported -> partially supported": 1,
+    "partially supported -> not supported": 3,
+    "partially supported -> partially supported": 9
+   }
+  },
+  "domain_clip": {
+   "removes": "latent rollouts confined to the widened training box -> unconstrained rollouts",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729572,
+    "S2_C_heldout": 0.4829114442480967,
+    "S3_D_micro_gain": 0.030883086449715547,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137879,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 10,
+    "not supported": 17,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0067851985498766886,
+     "mean_ci95": [
+      -6.472735994532348e-15,
+      0.020355595649632775
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S2_C_heldout": {
+     "n": 42,
+     "n_failed_either": 4,
+     "n_failed_variant_only": 3,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      5.329070518200751e-15
+     ],
+     "mean_diff": 97.74715309938522,
+     "mean_ci95": [
+      -3.496779727119983e-06,
+      293.24146279493556
+     ],
+     "frac_variant_worse": 0.4523809523809524,
+     "frac_variant_better": 0.2619047619047619
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -2.6377611221469706e-14,
+     "mean_ci95": [
+      -7.44741093221197e-14,
+      -1.3353033956331479e-15
+     ],
+     "frac_variant_worse": 0.2391304347826087,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      0.0
+     ],
+     "mean_diff": -2.483520635520187e-15,
+     "mean_ci95": [
+      -8.168103874432428e-15,
+      1.2575689282194293e-15
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> not supported": 2,
+    "partially supported -> partially supported": 10
+   }
+  },
+  "draw_folds": {
+   "removes": "configuration (delays, degree, threshold, readout degree) chosen on parameter-draw folds -> on trajectory folds",
+   "profile": {
+    "S1_A_over_full": 1.0176247973192152,
+    "S2_C_heldout": 0.44408159853878415,
+    "S3_D_micro_gain": 0.023917987601207696,
+    "S4_E_ratio": 0.0015402148131984698,
+    "S5_K_r2_rff": 0.9876319705063441,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 15,
+    "partially supported": 11,
+    "not supported": 18,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5625
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 1.0547118733938987e-15,
+     "median_ci95": [
+      -1.1124434706744069e-13,
+      1.6599499552682928e-13
+     ],
+     "mean_diff": -0.14218727120865707,
+     "mean_ci95": [
+      -0.3273518041349962,
+      -0.003988743203153922
+     ],
+     "frac_variant_worse": 0.5217391304347826,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 4.440892098500626e-16,
+     "median_ci95": [
+      -5.617728504603292e-14,
+      5.459521723594207e-14
+     ],
+     "mean_diff": -0.12704073689164314,
+     "mean_ci95": [
+      -0.39088591152571156,
+      0.031748616487215456
+     ],
+     "frac_variant_worse": 0.5333333333333333,
+     "frac_variant_better": 0.4222222222222222
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.3480163086352377e-16,
+      0.0
+     ],
+     "mean_diff": 0.0011166462714456795,
+     "mean_ci95": [
+      -0.004797650318490336,
+      0.007879422009876508
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -6.154763115378525e-05,
+     "mean_ci95": [
+      -0.00022411269144747466,
+      5.99533128965868e-05
+     ],
+     "frac_variant_worse": 0.175,
+     "frac_variant_better": 0.125
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.6653345369377348e-16,
+      2.220446049250313e-16
+     ],
+     "mean_diff": -0.0053064139457695185,
+     "mean_ci95": [
+      -0.022382339098288788,
+      0.004813105907263573
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 15,
+    "compact causal state discovered -> not supported": 1,
+    "compact causal state discovered -> partially supported": 1,
+    "not supported -> not supported": 15,
+    "partially supported -> not supported": 2,
+    "partially supported -> partially supported": 10
+   }
+  },
+  "esindy": {
+   "removes": "E-SINDy bagging (support = inclusion probability >= 0.6) -> one STLSQ fit",
+   "profile": {
+    "S1_A_over_full": 1.009097973784931,
+    "S2_C_heldout": 0.4829114442480966,
+    "S3_D_micro_gain": 0.030883086449715547,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137894,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -8.881784197001252e-16,
+      0.0
+     ],
+     "mean_diff": -0.029200501775771787,
+     "mean_ci95": [
+      -0.09373274237516495,
+      0.00797155357541458
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      2.220446049250313e-16
+     ],
+     "mean_diff": -0.5816144953075556,
+     "mean_ci95": [
+      -1.7402051140632109,
+      0.00053323531730117
+     ],
+     "frac_variant_worse": 0.4,
+     "frac_variant_better": 0.3333333333333333
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -1.8064684334759152e-14,
+     "mean_ci95": [
+      -3.623802505428356e-14,
+      -3.826913357840707e-15
+     ],
+     "frac_variant_worse": 0.2608695652173913,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      2.220446049250313e-16
+     ],
+     "mean_diff": -1.321889457798257e-14,
+     "mean_ci95": [
+      -4.513020392176545e-14,
+      4.477155361424524e-15
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   }
+  },
+  "event_calibration": {
+   "removes": "per-kind event gains and silencing mechanism calibrated on training events -> raw mechanisms (gain 1)",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729687,
+    "S2_C_heldout": 0.7355602878442239,
+    "S3_D_micro_gain": 0.030883086449715706,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137891,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "partially supported": 21,
+    "compact causal state discovered": 9,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 1
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.6875
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      5.551115123125783e-17
+     ],
+     "mean_diff": 7.38177634960009e-15,
+     "mean_ci95": [
+      -8.330836021031018e-15,
+      2.778734368206718e-14
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.2981616286548732,
+     "median_ci95": [
+      0.12469417270053335,
+      0.47292839150476096
+     ],
+     "mean_diff": 2.3721835542757135,
+     "mean_ci95": [
+      -0.505469899152992,
+      5.766325062549205
+     ],
+     "frac_variant_worse": 0.8666666666666667,
+     "frac_variant_better": 0.1111111111111111
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -2.874283125820426e-14,
+     "mean_ci95": [
+      -8.322117503539426e-14,
+      -5.744369446448846e-16
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": -1.0945350905815401e-13,
+     "mean_ci95": [
+      -3.3005138477332456e-13,
+      1.800673137167855e-15
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 1,
+    "compact causal state discovered (microstate equivalence untestable) -> partially supported": 1,
+    "compact causal state discovered -> compact causal state discovered": 8,
+    "compact causal state discovered -> partially supported": 9,
+    "not supported -> not supported": 15,
+    "partially supported -> compact causal state discovered": 1,
+    "partially supported -> partially supported": 11
+   }
+  },
+  "fold_repeats": {
+   "removes": "dimension sweep scored on 2 random trajectory splits (units pooled) -> on one split",
+   "profile": {
+    "S1_A_over_full": 0.9797679464966431,
+    "S2_C_heldout": 0.4829114442480997,
+    "S3_D_micro_gain": 0.022200589391145158,
+    "S4_E_ratio": 0.0017767418290649854,
+    "S5_K_r2_rff": 0.9760221105151339,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7282608695652174,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 9
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 16,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 3
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.043478260869565216,
+    "confident_wrong_rate": 0.4791666666666667
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": 0.00040259680737970196,
+     "mean_ci95": [
+      -0.5755920614345055,
+      0.6280916332897255
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S2_C_heldout": {
+     "n": 44,
+     "n_failed_either": 2,
+     "n_failed_variant_only": 1,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.469446951953614e-17,
+      0.0
+     ],
+     "mean_diff": -0.5834946931043415,
+     "mean_ci95": [
+      -1.7736179279440323,
+      0.023272423266679214
+     ],
+     "frac_variant_worse": 0.29545454545454547,
+     "frac_variant_better": 0.36363636363636365
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.1016855750465293e-16,
+      0.0
+     ],
+     "mean_diff": -0.023469587526106298,
+     "mean_ci95": [
+      -0.05646342571732658,
+      0.0014154166529775152
+     ],
+     "frac_variant_worse": 0.21739130434782608,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S4_E_ratio": {
+     "n": 37,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.008134866803233113,
+     "mean_ci95": [
+      -0.023438946540897624,
+      0.0001951623352066977
+     ],
+     "frac_variant_worse": 0.13513513513513514,
+     "frac_variant_better": 0.05405405405405406
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.0116884655864816,
+     "mean_ci95": [
+      -0.04789774051595274,
+      0.02147727509150388
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      -0.10869565217391304,
+      0.10869565217391304
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 16,
+    "compact causal state discovered -> partially supported": 1,
+    "not supported -> not supported": 14,
+    "not supported -> partially supported": 1,
+    "partially supported -> compact causal state discovered (microstate equivalence untestable)": 1,
+    "partially supported -> not supported": 1,
+    "partially supported -> partially supported": 10
+   }
+  },
+  "grid_extension": {
+   "removes": "k sweep continued past 8 (10, 12, 16) while the error still falls -> the base grid (1-6, 8) only",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729572,
+    "S2_C_heldout": 0.4829114442480851,
+    "S3_D_micro_gain": 0.03088308644971466,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137884,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7065217391304348,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 13,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 1
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.08695652173913043,
+    "confident_wrong_rate": 0.4791666666666667
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -4.440892098500626e-16,
+      0.0
+     ],
+     "mean_diff": 2.1438165252680333e-15,
+     "mean_ci95": [
+      -1.306409690571758e-14,
+      2.0406713758416482e-14
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.7755575615628914e-17,
+      0.0
+     ],
+     "mean_diff": 7.270270805135069e-13,
+     "mean_ci95": [
+      -4.5248881801956346e-14,
+      1.8707627306836626e-12
+     ],
+     "frac_variant_worse": 0.35555555555555557,
+     "frac_variant_better": 0.35555555555555557
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -4.440892098500626e-16,
+      0.0
+     ],
+     "mean_diff": -4.068309321671725e-14,
+     "mean_ci95": [
+      -1.1013723334608932e-13,
+      -2.595735088980194e-15
+     ],
+     "frac_variant_worse": 0.2391304347826087,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      5.551115123125783e-17
+     ],
+     "mean_diff": 2.3128841836919295e-14,
+     "mean_ci95": [
+      -1.0078894240944898e-15,
+      6.995430804672107e-14
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 1,
+    "compact causal state discovered (microstate equivalence untestable) -> partially supported": 1,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   }
+  },
+  "input_floor": {
+   "removes": "input-floor abstention (latent explains < half of what the input leaves) -> ks_sindy's abstention rules only",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729572,
+    "S2_C_heldout": 0.4829114442480966,
+    "S3_D_micro_gain": 0.030883086449715234,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137879,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -7.771561172376096e-16,
+      0.0
+     ],
+     "mean_diff": -2.0750309683075616e-15,
+     "mean_ci95": [
+      -1.3754003974389538e-14,
+      1.133519606679926e-14
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.43478260869565216
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.3877787807814457e-17,
+      0.0
+     ],
+     "mean_diff": 5.403413249246055e-13,
+     "mean_ci95": [
+      -2.1299076025259475e-14,
+      1.3582858241898478e-12
+     ],
+     "frac_variant_worse": 0.35555555555555557,
+     "frac_variant_better": 0.37777777777777777
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -4.0245584642661925e-16,
+      0.0
+     ],
+     "mean_diff": -2.034020785437173e-14,
+     "mean_ci95": [
+      -4.3647226297836665e-14,
+      -1.961713456985128e-15
+     ],
+     "frac_variant_worse": 0.2391304347826087,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.551115123125783e-17,
+      0.0
+     ],
+     "mean_diff": -9.103104743431963e-14,
+     "mean_ci95": [
+      -2.7327494132324124e-13,
+      9.801941866867194e-16
+     ],
+     "frac_variant_worse": 0.34782608695652173,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   }
+  },
+  "nested_selection": {
+   "removes": "configuration per k chosen on validation units disjoint from those comparing k -> on the same units",
+   "profile": {
+    "S1_A_over_full": 0.9797679464966451,
+    "S2_C_heldout": 0.4829114442480884,
+    "S3_D_micro_gain": 0.02220058939114514,
+    "S4_E_ratio": 0.0013559448922984278,
+    "S5_K_r2_rff": 0.9611488008230575,
+    "S6_dim_rate": 0.5217391304347826,
+    "S7_abstention": 0.7173913043478262,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 9
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 15,
+    "partially supported": 14,
+    "not supported": 14,
+    "compact causal state discovered (microstate equivalence untestable)": 3
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.06521739130434782,
+    "confident_wrong_rate": 0.5
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      4.440892098500626e-16
+     ],
+     "mean_diff": -0.11614236420399551,
+     "mean_ci95": [
+      -0.6656920188114227,
+      0.43132477199179914
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.30434782608695654
+    },
+    "S2_C_heldout": {
+     "n": 44,
+     "n_failed_either": 2,
+     "n_failed_variant_only": 1,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.469446951953614e-17,
+      0.0
+     ],
+     "mean_diff": 0.0336528732012202,
+     "mean_ci95": [
+      -0.011815509513765846,
+      0.10820402653177594
+     ],
+     "frac_variant_worse": 0.29545454545454547,
+     "frac_variant_better": 0.38636363636363635
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.020222084205409656,
+     "mean_ci95": [
+      -0.05436665336283258,
+      0.0043837469415092135
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S4_E_ratio": {
+     "n": 37,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.006984101841830685,
+     "mean_ci95": [
+      -0.02099809569277235,
+      0.000247917161649879
+     ],
+     "frac_variant_worse": 0.13513513513513514,
+     "frac_variant_better": 0.05405405405405406
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.1102230246251565e-16,
+      0.0
+     ],
+     "mean_diff": -0.032563381032764176,
+     "mean_ci95": [
+      -0.07758933586060753,
+      0.00826918262306664
+     ],
+     "frac_variant_worse": 0.43478260869565216,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5217391304347826,
+     "diff": -0.06521739130434782,
+     "diff_ci95": [
+      -0.1956521739130435,
+      0.06521739130434782
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 15,
+    "compact causal state discovered -> partially supported": 2,
+    "not supported -> not supported": 14,
+    "not supported -> partially supported": 1,
+    "partially supported -> compact causal state discovered (microstate equivalence untestable)": 1,
+    "partially supported -> partially supported": 11
+   }
+  },
+  "nn_dim_rule": {
+   "removes": "plateau tolerance max(0.1 e*, 0.005) -> ks_sindy's paired log-error rule (tol = max(SE, log 1.05))",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729686,
+    "S2_C_heldout": 0.5393205737542666,
+    "S3_D_micro_gain": 0.017478377635449828,
+    "S4_E_ratio": 0.0017684416605683322,
+    "S5_K_r2_rff": 0.9850706414752686,
+    "S6_dim_rate": 0.5434782608695652,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 7
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 13,
+    "not supported": 14,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -2.220446049250313e-16,
+      9.992007221626409e-16
+     ],
+     "mean_diff": 0.004673364969364403,
+     "mean_ci95": [
+      -0.6357637782214314,
+      0.7374731258338111
+     ],
+     "frac_variant_worse": 0.391304347826087,
+     "frac_variant_better": 0.391304347826087
+    },
+    "S2_C_heldout": {
+     "n": 43,
+     "n_failed_either": 3,
+     "n_failed_variant_only": 2,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.942890293094024e-16,
+      2.220446049250313e-16
+     ],
+     "mean_diff": -0.017716937274011295,
+     "mean_ci95": [
+      -0.1095814748205935,
+      0.04538529505914444
+     ],
+     "frac_variant_worse": 0.37209302325581395,
+     "frac_variant_better": 0.4186046511627907
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      1.1449174941446927e-16
+     ],
+     "mean_diff": -0.030912814636807343,
+     "mean_ci95": [
+      -0.06602856822516286,
+      -0.0012898336267881383
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S4_E_ratio": {
+     "n": 39,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.0025817166023305135,
+     "mean_ci95": [
+      -0.0077808030267726,
+      0.00013968557815622354
+     ],
+     "frac_variant_worse": 0.15384615384615385,
+     "frac_variant_better": 0.05128205128205128
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.6653345369377348e-16,
+      0.0
+     ],
+     "mean_diff": -0.022519590886681116,
+     "mean_ci95": [
+      -0.0625753875403914,
+      0.0046554633657350155
+     ],
+     "frac_variant_worse": 0.45652173913043476,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5434782608695652,
+     "diff": -0.043478260869565216,
+     "diff_ci95": [
+      -0.15217391304347827,
+      0.06521739130434782
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 13,
+    "not supported -> partially supported": 2,
+    "partially supported -> not supported": 1,
+    "partially supported -> partially supported": 11
+   }
+  },
+  "oscillation_check": {
+   "removes": "k >= 2 when the data oscillate under constant input -> no minimum k",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729576,
+    "S2_C_heldout": 0.4829114442481125,
+    "S3_D_micro_gain": 0.030883086449714985,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137895,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 6.006366901429957e-15,
+     "mean_ci95": [
+      -1.0539169175053424e-14,
+      2.582053683183268e-14
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -7.098200422501261e-12,
+     "mean_ci95": [
+      -2.19132999708845e-11,
+      5.079896225890219e-13
+     ],
+     "frac_variant_worse": 0.35555555555555557,
+     "frac_variant_better": 0.3333333333333333
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -1.695283029295278e-14,
+     "mean_ci95": [
+      -4.018786690431353e-14,
+      -1.2236131303539311e-15
+     ],
+     "frac_variant_worse": 0.30434782608695654,
+     "frac_variant_better": 0.32608695652173914
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -9.12917084922751e-14,
+     "mean_ci95": [
+      -2.7381484760717313e-13,
+      1.1155327869168394e-15
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   }
+  },
+  "sharing": {
+   "removes": "shared-law fit and encoder-only adaptation -> independent fits (config sharing='shared' / adapt_from ignored)",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729678,
+    "S2_C_heldout": 0.4829114442480895,
+    "S3_D_micro_gain": 0.030883086449715144,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.987226531613789,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": 0.5,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      2.220446049250313e-16
+     ],
+     "mean_diff": 7.598993897896316e-15,
+     "mean_ci95": [
+      -8.680148990884886e-15,
+      2.804031161852055e-14
+     ],
+     "frac_variant_worse": 0.41304347826086957,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.3877787807814457e-16,
+      0.0
+     ],
+     "mean_diff": 4.80573856172691e-13,
+     "mean_ci95": [
+      -5.1766776147346396e-14,
+      1.312516239115725e-12
+     ],
+     "frac_variant_worse": 0.28888888888888886,
+     "frac_variant_better": 0.4666666666666667
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -7.349485980549977e-15,
+     "mean_ci95": [
+      -1.7623047543084025e-14,
+      -7.53012349033105e-16
+     ],
+     "frac_variant_worse": 0.2826086956521739,
+     "frac_variant_better": 0.34782608695652173
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      1.1102230246251565e-16
+     ],
+     "mean_diff": -1.4196373545315588e-14,
+     "mean_ci95": [
+      -4.51559683365217e-14,
+      2.269018306577662e-15
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.3695652173913043
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   },
+   "S8_diff": 0.0
+  },
+  "sharing_test": {
+   "removes": "internal non-inferiority test of the shared law -> the shared law is always returned under sharing='shared'",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729674,
+    "S2_C_heldout": 0.4829114442480997,
+    "S3_D_micro_gain": 0.030883086449714412,
+    "S4_E_ratio": 0.0018337496426459278,
+    "S5_K_r2_rff": 0.9872265316137896,
+    "S6_dim_rate": 0.5869565217391305,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": 0.3333333333333333,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 17,
+    "partially supported": 12,
+    "not supported": 15,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5208333333333334
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 3
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -7.771561172376096e-16,
+      0.0
+     ],
+     "mean_diff": -9.839954937819051e-15,
+     "mean_ci95": [
+      -2.167740624684548e-14,
+      -4.870349292944683e-16
+     ],
+     "frac_variant_worse": 0.32608695652173914,
+     "frac_variant_better": 0.45652173913043476
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -3.469446951953614e-17,
+      0.0
+     ],
+     "mean_diff": -5.40879069927453e-15,
+     "mean_ci95": [
+      -5.149651924021528e-14,
+      5.2102311662613784e-14
+     ],
+     "frac_variant_worse": 0.35555555555555557,
+     "frac_variant_better": 0.35555555555555557
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": -9.194034422677078e-17,
+     "median_ci95": [
+      -1.0269562977782698e-15,
+      0.0
+     ],
+     "mean_diff": -3.413477607456419e-14,
+     "mean_ci95": [
+      -8.388099242973013e-14,
+      -4.25841521616433e-15
+     ],
+     "frac_variant_worse": 0.21739130434782608,
+     "frac_variant_better": 0.5
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": 0.0,
+     "mean_ci95": [
+      0.0,
+      0.0
+     ],
+     "frac_variant_worse": 0.0,
+     "frac_variant_better": 0.0
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -5.551115123125783e-17,
+      0.0
+     ],
+     "mean_diff": -2.037017897355722e-15,
+     "mean_ci95": [
+      -7.959575028068052e-15,
+      1.7454636769758957e-15
+     ],
+     "frac_variant_worse": 0.3695652173913043,
+     "frac_variant_better": 0.2826086956521739
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.5869565217391305,
+     "diff": 0.0,
+     "diff_ci95": [
+      0.0,
+      0.0
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 17,
+    "not supported -> not supported": 15,
+    "partially supported -> partially supported": 12
+   },
+   "S8_diff": -0.16666666666666669
+  },
+  "sparsity": {
+   "removes": "sequential thresholding (threshold grid) -> plain ridge least squares on the full library (threshold 0)",
+   "profile": {
+    "S1_A_over_full": 0.9968721661729572,
+    "S2_C_heldout": 0.4620602817497502,
+    "S3_D_micro_gain": 0.022200589391146226,
+    "S4_E_ratio": 0.0020746493851350853,
+    "S5_K_r2_rff": 0.9902357019364321,
+    "S6_dim_rate": 0.6521739130434783,
+    "S7_abstention": 0.7391304347826086,
+    "S8_sharing_correct": NaN,
+    "n_systems": 46,
+    "n_E_untestable": 6
+   },
+   "verdict_counts_compressible": {
+    "compact causal state discovered": 16,
+    "partially supported": 14,
+    "not supported": 14,
+    "compact causal state discovered (microstate equivalence untestable)": 2
+   },
+   "abstention": {
+    "n_noncompressible": 2,
+    "n_compressible": 46,
+    "abstention_recall": 0.5,
+    "false_alarm_rate": 0.021739130434782608,
+    "confident_wrong_rate": 0.5416666666666666
+   },
+   "failures": {
+    "fits": 0,
+    "evaluations": 0
+   },
+   "paired_vs_full": {
+    "S1_A_over_full": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -4.44436154545258e-16,
+      1.1102230246251565e-15
+     ],
+     "mean_diff": -0.17613184322882142,
+     "mean_ci95": [
+      -0.46468695921229425,
+      0.05719412885109103
+     ],
+     "frac_variant_worse": 0.43478260869565216,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S2_C_heldout": {
+     "n": 45,
+     "n_failed_either": 1,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -1.6653345369377348e-16,
+      1.3600232051658168e-15
+     ],
+     "mean_diff": -0.699447999038379,
+     "mean_ci95": [
+      -1.937549224099902,
+      0.018893207131084944
+     ],
+     "frac_variant_worse": 0.4,
+     "frac_variant_better": 0.4222222222222222
+    },
+    "S3_D_micro_gain": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      -7.398595625041082e-16,
+      0.0
+     ],
+     "mean_diff": -0.0013118516229277976,
+     "mean_ci95": [
+      -0.011058156094430008,
+      0.008177697636158648
+     ],
+     "frac_variant_worse": 0.2608695652173913,
+     "frac_variant_better": 0.41304347826086957
+    },
+    "S4_E_ratio": {
+     "n": 40,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "lower is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      0.0
+     ],
+     "mean_diff": -0.0019047932944658212,
+     "mean_ci95": [
+      -0.007177522692415099,
+      0.0012646249535898982
+     ],
+     "frac_variant_worse": 0.1,
+     "frac_variant_better": 0.05
+    },
+    "S5_K_r2_rff": {
+     "n": 46,
+     "n_failed_either": 0,
+     "n_failed_variant_only": 0,
+     "direction": "higher is better",
+     "median_diff": 0.0,
+     "median_ci95": [
+      0.0,
+      2.220446049250313e-16
+     ],
+     "mean_diff": 0.027270324900697845,
+     "mean_ci95": [
+      0.001494891404553761,
+      0.07165021163792981
+     ],
+     "frac_variant_worse": 0.2391304347826087,
+     "frac_variant_better": 0.4782608695652174
+    },
+    "S6_exact_k_rate": {
+     "full": 0.5869565217391305,
+     "variant": 0.6521739130434783,
+     "diff": 0.06521739130434782,
+     "diff_ci95": [
+      -0.021739130434782608,
+      0.15217391304347827
+     ],
+     "n": 46
+    }
+   },
+   "verdict_transitions": {
+    "compact causal state discovered (microstate equivalence untestable) -> compact causal state discovered (microstate equivalence untestable)": 2,
+    "compact causal state discovered -> compact causal state discovered": 16,
+    "compact causal state discovered -> partially supported": 1,
+    "not supported -> not supported": 14,
+    "not supported -> partially supported": 1,
+    "partially supported -> partially supported": 12
+   }
+  }
+ },
+ "mean_rank_descriptive": {
+  "abstention": 9.9375,
+  "delays": 6.4375,
+  "domain_clip": 9.625,
+  "draw_folds": 6.4375,
+  "esindy": 9.9375,
+  "event_calibration": 11.0,
+  "fold_repeats": 8.4375,
+  "full": 7.8125,
+  "grid_extension": 8.8125,
+  "input_floor": 9.0625,
+  "nested_selection": 8.4375,
+  "nn_dim_rule": 9.5,
+  "oscillation_check": 9.0,
+  "sharing": 7.9375,
+  "sharing_test": 7.75,
+  "sparsity": 5.875
+ },
+ "modal": {
+  "calls": [
+   {
+    "label": "fits",
+    "calls": 774,
+    "container_s": 160031.5,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 2588.2,
+    "peak_container_mb_p95": 2118.4,
+    "usd_approx": 23.471
+   },
+   {
+    "label": "fits",
+    "calls": 78,
+    "container_s": 7031.2,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1565.5,
+    "peak_container_mb_p95": 1457.1,
+    "usd_approx": 1.031
+   },
+   {
+    "label": "evaluations",
+    "calls": 881,
+    "container_s": 22409.8,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1105.9,
+    "peak_container_mb_p95": 1095.8,
+    "usd_approx": 3.287
+   },
+   {
+    "label": "references",
+    "calls": 13,
+    "container_s": 270.1,
+    "cpu": 2.0,
+    "memory_mb": 6144,
+    "peak_container_mb_max": 1006.4,
+    "peak_container_mb_p95": 1002.5,
+    "usd_approx": 0.04
+   }
+  ],
+  "usd_approx_total": 27.83
+ }
+}

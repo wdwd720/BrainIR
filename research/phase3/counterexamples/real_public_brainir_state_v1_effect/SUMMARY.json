@@ -1,0 +1,7142 @@
+{
+ "run": "real_public_brainir_state_v1_effect",
+ "method": "brainir_state_v1",
+ "kind": "real",
+ "tier": "final",
+ "hidden_material": false,
+ "objective": "effect",
+ "strategies": [
+  "random",
+  "evolve",
+  "structured",
+  "bo"
+ ],
+ "seeds": [
+  0,
+  1,
+  2
+ ],
+ "budget": 60,
+ "init_state": true,
+ "backend": "modal",
+ "wall_s": 1086.3,
+ "n_jobs": 120,
+ "n_job_failures": 0,
+ "modal": {
+  "app_id": "ap-WPrVKzxlFU5IKl5WgSYyXt",
+  "calls": 120,
+  "container_s": 15333.8,
+  "wall_s": 1085.5,
+  "cpu": 2.0,
+  "memory_mb": 16384,
+  "usd_approx": 3.271
+ },
+ "criteria": {
+  "abs_threshold": 1.0,
+  "rel_factor": 2.0,
+  "immediate_n": 10
+ },
+ "systems": {
+  "real:net1:full": {
+   "n_searches": 12,
+   "n_scored": 446,
+   "n_unsupported": 0,
+   "n_errors": 1,
+   "kinds_supported": [
+    "silence"
+   ],
+   "random_median": 4.923286167390422,
+   "random_p90": 8066.773278569402,
+   "worst": 127895588.32478106,
+   "worst_over_random_median": 25977687.255293526,
+   "threshold": 16133.546557138803,
+   "n_candidates": 107,
+   "n_distinct": 90,
+   "broken_immediately_fraction": 0.3333333333333333,
+   "distinct_kinds": {
+    "silence": 133
+   },
+   "distinct": [
+    {
+     "err": 127895588.32478106,
+     "err_post": 0.29979761155682705,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "26d30a2707a38eac",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 931331859,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.028,
+        1.4360271711890829
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.653,
+        "t1": 0.992,
+        "targets": [
+         2150,
+         4225,
+         3135
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 81020104.4973624,
+     "err_post": 0.3207171872018704,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "4589335ca828092e",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 931331859,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.028,
+        1.4360271711890829
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.658,
+        "t1": 0.997,
+        "targets": [
+         2150,
+         4225,
+         3135
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 56484713.67638092,
+     "err_post": 0.3614167179978151,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "6e5eb162c1bb0435",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 931331859,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.028,
+        1.4360271711890829
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.619,
+        "t1": 0.958,
+        "targets": [
+         2150,
+         4225,
+         3135
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 45981799.13021499,
+     "err_post": 0.6279233181634364,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "c2fc45fbcc7b0062",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 931331859,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.028,
+        1.4360271711890829
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.683,
+        "t1": 1.022,
+        "targets": [
+         2150,
+         4225,
+         3135
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 35969935.635533854,
+     "err_post": 0.3182127202429579,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "511eebf0fc333eba",
+     "protocol": null
+    },
+    {
+     "err": 25916912.938724186,
+     "err_post": 0.593432213819065,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "9cc3846ce66d0caa",
+     "protocol": null
+    },
+    {
+     "err": 22281272.273747955,
+     "err_post": 0.29199415009777585,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "e6e838ecc71b5cba",
+     "protocol": null
+    },
+    {
+     "err": 19660066.32558419,
+     "err_post": 0.598770649994781,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "99d2d0fac661f0c2",
+     "protocol": null
+    },
+    {
+     "err": 15442345.69520631,
+     "err_post": 0.3220096419866419,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "420be7003fe92f41",
+     "protocol": null
+    },
+    {
+     "err": 11044409.648603901,
+     "err_post": 0.28420293651459727,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "3ad7bfd1d3a2e60a",
+     "protocol": null
+    },
+    {
+     "err": 10505727.282325862,
+     "err_post": 0.39636573572283695,
+     "signature": [
+      [
+       "silence",
+       [
+        248,
+        2280,
+        3135,
+        3376
+       ]
+      ],
+      [
+       "silence",
+       [
+        623,
+        925,
+        3723,
+        3819
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "e076e24b3137b2b0",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 210254283,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.044,
+        1.3123989395649232
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.392,
+        "t1": 0.583,
+        "targets": [
+         3135,
+         248,
+         2280,
+         3376
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.525,
+        "t1": 0.725,
+        "targets": [
+         3819,
+         3723,
+         623,
+         925
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "726": 0.701763,
+        "3887": 0.245259,
+        "3723": 11.019976,
+        "483": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 9509752.04483727,
+     "err_post": 0.09273694871248458,
+     "signature": [
+      [
+       "silence",
+       [
+        901,
+        1248,
+        3374,
+        3789
+       ]
+      ],
+      [
+       "silence",
+       [
+        3927
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "386b1aeeacf9f68f",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 148516680,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.039,
+        1.387874773832619
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.635,
+        "t1": 0.782,
+        "targets": [
+         3927
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.661,
+        "t1": 0.914,
+        "targets": [
+         1248,
+         3374,
+         3789,
+         901
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "3559": 0.037267
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 9318685.295685548,
+     "err_post": 0.44884430023974875,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "c8ac742b47c437c4",
+     "protocol": null
+    },
+    {
+     "err": 8202041.905178219,
+     "err_post": 0.6051435083023767,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "e18c736223b4e77c",
+     "protocol": null
+    },
+    {
+     "err": 7293266.152453985,
+     "err_post": 0.5280327902123403,
+     "signature": [
+      [
+       "silence",
+       [
+        248,
+        2280,
+        3135,
+        3376
+       ]
+      ],
+      [
+       "silence",
+       [
+        623,
+        925,
+        3723,
+        3819
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "4ddf4e5217f84e17",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 210254283,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.044,
+        1.3123989395649232
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.391,
+        "t1": 0.582,
+        "targets": [
+         3135,
+         248,
+         2280,
+         3376
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.587,
+        "t1": 0.787,
+        "targets": [
+         3819,
+         3723,
+         623,
+         925
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "726": 0.701763,
+        "3887": 0.245259,
+        "3723": 11.019976,
+        "483": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 6858406.737999352,
+     "err_post": 0.2942067737186629,
+     "signature": [
+      [
+       "silence",
+       [
+        2150,
+        3135,
+        4225
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "f3e415ea22050f8d",
+     "protocol": null
+    },
+    {
+     "err": 6713262.512605762,
+     "err_post": 0.00813814173151705,
+     "signature": [
+      [
+       "silence",
+       [
+        3970
+       ]
+      ],
+      [
+       "silence",
+       [
+        4360
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      true
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "7068311932958a83",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 623328212,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.047,
+        0.9682047290009798
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.62,
+        "t1": 0.818,
+        "targets": [
+         4360
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.82,
+        "t1": 0.952,
+        "targets": [
+         3970
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2825": 0.563099,
+        "726": 0.032275
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 5847440.693565751,
+     "err_post": 0.008101237461838112,
+     "signature": [
+      [
+       "silence",
+       [
+        3970
+       ]
+      ],
+      [
+       "silence",
+       [
+        4360
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      true
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "111a1fd48f49904a",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 623328212,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.047,
+        0.9682047290009798
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.622,
+        "t1": 0.82,
+        "targets": [
+         4360
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.811,
+        "t1": 0.943,
+        "targets": [
+         3970
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2825": 0.563099,
+        "726": 0.032275
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 5647850.898925236,
+     "err_post": 0.07787720989156173,
+     "signature": [
+      [
+       "silence",
+       [
+        2547,
+        4206
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "e1e4e0b237e0f35a",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 705883097,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.043,
+        1.2925304901533299
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.563,
+        "t1": 0.835,
+        "targets": [
+         4206,
+         2547
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 4867400.996386126,
+     "err_post": 0.15598534521303328,
+     "signature": [
+      [
+       "silence",
+       [
+        248,
+        2280,
+        3135,
+        3376
+       ]
+      ],
+      [
+       "silence",
+       [
+        623,
+        925,
+        3723,
+        3819
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "6f7e6f57a5989e7f",
+     "protocol": {
+      "system": "real:net1:full",
+      "params_seed": 210254283,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.044,
+        1.3123989395649232
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.352,
+        "t1": 0.543,
+        "targets": [
+         3135,
+         248,
+         2280,
+         3376
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.475,
+        "t1": 0.675,
+        "targets": [
+         3819,
+         3723,
+         623,
+         925
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "726": 0.701763,
+        "3887": 0.245259,
+        "3723": 11.019976,
+        "483": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 1548126.349337975
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 127895588.32478106
+    },
+    "random": {
+     "n": 3,
+     "worst": 9509752.04483727
+    },
+    "structured": {
+     "n": 3,
+     "worst": 2944896.4837089106
+    }
+   }
+  },
+  "real:net1:mech:02fa13b8": {
+   "n_searches": 12,
+   "n_scored": 0,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [],
+   "random_median": null,
+   "random_p90": null,
+   "worst": null,
+   "worst_over_random_median": null,
+   "threshold": 1.0,
+   "n_candidates": 0,
+   "n_distinct": 0,
+   "broken_immediately_fraction": 0.0,
+   "distinct_kinds": {},
+   "distinct": [],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": null
+    },
+    "evolve": {
+     "n": 3,
+     "worst": null
+    },
+    "random": {
+     "n": 3,
+     "worst": null
+    },
+    "structured": {
+     "n": 3,
+     "worst": null
+    }
+   }
+  },
+  "real:net1:mech:cce0c6c4": {
+   "n_searches": 12,
+   "n_scored": 478,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [
+    "current",
+    "silence"
+   ],
+   "random_median": 0.8556526083804041,
+   "random_p90": 3.555775679088126,
+   "worst": 112826374.7829402,
+   "worst_over_random_median": 131860025.52659793,
+   "threshold": 7.111551358176252,
+   "n_candidates": 85,
+   "n_distinct": 58,
+   "broken_immediately_fraction": 0.5,
+   "distinct_kinds": {
+    "current": 63,
+    "silence": 24
+   },
+   "distinct": [
+    {
+     "err": 112826374.7829402,
+     "err_post": 0.03394429550087977,
+     "signature": [
+      [
+       "current",
+       [
+        1220
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "16f43c8b794acbd8",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 791261371,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.088,
+        0.7532462060625766
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.717,
+        "t1": 0.847,
+        "targets": {
+         "1220": -44.898397
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1220": 43.739571
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 456231.13625507604,
+     "err_post": 0.03845625108455063,
+     "signature": [
+      [
+       "current",
+       [
+        1220
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "ff7450925909c517",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 791261371,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.088,
+        0.7532462060625766
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.712,
+        "t1": 0.842,
+        "targets": {
+         "1220": -34.63267
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1220": 43.739571
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 185526.14612391053,
+     "err_post": 0.008681225060908728,
+     "signature": [
+      [
+       "silence",
+       [
+        1126,
+        2825,
+        2973
+       ]
+      ],
+      [
+       "silence",
+       [
+        2825
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "e605f8afd2b2173b",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 82099332,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.041,
+        0.807994337279278
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.379,
+        "t1": 0.536,
+        "targets": [
+         2825
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.537,
+        "t1": 0.637,
+        "targets": [
+         2973,
+         1126,
+         2825
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1126": 106.817408,
+        "2825": 29.617487,
+        "2973": 0.729877,
+        "1220": 40.336396
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 10025.383163285149,
+     "err_post": 0.044554993133691274,
+     "signature": [
+      [
+       "current",
+       [
+        1220
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "568617ada152e079",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 791261371,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.088,
+        0.7532462060625766
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.707,
+        "t1": 0.837,
+        "targets": {
+         "1220": -24.563814
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1220": 43.739571
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 6068.666182566011,
+     "err_post": 0.045710587794121633,
+     "signature": [
+      [
+       "current",
+       [
+        1220
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "19024c2655ff9265",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 791261371,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.088,
+        0.7532462060625766
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.779,
+        "t1": 0.909,
+        "targets": {
+         "1220": -29.954647
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1220": 43.739571
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1985.9698751384105,
+     "err_post": 0.14402812011617333,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "7dfe6d1f1fb98428",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 47463289,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.023,
+        0.8025354298796704
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.557,
+        "t1": 0.698,
+        "targets": {
+         "2973": 49.091162,
+         "1126": 20.186928
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.728,
+        "t1": 0.785,
+        "targets": {
+         "2973": -54.561398
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1315.786853851659,
+     "err_post": 0.07201873693372197,
+     "signature": [
+      [
+       "current",
+       [
+        1220,
+        2825
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "378aab92dae52804",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 342754647,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.024,
+        0.6608316566215585
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.433,
+        "t1": 0.481,
+        "targets": {
+         "1220": 16.170118,
+         "2825": 33.801666
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1311.8880019388412,
+     "err_post": 0.14046367736538867,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "1b0373904984d95d",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 47463289,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.023,
+        0.8025354298796704
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.598,
+        "t1": 0.739,
+        "targets": {
+         "2973": 22.291666,
+         "1126": 17.567984
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.694,
+        "t1": 0.751,
+        "targets": {
+         "2973": -56.155728
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1114.1273533942706,
+     "err_post": 0.14098720688836666,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "0a3fa8275ebfedcf",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 47463289,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.023,
+        0.8025354298796704
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.56,
+        "t1": 0.701,
+        "targets": {
+         "2973": 17.256627,
+         "1126": 13.245589
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.674,
+        "t1": 0.731,
+        "targets": {
+         "2973": -30.899483
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 839.6446897362136,
+     "err_post": 0.1345325219815192,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "39ebaf2b6b8e39c8",
+     "protocol": {
+      "system": "real:net1:mech:cce0c6c4",
+      "params_seed": 47463289,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.023,
+        0.8025354298796704
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.567,
+        "t1": 0.708,
+        "targets": {
+         "2973": 23.687743,
+         "1126": 20.717447
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.679,
+        "t1": 0.736,
+        "targets": {
+         "2973": -35.639712
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 730.0556434922973,
+     "err_post": 0.1438147634218773,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "8b8d133c6ee74d34",
+     "protocol": null
+    },
+    {
+     "err": 616.8789963480342,
+     "err_post": 0.13991432117595642,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "88f130d7b9d7024e",
+     "protocol": null
+    },
+    {
+     "err": 442.8506367857498,
+     "err_post": 0.1293114254417491,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "9d8297e6855d9c85",
+     "protocol": null
+    },
+    {
+     "err": 368.0327106688394,
+     "err_post": 0.15452626234118838,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 5,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "48c6daf356de7fed",
+     "protocol": null
+    },
+    {
+     "err": 326.17514127855435,
+     "err_post": 0.12819642274737367,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "10b9dcece9783bf3",
+     "protocol": null
+    },
+    {
+     "err": 282.1687018136993,
+     "err_post": 0.12079392990718353,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "8d0160808ecfa950",
+     "protocol": null
+    },
+    {
+     "err": 203.8621306355913,
+     "err_post": 0.12434499933426782,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "f0945c37c858dbf6",
+     "protocol": null
+    },
+    {
+     "err": 194.17589691399812,
+     "err_post": 0.1937682300555534,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "0a25cd9cb5a3a5cc",
+     "protocol": null
+    },
+    {
+     "err": 181.00227457595935,
+     "err_post": 0.13344917602759948,
+     "signature": [
+      [
+       "current",
+       [
+        1126,
+        2973
+       ]
+      ],
+      [
+       "current",
+       [
+        2973
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "81fa1a1ef2c4b631",
+     "protocol": null
+    },
+    {
+     "err": 179.06901850854513,
+     "err_post": 0.04851850206451198,
+     "signature": [
+      [
+       "current",
+       [
+        1220
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "72079fe44ab7511f",
+     "protocol": null
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 148.94424113813938
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 112826374.7829402
+    },
+    "random": {
+     "n": 3,
+     "worst": 185526.14612391053
+    },
+    "structured": {
+     "n": 3,
+     "worst": 18.405467779110303
+    }
+   }
+  },
+  "real:net2:full": {
+   "n_searches": 12,
+   "n_scored": 434,
+   "n_unsupported": 0,
+   "n_errors": 2,
+   "kinds_supported": [
+    "silence"
+   ],
+   "random_median": 1.087989763122377,
+   "random_p90": 192.71908719121325,
+   "worst": 436926223.7450546,
+   "worst_over_random_median": 401590381.2285311,
+   "threshold": 385.4381743824265,
+   "n_candidates": 88,
+   "n_distinct": 69,
+   "broken_immediately_fraction": 0.5833333333333334,
+   "distinct_kinds": {
+    "silence": 111
+   },
+   "distinct": [
+    {
+     "err": 436926223.7450546,
+     "err_post": 0.16268917978302777,
+     "signature": [
+      [
+       "silence",
+       [
+        190,
+        1764,
+        2167,
+        3745
+       ]
+      ],
+      [
+       "silence",
+       [
+        828,
+        1088,
+        1525
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "bo",
+     "hash": "14b88d98e108d015",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 152358670,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.09,
+        0.7001045380662236
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.706,
+        "t1": 1.063,
+        "targets": [
+         190,
+         3745,
+         1764,
+         2167
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.879,
+        "t1": 1.05,
+        "targets": [
+         1088,
+         828,
+         1525
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1505843.9301067789,
+     "err_post": 0.23614449990920558,
+     "signature": [
+      [
+       "silence",
+       [
+        532,
+        1030,
+        1179
+       ]
+      ],
+      [
+       "silence",
+       [
+        3357
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "054b39f5709c1dd6",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 156969038,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.086,
+        0.8293840759466553
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.628,
+        "t1": 0.964,
+        "targets": [
+         3357
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.781,
+        "t1": 1.058,
+        "targets": [
+         532,
+         1179,
+         1030
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "4031": 0.398797,
+        "3076": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 784397.9285858787,
+     "err_post": 0.24858197915110605,
+     "signature": [
+      [
+       "silence",
+       [
+        914,
+        1191,
+        2222
+       ]
+      ],
+      [
+       "silence",
+       [
+        1880,
+        2001,
+        2784
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "8557dda3c56be8e8",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 997232651,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.09,
+        0.7712858036622295
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.565,
+        "t1": 0.838,
+        "targets": [
+         2222,
+         1191,
+         914
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.588,
+        "t1": 0.786,
+        "targets": [
+         2784,
+         2001,
+         1880
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "4002": 0.0,
+        "1169": 0.145428
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 289255.7328294671,
+     "err_post": 0.2089533011272881,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "0068f971bdf8902b",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 390644128,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.099,
+        0.8649699212379278
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.735,
+        "t1": 1.031,
+        "targets": [
+         3023,
+         4015
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.761,
+        "t1": 0.951,
+        "targets": [
+         1997,
+         2548
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "216": 0.009698,
+        "1087": 0.0,
+        "1897": 0.607404,
+        "2030": 2.104657
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 236615.3732704903,
+     "err_post": 0.22100349562362256,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "e7bdd54162262c4a",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 390644128,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.099,
+        0.8649699212379278
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.665,
+        "t1": 0.855,
+        "targets": [
+         1997,
+         2548
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.678,
+        "t1": 0.974,
+        "targets": [
+         3023,
+         4015
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "216": 0.009698,
+        "1087": 0.0,
+        "1897": 0.607404,
+        "2030": 2.104657
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 210070.88670017166,
+     "err_post": 0.20679949999731786,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "a0f479b9e2e88e6e",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 390644128,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.099,
+        0.8649699212379278
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.688,
+        "t1": 0.984,
+        "targets": [
+         3023,
+         4015
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.779,
+        "t1": 0.969,
+        "targets": [
+         1997,
+         2548
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "216": 0.009698,
+        "1087": 0.0,
+        "1897": 0.607404,
+        "2030": 2.104657
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 157465.6086284338,
+     "err_post": 0.20393092199827528,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "7737e81902db86b6",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 390644128,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.099,
+        0.8649699212379278
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.607,
+        "t1": 0.903,
+        "targets": [
+         3023,
+         4015
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.69,
+        "t1": 0.88,
+        "targets": [
+         1997,
+         2548
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "216": 0.009698,
+        "1087": 0.0,
+        "1897": 0.607404,
+        "2030": 2.104657
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 139560.46787253977,
+     "err_post": 0.2230648559907152,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "dbc97eeb5bb7f40e",
+     "protocol": null
+    },
+    {
+     "err": 109755.79384700189,
+     "err_post": 0.3439523905047544,
+     "signature": [
+      [
+       "silence",
+       [
+        190
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "structured",
+     "hash": "4faead8a6496c4dd",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 750806548,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.06,
+        1.0
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.54,
+        "t1": 0.75,
+        "targets": [
+         190
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 100992.8752797521,
+     "err_post": 0.3220811196260828,
+     "signature": [
+      [
+       "silence",
+       [
+        463,
+        540,
+        3023
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "b8016c29a7837e99",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 83224385,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.116,
+        0.9687654496380473
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.6,
+        "t1": 0.88,
+        "targets": [
+         463,
+         3023,
+         540
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2159": 2.064635,
+        "4031": 0.0,
+        "1869": 0.01966,
+        "1103": 0.0,
+        "2167": 0.189568
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 88402.54323319093,
+     "err_post": 0.20255596532154568,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "c73c29da73cab524",
+     "protocol": null
+    },
+    {
+     "err": 73409.11649540174,
+     "err_post": 0.21796963112726883,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "652e8a65fbe6d840",
+     "protocol": null
+    },
+    {
+     "err": 57956.716182324875,
+     "err_post": 0.224436670481515,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "9d78c954c9d54374",
+     "protocol": null
+    },
+    {
+     "err": 53656.30602109649,
+     "err_post": 0.25083412039795955,
+     "signature": [
+      [
+       "silence",
+       [
+        2943
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "structured",
+     "hash": "efd522739864f49f",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 802263268,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.06,
+        1.0
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.54,
+        "t1": 0.75,
+        "targets": [
+         2943
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 42859.22915238799,
+     "err_post": 0.22223462513598718,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "20c3a548584a6dbe",
+     "protocol": null
+    },
+    {
+     "err": 37674.520173648525,
+     "err_post": 0.20762396481938214,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "aca179355648652e",
+     "protocol": null
+    },
+    {
+     "err": 31441.349503354457,
+     "err_post": 2.0695990263417454,
+     "signature": [
+      [
+       "silence",
+       [
+        2943
+       ]
+      ],
+      [
+       "silence",
+       [
+        3437
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      true
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "3af987723d995bc5",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 64535393,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.039,
+        1.4430303931609598
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.375,
+        "t1": 0.709,
+        "targets": [
+         2943
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.518,
+        "t1": 0.65,
+        "targets": [
+         3437
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2003": 0.0,
+        "642": 0.921312,
+        "2715": 5.597911,
+        "3056": 0.006844,
+        "2590": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 24889.573750040057,
+     "err_post": 0.7751432457551417,
+     "signature": [
+      [
+       "silence",
+       [
+        3023
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "structured",
+     "hash": "d8127e934a10b4fb",
+     "protocol": {
+      "system": "real:net2:full",
+      "params_seed": 589447102,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.06,
+        1.0
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.54,
+        "t1": 0.75,
+        "targets": [
+         3023
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 24282.74228922166,
+     "err_post": 0.2168366735615225,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "715c264be8a2a626",
+     "protocol": null
+    },
+    {
+     "err": 18663.044938770916,
+     "err_post": 0.2235206840042369,
+     "signature": [
+      [
+       "silence",
+       [
+        1997,
+        2548
+       ]
+      ],
+      [
+       "silence",
+       [
+        3023,
+        4015
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "7dce2b27e0f9130e",
+     "protocol": null
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 436926223.7450546
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 289255.7328294671
+    },
+    "random": {
+     "n": 3,
+     "worst": 784397.9285858787
+    },
+    "structured": {
+     "n": 3,
+     "worst": 1505843.9301067789
+    }
+   }
+  },
+  "real:net2:mech:3aa95ab7": {
+   "n_searches": 12,
+   "n_scored": 0,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [],
+   "random_median": null,
+   "random_p90": null,
+   "worst": null,
+   "worst_over_random_median": null,
+   "threshold": 1.0,
+   "n_candidates": 0,
+   "n_distinct": 0,
+   "broken_immediately_fraction": 0.0,
+   "distinct_kinds": {},
+   "distinct": [],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": null
+    },
+    "evolve": {
+     "n": 3,
+     "worst": null
+    },
+    "random": {
+     "n": 3,
+     "worst": null
+    },
+    "structured": {
+     "n": 3,
+     "worst": null
+    }
+   }
+  },
+  "real:net2:mech:3e8f8895": {
+   "n_searches": 12,
+   "n_scored": 475,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [
+    "silence"
+   ],
+   "random_median": 0.9510718729573882,
+   "random_p90": 2.0425890972885794,
+   "worst": 1973.1679733470264,
+   "worst_over_random_median": 2074.6780863273752,
+   "threshold": 4.085178194577159,
+   "n_candidates": 42,
+   "n_distinct": 19,
+   "broken_immediately_fraction": 0.25,
+   "distinct_kinds": {
+    "silence": 34
+   },
+   "distinct": [
+    {
+     "err": 1973.1679733470264,
+     "err_post": 0.030584073508137393,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        2779,
+        3682
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "26b013c541fab764",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 849391078,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.099,
+        0.8319700001565009
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.589,
+        "t1": 0.66,
+        "targets": [
+         3682,
+         2779,
+         653
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 53.032188912510854,
+     "err_post": 0.06949970998714468,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        3262,
+        3682,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        1052,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "52f097f7972303e3",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 253354105,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.116,
+        0.7284347891761492
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.532,
+        "t1": 0.716,
+        "targets": [
+         4196,
+         1052
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.605,
+        "t1": 0.784,
+        "targets": [
+         3262,
+         3682,
+         4196,
+         1052
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "4196": 5.937517,
+        "2779": 62.760761,
+        "653": 44.892455,
+        "1052": 25.999572,
+        "3262": 62.70069
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 28.972518902349076,
+     "err_post": 0.011078670473170491,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "04237a5615b55296",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 935036344,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.114,
+        0.6864605311487207
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.608,
+        "t1": 0.952,
+        "targets": [
+         3262,
+         1052,
+         4196,
+         653
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "3682": 0.0,
+        "653": 2.669787,
+        "3262": 65.147253,
+        "1052": 28.932515
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 27.015933635445425,
+     "err_post": 0.00983863866738583,
+     "signature": [
+      [
+       "silence",
+       [
+        653
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "53505c4c33305c3d",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 102705828,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.108,
+        0.7158058492024829
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.417,
+        "t1": 0.757,
+        "targets": [
+         653
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 8.71940738718983,
+     "err_post": 2.4206767696109646,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        2779,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "52691a256f7634a8",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 452233011,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.114,
+        0.9678490421044363
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.469,
+        "t1": 0.645,
+        "targets": [
+         2779,
+         4196,
+         3262
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.538,
+        "t1": 0.863,
+        "targets": [
+         3262,
+         4196,
+         2779,
+         1052
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "4196": 34.838607,
+        "3262": 70.176704,
+        "653": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 7.979213741692732,
+     "err_post": 0.7742925831573928,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "369f95dd28c6f592",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 408326776,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.066,
+        0.9052140463244455
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.519,
+        "t1": 0.837,
+        "targets": [
+         3262,
+         3682,
+         2779,
+         4196
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.717,
+        "t1": 0.9,
+        "targets": [
+         3682,
+         1052,
+         653,
+         3262
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "3262": 18.077688,
+        "4196": 30.482599,
+        "3682": 0.0,
+        "1052": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 7.80242921489961,
+     "err_post": 2.22251401063001,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        2779,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 4,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "feb662fa4a3e9995",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 452233011,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.114,
+        0.9678490421044363
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.45,
+        "t1": 0.626,
+        "targets": [
+         2779,
+         4196,
+         3262
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.486,
+        "t1": 0.811,
+        "targets": [
+         3262,
+         4196,
+         2779,
+         1052
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "4196": 34.838607,
+        "3262": 70.176704,
+        "653": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 7.158336448510809,
+     "err_post": 0.5716940063804631,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 5,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "1d73481688a08e00",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 408326776,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.066,
+        0.9052140463244455
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.501,
+        "t1": 0.819,
+        "targets": [
+         3262,
+         3682,
+         2779,
+         4196
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.793,
+        "t1": 0.976,
+        "targets": [
+         3682,
+         1052,
+         653,
+         3262
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "3262": 18.077688,
+        "4196": 30.482599,
+        "3682": 0.0,
+        "1052": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 7.015892318748543,
+     "err_post": 1.9554141213701428,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        2779,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 5,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "16683f3ab6b1d65c",
+     "protocol": null
+    },
+    {
+     "err": 6.4984780160237365,
+     "err_post": 5.742997104288749,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "eb3f7db2f2532009",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 402242712,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.114,
+        1.346873423653848
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.446,
+        "t1": 0.681,
+        "targets": [
+         4196,
+         3262,
+         2779
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.583,
+        "t1": 0.876,
+        "targets": [
+         653,
+         3682
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 6.409055895900177,
+     "err_post": 0.4584385527882279,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 5,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "61be117836ba3ac6",
+     "protocol": null
+    },
+    {
+     "err": 6.2232693474983405,
+     "err_post": 2.032490818704492,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        2779,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "c78719f8e5b22bd5",
+     "protocol": null
+    },
+    {
+     "err": 5.982917160899401,
+     "err_post": 3.6835800223941946,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "b0c843b4dd22c90c",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 414166216,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.1,
+        1.402254772126971
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.7,
+        "t1": 0.876,
+        "targets": [
+         3682,
+         2779,
+         4196,
+         3262
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.752,
+        "t1": 0.896,
+        "targets": [
+         1052,
+         3262,
+         4196
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "4196": 42.174203,
+        "3262": 17.342874,
+        "2779": 61.758523,
+        "1052": 39.120466,
+        "3682": 52.859667
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 5.397314425084174,
+     "err_post": 1.3980157348961,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        2779,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "ce3bb6ba7ab091e0",
+     "protocol": null
+    },
+    {
+     "err": 5.251637019105726,
+     "err_post": 0.4252217297497303,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "2e4d7e02efd9da3d",
+     "protocol": null
+    },
+    {
+     "err": 4.660395102475338,
+     "err_post": 0.5383745306541422,
+     "signature": [
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "7a70725ed43c997a",
+     "protocol": {
+      "system": "real:net2:mech:3e8f8895",
+      "params_seed": 863361700,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.036,
+        0.8085931586619709
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.466,
+        "t1": 0.761,
+        "targets": [
+         2779,
+         3262,
+         3682,
+         4196
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 4.528682990764995,
+     "err_post": 1.0272506359899307,
+     "signature": [
+      [
+       "silence",
+       [
+        1052,
+        2779,
+        3262,
+        4196
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "9cd98c686a8a677d",
+     "protocol": null
+    },
+    {
+     "err": 4.2088157754582705,
+     "err_post": 0.4184849433889751,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "0b0a9d67c598ffaf",
+     "protocol": null
+    },
+    {
+     "err": 4.191932033379567,
+     "err_post": 0.23229527906068012,
+     "signature": [
+      [
+       "silence",
+       [
+        653,
+        1052,
+        3262,
+        3682
+       ]
+      ],
+      [
+       "silence",
+       [
+        2779,
+        3262,
+        3682,
+        4196
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "686725b789f5698d",
+     "protocol": null
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 2.5841822453272676
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 8.71940738718983
+    },
+    "random": {
+     "n": 3,
+     "worst": 53.032188912510854
+    },
+    "structured": {
+     "n": 3,
+     "worst": 1973.1679733470264
+    }
+   }
+  },
+  "real:net2:mech:6883ab7b": {
+   "n_searches": 12,
+   "n_scored": 0,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [],
+   "random_median": null,
+   "random_p90": null,
+   "worst": null,
+   "worst_over_random_median": null,
+   "threshold": 1.0,
+   "n_candidates": 0,
+   "n_distinct": 0,
+   "broken_immediately_fraction": 0.0,
+   "distinct_kinds": {},
+   "distinct": [],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": null
+    },
+    "evolve": {
+     "n": 3,
+     "worst": null
+    },
+    "random": {
+     "n": 3,
+     "worst": null
+    },
+    "structured": {
+     "n": 3,
+     "worst": null
+    }
+   }
+  },
+  "real:net3:full": {
+   "n_searches": 12,
+   "n_scored": 391,
+   "n_unsupported": 0,
+   "n_errors": 1,
+   "kinds_supported": [
+    "silence"
+   ],
+   "random_median": 1.0309713687639581,
+   "random_p90": 239.07303502556678,
+   "worst": 862898.6966364813,
+   "worst_over_random_median": 836976.3921485222,
+   "threshold": 478.14607005113356,
+   "n_candidates": 114,
+   "n_distinct": 78,
+   "broken_immediately_fraction": 0.5833333333333334,
+   "distinct_kinds": {
+    "silence": 113
+   },
+   "distinct": [
+    {
+     "err": 862898.6966364813,
+     "err_post": 0.0018431604946108477,
+     "signature": [
+      [
+       "silence",
+       [
+        3956
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "224d0e6ecdd5e1c7",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 159406946,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.066,
+        0.9251499318672495
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.632,
+        "t1": 0.819,
+        "targets": [
+         3956
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 364646.11449374986,
+     "err_post": 0.0013742594349971506,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "0cf956c79008d972",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 88492066,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.117,
+        0.8211272737918452
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.373,
+        "t1": 0.659,
+        "targets": [
+         4483,
+         1937
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.383,
+        "t1": 0.69,
+        "targets": [
+         1369,
+         3209,
+         998,
+         887
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 269711.804661869,
+     "err_post": 0.003460609609862576,
+     "signature": [
+      [
+       "silence",
+       [
+        3534
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "structured",
+     "hash": "e535f63c818afd90",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 638612196,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.06,
+        1.0
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.54,
+        "t1": 0.75,
+        "targets": [
+         3534
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 267105.14181861136,
+     "err_post": 0.001063370332817083,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "bc8d4eab605d4eb9",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 88492066,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.117,
+        0.8211272737918452
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.336,
+        "t1": 0.643,
+        "targets": [
+         1369,
+         3209,
+         998,
+         887
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.367,
+        "t1": 0.653,
+        "targets": [
+         4483,
+         1937
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 234412.07057111207,
+     "err_post": 0.0010844002581525572,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "d595351dbadd8dd7",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 88492066,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.117,
+        0.8211272737918452
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.342,
+        "t1": 0.628,
+        "targets": [
+         4483,
+         1937
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.345,
+        "t1": 0.652,
+        "targets": [
+         1369,
+         3209,
+         998,
+         887
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 195230.28671712274,
+     "err_post": 0.0011102885944700696,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "362244e9be20edca",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 88492066,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.117,
+        0.8211272737918452
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.327,
+        "t1": 0.613,
+        "targets": [
+         4483,
+         1937
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.346,
+        "t1": 0.653,
+        "targets": [
+         1369,
+         3209,
+         998,
+         887
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 171776.34123885148,
+     "err_post": 0.0013644055481918608,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "9b3cdf91688ec3d1",
+     "protocol": null
+    },
+    {
+     "err": 105296.8167776076,
+     "err_post": 0.0011835954055013356,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "9e0de3a70f23259a",
+     "protocol": null
+    },
+    {
+     "err": 86614.41807430322,
+     "err_post": 0.0015103360140363638,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "963546ca0016a407",
+     "protocol": null
+    },
+    {
+     "err": 64738.05685247914,
+     "err_post": 0.0012106580745310483,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "2192270b980a9037",
+     "protocol": null
+    },
+    {
+     "err": 48864.76161972588,
+     "err_post": 0.0010704034122154932,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "d1237203dfd11c40",
+     "protocol": null
+    },
+    {
+     "err": 43666.57565545119,
+     "err_post": 0.001206465364026539,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "447ee84c088b39ca",
+     "protocol": null
+    },
+    {
+     "err": 38754.54526023827,
+     "err_post": 0.0012695912724582168,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "449fcb68f319cac7",
+     "protocol": null
+    },
+    {
+     "err": 34367.340963081435,
+     "err_post": 0.001122375631448232,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "7f90de61b0f0a5c6",
+     "protocol": null
+    },
+    {
+     "err": 30135.987351277934,
+     "err_post": 0.0020738857068193857,
+     "signature": [
+      [
+       "silence",
+       [
+        3462
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "88bdb3c3dc5d31eb",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 431279432,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.029,
+        1.0444167959378996
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.431,
+        "t1": 0.53,
+        "targets": [
+         3462
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1099": 0.0,
+        "2212": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 29704.39157471191,
+     "err_post": 0.001225347106170211,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "4ca16fe317f021e3",
+     "protocol": null
+    },
+    {
+     "err": 27083.81687169414,
+     "err_post": 0.004218499384885782,
+     "signature": [
+      [
+       "silence",
+       [
+        1866,
+        2583,
+        3326,
+        3585
+       ]
+      ],
+      [
+       "silence",
+       [
+        2434,
+        4016
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "103dd2f21cd7d82f",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 764313972,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.077,
+        1.0207239298210342
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.52,
+        "t1": 0.733,
+        "targets": [
+         2583,
+         1866,
+         3585,
+         3326
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.579,
+        "t1": 0.928,
+        "targets": [
+         2434,
+         4016
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 25306.9115507117,
+     "err_post": 0.0012133388012277122,
+     "signature": [
+      [
+       "silence",
+       [
+        887,
+        998,
+        1369,
+        3209
+       ]
+      ],
+      [
+       "silence",
+       [
+        1937,
+        4483
+       ]
+      ]
+     ],
+     "n_members": 3,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "98fd3929c995b2ed",
+     "protocol": null
+    },
+    {
+     "err": 23958.339841352252,
+     "err_post": 0.002066565996694603,
+     "signature": [
+      [
+       "silence",
+       [
+        3462
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      true
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "83f82827b1204faa",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 431279432,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.029,
+        1.0444167959378996
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.433,
+        "t1": 0.532,
+        "targets": [
+         3462
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1099": 0.0,
+        "2212": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 22960.37487029706,
+     "err_post": 0.0044538682856768725,
+     "signature": [
+      [
+       "silence",
+       [
+        1866,
+        2583,
+        3326,
+        3585
+       ]
+      ],
+      [
+       "silence",
+       [
+        2434,
+        4016
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "search",
+     "hash": "583348cd888b3339",
+     "protocol": {
+      "system": "real:net3:full",
+      "params_seed": 764313972,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.077,
+        1.0207239298210342
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.548,
+        "t1": 0.761,
+        "targets": [
+         2583,
+         1866,
+         3585,
+         3326
+        ]
+       },
+       {
+        "kind": "silence",
+        "t0": 0.552,
+        "t1": 0.901,
+        "targets": [
+         2434,
+         4016
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 6381.120782921044
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 364646.11449374986
+    },
+    "random": {
+     "n": 3,
+     "worst": 862898.6966364813
+    },
+    "structured": {
+     "n": 3,
+     "worst": 269711.804661869
+    }
+   }
+  },
+  "real:net3:mech:362044b4": {
+   "n_searches": 12,
+   "n_scored": 463,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [
+    "current"
+   ],
+   "random_median": 0.9227536487138116,
+   "random_p90": 7.439111225255205,
+   "worst": 54778.568067649794,
+   "worst_over_random_median": 59364.23892119353,
+   "threshold": 14.87822245051041,
+   "n_candidates": 75,
+   "n_distinct": 60,
+   "broken_immediately_fraction": 0.5,
+   "distinct_kinds": {
+    "current": 103
+   },
+   "distinct": [
+    {
+     "err": 54778.568067649794,
+     "err_post": 0.03883950280806227,
+     "signature": [
+      [
+       "current",
+       [
+        1215
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "20f685b250afbcda",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 286560104,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.098,
+        0.7940783486244748
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.408,
+        "t1": 0.461,
+        "targets": {
+         "1215": -22.06143
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2514": 11.370205,
+        "1215": 39.060978
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 24950.09145470585,
+     "err_post": 0.05283391597488426,
+     "signature": [
+      [
+       "current",
+       [
+        1215
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "06d6bb1158d43bf5",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 286560104,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.098,
+        0.7940783486244748
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.439,
+        "t1": 0.492,
+        "targets": {
+         "1215": -22.689192
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2514": 11.370205,
+        "1215": 39.060978
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 3157.9570171917594,
+     "err_post": 0.7135836449364241,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "6169f4e41444bd53",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 104408280,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.105,
+        1.4100899524329984
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.656,
+        "t1": 0.803,
+        "targets": {
+         "2514": 16.186142,
+         "1351": 75.713496
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.84,
+        "t1": 0.89,
+        "targets": {
+         "2514": 19.071583,
+         "1351": 11.55605
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1215": 70.153281,
+        "2514": 108.903691
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 2554.0721592412197,
+     "err_post": 0.4418849852870734,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "32bb47575f0cf141",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 104408280,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.105,
+        1.4100899524329984
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.643,
+        "t1": 0.79,
+        "targets": {
+         "2514": 12.504528,
+         "1351": 52.403031
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.84,
+        "t1": 0.89,
+        "targets": {
+         "2514": 18.744683,
+         "1351": 12.590754
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1215": 70.153281,
+        "2514": 108.903691
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1668.56098864549,
+     "err_post": 0.42541601354224656,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "d1b09364252bb38d",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 104408280,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.105,
+        1.4100899524329984
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.66,
+        "t1": 0.807,
+        "targets": {
+         "2514": 14.947834,
+         "1351": 51.413003
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.831,
+        "t1": 0.881,
+        "targets": {
+         "2514": 9.146012,
+         "1351": 11.364918
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1215": 70.153281,
+        "2514": 108.903691
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1411.289470826297,
+     "err_post": 0.6978102954785473,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "e380ebf9e2cb0ce3",
+     "protocol": null
+    },
+    {
+     "err": 776.2763765641131,
+     "err_post": 0.04603347960796642,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": false,
+     "phase": "bo",
+     "hash": "d84bbb325b94e0bf",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 492438365,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.036,
+        0.680313530822528
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.583,
+        "t1": 0.631,
+        "targets": {
+         "2514": -9.477879,
+         "1251": -9.477879
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 740.788866018852,
+     "err_post": 0.2936944716624395,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "403dbc1d840d92b5",
+     "protocol": null
+    },
+    {
+     "err": 642.5914237167667,
+     "err_post": 0.304496842064814,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "69cc21538b47b60a",
+     "protocol": null
+    },
+    {
+     "err": 541.9483721973513,
+     "err_post": 0.28313661591170997,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "0fbefe1d5462efa6",
+     "protocol": null
+    },
+    {
+     "err": 480.9750541819963,
+     "err_post": 0.03830012528567395,
+     "signature": [
+      [
+       "current",
+       [
+        1215
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "c7abd38cb953f8bb",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 286560104,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.098,
+        0.7940783486244748
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.406,
+        "t1": 0.459,
+        "targets": {
+         "1215": -20.322886
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2514": 11.370205,
+        "1215": 39.060978
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 472.22813857923205,
+     "err_post": 0.28452652861590366,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "ec3702c498f6d6d0",
+     "protocol": null
+    },
+    {
+     "err": 391.17176914760165,
+     "err_post": 0.3085318896159367,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 6,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "3b2298b615fb703c",
+     "protocol": null
+    },
+    {
+     "err": 362.3636140873683,
+     "err_post": 0.43051131173673857,
+     "signature": [
+      [
+       "current",
+       [
+        1215
+       ]
+      ],
+      [
+       "current",
+       [
+        1215,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true,
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "bb3b786466539e7f",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 705226372,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.096,
+        1.3175958644519845
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.641,
+        "t1": 0.726,
+        "targets": {
+         "1215": 10.173071
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.649,
+        "t1": 0.803,
+        "targets": {
+         "1215": -15.310095,
+         "2514": -31.159398
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "2514": 0.0,
+        "1251": 0.0,
+        "1351": 0.0,
+        "1215": 0.0
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 333.45730812236434,
+     "err_post": 0.22185171460391057,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "1a3641f6d1c43c32",
+     "protocol": null
+    },
+    {
+     "err": 306.41431795142273,
+     "err_post": 0.1691947769661102,
+     "signature": [
+      [
+       "current",
+       [
+        1215,
+        1351
+       ]
+      ],
+      [
+       "current",
+       [
+        1215,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "9b49f6e4fca2f9e6",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 158556603,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.013,
+        0.5631418753622441
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.605,
+        "t1": 0.652,
+        "targets": {
+         "1215": -39.961845,
+         "2514": -27.764592
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.609,
+        "t1": 0.669,
+        "targets": {
+         "1351": 13.723661,
+         "1215": 23.1022
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1351": 8.897564,
+        "1215": 0.0,
+        "1251": 95.357528
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 294.77251664394504,
+     "err_post": 0.2645026093872775,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "df1c2d2602461201",
+     "protocol": null
+    },
+    {
+     "err": 265.54876376261853,
+     "err_post": 0.06144482484999007,
+     "signature": [
+      [
+       "current",
+       [
+        1251
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "86753c79359d6036",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 974044384,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.048,
+        0.582813426505191
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.52,
+        "t1": 0.554,
+        "targets": {
+         "1251": 39.260032
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1251": 29.803694,
+        "1351": 7.136934,
+        "1215": 20.863663,
+        "2514": 33.397525
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 236.85541615481813,
+     "err_post": 0.5122843168350522,
+     "signature": [
+      [
+       "current",
+       [
+        1215,
+        1351
+       ]
+      ],
+      [
+       "current",
+       [
+        1251,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": false,
+     "phase": "random",
+     "hash": "83de62936891af05",
+     "protocol": {
+      "system": "real:net3:mech:362044b4",
+      "params_seed": 523922339,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.048,
+        1.4884274485254818
+       ]
+      ],
+      "events": [
+       {
+        "kind": "current",
+        "t0": 0.368,
+        "t1": 0.394,
+        "targets": {
+         "2514": -38.499614,
+         "1251": -9.847712
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.523,
+        "t1": 0.647,
+        "targets": {
+         "1351": -38.466973,
+         "1215": -31.920015
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 208.81819819149365,
+     "err_post": 0.3090010183391525,
+     "signature": [
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ],
+      [
+       "current",
+       [
+        1351,
+        2514
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "53daec89701090ff",
+     "protocol": null
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 776.2763765641131
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 54778.568067649794
+    },
+    "random": {
+     "n": 3,
+     "worst": 265.54876376261853
+    },
+    "structured": {
+     "n": 3,
+     "worst": 362.3636140873683
+    }
+   }
+  },
+  "real:net3:mech:92614efe": {
+   "n_searches": 12,
+   "n_scored": 466,
+   "n_unsupported": 0,
+   "n_errors": 0,
+   "kinds_supported": [
+    "current",
+    "kick",
+    "silence"
+   ],
+   "random_median": 0.631595211868631,
+   "random_p90": 2.0555747224907184,
+   "worst": 1733.1098578577764,
+   "worst_over_random_median": 2744.019943929302,
+   "threshold": 4.111149444981437,
+   "n_candidates": 74,
+   "n_distinct": 56,
+   "broken_immediately_fraction": 0.6666666666666666,
+   "distinct_kinds": {
+    "kick": 56,
+    "current": 19,
+    "silence": 12
+   },
+   "distinct": [
+    {
+     "err": 1733.1098578577764,
+     "err_post": 0.367169033459543,
+     "signature": [
+      [
+       "kick",
+       [
+        1251,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "093daf8dd1f2706b",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 664456296,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.019,
+        0.666775105373763
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.557,
+        "delta": {
+         "1251": 12.869446,
+         "3959": 29.70608
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1251": 16.320433,
+        "1351": 6.259356
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 1257.0728708614954,
+     "err_post": 0.22317619434233374,
+     "signature": [
+      [
+       "kick",
+       [
+        1351
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "bo",
+     "hash": "63aa77613beb3384",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 608062929,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.039,
+        0.62021588252626
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.586,
+        "delta": {
+         "1351": 7.045084
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 997.196156844545,
+     "err_post": 1.1842812672737353,
+     "signature": [
+      [
+       "kick",
+       [
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "structured",
+     "hash": "6fcb83a22147d7fc",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 446914558,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.06,
+        1.0
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.54,
+        "delta": {
+         "3959": -30.0
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 442.72046360763716,
+     "err_post": 0.3606042320605661,
+     "signature": [
+      [
+       "kick",
+       [
+        1351
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "bo",
+     "hash": "01fd2106345ebdc1",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 608062929,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.039,
+        0.7071066769644979
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.652,
+        "delta": {
+         "1351": 5.121674
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 233.32464291103184,
+     "err_post": 0.28736163741511594,
+     "signature": [
+      [
+       "kick",
+       [
+        1251,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "bf9de8e0d209369b",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 664456296,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.019,
+        0.666775105373763
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.561,
+        "delta": {
+         "1251": 11.768326,
+         "3959": 18.40851
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1251": 16.320433,
+        "1351": 6.259356
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 196.30755014390286,
+     "err_post": 0.2853150283006999,
+     "signature": [
+      [
+       "kick",
+       [
+        1251,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "39c725ce0b6f35f7",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 664456296,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.019,
+        0.666775105373763
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.551,
+        "delta": {
+         "1251": 11.783829,
+         "3959": 17.88605
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1251": 16.320433,
+        "1351": 6.259356
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 157.99043258503795,
+     "err_post": 0.3778201832746689,
+     "signature": [
+      [
+       "kick",
+       [
+        1251,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "7fd85989b2bda3ba",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 664456296,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.019,
+        0.666775105373763
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.574,
+        "delta": {
+         "1251": 15.410738,
+         "3959": 30.495483
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1251": 16.320433,
+        "1351": 6.259356
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 99.09092665369317,
+     "err_post": 0.33452120468629964,
+     "signature": [
+      [
+       "kick",
+       [
+        1251,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "3bd237cbdef7a4c2",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 664456296,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.019,
+        0.666775105373763
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.581,
+        "delta": {
+         "1251": 14.841018,
+         "3959": 25.840291
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1251": 16.320433,
+        "1351": 6.259356
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 85.55698020759608,
+     "err_post": 12.794170094558021,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "025d215d5ec63a5f",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 495912184,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.035,
+        1.3938864885997617
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.398,
+        "delta": {
+         "3959": -4.816808,
+         "1351": -138.725557
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.545,
+        "t1": 0.702,
+        "targets": {
+         "3959": 22.633247,
+         "1251": 8.274521
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1351": 6.732623,
+        "1251": 3.678205
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 66.07228025755836,
+     "err_post": 7.861753080712084,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "e17c81c245a06532",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 495912184,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.035,
+        1.3938864885997617
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.412,
+        "delta": {
+         "3959": -5.035438,
+         "1351": -104.632541
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.615,
+        "t1": 0.772,
+        "targets": {
+         "3959": 26.601243,
+         "1251": 5.095335
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1351": 6.732623,
+        "1251": 3.678205
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 54.955265619954865,
+     "err_post": 0.41622391325126723,
+     "signature": [
+      [
+       "kick",
+       [
+        1251,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "a4636703ab9eacc8",
+     "protocol": null
+    },
+    {
+     "err": 53.71033293912984,
+     "err_post": 5.316981327772128,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "c07352e94838372f",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 495912184,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.035,
+        1.3938864885997617
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.388,
+        "delta": {
+         "3959": -4.783112,
+         "1351": -88.640811
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.638,
+        "t1": 0.795,
+        "targets": {
+         "3959": 19.213239,
+         "1251": 11.157215
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1351": 6.732623,
+        "1251": 3.678205
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 46.98556276787795,
+     "err_post": 3.6295499735761156,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "86cbaa3742ac4021",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 495912184,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.035,
+        1.3938864885997617
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.401,
+        "delta": {
+         "3959": -4.087898,
+         "1351": -66.452505
+        }
+       },
+       {
+        "kind": "current",
+        "t0": 0.623,
+        "t1": 0.78,
+        "targets": {
+         "3959": 21.59225,
+         "1251": 8.806164
+        }
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "1351": 6.732623,
+        "1251": 3.678205
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 46.86031774210757,
+     "err_post": 0.9661866292460015,
+     "signature": [
+      [
+       "kick",
+       [
+        1251
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      true
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "011faeeb181881cc",
+     "protocol": null
+    },
+    {
+     "err": 40.65116714665663,
+     "err_post": 5.139447791996342,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 2,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "0be491cac7e8c4c5",
+     "protocol": null
+    },
+    {
+     "err": 31.280532673814246,
+     "err_post": 7.069020116599475,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "8827aea2f3210e02",
+     "protocol": null
+    },
+    {
+     "err": 28.87771017591349,
+     "err_post": 0.05445349460849984,
+     "signature": [
+      [
+       "silence",
+       [
+        1251,
+        1351
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false
+     ],
+     "init_state": true,
+     "phase": "random",
+     "hash": "68eda4a50f8ae60a",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 656411521,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.104,
+        0.8602330383039647
+       ]
+      ],
+      "events": [
+       {
+        "kind": "silence",
+        "t0": 0.47,
+        "t1": 0.786,
+        "targets": [
+         1351,
+         1251
+        ]
+       }
+      ],
+      "r0": {
+       "kind": "state",
+       "values": {
+        "3959": 2.984846,
+        "1351": 4.507938
+       }
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 27.68112585961491,
+     "err_post": 4.600147633214574,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 4,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "d683028a8f4e1378",
+     "protocol": null
+    },
+    {
+     "err": 24.47094736217028,
+     "err_post": 0.5675808552119602,
+     "signature": [
+      [
+       "kick",
+       [
+        1351
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      true
+     ],
+     "init_state": false,
+     "phase": "structured",
+     "hash": "b48343b4082ed98a",
+     "protocol": {
+      "system": "real:net3:mech:92614efe",
+      "params_seed": 490906266,
+      "t_end": 1.2,
+      "dt": 0.001,
+      "stimulus": [
+       [
+        0.0,
+        0.0
+       ],
+       [
+        0.06,
+        1.0
+       ]
+      ],
+      "events": [
+       {
+        "kind": "kick",
+        "t": 0.54,
+        "delta": {
+         "1351": -30.0
+        }
+       }
+      ],
+      "r0": {
+       "kind": "zero"
+      },
+      "weight_noise": null
+     }
+    },
+    {
+     "err": 24.390805192052973,
+     "err_post": 5.032464553695813,
+     "signature": [
+      [
+       "current",
+       [
+        1251,
+        3959
+       ]
+      ],
+      [
+       "kick",
+       [
+        1351,
+        3959
+       ]
+      ]
+     ],
+     "n_members": 1,
+     "in_family": [
+      false,
+      false
+     ],
+     "init_state": true,
+     "phase": "search",
+     "hash": "620a25fdba917be1",
+     "protocol": null
+    }
+   ],
+   "by_strategy": {
+    "bo": {
+     "n": 3,
+     "worst": 1257.0728708614954
+    },
+    "evolve": {
+     "n": 3,
+     "worst": 1733.1098578577764
+    },
+    "random": {
+     "n": 3,
+     "worst": 28.87771017591349
+    },
+    "structured": {
+     "n": 3,
+     "worst": 997.196156844545
+    }
+   }
+  }
+ },
+ "overall": {
+  "n_systems": 10,
+  "n_systems_with_counterexamples": 7,
+  "n_distinct_total": 430,
+  "median_worst_over_random_median": 836976.3921485222,
+  "systems_broken_immediately": 5
+ }
+}
