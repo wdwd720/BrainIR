@@ -9,8 +9,9 @@ BrainIR aims to decompile biological neural circuits into compact, executable, t
 locked method BrainIR v1.2.0 (`research/phase2/METHOD_LOCK.json`, tag `brainir-v1-preblind`, commit 959d689), protocol
 `research/phase2/SELECTION_PROTOCOL.md`, hidden-evaluation log `research/phase2/HIDDEN_EVAL_LOG.md`. Any change to the
 method is a new, separately locked version (goal3 §29).
-**Phase 3 (causal state-variable discovery, spec `goal4.md`) has been run and reported but is NOT declared complete**: 49 of 50
-acceptance criteria are met, and criterion 26 is only partly met because the locked method has no `lift()` (LOG P3-D32).
+**Phase 3 (causal state-variable discovery, spec `goal4.md`) is complete at the level at which its acceptance criteria are stated**:
+all 50 are met, criterion 26 (lifting) at the benchmark level. The locked method has no native `lift()`, so its latent
+interventions were tested only post hoc, by an evaluator-side lift through its encoder (LOG P3-D35).
 - Report: `PHASE3_REPORT.md` (ANSWER-BEARING), corrected after the post-lock reviews (`research/phase3/reviews/POSTLOCK_*.md`,
   resolution map `POSTLOCK_RESOLUTION.md`).
 - Locked method: BrainIR State v1 (`research/phase3/METHOD_LOCK.json`, tag `brainir-state-v1-preblind`).

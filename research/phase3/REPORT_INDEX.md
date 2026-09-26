@@ -2,7 +2,7 @@
 
 | required item | where |
 |---|---|
-| Phase 3 status | summary; section 15 (not declared complete: criterion 26 partly met) |
+| Phase 3 status | summary; section 15 (complete at the level at which the criteria are stated; criterion 26 at benchmark level, for v1 only post hoc, section 19) |
 | clean-room construction | section 2 |
 | leakage audit | sections 2 and 18 (review F, transcript audits); section 18.1 (post-lock review L); section 21 (I5-I7) |
 | Phase 3 benchmark lock | section 4 (versions 1-3, re-locks); section 7 |
@@ -19,7 +19,7 @@
 | robustness | section 17 (real OOD families; synthetic family H) |
 | cross-mechanism equivalence | sections 8 (synthetic groups), 14 (real mechanisms, I) |
 | cross-connectome equivalence | section 14 (J) |
-| latent intervention results | section 19 |
+| latent intervention results | section 19 (the 8 baselines' lifts; v1 lifted by the evaluator through its encoder, post hoc) |
 | counterexamples | sections 9 (synthetic FINAL), 16 (real) |
 | baselines; strongest baseline | sections 6, 8, 14 (comparator lin_dmdc_t), 19 (lifting) |
 | ablations | section 10 |

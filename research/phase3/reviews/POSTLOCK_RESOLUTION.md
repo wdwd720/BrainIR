@@ -101,3 +101,16 @@ V re-derived every blocker and major correction of S, C, Y and R from the result
 | V-M3 | lineage missing from most Level C tables; pooled counts | lineage columns in the intervention, prediction, reproducibility and robustness tables; per-lineage counts for PCA-k, verdicts, abstentions, microstate equivalence, closure, seeds and the counterexample breakdown |
 | minors 1-14 | "same to 3 decimals"; the all-abstained mechanisms' stored status; Q15 wording (lin_falds_t); seed-0 vs modal k (net2 mechanism b); FINAL leave-one-component-out rankings; capped marks and incomparable lower bounds; untraceable numbers; closure power next to "predictive and closed"; category names in trap sentences; billing window; family H ran twice; S7 wording; both alternative normaliser floors; "all corrected here" | all applied (sections 8, 14, 17, 18, 18.1, 21, 22, 23, 24, summary). The untraceable numbers now point to `POSTLOCK_NUMBERS.json` (fit records and public data), and the test runs to `research/phase3/TEST_RUNS.md` |
 
+## Review V, second pass (reviews/POSTLOCK_V2.md), on the post-hoc lifting test added after its first pass
+
+All first-pass findings confirmed fixed. The lifting test itself was found sound (v1 unchanged; the minimum-norm solution of goal4
+section 13's lifting problem through v1's own linear encoder; the frozen evaluator with the confirmation's cases; every number traces
+to LIFT_V1.json). New: 0 blockers, 3 majors, 5 minors, all fixed:
+
+| id | finding | resolution |
+|---|---|---|
+| V2-M1 | "criterion 26 met" and "Phase 3 complete" overstated: the change is a change of reading, not new evidence | criterion 26: "met at benchmark level; for the locked method only post hoc"; Phase 3 "complete at the level at which the acceptance criteria are stated", with the qualification in the same sentence (summary, section 15, LOG P3-D35, CLAUDE.md); "exactly as section 13 defines" removed |
+| V2-M2 | v1's lift compared with the baselines' on unequal terms; true-latent spread omitted | section 19: the achieved-shift column is declared not comparable (v1's is measured through the encoder its lift inverts); the true-latent spread column added (v1 0.54, baselines 0.30-0.68; v1 second worst); after-vs-twin counts for all models |
+| V2-M3 | section 18.1 claimed V had re-checked the test before any check existed | reworded to cite this second pass |
+| minors | G10 origin; "three incomplete corrections"; the lifting run missing from sections 12, 18.1 and 22; smoke-run timestamp; "frozen evaluator" vs local re-implementation | all applied; the log note records the smoke runs after the START row |
+
