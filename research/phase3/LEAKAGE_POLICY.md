@@ -108,6 +108,12 @@ Level B fits and evaluations, the reference controls and the calibration run on 
     hidden`). Fit containers never mount the eval volume;
   - evaluation containers read them under the same guard as the synthetic held-out suites;
   - counterexample searches with HIDDEN real parameter draws run locally only (`counterexamples.py` refuses Modal for them).
+- **Host-gated generation (LOG P3-D26, 2026-09-25, after the method lock, before the hidden data existed).**
+  - The hidden real data are generated on Modal by the frozen generator through `scripts/p3/hidden_gen_gate.py`, only on hosts
+    without AVX-512, whose BLAS kernels are those of the development machine.
+  - The data paths are unchanged: the salt stays local; records and the dataset are written to the eval volume only; the local copy
+    is downloaded with the frozen transfer check.
+  - The gate's public check is `hidden_generator_modal_gated_verification.json`.
 
 ### 3.2 Remote runner for clean-room development experiments (LOG P3-D23, 2026-09-25)
 

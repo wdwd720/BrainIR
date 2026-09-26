@@ -50,3 +50,16 @@ tuned-variant parts of that first launch were stopped before writing results.
 | 2026-09-26T00:32:25Z | r3v3_lin_falds_t | heldout | lin_falds_t | research/phase3/tournament/r3v3_lin_falds_t/ |
 | 2026-09-26T01:13:15Z | r3v3_nn_aelin_t | heldout | nn_aelin_t | research/phase3/tournament/r3v3_nn_aelin_t/ |
 | 2026-09-26T01:26:03Z | r3v3_brainir_state_v1 | heldout | brainir_state_v1 | research/phase3/tournament/r3v3_brainir_state_v1/ |
+| 2026-09-26T02:08:53Z | final_b_lin_dmdc_t | final | lin_dmdc_t | research/phase3/tournament/final_b_lin_dmdc_t/ |
+| 2026-09-26T02:15:54Z | final_b_ks_hankel_t | final | ks_hankel_t | research/phase3/tournament/final_b_ks_hankel_t/ |
+| 2026-09-26T02:18:48Z | final_b_ks_hankel | final | ks_hankel | research/phase3/tournament/final_b_ks_hankel/ |
+| 2026-09-26T02:22:28Z | final_b_lin_falds | final | lin_falds | research/phase3/tournament/final_b_lin_falds/ |
+| 2026-09-26T02:23:45Z | final_b_lin_pcadyn | final | lin_pcadyn | research/phase3/tournament/final_b_lin_pcadyn/ |
+| 2026-09-26T02:25:14Z | final_b_brainir_state_v1 | final | brainir_state_v1 | research/phase3/tournament/final_b_brainir_state_v1/ |
+| 2026-09-26T02:25:33Z | final_b_lin_pcadyn_t | final | lin_pcadyn_t | research/phase3/tournament/final_b_lin_pcadyn_t/ |
+| 2026-09-26T02:25:53Z | final_b_lin_dmdc | final | lin_dmdc | research/phase3/tournament/final_b_lin_dmdc/ |
+| 2026-09-26T02:27:42Z | final_b_nn_seqbottleneck | final | nn_seqbottleneck | research/phase3/tournament/final_b_nn_seqbottleneck/ |
+| 2026-09-26T02:37:49Z | final_b_lin_falds_t | final | lin_falds_t | research/phase3/tournament/final_b_lin_falds_t/ |
+| 2026-09-26T02:42:29Z | final_b_nn_aelin | final | nn_aelin | research/phase3/tournament/final_b_nn_aelin/ |
+| 2026-09-26T02:43:25Z | final_b_nn_rssm | final | nn_rssm | research/phase3/tournament/final_b_nn_rssm/ |
+| 2026-09-26T02:49:43Z | final_b_nn_aelin_t | final | nn_aelin_t | research/phase3/tournament/final_b_nn_aelin_t/ |

@@ -298,4 +298,134 @@ The symmetry-hidden mode of G1 (k = 4) is found only by lin_dmdc; the others cho
 compact state there. The verdict's conditions certify sufficiency on the tested horizons and interventions, NOT the minimality or
 correctness of k.
 
-<!-- composer, round 3, selection: filled after round 3 -->
+**The composer's hybrid (brainir_state_v1).** A separate oracle-free agent composed the final candidate from the aggregate round-1 and
+round-2 feedback (never per-system results, never reviewer findings; later requirements were relayed as generic items only). Its
+design, objective and dimension rule are in `research/phase3/METHOD_NOTES.md` (the developer's notes, locked and hash-checked):
+- ks_sindy's model: a linear causal encoder on delay features, fitted as a reduced-rank predictive basis;
+- an E-SINDy integral-form transition law and a polynomial readout;
+- event operators that act through the encoder's current-sample block, with per-kind gains calibrated on training events;
+- replacements where ks_sindy was weak: the nn family's plateau tolerance for k (rebuilt after the pre-lock reviews with nested
+  configuration choice and a cross-fitted reference error) and its input-floor abstention;
+- a k sweep that continues past 8 while the error still falls;
+- an internal held-out sharing test;
+- honest per-kind support, so the method abstains where no calibrated evidence exists.
+
+On public data the developer found the rebuilt rule roughly neutral against the tournament version and stated it.
+
+**Level B round 3 under benchmark version 3** (`research/phase3/tournament/r3v3/`). The round used the round-2 design and 19 parts,
+one Modal app each, in parallel. The longest part took 53 min; from the first launch to the decision took about 1.8 h, including
+relaunches after network failures and the composer's late part. The round cost about $25.7 (48.7 container-hours):
+- the 10 round-2 finalists, re-scored from byte-identical round-2 fits;
+- the 3 pilot-eliminated baselines;
+- the 5 independently tuned baseline variants;
+- brainir_state_v1, fitted in full.
+
+Six methods are ineligible because each failed 18 shared or leave-one-out fits (they cannot share by design): cb_cegar, ks_edmd,
+ks_hankel, ks_hankel_t, nn_rssm and nn_seqbottleneck. Primary ranking of the 13 eligible methods (S1-S8, over the 46 compressible
+heldout systems):
+
+| rank | method | S1 A/A_full | S2 C | S3 D | S4 E | S5 K | S6 exact k | S7 abst. | S8 | mean rank | P(rank 1) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | **brainir_state_v1** | 0.959 | **0.507** | 0.022 | 0.0018 | 0.985 | **0.652** | 0.728 | 0.5 | **5.00** | **0.519** |
+| 2 | lin_dmdc_t (baseline, tuned) | 1.079 | 0.657 | 0.017 | 0.0016 | 0.993 | 0.370 | 0.902 | 0.5 | 5.50 | 0.063 |
+| 3 | lin_subspace | 0.999 | 0.520 | 0.023 | 0.0018 | 0.990 | 0.630 | 0.457 | 0.5 | 5.81 | 0.151 |
+| 4 | lin_dmdc (baseline) | 1.079 | 0.657 | 0.017 | 0.0016 | 0.993 | 0.370 | 0.902 | 0.5 | 5.88 | 0.094 |
+| 4 | lin_falds (baseline) | 1.157 | 0.561 | 0.020 | **0.0011** | 0.985 | 0.478 | 0.891 | 0.5 | 5.88 | 0.135 |
+| 6 | nn_closed | **0.938** | 0.768 | 0.030 | 0.0023 | 0.978 | 0.565 | 0.978 | 0.5 | 6.62 | 0.029 |
+| 7 | lin_pcadyn (baseline) | 1.053 | 0.710 | **0.017** | 0.0015 | 0.966 | 0.239 | 0.848 | 0.5 | 6.88 | 0.003 |
+| 8 | lin_pcadyn_t | 1.053 | 0.710 | 0.017 | 0.0015 | 0.966 | 0.239 | 0.848 | 0.5 | 7.00 | 0.001 |
+| 9 | lin_balanced | 1.027 | 0.680 | 0.025 | 0.0024 | **0.993** | 0.413 | 0.500 | 0.5 | 7.25 | 0.004 |
+| 10 | ks_sindy | 0.969 | 0.605 | 0.022 | 0.0017 | 0.946 | 0.500 | 0.696 | 0.167 | 7.62 | 0.000 |
+| 11 | nn_aelin (baseline) | 1.095 | 0.958 | 0.033 | 0.0028 | 0.981 | 0.630 | **0.989** | 0.5 | 7.75 | 0.000 |
+| 12 | nn_aelin_t | 1.095 | 0.965 | 0.034 | 0.0032 | 0.980 | 0.609 | 0.989 | 0.5 | 8.31 | 0.001 |
+| 13 | lin_falds_t | 1.052 | 1.266 | 0.038 | 0.0032 | 0.837 | 0.087 | 0.739 | 0.333 | 11.50 | 0.000 |
+
+**Selection (pre-registered rule, `ROUND_DECISION.json`).** brainir_state_v1 is selected because its bootstrap P(rank 1) = 0.519 is
+at least 0.5. The margin is narrow:
+- its 90 % rank interval is [1, 5];
+- leaving out one profile component at a time, it stays first in 5 of 8 cases. It is 4th without S1 (lin_falds first), 2nd without
+  S2 (lin_dmdc_t first) and 3rd without S6 (lin_dmdc_t first).
+
+So its advantage rests on held-out intervention fidelity (S2) and exact dimension (S6), not on prediction.
+
+**Comparator.** lin_dmdc_t is the best of the 8 eligible baselines on S1-S5. nn_aelin, nn_aelin_t, nn_rssm and nn_seqbottleneck fail
+the Markov / rollout-consistency check on more than 10 % of the systems. lin_dmdc_t is lin_dmdc with its wall-clock branch removed
+(the tuner's determinism-only variant): identical k and verdicts on all 46 systems and profiles equal to about 1e-14. The order
+between the two was set by float-level differences and has no consequence; the deterministic variant is the one the protocol's
+determinism rule asks for.
+
+**Failures of the selected method in round 3.** All 7 leave-one-implementation-out ADAPTATION fits of the two implementation groups
+failed. The cause is a deterministic error in the method's own adaptation code: when its internal sharing test rejects sharing, the
+source model holds independent laws of different k, and averaging their latent covariances fails. For both groups the returned
+"shared" model equals the independent fits, so its sharing verdict is "untestable" there (S8 = 0.5, the same as every other
+sharing-capable method). One descriptive evaluation of an unrelated pair also failed. These count as failures (8 of 204 units) and
+were neither retried nor fixed: a fix after this round would have given the selected method a second chance that no other
+participant had.
+
+**The tuned baselines.** Only lin_falds_t differed materially from its original. Its dev-suite gain did not carry over: on the heldout
+suite it ranks last (S2 1.27, S6 0.09). lin_dmdc_t and lin_pcadyn_t reproduce their originals, ks_hankel_t differs only in S3 at the
+third digit, and nn_aelin_t is marginally worse.
+
+## 7. Method lock (goal4 sections 57, 86)
+
+- Locked on 2026-09-26 01:32 UTC: tag `brainir-state-v1-preblind`, commit bce6dbf, recording the lock at commit 6c7c2cd.
+- `research/phase3/METHOD_LOCK.json` holds:
+  - source hashes of the 30 files of the methods package (byte-identical to the scored round-3 snapshot and to the clean room at
+    lock time);
+  - the benchmark lock and clean-room manifest hashes, and the training-data manifests;
+  - the default configuration, the developer's full notes (METHOD_NOTES.md, hash-checked), seeds, budgets and the package
+    environment.
+- At the lock, the FINAL synthetic suite had never been used and no hidden real data existed (self-audit I9).
+- Integrity at the lock: the Phase 1 freeze check, the Phase 2 method-lock check, the Phase 3 benchmark-lock check and
+  `method_lock_p3.py --check` all pass.
+- Self-audit I3 fails as written, and this is disclosed rather than patched. The check compares the working benchmark lock with the
+  copy at tag `state-discovery-benchmark-v3`, but the two logged execution-only re-locks rewrote the lock file after that tag. The
+  property it tests holds: the re-lock-2 tag holds the current lock file exactly, the freeze check passes, and the salt matches its
+  commitment.
+
+## 8. Level B confirmation on the FINAL synthetic suite (hidden; run once after the lock)
+
+**Design.** The FINAL suite has 48 systems (46 compressible, 2 non-compressible controls), secret seeds, 3x the test trajectories
+and the round-2 design (G seeds on 8 systems, sharing groups and unrelated pairs with leave-one-out fits). The locked method and all
+12 declared baselines and tuned variants were run once, as 13 parallel parts on Modal (12 GiB containers; measured peak 2.7 GB).
+The per-part directories are `final_b_<method>/`, merged in `research/phase3/tournament/final_b/`. It cost about $54.8, and nothing
+was selected on this suite.
+
+**Ranking on the aggregate profile (9 eligible; descriptive).**
+
+| rank | method | S1 A/A_full | S2 C | S3 D | S4 E | S5 K | S6 exact k | S7 abst. | S8 | mean rank | P(rank 1) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | lin_dmdc_t (comparator) | 1.34 | **0.477** | **0.014** | 0.0018 | **0.991** | 0.348 | 0.859 | 0.5 | **3.44** | **0.37** |
+| 2 | lin_dmdc | 1.34 | 0.477 | 0.014 | 0.0018 | 0.991 | 0.348 | 0.859 | 0.5 | 3.94 | 0.17 |
+| 3 | **brainir_state_v1** | **0.997** | 0.483 | 0.031 | 0.0018 | 0.987 | 0.587 | 0.739 | 0.5 | 4.38 | 0.25 |
+| 4 | lin_falds | 1.42 | 0.545 | 0.017 | **0.0013** | 0.973 | 0.413 | 0.924 | 0.5 | 4.62 | 0.16 |
+| 5 | nn_aelin | 1.13 | 0.953 | 0.036 | 0.0028 | 0.979 | **0.783** | **0.978** | 0.5 | 4.81 | 0.02 |
+| 6 | nn_aelin_t | 1.13 | 0.953 | 0.036 | 0.0028 | 0.979 | 0.783 | 0.978 | 0.5 | 5.06 | 0.01 |
+| 7 | lin_pcadyn_t | 1.27 | 0.484 | 0.018 | 0.0019 | 0.955 | 0.239 | 0.837 | 0.5 | 5.75 | 0.01 |
+| 8 | lin_pcadyn | 1.27 | 0.484 | 0.018 | 0.0019 | 0.955 | 0.239 | 0.837 | 0.5 | 5.88 | 0.02 |
+| 9 | lin_falds_t | 1.16 | 1.10 | 0.019 | 0.0021 | 0.814 | 0.152 | 0.804 | 0.5 | 7.12 | 0.00 |
+
+Ineligible (18 failed shared / leave-one-out fits each): ks_hankel, ks_hankel_t, nn_rssm, nn_seqbottleneck.
+
+**The selection did not replicate as a ranking.** On the heldout suite brainir_state_v1 ranked first with P(rank 1) = 0.52. On the
+unbiased FINAL suite it ranks third (P(rank 1) = 0.25) behind the comparator and its twin. The pattern is consistent with the
+winner's curse of a narrow selection. Against the comparator, component by component:
+- **better:** S1, prediction relative to the full-state model (0.997 against 1.34; it is the only method near the full-state bound);
+- **better:** S6, exact k (27 of 46 against 16 of 46);
+- **tied:** S2, held-out interventions (0.483 against 0.477), and S4, microstate equivalence;
+- **worse:** S3, residual microstate gain (0.031 against 0.014);
+- **worse:** S5, latent recovery (0.987 against 0.991);
+- **worse:** S7, abstention (0.739 against 0.859).
+
+**The locked method on the FINAL suite (46 compressible systems):**
+- the Markov / rollout-consistency check passes on 46 of 46;
+- verdicts: "compact causal state discovered" on 19 (2 with microstate equivalence untestable), "partially supported" on 12, "not
+  supported" on 15;
+- conditions met: predictive 32, interventional 24, closed 36, microstate-equivalent 34 (E testable on 40), state-mediated
+  intervention effects 27;
+- dimension: exact k on 27, under-estimated on 3, over-estimated on 16;
+- abstention: 1 of the 2 non-compressible controls; 1 false alarm among the 46 compressible systems (2 %). On 52 % of all systems it
+  neither abstains nor meets the interventional and closed conditions (the "confident-wrong" rate of family L);
+- seeds (G, 8 systems x 3 seeds): the same k on 4 of 8; latent agreement min(R^2 both ways) 0.69-1.00;
+- sharing: neither implementation group is supported (one untestable, one rejected); all 3 unrelated pairs are rejected (S8 = 0.5);
+- failures: 4 of 108 fits (the leave-one-out adaptation fits, the known defect) and 0 of 99 evaluations.
