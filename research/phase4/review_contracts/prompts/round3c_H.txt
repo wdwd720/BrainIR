@@ -1,0 +1,10 @@
+ROUND-3 FINAL CHECK FOR REVIEWER H (the generator's final pre-freeze version). The room was re-synced: extra/generator/ is the author's FINAL version (SYNTHETIC_BENCHMARK.md sections 15-17 list every change, including smoothed kinks in the latent equations that restore 4th-order step accuracy, finer steps for two variants, draw analysis, realized kick sizes, and single-threaded construction). data/synthetic_dev holds the PUBLIC part of 10 development systems REBUILT with it.
+Verify, with your own runs (scratch under .tmp/H/r3c/), the items your round-3 follow-up left "pending generator revision":
+1. N1 direct: no intervention is visible at its onset sample, for every kind, on several systems and seeds.
+2. N2: step self-convergence on several seeds and spreads, including the extreme windows (the stated bounds 1e-3 plain and 1.5e-3 extreme; the author reports <= 7.0e-4 / 8.2e-4).
+3. N3: truth-equivalent states are non-trivial and their futures agree to the numerical floor.
+4. N5 synthetic side: realized kick sizes appear in the FULL output only (info["kicks_applied"]), and the benchmark's kick items are classed by realized size.
+5. The numerics of the new truth fields: d_draw / draw_effective are deterministic, and single-threaded construction gives bit-identical system hashes at 1 and 8 BLAS threads.
+6. Any new numerical problem the revision introduced (blocker / major / minor, location, concrete fix).
+Write reviews/H/H3c_review.md with the per-item table and a one-paragraph verdict ("ready to freeze" or not, and why). Reply with the counts and any blocker / major.
+SESSION RULE: this is a headless session that ends when your turn ends. Never end your turn while a background run of yours is still going: wait for it in the foreground (an until-loop on its output), then finish the review file before replying. Keep runs modest: the machine runs ONE sandbox at a time for everyone (sbx waits for the slot and exits 75 after about 9 minutes; just retry).

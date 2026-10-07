@@ -33,6 +33,14 @@ N_PCS = 10
 DETECT_CLASSES = (("below", 0.0, 1.0), ("weak", 1.0, 3.0), ("moderate", 3.0, 10.0), ("strong", 10.0, float("inf")))
 #: shift types of a test item (PROTOCOL sections 3-4); OOD / robustness items use "ood:<category>" / "robust:<condition>"
 SHIFT_TYPES = ("in", "target", "near", "far", "hidden", "ood", "robust", "passive")
+#: the item roles that enter verdict criteria (PROTOCOL 9): OOD and robustness items are reported by 5.12 only
+VERDICT_KINDS = ("in", "target", "near", "far", "hidden")
+#: held-out items (the family shift) and the shortcut subset B (PROTOCOL 9)
+HELDOUT_KINDS = ("near", "far", "hidden")
+SHORTCUT_KINDS = ("target", "near", "far", "hidden")
+#: the detection floor of a mean squared divergence in units of the public readout sd: (2 f_s / y_sd)^2 (PROTOCOL 5.5)
+def detection_floor_sq(floor_frac: float = 0.05) -> float:
+    return float((2.0 * floor_frac) ** 2)
 
 
 @dataclass
@@ -96,6 +104,7 @@ class TestItem:
     z_true: np.ndarray | None = None        # SYNTHETIC truth: the causal state at the onset
     z_obs: np.ndarray | None = None         # SYNTHETIC truth: the observational shortcut state at the onset (trap types)
     dz_true: np.ndarray | None = None       # SYNTHETIC truth: true latent effect of the first (instantaneous) event
+    dz_true_next: np.ndarray | None = None  # SYNTHETIC truth: z_true(item) - z_true(twin) ONE SAMPLE after the onset (review H, N4)
     meta: dict = field(default_factory=dict)
 
     def __post_init__(self):
@@ -104,8 +113,10 @@ class TestItem:
         for name in ("x_hist", "u_hist", "u_future", "y_future", "y_twin", "x_future", "x_twin_future"):
             v = getattr(self, name)
             if v is not None:
-                v = np.asarray(v, dtype=np.float64)
-                setattr(self, name, v[:, None] if v.ndim == 1 else v)
+                v = np.array(v, dtype=np.float64, copy=True)       # an own copy, never a view of the caller's array (review F, m2)
+                v = v[:, None].copy() if v.ndim == 1 else v        # (the column form owns its memory too)
+                v.flags.writeable = False                          # and read-only: no model or metric can alter a stored item
+                setattr(self, name, v)
 
     @property
     def is_passive(self) -> bool:
@@ -125,6 +136,22 @@ class TestItem:
     def shift_kind(self) -> str:
         return self.shift.split(":", 1)[0]
 
+    def cell(self) -> str:
+        """The IDENTITY CELL (PROTOCOL 5.1: a family x target set x magnitude class; the within-system resampling unit): the
+        dataset's cell id (meta["cell"]) when it has one, else built from the item's fields."""
+        c = self.meta.get("cell")
+        if c:
+            return str(c)
+        return f"{self.family}|{','.join(str(t) for t in sorted(self.target_set))}|{self.magnitude_class}"
+
+    def is_verdict(self) -> bool:
+        return (not self.is_passive) and self.shift_kind() in VERDICT_KINDS
+
+    def truth_ok(self) -> bool:
+        """True when every TRUE array of the item is finite (a failed simulation is dropped and counted, PROTOCOL 5.1)."""
+        arrs = [self.x_hist, self.u_hist, self.u_future, self.y_future] + ([] if self.y_twin is None else [self.y_twin])
+        return all(np.isfinite(np.asarray(a, np.float64)).all() for a in arrs)
+
 
 @dataclass
 class PoolState:
@@ -140,7 +167,12 @@ class PoolState:
     z_true: np.ndarray | None = None
     z_obs: np.ndarray | None = None
     equiv_class: str | None = None  # SYNTHETIC: states generated as truth-equivalent share this id
-    floor_div: float | None = None  # numerical floor of this state's future divergence (repeat simulation), if measured
+    floor_div: float | None = None  # this state's numerical floor, ALREADY in the MEV statistic's units (mean squared difference in
+                                    # public readout-sd units over rows 1..m of the primary horizon); used only without floor_futures
+    floor_futures: dict[str, list] | None = None    # FLOOR STATES (PROTOCOL 5.5): pairs of simulated readout futures (each (H+1, n_y),
+                                    # row 0 = the state's sample) whose difference is pure numerics: {"noop": [reference no-intervention
+                                    # future, repeat run with a no-op breakpoint one sample after the restart], "f32": [the float64
+                                    # continuation, the restart from the float32-rounded stored state]}
     meta: dict = field(default_factory=dict)
 
 
@@ -153,7 +185,8 @@ class Pool:
     states: list[PoolState]
     sequences: dict[str, dict]      # sequence id -> {"events": [...] (relative to the state's sample), "u_future": (H+1, n_u),
                                     #                 "family": str, "kind": str}; "none" = the no-intervention future
-    floor_div: float | None = None  # pool-level numerical floor of future divergence (mean over repeat simulations)
+    floor_div: float | None = None  # pool-level numerical floor, ALREADY in the MEV statistic's units (see PoolState.floor_div); used
+                                    # only when no state carries floor_futures (evaluate_micro.floor_statistic)
     meta: dict = field(default_factory=dict)
 
 
@@ -167,6 +200,7 @@ class StateSample:
     group: str                      # source trajectory
     z_true: np.ndarray
     z_obs: np.ndarray | None = None
+    draw: np.ndarray | None = None  # the source trajectory's effective draw parameters (synthetic truth; LOG P4-D43)
 
 
 # ------------------------------------------------------------------------------------------------------------ normalisers

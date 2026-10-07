@@ -78,8 +78,8 @@ experiments the method may request through its designer, 0 = none).
 For one system: start from the benchmark's passive set D0 -> repeat { designer proposes n protocols -> the service validates them
 against the public policy and simulates them (content-addressed cache) -> the learner updates } until the budget B is spent. The
 model is checkpointed after 10, 25, 50, 100, 200 intervention experiments and each checkpoint is evaluated. Costs recorded per
-checkpoint: experiments, simulator calls, simulated seconds, unique targets, magnitude budget (sum over events of |amplitude| x
-duration, kicks counted as |delta| x dt), CPU and GPU seconds. Reference designers (benchmark code): `random`, `uniform`
+checkpoint: experiments, simulator calls, simulated seconds, unique targets, magnitude budget per event kind (current doses |I| x
+duration, kick magnitudes |delta|, never summed across kinds), CPU and GPU seconds. Reference designers (benchmark code): `random`, `uniform`
 (coverage of target x family x magnitude cells), `magnitude_sweep`, `greedy_error` (next experiments near the largest observed
 prediction errors), `structural` (targets by public connectivity), `passive` (the same number of trajectories without
 interventions), `fixed` (a pre-registered design).
@@ -141,3 +141,4 @@ the first fit).
 - `sharing`: 'auto' (default: the method decides, reported in info()['sharing']), 'independent' (a separate f per system), 'shared' (one f for all systems in the data, system-specific encoders / read-ins / readouts), 'partial'
 - `adapt_from`: a fitted CausalStateModel whose transition law f is FROZEN: fit encoders / read-ins / readouts only for the systems in the data (new implementations); report the adaptation cost in info()['train_cost']
 - `budget`: int: intervention experiments the method may request through its designer during the loop (0 = none)
+- `ablate`: list of ABLATION_SWITCHES names to switch off for this fit (default none); every name must be honoured or declared 'not_applicable' in info()['ablation_switches']; info()['ablated'] repeats the applied list

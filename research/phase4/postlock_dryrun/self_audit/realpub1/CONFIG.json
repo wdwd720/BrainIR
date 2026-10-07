@@ -1,0 +1,23 @@
+{
+ "what": "DRY RUN configuration of scripts/p4/self_audit_p4.py on three PUBLIC real systems (the real-system paths: memo_probe on a real network, encodings, lift_jitter; the checks that read real networks) with stand-in models (fork P3). Admissible before the lock under the official rule (public real data); outputs under the dry-run roots only.",
+ "tier": null,
+ "real_level": "public",
+ "systems": ["real:A:full", "real:A:m1", "real:B:m1"],
+ "seed": 0,
+ "method": "p3stand.refstand:p3stand_ref",
+ "designer": "none",
+ "methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+ "dirs": {
+  "method": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/full",
+  "full_state_bound": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/fullstate_baseline",
+  "strongest_baseline": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/fullstate_baseline",
+  "phase3": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/phase3"
+ },
+ "studies": {
+  "ablations": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/ablations/realpub1"
+ },
+ "probes_dir": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/realpub1/probes",
+ "out_dir": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/self_audit/realpub1",
+ "stand_in_notes": "No ID / input-only / readout-history / linear-controlled roles here (Q1-Q3, Q14 NOT_TESTABLE by design); the val1 configuration covers them.",
+ "dry_run_on_val": false
+}

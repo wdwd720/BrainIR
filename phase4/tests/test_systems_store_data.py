@@ -10,7 +10,20 @@ from brainir_causal.store import TrajectoryStore
 from brainir_causal.synthadapter import ToySystem, observe_synthetic, suite_systems
 from brainir_causal.systems import NAME_MAP, P3_INTERNAL, PUBLIC_REAL, load_real_internal, load_real_public, public_view
 
-FORBIDDEN_TOKENS = ("manc", "male-cns", "malecns", "net1", "net2", "net3", ":mech:", "targets_heldout", "system_hash", "\"network\"")
+
+def _dataset_words() -> tuple[str, ...]:
+    """Dataset words from the orchestrator's names config (scripts/p4config/names.py; never in a room, where a placeholder stands in):
+    this file carries no names (early review F, F-M1)."""
+    import importlib.util
+    from pathlib import Path
+    spec = importlib.util.spec_from_file_location("p4names_for_store_tests", Path(__file__).resolve().parents[2] / "scripts" / "p4config"
+                                                  / "names.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return tuple(w for w in mod.DATASET_WORDS if " " not in w)
+
+
+FORBIDDEN_TOKENS = _dataset_words() + ("net1", "net2", "net3", ":mech:", "targets_heldout", "system_hash", "\"network\"")
 
 
 @pytest.mark.skipif(not PUBLIC_REAL.exists(), reason="real systems not built")

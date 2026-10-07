@@ -1,23 +1,19 @@
-"""Run-time guards for executing method code on the orchestrator side (tournament fits, experiment loops and evaluations; goal5
-sections 4-5, 51). Phase 4 version of the Phase 3 sandbox (phase3 `brainir_state.runguard`), with Phase 4 roots.
+"""The in-process TRIPWIRE of a model worker (research/phase4/EVAL_ARCHITECTURE.md; review F, F-B2).
 
-Two modes, both Python audit hooks (they cannot be removed once installed):
+This module is NOT a security boundary. Method code runs only in a model worker (`brainir_causal.worker`): a fresh OS process as an
+unprivileged user, in a container without network, with a scrubbed environment and an empty private working directory, whose file
+permissions let it read only the method snapshot and the public modules; the trusted driver holds every held-out array
+(`brainir_causal.isolation`). Those OS-level properties are what isolate method code. The tripwire only makes the obvious violations
+fail early with a clear message and counts them: an audit hook refuses file-system events under PROTECTED roots outside the ALLOWED
+roots, process creation, network connections and ctypes library loading.
 
-FIT mode (`install_fit_guard`): the whole fitting / experiment-loop process may touch only ALLOWED roots inside the PROTECTED areas.
-Every file-system event whose path lies under a protected root (the development drive's project directories, the user's credential
-and session stores, the temp directory; on Linux containers the Modal volumes and the repository mount) is refused unless it lies
-under an allowed root (the method's code copy, the public data of the systems being fitted, the output directory, the simulation-
-service queue, a private temp directory, the Python environment and the evaluation libraries). Paths outside the protected roots
-(the operating system, the Python installation) stay readable. Process creation, network connections and ctypes library loading
-are refused, so the scientific stack is imported BEFORE the guard (`preimport`: numpy / scipy / torch / scikit-learn load shared
-objects through ctypes on first import); on Linux other processes' /proc entries are refused. The experiment
-loop runs inside this process: its simulations go through the service's file queue, served by ANOTHER process (the synthetic
-generator and the real engine never live in the method's process).
+Its state lives in a closure (review F, F-B2: a module-level flag let method code switch the old guard off with one assignment), and
+the hook is process-wide, so it also covers threads started with `exec` (the second F-B2 bypass defeated the old frame-based
+evaluation guard, which is retired: `install_eval_guard` refuses). Code that walks the garbage collector can still reach the closure;
+that is why nothing depends on it.
 
-EVAL mode (`install_eval_guard`): the evaluator process holds held-out data in memory and calls the method's model. The same rule is
-applied only while a frame of the method's code is on the call stack, so method code can never open held-out files, start processes
-or connect anywhere, while the evaluator itself keeps normal access. (In-memory introspection is not blocked by an audit hook; the
-locked method's code is audited instead, as in Phase 3.)
+The scientific stack loads shared objects through ctypes on first import, which the hook refuses afterwards, so it is imported BEFORE
+the hook (`preimport`: numpy / scipy / torch / scikit-learn and the third-party modules the method package imports, by an AST scan).
 """
 
 from __future__ import annotations
@@ -27,8 +23,6 @@ import sys
 import threading
 from pathlib import Path
 
-_TL = threading.local()          # re-entrancy flag: path resolution inside a hook must not re-enter the hook
-
 FS_EVENTS = {"open", "os.listdir", "os.scandir", "os.chdir", "os.rename", "os.replace", "os.remove", "os.rmdir", "os.mkdir",
              "shutil.copyfile", "shutil.copytree", "shutil.rmtree", "glob.glob", "os.walk", "os.symlink", "os.link", "os.truncate",
              "os.chmod", "os.utime"}
@@ -36,12 +30,13 @@ DENY_ALWAYS = {"os.system", "subprocess.Popen", "os.startfile", "os.exec", "os.p
                "socket.connect", "socket.bind", "socket.getaddrinfo", "urllib.Request", "ctypes.dlopen", "_winapi.CreateFile",
                "_winapi.CreateProcess", "winreg.OpenKey"}
 TWO_PATH_EVENTS = {"os.rename", "os.replace", "os.link", "os.symlink", "shutil.copyfile", "shutil.copytree"}
-LINUX_PROTECTED = ("/fitvol", "/evalvol", "/storevol", "/devvol", "/repo", "/data", "/root", "/home", "/mnt", "/tmp", "/srv", "/proc")
+LINUX_PROTECTED = ("/fitvol", "/evalvol", "/storevol", "/devvol", "/repo", "/data", "/root", "/home", "/mnt", "/tmp", "/srv", "/proc",
+                   "/opt/p4jobs")
 #: /proc entries a method may read (its own process and global, non-process information); other processes' entries are refused
 PROC_ALLOWED = ("/proc/self", "/proc/thread-self", "/proc/cpuinfo", "/proc/meminfo", "/proc/stat", "/proc/loadavg", "/proc/sys",
                 "/proc/filesystems", "/proc/version")
-#: the scientific stack, imported BEFORE a guard is installed: these libraries load shared objects through ctypes (numpy / scipy /
-#: torch / scikit-learn / threadpoolctl), which the guards refuse afterwards (ctypes could bypass the audit hook)
+#: the scientific stack, imported BEFORE the tripwire is installed: these libraries load shared objects through ctypes (numpy / scipy /
+#: torch / scikit-learn / threadpoolctl), which the tripwire refuses afterwards
 PREIMPORT = ("numpy", "numpy.linalg", "numpy.fft", "numpy.random", "scipy", "scipy.linalg", "scipy.sparse", "scipy.sparse.linalg",
              "scipy.integrate", "scipy.optimize", "scipy.special", "scipy.stats", "scipy.signal", "scipy.interpolate", "scipy.spatial",
              "sklearn", "sklearn.linear_model", "sklearn.decomposition", "sklearn.cross_decomposition", "sklearn.neighbors",
@@ -63,7 +58,7 @@ def _norm(p) -> str:
 
 def default_protected() -> list[str]:
     """Protected roots of the platform: the development drive's projects, credential / session stores and temp (Windows); the
-    volume mounts, repository and home directories (Linux containers)."""
+    volume mounts, repository, job and home directories (Linux containers)."""
     home = Path.home()
     out = [home / ".claude", home / ".claude.json", home / ".modal.toml", home / ".ssh", home / ".config" / "modal"]
     if os.name == "nt":
@@ -112,8 +107,8 @@ def _method_imports(method_dir) -> list[str]:
 
 
 def preimport(method_dir=None, extra: tuple[str, ...] = ()) -> dict:
-    """Import the scientific stack (PREIMPORT), the third-party modules the method package imports (AST scan) and `extra` BEFORE a
-    guard is installed (best effort: a module that is not installed is skipped). Also runs threadpoolctl's library probe, which uses
+    """Import the scientific stack (PREIMPORT), the third-party modules the method package imports (AST scan) and `extra` BEFORE the
+    tripwire is installed (best effort: a module that is not installed is skipped). Also runs threadpoolctl's library probe, which uses
     ctypes. Returns {"imported": [...], "failed": [...]}."""
     import importlib
     import importlib.util
@@ -176,70 +171,58 @@ def _paths(event, args):
             yield _norm(a)
 
 
-def install_fit_guard(allowed: list[str], protected: list[str] | None = None) -> Policy:
+class Tripwire:
+    """What `install_tripwire` returns: the policy and a read-only view of the refused events (the list itself stays in the hook's
+    closure)."""
+
+    def __init__(self, policy: Policy, hits_view):
+        self.policy = policy
+        self._hits_view = hits_view
+
+    @property
+    def hits(self) -> list[tuple[str, str]]:
+        return self._hits_view()
+
+
+def install_tripwire(allowed: list[str], protected: list[str] | None = None, *, max_hits: int = 1000) -> Tripwire:
+    """Install the tripwire for the whole process (every thread; audit hooks cannot be removed). File-system events under a protected
+    root outside the allowed roots (plus the Python environment and this process's own /proc entries), process creation, network
+    connections and ctypes library loading raise PermissionError. The state (policy, re-entrancy flag, refused events) is local to
+    this call."""
     pol = Policy(list(allowed) + environment_roots() + _process_roots(), protected if protected is not None else default_protected())
+    busy = threading.local()                 # re-entrancy flag (path resolution inside the hook must not re-enter the hook)
+    hits: list[tuple[str, str]] = []
+
+    def refuse(event: str, what: str, msg: str):
+        if len(hits) < max_hits:
+            hits.append((event, what[:300]))
+        raise PermissionError(f"method tripwire: {msg}")
 
     def hook(event, args):
-        if getattr(_TL, "busy", False):
+        if getattr(busy, "on", False):
             return
         if event in DENY_ALWAYS or event.startswith(("os.exec", "os.spawn")):
-            raise PermissionError(f"method sandbox: {event} is not allowed while fitting")
+            refuse(event, "", f"{event} is not allowed in a model worker")
         if event in FS_EVENTS:
-            _TL.busy = True
+            busy.on = True
             try:
                 bad = next((p for p in _paths(event, args) if not pol.permitted(p)), None)
             finally:
-                _TL.busy = False
+                busy.on = False
             if bad is not None:
-                raise PermissionError(f"method sandbox: {event} outside the allowed roots: {bad}")
+                refuse(event, bad, f"{event} outside the allowed roots: {bad}")
 
     sys.addaudithook(hook)
-    return pol
+    return Tripwire(pol, lambda: list(hits))
 
 
-def install_eval_guard(method_dirs: list[str], allowed: list[str], protected: list[str] | None = None) -> Policy:
-    # method directories in both spellings (resolved and plain absolute): frame file names are matched without touching the disk
-    mdirs = sorted({_norm(d) for d in method_dirs} | {os.path.normcase(os.path.abspath(os.fsdecode(d))) for d in method_dirs})
-    pol = Policy(list(allowed) + environment_roots() + _process_roots(), protected if protected is not None else default_protected())
-    _seen: dict[str, bool] = {}
+def install_fit_guard(allowed: list[str], protected: list[str] | None = None) -> Policy:
+    """The former fit guard, now the tripwire (compatibility name); returns the policy."""
+    return install_tripwire(allowed, protected).policy
 
-    def _is_method_file(fn: str) -> bool:
-        hit = _seen.get(fn)
-        if hit is None:
-            n = os.path.normcase(os.path.abspath(fn)) if fn and not fn.startswith("<") else ""
-            hit = bool(n) and any(n == d or n.startswith(d.rstrip("\\/") + os.sep) for d in mdirs)
-            _seen[fn] = hit
-        return hit
 
-    def method_on_stack() -> bool:
-        f = sys._getframe(2)
-        while f is not None:
-            if _is_method_file(f.f_code.co_filename):
-                return True
-            f = f.f_back
-        return False
-
-    def hook(event, args):
-        if getattr(_TL, "busy", False):
-            return
-        is_fs = event in FS_EVENTS
-        is_deny = event in DENY_ALWAYS or event.startswith(("os.exec", "os.spawn"))
-        if not (is_fs or is_deny):
-            return
-        _TL.busy = True
-        try:
-            on_stack = method_on_stack()
-            bad = None
-            if on_stack and is_fs:
-                bad = next((p for p in _paths(event, args) if not pol.permitted(p)), None)
-        finally:
-            _TL.busy = False
-        if not on_stack:
-            return
-        if is_deny:
-            raise PermissionError(f"method sandbox: {event} is not allowed in method code during evaluation")
-        if bad is not None:
-            raise PermissionError(f"method sandbox: method code may not {event} outside the allowed roots during evaluation: {bad}")
-
-    sys.addaudithook(hook)
-    return pol
+def install_eval_guard(*_args, **_kwargs):
+    """RETIRED (review F, F-B2 / F-B3): method code is never evaluated in the process that holds held-out data. Evaluations run the
+    model in model workers (`brainir_causal.isolation.RemoteFresh`)."""
+    raise RuntimeError("the in-process evaluation guard is retired (review F, F-B2 / F-B3): evaluate models through "
+                       "brainir_causal.isolation (model workers); see research/phase4/EVAL_ARCHITECTURE.md")

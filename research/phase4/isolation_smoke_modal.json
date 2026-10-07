@@ -1,0 +1,124 @@
+{
+ "where": "modal (iso image, block_network=True)",
+ "root_uid": 0,
+ "mounts_before_lockdown": {
+  "/fitvol": {
+   "exists": true,
+   "is_symlink": true,
+   "real": "/__modal/volumes/vo-sDH1VqaDBAoZrqrpmY0xyu",
+   "mode": "0o755"
+  },
+  "/evalvol": {
+   "exists": true,
+   "is_symlink": true,
+   "real": "/__modal/volumes/vo-tsF3JVFjCZaRWz8NJulYoD",
+   "mode": "0o755"
+  },
+  "/storevol": {
+   "exists": true,
+   "is_symlink": true,
+   "real": "/__modal/volumes/vo-qr9uLnW9G3f39nRvrq0eyQ",
+   "mode": "0o755"
+  }
+ },
+ "lockdown": {
+  "dumpable0": 0,
+  "private": {
+   "/repo": "0o700",
+   "/root": "0o700",
+   "/fitvol": "0o700 (-> /__modal/volumes/vo-sDH1VqaDBAoZrqrpmY0xyu)",
+   "/evalvol": "0o700 (-> /__modal/volumes/vo-tsF3JVFjCZaRWz8NJulYoD)",
+   "/storevol": "0o700 (-> /__modal/volumes/vo-qr9uLnW9G3f39nRvrq0eyQ)",
+   "/home": "0o700",
+   "/mnt": "0o700",
+   "/srv": "0o700"
+  },
+  "shared_tmp": {
+   "/tmp": "0o775",
+   "/var/tmp": "0o775",
+   "/dev/shm": "0o1775",
+   "/run/lock": "0o775"
+  },
+  "killed": 0,
+  "ipc_removed": 0
+ },
+ "mkdtemp_dir_denied_as_expected": "0o700",
+ "smoke_small": {
+  "fit_s": 6.32,
+  "eval_s": 16.54,
+  "model_bytes": 718,
+  "fit_worker": "uid 10010",
+  "fit_worker_tripwire_hits": 0,
+  "encode_shape": [
+   2
+  ],
+  "capacity_reported": true,
+  "lift_ok": true,
+  "lift_after_reveal": "refused",
+  "rollout_in_C": "refused",
+  "isolation": {
+   "transport": "linux-uid",
+   "phases": [
+    "A",
+    "B1",
+    "B2"
+   ]
+  }
+ },
+ "smoke_big": {
+  "fit_s": 5.58,
+  "eval_s": 15.8,
+  "model_bytes": 13878,
+  "fit_worker": "uid 10010",
+  "fit_worker_tripwire_hits": 0,
+  "encode_shape": [
+   2
+  ],
+  "capacity_reported": true,
+  "lift_ok": true,
+  "lift_after_reveal": "refused",
+  "rollout_in_C": "refused",
+  "isolation": {
+   "transport": "linux-uid",
+   "phases": [
+    "A",
+    "B1",
+    "B2"
+   ]
+  }
+ },
+ "adversary_with_tripwire": {
+  "evalvol": "PermissionError",
+  "fitvol": "PermissionError",
+  "storevol": "PermissionError",
+  "repo": "PermissionError",
+  "other_jobs": "PermissionError",
+  "driver_environ": "PermissionError",
+  "driver_mem": "PermissionError",
+  "net": "PermissionError",
+  "dns": "PermissionError",
+  "write_tmp": "PermissionError",
+  "subprocess": "PermissionError",
+  "setuid0": "PermissionError",
+  "env_modal": []
+ },
+ "adversary_os_only": {
+  "evalvol": "PermissionError",
+  "fitvol": "PermissionError",
+  "storevol": "PermissionError",
+  "repo": "PermissionError",
+  "other_jobs": "PermissionError",
+  "driver_environ": "PermissionError",
+  "driver_mem": "PermissionError",
+  "net": "OSError",
+  "dns": "gaierror",
+  "write_tmp": "PermissionError",
+  "subprocess": "DID",
+  "setuid0": "PermissionError",
+  "env_modal": []
+ },
+ "sneaky_encode": "refused: TypeError",
+ "pwned_created": false,
+ "wall_s": 127.5,
+ "usd_approx": 0.0112
+}

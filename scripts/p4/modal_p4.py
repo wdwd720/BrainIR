@@ -260,7 +260,7 @@ def _try(fn):
 
 def probe(job_dir, simq, system_id, target):
     out = {"read_own_input": _try(lambda: Path(job_dir, "input.json").read_text())}
-    for name, path in [("list_storevol", "/storevol"), ("list_fitvol", "/fitvol"), ("read_repo_bundle", "/repo/benchmarks/dng100/public_blind/manifest.json"),
+    for name, path in [("list_storevol", "/storevol"), ("list_fitvol", "/fitvol"), ("list_repo_benchmarks", "/repo/benchmarks"),
                        ("list_other_jobs", "/tmp/p4m/jobs"), ("list_root_home", "/root"), ("read_proc_1_environ", "/proc/1/environ"),
                        ("read_proc_self_status", "/proc/self/status")]:
         out[name] = _try((lambda p=path: os.listdir(p)) if not path.endswith(("manifest.json", "environ", "status")) else (lambda p=path: open(p, "rb").read()))
@@ -329,7 +329,7 @@ def cmd_smoke_method() -> int:
             continue
         rep[name] = {"probe": r["result"], "files": sorted(r.get("files") or {}), "sim": {k: v for k, v in (r.get("sim") or {}).items() if k != "ledger"},
                      "ledger_agents": sorted((r.get("sim") or {}).get("ledger", {}))}
-    expect_blocked = ["list_storevol", "list_fitvol", "read_repo_bundle", "list_other_jobs", "list_root_home", "read_proc_1_environ",
+    expect_blocked = ["list_storevol", "list_fitvol", "list_repo_benchmarks", "list_other_jobs", "list_root_home", "read_proc_1_environ",
                       "read_proc_1_via_chdir", "read_proc_1_via_self_root", "list_storevol_via_self_root", "subprocess", "socket"]
     for name in ("fit", "eval"):
         pr = (rep.get(name) or {}).get("probe") or {}

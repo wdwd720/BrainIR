@@ -1,0 +1,5 @@
+Your session was stopped from outside (the machine ran critically low on memory) while you were verifying revision v3.3 on your final code. Nothing of yours was lost: your files are as you left them; only the sandbox run in progress at that moment was stopped. Continue the SAME delivery from where you were: finish the verification of the final code (all test files on seeds 20260926, 0 and 7; calibration against targets version 3, 35 / 35; the leakage test; the new ES-window, control-margin and hi-kick step tests), update SYNTHETIC_BENCHMARK.md section 18, calibration_report.json and timings_accuracy.json, and reply with the per-item table asked for in the revision brief.
+
+Memory is tight on this machine: run one sbx job at a time, keep each run's workers modest (the sandbox now has 4 GB), and split long runs into parts under an hour (P4_SBX_TIMEOUT_S up to 3600).
+
+SESSION RULE: this is a headless session that ends when your turn ends. Never end your turn while a background run of yours is still going: wait for it in the foreground (an until-loop on its output), then continue.

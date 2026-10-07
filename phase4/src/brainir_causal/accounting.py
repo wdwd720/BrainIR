@@ -8,13 +8,13 @@ experiment loop, so budgets are counted identically everywhere.
         "units": the system's budget units per trajectory (system_record["cost_units"], default 1),
         "targets": sorted units any event acts on,
         "magnitude": {kind: ...}  per event kind, in the kind's own units:
-            kick         sum |delta| x dt                      (a kick counted as one output step)
+            kick         sum |delta|                            (a kick's magnitude does NOT scale with dt; early numerics review)
             current      sum over targets |I| x duration       (persistent: until t_end)
             current_seq  sum over targets and segments |I_j| x seg
             silence      number of targets x duration          (unit-seconds)
             edge_scale   number of edges x |1 - factor| x duration
             param        sum over targets (|gain - 1| + |tau - 1| + |threshold|) x duration
-        "magnitude_total": the sum over kinds (mixed units; INTERFACES section 7's single budget number)}
+        "magnitude_total": the sum over kinds (MIXED units: descriptive only; no rule uses it; kinds are reported separately)}
 
 `Ledger` accumulates costs per agent / designer: experiments, trajectories, simulator calls (computed, not cached), simulated seconds,
 unique targets (system, unit), magnitude per kind, budget units.
@@ -34,7 +34,7 @@ def experiment_cost(proto: dict, sysrec: dict | None = None, *, allow_truth: boo
     for e in q["events"]:
         k = e["kind"]
         if k == "kick":
-            mag[k] += sum(abs(float(v)) for v in e["delta"].values()) * dt
+            mag[k] += sum(abs(float(v)) for v in e["delta"].values())
         elif k == "current_seq":
             mag[k] += sum(abs(float(v)) for lst in e["targets"].values() for v in lst) * float(e["seg"])
         elif k in ("current", "silence", "edge_scale", "param"):

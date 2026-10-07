@@ -1,0 +1,196 @@
+{
+ "completeness": {
+  "complete_fields": [
+   "y_int",
+   "y_base",
+   "effect",
+   "validity",
+   "z_trajectory",
+   "abstain_flag"
+  ],
+  "incomplete_fields": [
+   "uncertainty"
+  ],
+  "rule": "well formed on >= 95% of the probed items of every system"
+ },
+ "descriptive_accuracy": true,
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "method": "p3stand.refstand:p3stand_ref",
+ "n_systems": 3,
+ "per_system": {
+  "real:A:full": {
+   "accuracy": {
+    "EE_in_domain": 1.0484758509121472,
+    "EE_out_of_domain": 0.3900639502058716,
+    "EE_pooled_all": 1.0240294791345337,
+    "EE_verdict": 1.0240294791345337,
+    "ICG_y": -0.003838973768311955,
+    "brier_detectable": 0.4166666666666667,
+    "brier_sign": 0.5892857142857143,
+    "calibration_error_90": {
+     "long": 0.9,
+     "medium": 0.9,
+     "short": 0.9
+    },
+    "closure_error": null,
+    "coverage": 0.6666666666666666,
+    "false_confidence": 0.5,
+    "interval_coverage_90": {
+     "long": 0.0,
+     "medium": 0.0,
+     "short": 0.0
+    },
+    "n_in_domain": 16,
+    "n_out_of_domain": 8,
+    "post_nmse": 2.3558710402729433,
+    "reports_uncertainty": false,
+    "rmse_mean": 1.2749440465184947,
+    "sd_error_spearman": null,
+    "sign_accuracy": 0.35714285714285715,
+    "validity_auc": 0.2777777777777778
+   },
+   "completeness": {
+    "errors": [],
+    "keys": {
+     "abstain": 24,
+     "effect": 24,
+     "validity": 24,
+     "y_base": 24,
+     "y_int": 24,
+     "z_base": 24,
+     "z_int": 24
+    },
+    "n_items": 24,
+    "n_probe": 24,
+    "share": {
+     "abstain_flag": 1.0,
+     "effect": 1.0,
+     "uncertainty": 0.0,
+     "validity": 1.0,
+     "y_base": 1.0,
+     "y_int": 1.0,
+     "z_trajectory": 1.0
+    }
+   },
+   "kind": "real"
+  },
+  "real:A:m1": {
+   "accuracy": {
+    "EE_in_domain": 0.9949459868288438,
+    "EE_out_of_domain": null,
+    "EE_pooled_all": 0.9949459868288438,
+    "EE_verdict": 0.9949459868288436,
+    "ICG_y": -0.0001449988278274241,
+    "brier_detectable": 0.7916666666666666,
+    "brier_sign": 0.21212121212121213,
+    "calibration_error_90": {
+     "long": 0.9,
+     "medium": 0.9,
+     "short": 0.9
+    },
+    "closure_error": null,
+    "coverage": 1.0,
+    "false_confidence": 0.05263157894736842,
+    "interval_coverage_90": {
+     "long": 0.0,
+     "medium": 0.0,
+     "short": 0.0
+    },
+    "n_in_domain": 24,
+    "n_out_of_domain": 0,
+    "post_nmse": 0.2402727894623976,
+    "reports_uncertainty": false,
+    "rmse_mean": 0.38586482710412223,
+    "sd_error_spearman": null,
+    "sign_accuracy": 0.7878787878787878,
+    "validity_auc": 0.5
+   },
+   "completeness": {
+    "errors": [],
+    "keys": {
+     "abstain": 24,
+     "effect": 24,
+     "validity": 24,
+     "y_base": 24,
+     "y_int": 24,
+     "z_base": 24,
+     "z_int": 24
+    },
+    "n_items": 24,
+    "n_probe": 24,
+    "share": {
+     "abstain_flag": 1.0,
+     "effect": 1.0,
+     "uncertainty": 0.0,
+     "validity": 1.0,
+     "y_base": 1.0,
+     "y_int": 1.0,
+     "z_trajectory": 1.0
+    }
+   },
+   "kind": "real"
+  },
+  "real:B:m1": {
+   "accuracy": {
+    "EE_in_domain": 0.748709583710684,
+    "EE_out_of_domain": null,
+    "EE_pooled_all": 0.748709583710684,
+    "EE_verdict": 0.7487095837106837,
+    "ICG_y": -8.614511919053958e-05,
+    "brier_detectable": 0.20833333333333334,
+    "brier_sign": 0.012048192771084338,
+    "calibration_error_90": {
+     "long": 0.9,
+     "medium": 0.9,
+     "short": 0.9
+    },
+    "closure_error": null,
+    "coverage": 1.0,
+    "false_confidence": 0.09523809523809523,
+    "interval_coverage_90": {
+     "long": 0.0,
+     "medium": 0.0,
+     "short": 0.0
+    },
+    "n_in_domain": 24,
+    "n_out_of_domain": 0,
+    "post_nmse": 1.7511407828329995,
+    "reports_uncertainty": false,
+    "rmse_mean": 0.9064553743903749,
+    "sd_error_spearman": null,
+    "sign_accuracy": 0.9879518072289156,
+    "validity_auc": 0.5
+   },
+   "completeness": {
+    "errors": [],
+    "keys": {
+     "abstain": 24,
+     "effect": 24,
+     "validity": 24,
+     "y_base": 24,
+     "y_int": 24,
+     "z_base": 24,
+     "z_int": 24
+    },
+    "n_items": 24,
+    "n_probe": 24,
+    "share": {
+     "abstain_flag": 1.0,
+     "effect": 1.0,
+     "uncertainty": 0.0,
+     "validity": 1.0,
+     "y_base": 1.0,
+     "y_int": 1.0,
+     "z_trajectory": 1.0
+    }
+   },
+   "kind": "real"
+  }
+ },
+ "real_level": "public",
+ "run_id": "realpub1",
+ "suite_accuracy": {},
+ "suite_interval_coverage_90": {},
+ "tier": null
+}

@@ -1,0 +1,268 @@
+{
+ "contract_problems": [],
+ "created_utc": "2026-09-27T09:08:32Z",
+ "declarations": {
+  "syn:toy:0": {
+   "active_design": {
+    "reason": "the stand-in has no designer of its own",
+    "status": "not_applicable"
+   },
+   "closure_loss": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "dimension_penalty": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "history_delay": {
+    "reason": "the stand-in's compact encoder reads the current sample only",
+    "status": "not_applicable"
+   },
+   "interventional_training": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "mediation_loss": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "multiple_lift_consistency": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "native_lift": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "shared_dynamics": {
+    "reason": "the stand-in fits every system independently",
+    "status": "not_applicable"
+   },
+   "state_bottleneck": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "uncertainty_ensemble": {
+    "reason": "the stand-in reports no uncertainty and has no ensemble",
+    "status": "not_applicable"
+   }
+  },
+  "syn:toy:1": {
+   "active_design": {
+    "reason": "the stand-in has no designer of its own",
+    "status": "not_applicable"
+   },
+   "closure_loss": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "dimension_penalty": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "history_delay": {
+    "reason": "the stand-in's compact encoder reads the current sample only",
+    "status": "not_applicable"
+   },
+   "interventional_training": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "mediation_loss": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "multiple_lift_consistency": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "native_lift": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "shared_dynamics": {
+    "reason": "the stand-in fits every system independently",
+    "status": "not_applicable"
+   },
+   "state_bottleneck": {
+    "reason": "",
+    "status": "honoured"
+   },
+   "uncertainty_ensemble": {
+    "reason": "the stand-in reports no uncertainty and has no ensemble",
+    "status": "not_applicable"
+   }
+  }
+ },
+ "devices": {
+  "frozen_brainir_state_v1": "cpu",
+  "p3stand.refstand:p3stand_fullstate": "cpu",
+  "p3stand.refstand:p3stand_ref": "cpu"
+ },
+ "discarded_speculative_fits": {
+  "n": 0,
+  "n_failed": 0,
+  "switches": []
+ },
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "extra_methods": {
+  "fullstate_baseline": "p3stand.refstand:p3stand_fullstate",
+  "phase3": "frozen_brainir_state_v1"
+ },
+ "fit_failures": [],
+ "hidden": false,
+ "levelc_run": null,
+ "lock": {},
+ "max_containers": 2,
+ "method": "p3stand.refstand:p3stand_ref",
+ "method_hashes": {
+  "__init__.py": "bb76dd76bd4460cc91f65c14463fbaa45af2ce0db6f6ee3d61977c9269540dfc",
+  "p3stand/__init__.py": "4842d44ed6976d1c43f025114d2d16c9bee2ba638c85ea95407028b81d407b7c",
+  "p3stand/refstand.py": "60b57676609682b6cdc4f249d7c41d106312c4d110b3e8e841f57ce186fdc89d"
+ },
+ "methods_dir": "scripts\\p4\\standin_methods",
+ "modal": {
+  "cost": {
+   "app_id": "ap-qipudRDExf1OEoUytdcT7w",
+   "calls": [
+    {
+     "calls": 3,
+     "class": "iso_pack_fit",
+     "container_s": 236.5,
+     "label": "describe",
+     "peak_container_mb_max": 1027.5,
+     "usd_approx": 0.1664
+    },
+    {
+     "calls": 10,
+     "class": "iso_pack_eval",
+     "container_s": 11119.1,
+     "label": "evals:iso_pack_eval",
+     "peak_container_mb_max": 4293.1,
+     "usd_approx": 10.9803
+    }
+   ],
+   "hosts": {
+    "unknown": 13
+   },
+   "refusals": {},
+   "usd_approx_total": 11.1467
+  },
+  "evals_wall_s": 1226.7,
+  "fits_wall_s": 0.0
+ },
+ "n_eval_failures": 0,
+ "n_evals": 10,
+ "n_fit_failures": 0,
+ "n_fit_failures_all": 0,
+ "n_fits": 10,
+ "real_level": null,
+ "run_id": "toyC_packed1",
+ "seeds": [
+  0
+ ],
+ "status": "complete",
+ "study": "ablations",
+ "switch_plan": {
+  "active_design": {
+   "definition": "the method's own designer is replaced by the benchmark's random designer",
+   "honoured_on": [],
+   "not_applicable_on": {
+    "syn:toy:0": "the stand-in has no designer of its own",
+    "syn:toy:1": "the stand-in has no designer of its own"
+   }
+  },
+  "closure_loss": {
+   "definition": "drop the interventional-closure objective term(s)",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "dimension_penalty": {
+   "definition": "drop the dimension penalty / rule (k from the unpenalised criterion, reported)",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "history_delay": {
+   "definition": "the encoder sees only the current sample (no history / delay embedding beyond it)",
+   "honoured_on": [],
+   "not_applicable_on": {
+    "syn:toy:0": "the stand-in's compact encoder reads the current sample only",
+    "syn:toy:1": "the stand-in's compact encoder reads the current sample only"
+   }
+  },
+  "interventional_training": {
+   "definition": "train on passive data only: every interventional record (and its twin) is dropped before fitting (THE critical ablation, goal5 section 88)",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "mediation_loss": {
+   "definition": "drop the state-mediation objective term(s)",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "multiple_lift_consistency": {
+   "definition": "drop the objective / selection that makes distinct lifts consistent",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "native_lift": {
+   "definition": "lift() is disabled (returns no lift)",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "shared_dynamics": {
+   "definition": "no shared transition across systems (independent fits)",
+   "honoured_on": [],
+   "not_applicable_on": {
+    "syn:toy:0": "the stand-in fits every system independently",
+    "syn:toy:1": "the stand-in fits every system independently"
+   }
+  },
+  "state_bottleneck": {
+   "definition": "remove the compact state: predict from the full observed history with the same data (the second critical ablation, goal5 section 89)",
+   "honoured_on": [
+    "syn:toy:0",
+    "syn:toy:1"
+   ],
+   "not_applicable_on": {}
+  },
+  "uncertainty_ensemble": {
+   "definition": "a single model instead of the ensemble / uncertainty machinery",
+   "honoured_on": [],
+   "not_applicable_on": {
+    "syn:toy:0": "the stand-in reports no uncertainty and has no ensemble",
+    "syn:toy:1": "the stand-in reports no uncertainty and has no ensemble"
+   }
+  }
+ },
+ "switches_requested": [
+  "interventional_training",
+  "state_bottleneck"
+ ],
+ "systems": [
+  "syn:toy:0",
+  "syn:toy:1"
+ ],
+ "tier": "toyC",
+ "wall_s": 1333.0
+}

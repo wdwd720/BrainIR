@@ -1,0 +1,106 @@
+{
+ "what": "simulation service on the reference platform vs the benchmark's own records (selftest)",
+ "created_utc": "2026-09-26T22:52:52Z",
+ "system": "syn-00e48aa6ad4d",
+ "image_build": {
+  "public": {
+   "planned": 289,
+   "records": 529,
+   "errors": 0,
+   "replaced": 0,
+   "dropped": 0,
+   "failures_by_family": {},
+   "public_check": {
+    "files": 531,
+    "rows": 529,
+    "future_arrays": 0
+   }
+  }
+ },
+ "service_items": [
+  {
+   "what": "public row protocol",
+   "ok": true,
+   "error": null
+  },
+  {
+   "what": "restart from a public trajectory (recomputed source)",
+   "ok": true,
+   "error": null
+  },
+  {
+   "what": "restart from a public store key with the row's own events (pulse.1)",
+   "ok": true,
+   "error": null
+  },
+  {
+   "what": "fresh protocol",
+   "ok": true,
+   "error": null
+  },
+  {
+   "what": "real mechanism: public row protocol",
+   "ok": true,
+   "error": null
+  },
+  {
+   "what": "real mechanism: restart from a public trajectory (recomputed source)",
+   "ok": true,
+   "error": null
+  }
+ ],
+ "public_sources_recomputed": 3,
+ "ledger": {
+  "budget": 1000000,
+  "used": 18,
+  "ledger": {
+   "experiments": 1,
+   "trajectories": 6,
+   "simulated_s": 9.0,
+   "units": 18,
+   "unique_targets": 1,
+   "magnitude": {
+    "kick": 0.0,
+    "current": 0.39378483999999986,
+    "current_seq": 0.0,
+    "silence": 0.0,
+    "edge_scale": 0.0,
+    "param": 0.0
+   },
+   "magnitude_total": 0.39378483999999986
+  }
+ },
+ "container_stopped": true,
+ "real_system": "real:A:m1",
+ "checks": {
+  "public row protocol == dataset arrays": true,
+  "real mechanism: public row protocol == dataset arrays (built on Modal)": true,
+  "real mechanism: restart from a public trajectory served": true,
+  "restart from a public trajectory (recomputed source) == benchmark SimContext": true,
+  "restart from a public store key with the row's own events (pulse.1) == benchmark SimContext": true,
+  "fresh protocol == benchmark SimContext": true
+ },
+ "modal_comparison": {
+  "rows_modal": 713,
+  "rows_image": 529,
+  "image_rows_in_modal": true,
+  "same_store_keys": true,
+  "same_protocols": true,
+  "arrays_equal": {
+   "0014be063570": true,
+   "179ad844eefd": true,
+   "2da71be2c33d": true,
+   "431f5de19da2": true,
+   "562b0a5eb428": true,
+   "64ebbd01fc1f": true,
+   "7c625c2c0625": true,
+   "9621add36711": true,
+   "a818cf0ba495": true,
+   "bcca2f35bbeb": true,
+   "d2718ff8c7d8": true,
+   "e884ea03eb23": true
+  }
+ },
+ "passed": true,
+ "wall_s": 145.1
+}

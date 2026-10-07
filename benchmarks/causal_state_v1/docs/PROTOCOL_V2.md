@@ -19,10 +19,13 @@ content hash + the engine and simulator versions (`protocol_hash`). The store ke
                                            # system's capability["process_noise"]["supported"] (real systems: never; the engine
                                            # refuses it); development: null unless the capability gives a development range
  "r0": {"kind": "rest"}                    # the system's rest state (default)
-     | {"kind": "state", "values": {"<unit>": value, ...}}      # explicit initial microstate (units not listed = rest value)
+     | {"kind": "state", "values": {"<unit>": value, ...}}      # explicit initial microstate (units not listed = rest value);
+                                           # NOT a development protocol on any system (setting a unit's initial value is a kick at
+                                           # t = 0): the capability's init.state is false, the service refuses it
      | {"kind": "restart", "key": "<key>", "t": t}   # the full microstate of a stored trajectory at its sample time t (the
-                                           # service accepts the trajectory keys it served to the caller or published, and maps
-                                           # them to store keys; stored real states are float32)
+                                           # service accepts the trajectory keys it served to the caller, and the trajectory key
+                                           # or the meta.store_key of any public row, and maps them to store keys; stored real
+                                           # states are float32)
  "t_end": float, "dt": float,              # duration and output sampling (s)
  "stimulus": [[t, value], ...],            # piecewise-constant exogenous input u (value: float, or list for n_u > 1)
  "events": [event, ...],                   # interventions (below)
@@ -51,8 +54,9 @@ A trajectory record samples the state BEFORE an instantaneous event at its time 
 
 `family_of(protocol, system)` returns one label of the frozen vocabulary (ranges per system in its capability record):
 
-- observational: `obs.nominal`, `obs.stim` (stimulus schedule other than nominal), `obs.init` (r0 other than rest), `obs.param`,
-  `obs.wnoise`
+- observational: `obs.nominal`, `obs.stim` (stimulus schedule other than nominal), `obs.init` (r0 other than rest; in the
+  benchmark's data and in development: a RESTART from a sample time of a nominal passive trajectory of the same system, with that
+  trajectory's parameter draw and weight noise, so the initial-condition variability is passive), `obs.param`, `obs.wnoise`
 - single-event: `kick.1`, `kick.2`, `kick.g` (1 / 2 / >= 3 targets); `kick.hi` (1 target, magnitude above the development range);
   `pulse.1`, `pulse.2`, `pulse.g`, `pulse.hi` (current shorter than the pulse limit); `act.1` / `inh.1` (sustained or persistent
   positive / negative current, 1 target); `sil.1`, `sil.2`, `sil.g` (temporary), `sil.1p` (persistent, 1 target); `edge.w`
@@ -67,6 +71,9 @@ held-out data; the simulation service refuses them for this system) and the glob
 development on any system). Synthetic systems rotate their held-out sets across systems (rotations frozen in the benchmark).
 
 ## 3. Systems and capability records (`systems_public.json`)
+
+Capability records carry system-wide values only (no per-unit vectors: per-unit ranges or noise scales would reveal the units'
+roles); the per-unit public fields of a record are its observed, readout, target, member and edge lists and its public graph.
 
 ```
 {"system_id": str, "kind": "real" | "synthetic", "dt": float, "t_end_default": float,
@@ -88,10 +95,13 @@ An `ExperimentSet` is an ordered list of records with per-record provenance (who
 
 ## 8. Simulation access for developers
 
-Only through the service (`brainir_causal.simclient.SimClient`): request files in the room's queue, results back as arrays of the
-observed quantities only (x, u, y). The service refuses anything outside the public policy (held-out and hidden-only families,
-non-public targets and edges, hidden seed ranges, inputs outside the public range, truth events) and charges a per-agent budget.
-Identical protocols are served from the store.
+Only through the service (`brainir_causal.simclient.SimClient`): request files in your own queue (simq/<your scratch name>/; the
+client finds it), results back as arrays of the observed quantities only (x, u, y). The service refuses anything outside the public
+policy (held-out and hidden-only families, non-public targets and edges, hidden seed ranges, inputs outside the public range, truth
+events) and charges a per-agent budget. Identical protocols are served from the store. Every trajectory is computed on the
+benchmark's reference platform and equals, bit for bit, what the benchmark's own builds compute for the same protocol (the service
+refuses to simulate anywhere else); the first restart from a public trajectory may take longer (its source is recomputed, checked
+bit for bit against the public trajectory's arrays, and not charged).
 
 ## Family classification rules (`brainir_causal.families.family_of`)
 

@@ -1,0 +1,79 @@
+{
+ "battery_id": "0677fa4422a1cd06",
+ "built": {
+  "app_id": "ap-f2IhSRPCJQPwPsu2UVOmse",
+  "builder": "scripts/p4/build_numerics_reference.py",
+  "containers_admissible": 69,
+  "containers_total": 80,
+  "report": "research/phase4/numerics_selftest/build_report.json",
+  "shapes": {
+   "full32": {
+    "cpu": 32.0,
+    "image": "full",
+    "inputs": 16,
+    "memory_mib": 32768
+   },
+   "full4": {
+    "cpu": 4.0,
+    "image": "full",
+    "inputs": 32,
+    "memory_mib": 8192
+   },
+   "iso4": {
+    "cpu": 4.0,
+    "image": "iso",
+    "inputs": 32,
+    "memory_mib": 8192
+   }
+  },
+  "utc": "2026-09-27T22:54:12Z"
+ },
+ "items": {
+  "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d",
+  "generator": "ad89236afb6067731d99a684cf6afd54250eae3a373d38cc1a09bdd1906e031d",
+  "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+  "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+  "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+  "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+  "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+  "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+  "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+  "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+  "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+  "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+  "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+  "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+  "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847"
+ },
+ "reference_hosts": [
+  {
+   "class": "AuthenticAMD/fam143/model49/avx2",
+   "containers": 1
+  },
+  {
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "containers": 68
+  }
+ ],
+ "rereferenced": [
+  {
+   "builder": "scripts/p4/rereference_generator_item.py",
+   "generator_tree_sha256": "7648622ba680b4e00692826ce422fafabb45975b1de8ca7e2bd3abe891d0f9e4",
+   "host_class": "AuthenticAMD/fam25/model68/avx2",
+   "image": "brainir-p4-driver:1",
+   "item": "generator",
+   "new": "ad89236afb6067731d99a684cf6afd54250eae3a373d38cc1a09bdd1906e031d",
+   "old": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+   "reason": "generator v3.3 (code change); Modal reference not rebuildable (LOG P4-D68, P4-D71)",
+   "runs": 5,
+   "utc": "2026-09-28T22:26:44Z"
+  }
+ ],
+ "versions": {
+  "numpy": "2.5.3",
+  "python": "3.12.10",
+  "scipy": "1.18.1",
+  "torch": "2.14.0+cpu"
+ },
+ "what": "numerics self-test reference (p4modal/selftest.py; research/phase4/LEVEL_B_EXECUTION.md section 9)"
+}

@@ -8,9 +8,11 @@ BENCHMARK_LOCK.json records the LF-normalised sha256 of:
   hidden definition files and the salt COMMITMENT; the salt itself lives under data/phase4/hidden/ and is never hashed here);
 - the evaluation / generation / tournament code of `brainir_causal` (every module EXCEPT the `methods/` package, which receives
   method snapshots), its Modal backend, the orchestrator scripts listed in SCRIPTS, the phase4 environment files and the Docker
-  sandbox definition;
-- the manifests and indexes of the generated public datasets and of the orchestrator-held validation suite (trajectory files are
-  content-addressed by their keys; the sorted key list is hashed).
+  image definitions (the sandbox image, the simulation-service worker image);
+- the per-file sha256 BUILD MANIFESTS of every dataset directory (research/phase4/build_manifests/{real_public,real_B,syn_dev,
+  syn_val}_<system>.json: every file each build container wrote, per part; LOG P4-D33); `scripts/p4/freeze_manifests.py
+  --verify-local` checks the local copies (dev public part, public real data) against them file for file, `--remote` re-hashes the
+  volumes.
 `--check` fails on a changed or missing recorded file AND on any NEW file inside benchmarks/causal_state_v1/ or inside the hashed
 code directories (a post-freeze document belongs elsewhere). A change of any hashed file after the freeze is a new benchmark version
 with a logged reason (PROTOCOL.md section 12). The isolation tooling (scripts/p4agent, the room builder, the remote runner) is NOT
@@ -32,13 +34,18 @@ LOCK = BENCH / "BENCHMARK_LOCK.json"
 PKG = ROOT / "phase4" / "src" / "brainir_causal"
 TEXT = {".py", ".md", ".txt", ".json", ".jsonl", ".toml", ".cfg", ".yaml", ".yml", ".csv", ".lock", ".sh", ".in"}
 SKIP_PARTS = {"__pycache__", ".pytest_cache", ".ruff_cache"}
-SCRIPTS = ("scripts/p4/freeze_benchmark_p4.py", "scripts/p4/make_public_docs.py", "scripts/p4/calibrate.py", "scripts/p4/tournament.py",
-           "scripts/p4/modal_p4.py", "scripts/p4/build_suites.py", "scripts/p4/generate_real_public.py")
+#: every orchestrator script that builds, calibrates, evaluates or serves the benchmark (missing entries are an error at --write)
+SCRIPTS = ("scripts/p4/freeze_benchmark_p4.py", "scripts/p4/freeze_manifests.py", "scripts/p4/make_public_docs.py", "scripts/p4/calibrate.py",
+           "scripts/p4/tournament.py", "scripts/p4/modal_p4.py", "scripts/p4/build_on_modal.py", "scripts/p4/plan_synthetic.py",
+           "scripts/p4/simservice_docker.py", "scripts/p4/calibration_check_suite.py", "scripts/p4/calibration_check_real.py",
+           "scripts/p4/strip_row_field.py", "scripts/p4/verify_real_build.py", "scripts/p4/frozen_v1_smoke.py", "scripts/p4/method_lock_p4.py",
+           "scripts/p4/active_mde.py")
 ENV_FILES = ("phase4/pyproject.toml", "phase4/uv.lock", "phase4/.python-version")
-DOCKER_DIR = ROOT / "docker" / "p4sandbox"
-DATASET_ROOTS = ("data/phase4/public/real", "data/phase4/suites/dev/public", "data/phase4/suites/val/public",
-                 "data/phase4/suites/val/truth")
-DATASET_FILES = ("manifest.json", "index.jsonl", "pools.json", "lift_cases.json", "truth.json", "truth_index.jsonl")
+DOCKER_DIRS = (ROOT / "docker" / "p4sandbox", ROOT / "docker" / "p4simservice")
+#: the per-file sha256 build manifests of every dataset directory, one per system and tier, written by the build containers and stored
+#: by build_on_modal.py (LOG P4-D33); scripts/p4/freeze_manifests.py verifies the local copies (and optionally the volumes) against them
+MANIFEST_DIR = ROOT / "research" / "phase4" / "build_manifests"
+MANIFEST_PREFIXES = ("real_public_", "real_B_", "syn_dev_", "syn_val_")
 
 
 def sha(p: Path) -> str:
@@ -67,21 +74,16 @@ def collect() -> dict:
     for s in SCRIPTS + ENV_FILES:
         if (ROOT / s).exists():
             files[s] = sha(ROOT / s)
-    if DOCKER_DIR.exists():
-        for p in _walk(DOCKER_DIR):
+        else:
+            files[s] = "MISSING"
+    for dd in DOCKER_DIRS:
+        for p in _walk(dd):
             files[p.relative_to(ROOT).as_posix()] = sha(p)
     data = {}
-    for d in DATASET_ROOTS:
-        dd = ROOT / d
-        if not dd.exists():
-            continue
-        for f in DATASET_FILES:
-            if (dd / f).exists():
-                data[f"{d}/{f}"] = sha(dd / f)
-        tr = dd / "traj"
-        if tr.exists():
-            names = sorted(q.name for q in tr.rglob("*.npz"))
-            data[f"{d}/traj/<{len(names)} files: sha256 of the sorted name list>"] = hashlib.sha256("\n".join(names).encode()).hexdigest()
+    if MANIFEST_DIR.exists():
+        for p in sorted(MANIFEST_DIR.glob("*.json")):
+            if p.name.startswith(MANIFEST_PREFIXES):
+                data[p.relative_to(ROOT).as_posix()] = sha(p)
     return {"files": files, "datasets": data}
 
 
@@ -94,6 +96,10 @@ def main(argv=None) -> int:
     ap.add_argument("--reason", default="")
     args = ap.parse_args(argv)
     cur = collect()
+    missing = sorted(k for k, v in cur["files"].items() if v == "MISSING")
+    if args.write and (missing or not cur["datasets"]):
+        print(f"refusing to write: missing scripts {missing}, dataset manifests {len(cur['datasets'])} (run freeze_manifests.py)")
+        return 1
     if args.write:
         lock = {"benchmark": "causal_state_v1", "version": args.version, "frozen_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 "reason": args.reason, **cur}

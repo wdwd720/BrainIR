@@ -1,0 +1,2418 @@
+{
+ "what": "E11 profile: packings of the MDE loops and the packed / unpacked bit-identity check",
+ "created_utc": "2026-09-27T07:30:28Z",
+ "systems": [
+  "syn-69a0e7a4ffef",
+  "syn-9901c59557ef"
+ ],
+ "verify_system": "syn-9901c59557ef",
+ "verify_budget": 25,
+ "cls": "eval_xl",
+ "unpacked_cls": {
+  "2": "eval_s",
+  "4": "eval_s",
+  "8": "eval_l"
+ },
+ "mem_budget_gb": 112.0,
+ "wall_s": 4541.1,
+ "modal_cost": {
+  "app_id": "ap-CgqEeTqQahll3xksDePoBb",
+  "calls": [
+   {
+    "label": "call:brainir_causal.active_mde:reference_loop_job",
+    "class": "eval_l",
+    "calls": 2,
+    "container_s": 1579.4,
+    "peak_container_mb_max": 2582.8,
+    "usd_approx": 0.3899
+   },
+   {
+    "label": "call:brainir_causal.active_mde:reference_loop_job",
+    "class": "eval_s",
+    "calls": 2,
+    "container_s": 1761.1,
+    "peak_container_mb_max": 2590.2,
+    "usd_approx": 0.2174
+   },
+   {
+    "label": "call:brainir_causal.active_mde:reference_pack_job",
+    "class": "eval_xl",
+    "calls": 1,
+    "container_s": 1331.4,
+    "peak_container_mb_max": 53838.4,
+    "usd_approx": 0.9365
+   },
+   {
+    "label": "call:brainir_causal.active_mde:reference_loop_job",
+    "class": "eval_s",
+    "calls": 2,
+    "container_s": 1652.8,
+    "peak_container_mb_max": 2570.9,
+    "usd_approx": 0.204
+   },
+   {
+    "label": "call:brainir_causal.active_mde:reference_pack_job",
+    "class": "eval_xl",
+    "calls": 1,
+    "container_s": 2056.9,
+    "peak_container_mb_max": 37198.5,
+    "usd_approx": 1.4468
+   },
+   {
+    "label": "call:brainir_causal.active_mde:reference_pack_job",
+    "class": "eval_xl",
+    "calls": 1,
+    "container_s": 4516.6,
+    "peak_container_mb_max": 26110.5,
+    "usd_approx": 3.1768
+   }
+  ],
+  "usd_approx_total": 6.3714,
+  "refusals": {},
+  "hosts": {
+   "unknown": 9
+  }
+ },
+ "packings": {
+  "16x2": {
+   "pack": {
+    "workers": 16,
+    "threads": 2,
+    "mem_budget_gb": 112.0,
+    "n_loops": 6,
+    "n_rows": 24,
+    "phase1_s": 258.2,
+    "phase2_s": 1068.3,
+    "wall_s": 1326.5,
+    "crash_retries": 0,
+    "cpu_count": 48
+   },
+   "loops": [
+    {
+     "loop_id": "syn-9901c59557ef|full_state|fixed|s1",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 5,
+      "spent": 25.0,
+      "magnitude_budget": {
+       "kick_magnitude": 617.534955,
+       "current_dose": 0.0,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 0.0,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 25,
+       "n_events": 25
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 17.8
+    },
+    {
+     "loop_id": "syn-9901c59557ef|true_state|fixed|s1",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 5,
+      "spent": 25.0,
+      "magnitude_budget": {
+       "kick_magnitude": 617.534955,
+       "current_dose": 0.0,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 0.0,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 25,
+       "n_events": 25
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 18.8
+    },
+    {
+     "loop_id": "syn-9901c59557ef|full_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 1956.0807650000002,
+       "current_dose": 700.9279021070004,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 96.1
+    },
+    {
+     "loop_id": "syn-9901c59557ef|true_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 1956.0807650000002,
+       "current_dose": 700.9279021070004,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 96.2
+    },
+    {
+     "loop_id": "syn-69a0e7a4ffef|full_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 8655.694644000003,
+       "current_dose": 1460.8762214960007,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 254.4
+    },
+    {
+     "loop_id": "syn-69a0e7a4ffef|true_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 8655.694644000003,
+       "current_dose": 1460.8762214960007,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 254.7
+    }
+   ],
+   "tasks": [
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 324.23,
+     "fit_cpu_s": 638.58,
+     "eval_ctx_s": 72.91,
+     "eval_wall_s": 27.6,
+     "task_wall_s": 427.94,
+     "peak_gb": null,
+     "EE": 0.8382464713867737,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 399.41,
+     "fit_cpu_s": 778.23,
+     "eval_ctx_s": 33.65,
+     "eval_wall_s": 26.72,
+     "task_wall_s": 460.41,
+     "peak_gb": null,
+     "EE": 1.1244499696963748,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 388.26,
+     "fit_cpu_s": 764.13,
+     "eval_ctx_s": 40.49,
+     "eval_wall_s": 27.41,
+     "task_wall_s": 459.31,
+     "peak_gb": null,
+     "EE": 0.9417720869759761,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 394.62,
+     "fit_cpu_s": 776.91,
+     "eval_ctx_s": 40.37,
+     "eval_wall_s": 28.73,
+     "task_wall_s": 466.91,
+     "peak_gb": null,
+     "EE": 0.8383453031105284,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 395.15,
+     "fit_cpu_s": 774.84,
+     "eval_ctx_s": 41.71,
+     "eval_wall_s": 27.2,
+     "task_wall_s": 467.2,
+     "peak_gb": null,
+     "EE": 0.9822223751145363,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 543.45,
+     "fit_cpu_s": 1074.98,
+     "eval_ctx_s": 54.32,
+     "eval_wall_s": 40.61,
+     "task_wall_s": 639.82,
+     "peak_gb": null,
+     "EE": 0.7540442465695139,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 617.32,
+     "fit_cpu_s": 1221.72,
+     "eval_ctx_s": 14.21,
+     "eval_wall_s": 40.19,
+     "task_wall_s": 673.15,
+     "peak_gb": null,
+     "EE": 0.8638849243221528,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 665.4,
+     "fit_cpu_s": 1316.86,
+     "eval_ctx_s": 12.07,
+     "eval_wall_s": 39.95,
+     "task_wall_s": 718.91,
+     "peak_gb": null,
+     "EE": 1.2927040530045382,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 668.29,
+     "fit_cpu_s": 1320.66,
+     "eval_ctx_s": 11.94,
+     "eval_wall_s": 38.42,
+     "task_wall_s": 720.1,
+     "peak_gb": null,
+     "EE": 0.9332673430044836,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 669.93,
+     "fit_cpu_s": 1320.0,
+     "eval_ctx_s": 11.79,
+     "eval_wall_s": 40.42,
+     "task_wall_s": 723.55,
+     "peak_gb": null,
+     "EE": 0.942451271452026,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 357.47,
+     "fit_cpu_s": 710.58,
+     "eval_ctx_s": 16.39,
+     "eval_wall_s": 25.2,
+     "task_wall_s": 399.64,
+     "peak_gb": null,
+     "EE": 0.7778001297134286,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 373.79,
+     "fit_cpu_s": 742.86,
+     "eval_ctx_s": 14.65,
+     "eval_wall_s": 24.52,
+     "task_wall_s": 413.36,
+     "peak_gb": null,
+     "EE": 0.7828235520406112,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 390.78,
+     "fit_cpu_s": 774.92,
+     "eval_ctx_s": 14.07,
+     "eval_wall_s": 25.47,
+     "task_wall_s": 430.62,
+     "peak_gb": null,
+     "EE": 0.5232234844369245,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 808.47,
+     "fit_cpu_s": 1594.57,
+     "eval_ctx_s": 27.94,
+     "eval_wall_s": 55.16,
+     "task_wall_s": 892.02,
+     "peak_gb": null,
+     "EE": 1.7126012254907699,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 390.86,
+     "fit_cpu_s": 776.46,
+     "eval_ctx_s": 14.53,
+     "eval_wall_s": 25.07,
+     "task_wall_s": 430.75,
+     "peak_gb": null,
+     "EE": 0.6986372628703229,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 921.67,
+     "fit_cpu_s": 1815.62,
+     "eval_ctx_s": 25.46,
+     "eval_wall_s": 55.51,
+     "task_wall_s": 1004.35,
+     "peak_gb": null,
+     "EE": 1.502380161882948,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 293.51,
+     "fit_cpu_s": 583.08,
+     "eval_ctx_s": 14.58,
+     "eval_wall_s": 24.79,
+     "task_wall_s": 333.16,
+     "peak_gb": null,
+     "EE": 0.7805729202108849,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 958.68,
+     "fit_cpu_s": 1889.77,
+     "eval_ctx_s": 22.97,
+     "eval_wall_s": 55.62,
+     "task_wall_s": 1039.35,
+     "peak_gb": null,
+     "EE": 1.0257944770968195,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 963.74,
+     "fit_cpu_s": 1890.47,
+     "eval_ctx_s": 20.61,
+     "eval_wall_s": 55.32,
+     "task_wall_s": 1041.7,
+     "peak_gb": null,
+     "EE": 0.9923906431559059,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 985.87,
+     "fit_cpu_s": 1939.66,
+     "eval_ctx_s": 24.13,
+     "eval_wall_s": 55.62,
+     "task_wall_s": 1067.28,
+     "peak_gb": null,
+     "EE": 1.0568319895022154,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 646.81,
+     "fit_cpu_s": 1279.43,
+     "eval_ctx_s": 13.77,
+     "eval_wall_s": 40.36,
+     "task_wall_s": 701.21,
+     "peak_gb": null,
+     "EE": 0.7947901008839411,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 494.01,
+     "fit_cpu_s": 981.28,
+     "eval_ctx_s": 10.19,
+     "eval_wall_s": 39.26,
+     "task_wall_s": 543.52,
+     "peak_gb": null,
+     "EE": 0.7720434385450925,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 322.78,
+     "fit_cpu_s": 641.65,
+     "eval_ctx_s": 14.62,
+     "eval_wall_s": 24.54,
+     "task_wall_s": 362.01,
+     "peak_gb": null,
+     "EE": 0.7243047518545319,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 282.34,
+     "fit_cpu_s": 560.72,
+     "eval_ctx_s": 14.33,
+     "eval_wall_s": 24.37,
+     "task_wall_s": 321.1,
+     "peak_gb": null,
+     "EE": 0.7474172262087837,
+     "error": null
+    }
+   ],
+   "verification": {
+    "n_rows": 4,
+    "n_identical": 4,
+    "bit_identical": true,
+    "diffs": []
+   },
+   "unpacked_errors": []
+  },
+  "8x4": {
+   "pack": {
+    "workers": 8,
+    "threads": 4,
+    "mem_budget_gb": 112.0,
+    "n_loops": 6,
+    "n_rows": 24,
+    "phase1_s": 270.7,
+    "phase2_s": 1781.2,
+    "wall_s": 2051.9,
+    "crash_retries": 0,
+    "cpu_count": 48
+   },
+   "loops": [
+    {
+     "loop_id": "syn-9901c59557ef|full_state|fixed|s1",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 5,
+      "spent": 25.0,
+      "magnitude_budget": {
+       "kick_magnitude": 617.534955,
+       "current_dose": 0.0,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 0.0,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 25,
+       "n_events": 25
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 20.1
+    },
+    {
+     "loop_id": "syn-9901c59557ef|true_state|fixed|s1",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 5,
+      "spent": 25.0,
+      "magnitude_budget": {
+       "kick_magnitude": 617.534955,
+       "current_dose": 0.0,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 0.0,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 25,
+       "n_events": 25
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 21.6
+    },
+    {
+     "loop_id": "syn-9901c59557ef|full_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 1956.0807650000002,
+       "current_dose": 700.9279021070004,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 97.8
+    },
+    {
+     "loop_id": "syn-9901c59557ef|true_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 1956.0807650000002,
+       "current_dose": 700.9279021070004,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 98.1
+    },
+    {
+     "loop_id": "syn-69a0e7a4ffef|full_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 8655.694644000003,
+       "current_dose": 1460.8762214960007,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 265.1
+    },
+    {
+     "loop_id": "syn-69a0e7a4ffef|true_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 8655.694644000003,
+       "current_dose": 1460.8762214960007,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 266.2
+    }
+   ],
+   "tasks": [
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 380.86,
+     "fit_cpu_s": 1461.49,
+     "eval_ctx_s": 95.77,
+     "eval_wall_s": 25.3,
+     "task_wall_s": 502.39,
+     "peak_gb": null,
+     "EE": 1.1244499696963748,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 377.32,
+     "fit_cpu_s": 1463.64,
+     "eval_ctx_s": 94.44,
+     "eval_wall_s": 25.18,
+     "task_wall_s": 499.22,
+     "peak_gb": null,
+     "EE": 0.9822223751145363,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 362.64,
+     "fit_cpu_s": 1411.38,
+     "eval_ctx_s": 109.06,
+     "eval_wall_s": 25.65,
+     "task_wall_s": 499.67,
+     "peak_gb": null,
+     "EE": 0.9417720869759761,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 606.14,
+     "fit_cpu_s": 2342.64,
+     "eval_ctx_s": 31.22,
+     "eval_wall_s": 52.91,
+     "task_wall_s": 690.66,
+     "peak_gb": null,
+     "EE": 1.7216588903355832,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 742.48,
+     "fit_cpu_s": 2857.53,
+     "eval_ctx_s": 31.92,
+     "eval_wall_s": 52.71,
+     "task_wall_s": 828.37,
+     "peak_gb": null,
+     "EE": 1.5023801618829429,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 759.89,
+     "fit_cpu_s": 2919.68,
+     "eval_ctx_s": 29.51,
+     "eval_wall_s": 52.3,
+     "task_wall_s": 842.97,
+     "peak_gb": null,
+     "EE": 1.0568319895022154,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 771.13,
+     "fit_cpu_s": 2954.71,
+     "eval_ctx_s": 25.65,
+     "eval_wall_s": 54.33,
+     "task_wall_s": 852.77,
+     "peak_gb": null,
+     "EE": 0.9923906431559059,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 837.82,
+     "fit_cpu_s": 3245.99,
+     "eval_ctx_s": 28.18,
+     "eval_wall_s": 53.85,
+     "task_wall_s": 921.51,
+     "peak_gb": null,
+     "EE": 1.0257944770968195,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 393.39,
+     "fit_cpu_s": 1553.67,
+     "eval_ctx_s": 0.0,
+     "eval_wall_s": 25.15,
+     "task_wall_s": 419.14,
+     "peak_gb": null,
+     "EE": 0.8382464713867737,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 446.62,
+     "fit_cpu_s": 1763.77,
+     "eval_ctx_s": 0.0,
+     "eval_wall_s": 25.13,
+     "task_wall_s": 472.26,
+     "peak_gb": null,
+     "EE": 0.8383453031105284,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 651.71,
+     "fit_cpu_s": 2568.55,
+     "eval_ctx_s": 76.79,
+     "eval_wall_s": 37.7,
+     "task_wall_s": 766.51,
+     "peak_gb": null,
+     "EE": 0.942451271452026,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 625.82,
+     "fit_cpu_s": 2480.01,
+     "eval_ctx_s": 12.49,
+     "eval_wall_s": 36.92,
+     "task_wall_s": 675.6,
+     "peak_gb": null,
+     "EE": 0.9332673430044836,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 364.04,
+     "fit_cpu_s": 1439.5,
+     "eval_ctx_s": 17.28,
+     "eval_wall_s": 24.04,
+     "task_wall_s": 405.58,
+     "peak_gb": null,
+     "EE": 0.5232234844369245,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 564.05,
+     "fit_cpu_s": 2237.96,
+     "eval_ctx_s": 12.86,
+     "eval_wall_s": 36.9,
+     "task_wall_s": 614.13,
+     "peak_gb": null,
+     "EE": 0.8638849243221528,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 604.26,
+     "fit_cpu_s": 2397.71,
+     "eval_ctx_s": 11.39,
+     "eval_wall_s": 37.02,
+     "task_wall_s": 653.21,
+     "peak_gb": null,
+     "EE": 1.2927040530045382,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 518.85,
+     "fit_cpu_s": 2056.31,
+     "eval_ctx_s": 10.8,
+     "eval_wall_s": 36.87,
+     "task_wall_s": 566.76,
+     "peak_gb": null,
+     "EE": 0.7540442465695139,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 337.48,
+     "fit_cpu_s": 1334.39,
+     "eval_ctx_s": 16.25,
+     "eval_wall_s": 24.15,
+     "task_wall_s": 378.24,
+     "peak_gb": null,
+     "EE": 0.6986372628703229,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 314.24,
+     "fit_cpu_s": 1245.27,
+     "eval_ctx_s": 15.13,
+     "eval_wall_s": 23.21,
+     "task_wall_s": 352.9,
+     "peak_gb": null,
+     "EE": 0.7778001297134286,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 317.48,
+     "fit_cpu_s": 1258.29,
+     "eval_ctx_s": 0.0,
+     "eval_wall_s": 22.94,
+     "task_wall_s": 340.61,
+     "peak_gb": null,
+     "EE": 0.7828235520406112,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 264.87,
+     "fit_cpu_s": 1051.24,
+     "eval_ctx_s": 14.73,
+     "eval_wall_s": 22.94,
+     "task_wall_s": 302.77,
+     "peak_gb": null,
+     "EE": 0.7805729202108849,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 551.96,
+     "fit_cpu_s": 2190.86,
+     "eval_ctx_s": 12.39,
+     "eval_wall_s": 37.85,
+     "task_wall_s": 602.26,
+     "peak_gb": null,
+     "EE": 0.7947901008839411,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 520.76,
+     "fit_cpu_s": 2060.78,
+     "eval_ctx_s": 10.29,
+     "eval_wall_s": 36.12,
+     "task_wall_s": 567.23,
+     "peak_gb": null,
+     "EE": 0.7720434385450925,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 284.48,
+     "fit_cpu_s": 1127.42,
+     "eval_ctx_s": 14.9,
+     "eval_wall_s": 23.86,
+     "task_wall_s": 323.28,
+     "peak_gb": null,
+     "EE": 0.7243047518545319,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 260.37,
+     "fit_cpu_s": 1030.73,
+     "eval_ctx_s": 14.28,
+     "eval_wall_s": 23.72,
+     "task_wall_s": 298.42,
+     "peak_gb": null,
+     "EE": 0.7474172262087837,
+     "error": null
+    }
+   ],
+   "verification": {
+    "n_rows": 4,
+    "n_identical": 4,
+    "bit_identical": true,
+    "diffs": []
+   },
+   "unpacked_errors": []
+  },
+  "4x8": {
+   "pack": {
+    "workers": 4,
+    "threads": 8,
+    "mem_budget_gb": 112.0,
+    "n_loops": 6,
+    "n_rows": 24,
+    "phase1_s": 616.7,
+    "phase2_s": 3889.8,
+    "wall_s": 4506.5,
+    "crash_retries": 0,
+    "cpu_count": 48
+   },
+   "loops": [
+    {
+     "loop_id": "syn-9901c59557ef|full_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 1956.0807650000002,
+       "current_dose": 700.9279021070004,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 460.4
+    },
+    {
+     "loop_id": "syn-9901c59557ef|true_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 1956.0807650000002,
+       "current_dose": 700.9279021070004,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 460.6
+    },
+    {
+     "loop_id": "syn-9901c59557ef|full_state|fixed|s1",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 5,
+      "spent": 25.0,
+      "magnitude_budget": {
+       "kick_magnitude": 617.534955,
+       "current_dose": 0.0,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 0.0,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 25,
+       "n_events": 25
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 38.7
+    },
+    {
+     "loop_id": "syn-9901c59557ef|true_state|fixed|s1",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 5,
+      "spent": 25.0,
+      "magnitude_budget": {
+       "kick_magnitude": 617.534955,
+       "current_dose": 0.0,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 0.0,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 25,
+       "n_events": 25
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 39.2
+    },
+    {
+     "loop_id": "syn-69a0e7a4ffef|full_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 8655.694644000003,
+       "current_dose": 1460.8762214960007,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 612.5
+    },
+    {
+     "loop_id": "syn-69a0e7a4ffef|true_state|random|s0",
+     "checkpoints": [
+      {
+       "budget": 10,
+       "spent": 10.0,
+       "n_records": 60,
+       "experiments": 10,
+       "trajectories": 20
+      },
+      {
+       "budget": 25,
+       "spent": 25.0,
+       "n_records": 90,
+       "experiments": 25,
+       "trajectories": 50
+      },
+      {
+       "budget": 50,
+       "spent": 50.0,
+       "n_records": 140,
+       "experiments": 50,
+       "trajectories": 100
+      },
+      {
+       "budget": 100,
+       "spent": 100.0,
+       "n_records": 240,
+       "experiments": 100,
+       "trajectories": 200
+      },
+      {
+       "budget": 200,
+       "spent": 200.0,
+       "n_records": 440,
+       "experiments": 200,
+       "trajectories": 400
+      }
+     ],
+     "loop": {
+      "refused": 0,
+      "sim_errors": 0,
+      "stopped_early": null,
+      "rounds": 40,
+      "spent": 200.0,
+      "magnitude_budget": {
+       "kick_magnitude": 8655.694644000003,
+       "current_dose": 1460.8762214960007,
+       "silence_unit_s": 0.0,
+       "edge_scale_depth_s": 31.20622049100001,
+       "param_change_s": 0.0,
+       "n_intervention_protocols": 200,
+       "n_events": 200
+      },
+      "refusals_tail": [],
+      "n_d0": 40
+     },
+     "wall_s": 612.8
+    }
+   ],
+   "tasks": [
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 743.94,
+     "fit_cpu_s": 5707.01,
+     "eval_ctx_s": 939.54,
+     "eval_wall_s": 59.0,
+     "task_wall_s": 1742.9,
+     "peak_gb": null,
+     "EE": 1.05836352538435,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 691.59,
+     "fit_cpu_s": 5325.54,
+     "eval_ctx_s": 991.96,
+     "eval_wall_s": 59.08,
+     "task_wall_s": 1742.97,
+     "peak_gb": null,
+     "EE": 1.5023801536260173,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 761.81,
+     "fit_cpu_s": 5840.69,
+     "eval_ctx_s": 920.95,
+     "eval_wall_s": 59.13,
+     "task_wall_s": 1743.03,
+     "peak_gb": null,
+     "EE": 1.0257944772196956,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 786.44,
+     "fit_cpu_s": 5959.13,
+     "eval_ctx_s": 896.32,
+     "eval_wall_s": 59.71,
+     "task_wall_s": 1743.61,
+     "peak_gb": null,
+     "EE": 0.9923906546595174,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 340.67,
+     "fit_cpu_s": 2665.34,
+     "eval_ctx_s": 35.24,
+     "eval_wall_s": 30.12,
+     "task_wall_s": 406.36,
+     "peak_gb": null,
+     "EE": 0.9417720869759761,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 350.48,
+     "fit_cpu_s": 2724.91,
+     "eval_ctx_s": 30.68,
+     "eval_wall_s": 30.4,
+     "task_wall_s": 412.1,
+     "peak_gb": null,
+     "EE": 0.9822223751145363,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 357.21,
+     "fit_cpu_s": 2740.59,
+     "eval_ctx_s": 29.82,
+     "eval_wall_s": 29.75,
+     "task_wall_s": 417.37,
+     "peak_gb": null,
+     "EE": 1.1244499696963748,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 579.78,
+     "fit_cpu_s": 4481.41,
+     "eval_ctx_s": 0.0,
+     "eval_wall_s": 57.86,
+     "task_wall_s": 638.31,
+     "peak_gb": null,
+     "EE": 1.7809011979177276,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 283.82,
+     "fit_cpu_s": 2234.41,
+     "eval_ctx_s": 0.0,
+     "eval_wall_s": 30.11,
+     "task_wall_s": 314.5,
+     "peak_gb": null,
+     "EE": 0.8382464713867737,
+     "error": null
+    },
+    {
+     "system": "syn-69a0e7a4ffef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 316.99,
+     "fit_cpu_s": 2487.13,
+     "eval_ctx_s": 0.0,
+     "eval_wall_s": 30.04,
+     "task_wall_s": 347.71,
+     "peak_gb": null,
+     "EE": 0.8383453031105284,
+     "error": null
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 513.1,
+     "fit_cpu_s": 4031.6,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 737.25,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 510.55,
+     "fit_cpu_s": 4015.47,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 516.39,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 470.6,
+     "fit_cpu_s": 3707.01,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 473.06,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 519.39,
+     "fit_cpu_s": 4084.52,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 521.99,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 200,
+     "n_records": 440,
+     "fit_wall_s": 303.5,
+     "fit_cpu_s": 2379.48,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 306.12,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 424.64,
+     "fit_cpu_s": 3353.95,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 426.92,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 100,
+     "n_records": 240,
+     "fit_wall_s": 310.9,
+     "fit_cpu_s": 2447.34,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 313.41,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 50,
+     "n_records": 140,
+     "fit_wall_s": 308.11,
+     "fit_cpu_s": 2432.76,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 310.64,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 296.86,
+     "fit_cpu_s": 2349.33,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 299.23,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "random",
+     "loop_seed": 0,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 258.66,
+     "fit_cpu_s": 2032.92,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 261.09,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 412.87,
+     "fit_cpu_s": 3266.41,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 415.12,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "full_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 500.2,
+     "fit_cpu_s": 3950.34,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 502.6,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 25,
+     "n_records": 90,
+     "fit_wall_s": 302.64,
+     "fit_cpu_s": 2398.43,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 304.92,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    },
+    {
+     "system": "syn-9901c59557ef",
+     "learner": "true_state",
+     "designer": "fixed",
+     "loop_seed": 1,
+     "budget": 10,
+     "n_records": 60,
+     "fit_wall_s": 250.84,
+     "fit_cpu_s": 1966.27,
+     "eval_ctx_s": null,
+     "eval_wall_s": null,
+     "task_wall_s": 253.07,
+     "peak_gb": null,
+     "EE": NaN,
+     "error": "FileNotFoundError: [Errno 2] No such file or directory: '/evalvol/data/suites/dev/eval/syn-9901c59557ef/traj/1c4f2a67aac5e7e10b8ee2b149e885090ad676af096e6cf18642a669e1932ed6.npz'"
+    }
+   ],
+   "verification": {
+    "n_rows": 4,
+    "n_identical": 0,
+    "bit_identical": false,
+    "diffs": [
+     {
+      "row": [
+       "syn-9901c59557ef",
+       "full_state",
+       "fixed",
+       1,
+       10
+      ],
+      "fields": {
+       "EE": [
+        NaN,
+        0.772043438548452
+       ],
+       "EE_ci95": [
+        null,
+        [
+         0.6974785190118041,
+         0.8307964882056339
+        ]
+       ],
+       "EE_pooled": [
+        null,
+        1.0037747325358357
+       ],
+       "n_cells": [
+        null,
+        52
+       ],
+       "n_items": [
+        null,
+        208
+       ],
+       "n_abstained": [
+        null,
+        168
+       ],
+       "n_failed": [
+        null,
+        0
+       ]
+      }
+     },
+     {
+      "row": [
+       "syn-9901c59557ef",
+       "full_state",
+       "fixed",
+       1,
+       25
+      ],
+      "fields": {
+       "EE": [
+        NaN,
+        0.7947942538079676
+       ],
+       "EE_ci95": [
+        null,
+        [
+         0.6742560364539539,
+         0.8966851989697795
+        ]
+       ],
+       "EE_pooled": [
+        null,
+        1.0608416309386541
+       ],
+       "n_cells": [
+        null,
+        52
+       ],
+       "n_items": [
+        null,
+        208
+       ],
+       "n_abstained": [
+        null,
+        168
+       ],
+       "n_failed": [
+        null,
+        0
+       ]
+      }
+     },
+     {
+      "row": [
+       "syn-9901c59557ef",
+       "true_state",
+       "fixed",
+       1,
+       10
+      ],
+      "fields": {
+       "EE": [
+        NaN,
+        0.7474172262087837
+       ],
+       "EE_ci95": [
+        null,
+        [
+         0.6947280274214284,
+         0.7884657311111486
+        ]
+       ],
+       "EE_pooled": [
+        null,
+        0.9582754211883001
+       ],
+       "n_cells": [
+        null,
+        52
+       ],
+       "n_items": [
+        null,
+        208
+       ],
+       "n_abstained": [
+        null,
+        196
+       ],
+       "n_failed": [
+        null,
+        0
+       ],
+       "n_probe_encodes": [
+        null,
+        0
+       ]
+      }
+     },
+     {
+      "row": [
+       "syn-9901c59557ef",
+       "true_state",
+       "fixed",
+       1,
+       25
+      ],
+      "fields": {
+       "EE": [
+        NaN,
+        0.7243047518545319
+       ],
+       "EE_ci95": [
+        null,
+        [
+         0.6483640450283035,
+         0.7842648983197166
+        ]
+       ],
+       "EE_pooled": [
+        null,
+        0.907633323090424
+       ],
+       "n_cells": [
+        null,
+        52
+       ],
+       "n_items": [
+        null,
+        208
+       ],
+       "n_abstained": [
+        null,
+        192
+       ],
+       "n_failed": [
+        null,
+        0
+       ],
+       "n_probe_encodes": [
+        null,
+        0
+       ]
+      }
+     }
+    ]
+   },
+   "unpacked_errors": []
+  }
+ }
+}

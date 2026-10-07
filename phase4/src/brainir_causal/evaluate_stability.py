@@ -5,13 +5,16 @@
                                                   intervention record together with its twin) resampled with replacement, passive
                                                   records kept (a resampled item appears once per draw; a duplicated record is
                                                   copied under a suffixed key so methods see distinct records)
-    `dimension_stability(ks, k_range, ...)`       STABLE when the modal k occurs in >= 4 of 5 refits (generally >= 80 %), every refit
-                                                  selected a k, and every k lies in the method's reported plausible range (no range
-                                                  reported: every k equals the modal k, as `verdict.dimension_status`); otherwise
-                                                  "dimension unresolved: min-max". Also k = k_true and k_true within the range
-                                                  (synthetic), and COMPACT:
+    `dimension_stability(ks, k_range, level=...)` every refit must select a k. Level C (5 bootstrap refits): STABLE when the modal
+                                                  k occurs in >= 4 of 5 (generally >= 80 %) and every k lies in the method's reported
+                                                  plausible range (no range reported: every k equals the modal k, as
+                                                  `verdict.dimension_status`). Level B (the 3 fit seeds): STABLE when all three k are
+                                                  equal, or all lie within the reported range. Otherwise "dimension unresolved:
+                                                  min-max". Also k = k_true and k_true within the range (synthetic), and COMPACT:
                                                   k <= max(1, N_obs / 5) for full-network and synthetic systems (mechanisms: None, judged
-                                                  on the other conditions)
+                                                  on stability only). The benchmark references have a fixed k: stable by construction
+                                                  (`REFERENCE_DIMENSION`), an asymmetry stated wherever the true-state reference's
+                                                  pass rate P_t is used (PROTOCOL 5.10)
 
 5.11 REPRESENTATION STABILITY (all pairs of fitted models of one method: seeds, bootstrap refits)
     latents are sampled at fixed times of the validation (fit) and test (measure) trajectories; linear maps are FITTED on validation
@@ -37,6 +40,8 @@ import numpy as np
 from .fresh import as_fresh, safe_call
 
 STABLE_FRACTION = 0.8
+REFERENCE_DIMENSION = {"stable": True, "note": "benchmark reference: k fixed by construction, stable without refits (PROTOCOL 5.10; an "
+                                               "asymmetry against methods, which must earn F over refits)"}
 
 
 # ------------------------------------------------------------------------------------------------------------ 5.10
@@ -101,20 +106,29 @@ def bootstrap_interventions(records: list, n: int = 5, seed: int = 0) -> list[li
 
 
 def dimension_stability(ks: list[int | None], k_range: list[int] | tuple[int, int] | None = None, *, k_true: int | str | None = None,
-                        n_obs: int | None = None, mode: str = "synthetic") -> dict:
+                        n_obs: int | None = None, mode: str = "synthetic", level: str = "C") -> dict:
     """PROTOCOL 5.10 on the selected k of each refit (None = the method abstained / failed on that refit). mode: 'synthetic', 'full'
-    or 'mech' (mechanisms are judged on the other conditions: compact None)."""
+    or 'mech' (mechanisms are judged on stability only: compact None); level: 'C' (bootstrap refits) or 'B' (fit seeds)."""
+    if level not in ("B", "C"):
+        raise ValueError("level must be 'B' or 'C'")
     vals = [int(k) for k in ks if k is not None]
     n = len(ks)
-    out: dict = {"ks": [None if k is None else int(k) for k in ks], "n_refits": n, "n_valid": len(vals), "k_range": k_range}
+    out: dict = {"ks": [None if k is None else int(k) for k in ks], "n_refits": n, "n_valid": len(vals), "k_range": k_range, "level": level}
     if not vals:
         out.update(stable=False, verdict="dimension unresolved: no refit selected a dimension", modal_k=None, modal_fraction=0.0)
         return out
     modal, cnt = Counter(vals).most_common(1)[0]
     frac = cnt / n
-    # without a reported range the range is the point k (the same reading as verdict.dimension_status)
-    in_range = all(k == modal for k in vals) if k_range is None else all(k_range[0] <= k <= k_range[1] for k in vals)
-    stable = bool(frac >= STABLE_FRACTION - 1e-12 and in_range and len(vals) == n)
+    all_equal = len(set(vals)) == 1
+    within = k_range is not None and all(k_range[0] <= k <= k_range[1] for k in vals)
+    if level == "B":
+        # all three fit seeds select the same k, or all lie within the reported range
+        in_range = all_equal or within
+        stable = bool(len(vals) == n and in_range)
+    else:
+        # without a reported range the range is the point k (the same reading as verdict.dimension_status)
+        in_range = all_equal if k_range is None else within
+        stable = bool(frac >= STABLE_FRACTION - 1e-12 and in_range and len(vals) == n)
     out.update(modal_k=int(modal), modal_fraction=float(frac), all_in_range=bool(in_range), stable=stable,
                verdict=f"stable: k = {modal}" if stable else f"dimension unresolved: {min(vals)}-{max(vals)}")
     if k_true is not None and k_true != "none":
@@ -292,7 +306,9 @@ def effect_disagreement(eff_a: dict, eff_b: dict, records: list, horizon_s: floa
 def latent_flows(model, sid: str, records: list, where: list, horizon_s: float) -> np.ndarray:
     """Passive latent flow z(t + h) - z(t) from each sampled state (rollout without events on the record's own future input)."""
     F = as_fresh(model)
-    out = []
+    out: list = []
+    width = None                    # the latent width: from the first successful flow, else from the first encoded state
+    z_width = None
     for ri, i in where:
         r = records[ri]
         dt = _dt(r)
@@ -302,13 +318,20 @@ def latent_flows(model, sid: str, records: list, where: list, horizon_s: float) 
         if len(uf) < n_h + 1:
             uf = np.vstack([uf, np.repeat(uf[-1:], n_h + 1 - len(uf), 0)])
         z0, e1 = safe_call(F.encode, sid, x[: i + 1], u[: i + 1], dt)
+        if z0 is not None and z_width is None:
+            z_width = int(np.size(z0))
         ro, e2 = (safe_call(F.rollout, sid, z0, uf, [], dt) if e1 is None else (None, e1))
         if e2 is None and ro is not None:
             Z = np.asarray(ro["z"], float)
-            out.append(Z[-1] - Z[0])
+            f = np.asarray(Z[-1] - Z[0], float).reshape(-1)
+            width = f.shape[0] if width is None else width
+            out.append(f)
         else:
-            out.append(np.full(np.shape(z0) if z0 is not None else (1,), np.nan))
-    return np.stack(out) if out else np.zeros((0, 0))
+            out.append(None)        # a failed encoding / rollout: a NaN row of the latent width (a crash never sinks the metric)
+    if not out:
+        return np.zeros((0, 0))
+    width = width if width is not None else (z_width or 1)
+    return np.stack([f if f is not None and f.shape[0] == width else np.full(width, np.nan) for f in out])
 
 
 def vector_field_similarity(Fa: np.ndarray, Fb: np.ndarray, M: np.ndarray) -> dict:

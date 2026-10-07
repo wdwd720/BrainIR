@@ -1,4 +1,6 @@
-"""The method sandbox (brainir_causal.runguard) and the sandboxed runner (brainir_causal.runner fit)."""
+"""The in-process TRIPWIRE (brainir_causal.runguard) and the sandboxed runner (brainir_causal.runner fit). The tripwire is a
+best-effort early failure, NOT the isolation boundary: the boundary is the model-worker architecture, tested in
+test_worker_codec.py / test_isolation_local.py / test_eval_isolation_docker.py (research/phase4/EVAL_ARCHITECTURE.md)."""
 
 from __future__ import annotations
 
@@ -21,14 +23,14 @@ def _run(code: str, tmp: Path) -> subprocess.CompletedProcess:
     return subprocess.run([sys.executable, str(script)], capture_output=True, text=True, env=env, timeout=120, check=False)
 
 
-def test_fit_guard_refuses_outside_reads_processes_and_network(tmp_path):
+def test_tripwire_refuses_outside_reads_processes_and_network(tmp_path):
     allowed = tmp_path / "allowed"
     allowed.mkdir()
     (allowed / "ok.txt").write_text("fine", encoding="utf-8")
     secret = ROOT / "benchmarks" / "causal_state_v1" / "PROTOCOL.md"
     code = f"""
-        from brainir_causal.runguard import install_fit_guard
-        install_fit_guard([r"{allowed}"])
+        from brainir_causal.runguard import install_tripwire
+        tw = install_tripwire([r"{allowed}"])
         print(open(r"{allowed / 'ok.txt'}").read())
         for what, fn in (("read", lambda: open(r"{secret}").read()),
                          ("proc", lambda: __import__("subprocess").run(["cmd", "/c", "echo", "x"])),
@@ -40,6 +42,7 @@ def test_fit_guard_refuses_outside_reads_processes_and_network(tmp_path):
                 print("DENIED", what)
             except OSError as e:
                 print("OSERROR", what, type(e).__name__)
+        print("HITS", len(tw.hits))
     """
     p = _run(code, tmp_path)
     out = p.stdout
@@ -47,28 +50,44 @@ def test_fit_guard_refuses_outside_reads_processes_and_network(tmp_path):
     assert "DENIED read" in out and "DENIED proc" in out and "DENIED net" in out, out + p.stderr
 
 
-def test_eval_guard_restricts_method_frames_only(tmp_path):
-    mdir = tmp_path / "methods"
-    mdir.mkdir()
-    (mdir / "evil.py").write_text(textwrap.dedent(f"""
-        def read_secret():
-            return open(r"{ROOT / 'benchmarks' / 'causal_state_v1' / 'PROTOCOL.md'}").read()[:10]
-    """), encoding="utf-8")
+def test_tripwire_state_is_not_a_module_attribute(tmp_path):
+    """review F, F-B2: the old guard had a module-level re-entrancy flag that method code could set to switch it off. The tripwire
+    keeps its state in a closure, so there is nothing to assign; a thread whose target is exec is covered too (process-wide hook)."""
+    secret = ROOT / "benchmarks" / "causal_state_v1" / "PROTOCOL.md"
     code = f"""
-        import sys
-        sys.path.insert(0, r"{mdir}")
-        from brainir_causal.runguard import install_eval_guard
-        install_eval_guard([r"{mdir}"], allowed=[r"{mdir}"])
-        import evil
-        print("evaluator can read:", len(open(r"{ROOT / 'benchmarks' / 'causal_state_v1' / 'PROTOCOL.md'}").read()) > 0)
+        import threading
+        import brainir_causal.runguard as g
+        g.install_tripwire([r"{tmp_path}"])
+        # no module attribute switches it off
+        assert not hasattr(g, "_TL"), "runguard still exposes a module-level re-entrancy flag"
         try:
-            evil.read_secret()
-            print("METHOD READ ALLOWED")
+            open(r"{secret}").read()
+            print("DIRECT ALLOWED")
         except PermissionError:
-            print("METHOD READ DENIED")
+            print("DIRECT DENIED")
+        box = {{}}
+        src = "open(r'{str(secret).replace(chr(92), '/')}').read()"
+        def run():
+            try:
+                exec(compile(src, "<gen>", "exec"), {{}})
+                box["r"] = "THREAD ALLOWED"
+            except PermissionError:
+                box["r"] = "THREAD DENIED"
+            except Exception as e:
+                box["r"] = "THREAD " + type(e).__name__
+        t = threading.Thread(target=run)
+        t.start(); t.join()
+        print(box["r"])
     """
     p = _run(code, tmp_path)
-    assert "evaluator can read: True" in p.stdout and "METHOD READ DENIED" in p.stdout, p.stdout + p.stderr
+    assert "DIRECT DENIED" in p.stdout and "THREAD DENIED" in p.stdout, p.stdout + p.stderr
+
+
+def test_retired_eval_guard_refuses():
+    from brainir_causal.runguard import install_eval_guard
+    import pytest as _pytest
+    with _pytest.raises(RuntimeError):
+        install_eval_guard(["x"], allowed=["x"])
 
 
 @pytest.mark.slow

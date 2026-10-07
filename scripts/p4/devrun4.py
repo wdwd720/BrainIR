@@ -6,14 +6,20 @@
     uv run --no-sync --project phase4 python scripts/p4/devrun4.py smoke --room ROOM --class small|gpu-t4 [--script runs/smoke/x.py]
 
 Room agents have no Modal access, no credentials and no network. From the Docker sandbox they drop a request (a Python script of their
-own work area, its arguments, a resource class) into runs/_remote/queue/requests/ with the room's client (tools/remote_run.py). This
-daemon validates the request and runs it on Modal:
+own work area, its arguments, a resource class) into THEIR OWN queue runs/<prefix>/_remote/requests/ with the room's client
+(tools/remote_run.py; <prefix> = the agent's scratch name, the only runs/ subdirectory its sandbox can write: review F round 2, N-M2).
+This daemon serves every developer's queue, takes the prefix from the queue's directory (a request may only run a script of that
+same runs/<prefix>/), validates the request and runs it on Modal:
 - the images hold the room's pinned numerical stack (the local sandbox image's requirements, the same python:3.12-slim base) and NO
   repository code; CPU images carry the development machine's numerics pins; GPU images use PyPI's CUDA build of torch 2.14.0;
 - the job brings the room's src/, baselines/ and the requesting developer's runs/<prefix>/ as a tar;
 - the only volume is `brainir-p4-devdata`, an exact copy of the room's data/ directory (every file verified by sha256); no Phase 3
   volume (brainir-p3-*) is ever mounted, no hidden / truth data, no orchestrator module, no simulation service;
-- the job's own processes cannot use the network or start other programs (audit-hook guard scripts/p4/devrun4_site);
+- every job runs in its OWN Modal Sandbox with NO network at all (block_network: the code goes in and the results come out through
+  the sandbox filesystem API on the orchestrator side), no Modal credentials inside, the dev-data volume mounted READ-ONLY; the job
+  runs as an unprivileged user (it cannot read the sandbox runtime's environment or memory) with an environment built from scratch
+  (no MODAL_* variables); in addition its own Python processes cannot use sockets or start other programs (audit-hook guard
+  scripts/p4/devrun4_site; defence in depth) (early review F, F-M7; research/phase4/devrun4_isolation_smoke.json);
 - new or changed files under runs/<prefix>/ come back into the room under runs/<prefix>/remote/<job id>/ (size capped).
 Every job is recorded outside the room (C:\\Dev\\BrainIR_p4audit\\remote_runner.jsonl: request, code-tar hash, result hash, exit code,
 peak memory, wall time, class, GPU).
@@ -55,11 +61,22 @@ MAX_RUNNING_GPU = 16
 MAX_CODE_TAR = 300 * 1024 * 1024
 MAX_RESULT_TAR = 500 * 1024 * 1024
 MAX_FILE_IN_CODE = 25 * 1024 * 1024
+JOB_UID = 65534                                         # the job runs as "nobody" inside its container
 SAFE_ARG = re.compile(r"^[\w.,:=+\-/@% ]*$")
 
 
-def _queue(room: Path) -> Path:
-    return room / "runs" / "_remote" / "queue"
+def _queue(room: Path, prefix: str) -> Path:
+    """The request queue of one developer: runs/<prefix>/_remote (requests/, status/, results/)."""
+    return room / "runs" / prefix / "_remote"
+
+
+def _queues(room: Path) -> dict[str, Path]:
+    """{prefix: queue} of every developer's work area under runs/ (names starting with '_' or '.' are not developers)."""
+    runs = room / "runs"
+    if not runs.is_dir():
+        return {}
+    return {d.name: _queue(room, d.name) for d in sorted(runs.iterdir())
+            if d.is_dir() and not d.is_symlink() and not d.name.startswith(("_", ".")) and re.fullmatch(r"[A-Za-z0-9_][A-Za-z0-9_.-]*", d.name)}
 
 
 # ------------------------------------------------------------------------------------------------ Modal definitions
@@ -72,11 +89,14 @@ def image(gpu: bool):
     else:
         img = img.pip_install("torch==2.14.0", index_url="https://download.pytorch.org/whl/cpu", extra_options="--no-deps")
         env = {"PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1", **CPU_PINS}
-    return img.env(env).add_local_dir(str(Path(__file__).resolve().parent / "devrun4_site"), "/opt/devguard")
+    here = Path(__file__).resolve()
+    return (img.env(env).add_local_file(str(here.parent / "devrun4_site" / "sitecustomize.py"), "/opt/devguard/sitecustomize.py")
+            .add_local_file(str(here), "/opt/devrun/devrun4.py"))
 
 
 def _run_job(payload: dict) -> dict:
-    """Container side: unpack the room code, link the data, run the script, return the new / changed files of the work area."""
+    """Container side (as root, inside the job's sandbox): unpack the room code, link the data, run the script as an unprivileged
+    user, return the new / changed files of the work area."""
     import resource
     import subprocess
     t0 = time.time()
@@ -89,6 +109,11 @@ def _run_job(payload: dict) -> dict:
         (room / "data").symlink_to("/devdata")
     prefix = payload["prefix"]
     work = room / "runs" / prefix
+    work.mkdir(parents=True, exist_ok=True)
+    for q in [work, *work.rglob("*")]:                  # the job runs as an unprivileged user: it owns only its work area
+        os.chown(q, JOB_UID, JOB_UID)
+    Path("/tmp/job").mkdir(mode=0o700, exist_ok=True)
+    os.chown("/tmp/job", JOB_UID, JOB_UID)
 
     def hashes():
         out = {}
@@ -100,17 +125,18 @@ def _run_job(payload: dict) -> dict:
 
     before = hashes()
     cpu = int(payload["cpu"])
-    env = {"PATH": os.environ.get("PATH", "/usr/local/bin:/usr/bin:/bin"), "HOME": "/tmp",
+    env = {"PATH": "/usr/local/bin:/usr/bin:/bin", "HOME": "/tmp/job", "TMPDIR": "/tmp/job",
            "PYTHONPATH": "/opt/devguard" + os.pathsep + str(room / "src") + os.pathsep + str(room / "baselines"),
            "PYTHONIOENCODING": "utf-8", "PYTHONDONTWRITEBYTECODE": "1", "OMP_NUM_THREADS": str(cpu), "MKL_NUM_THREADS": str(cpu),
            "OPENBLAS_NUM_THREADS": str(cpu), "P4_REMOTE_JOB": payload["job_id"], "P4_REMOTE_CPUS": str(cpu),
-           "P4_REMOTE_GPU": payload.get("gpu") or "", "PYTHONFAULTHANDLER": "1", "MPLBACKEND": "Agg", "MPLCONFIGDIR": "/tmp/mpl"}
+           "P4_REMOTE_GPU": payload.get("gpu") or "", "PYTHONFAULTHANDLER": "1", "MPLBACKEND": "Agg", "MPLCONFIGDIR": "/tmp/job/mpl"}
     for k in ("NPY_DISABLE_CPU_FEATURES", "ATEN_CPU_CAPABILITY", "NVIDIA_VISIBLE_DEVICES", "CUDA_VISIBLE_DEVICES", "LD_LIBRARY_PATH"):
         if os.environ.get(k):
             env[k] = os.environ[k]
     try:
         pr = subprocess.run([sys.executable, payload["script"], *payload["args"]], cwd=str(room), env=env, capture_output=True,
-                            text=True, timeout=float(payload["timeout_s"]))
+                            text=True, timeout=float(payload["timeout_s"]), user=JOB_UID, group=JOB_UID, extra_groups=[],
+                            umask=0o022)
         code, out, err = pr.returncode, pr.stdout, pr.stderr
     except subprocess.TimeoutExpired as e:
         code = "timeout"
@@ -135,30 +161,55 @@ def _run_job(payload: dict) -> dict:
             "container_wall_s": round(time.time() - t0, 1)}
 
 
-def make_app(classes: list[str] | None = None, with_volume: bool = True, volume: str = DEV_VOLUME):
+def job_main(jobdir: str = "/job") -> int:
+    """Entry point inside the job sandbox (run as root by the daemon through Sandbox.exec): payload from /job, result into /job."""
+    d = Path(jobdir)
+    payload = json.loads((d / "payload.json").read_text(encoding="utf-8"))
+    payload["code_tar"] = (d / "code.tar").read_bytes()
+    res = _run_job(payload)
+    (d / "result.tar").write_bytes(res.pop("result_tar"))
+    (d / "result.json").write_text(json.dumps(res), encoding="utf-8")
+    return 0
+
+
+def modal_context(with_volume: bool = True, volume: str = DEV_VOLUME) -> dict:
+    """The app, the two images and the READ-ONLY dev-data volume that every job sandbox uses."""
     import modal
-    app = modal.App(APP_NAME)
-    vols = {}
+    vol = None
     if with_volume:
         if volume.startswith("brainir-p3") or not volume.startswith("brainir-p4-devdata"):
             raise SystemExit(f"refusing to mount volume {volume!r}: only brainir-p4-devdata* volumes (never Phase 3 volumes)")
-        vols = {"/devdata": modal.Volume.from_name(volume, create_if_missing=True)}
-    imgs = {False: image(False), True: image(True)}
+        vol = modal.Volume.from_name(volume, create_if_missing=True).read_only()
+    return {"app": modal.App.lookup(APP_NAME, create_if_missing=True), "images": {False: image(False), True: image(True)}, "volume": vol}
 
-    def run_job(payload):
-        return _run_job(payload)
 
-    fns = {}
-    for name in classes or list(CLASSES):
-        cpu, mem, gpu = CLASSES[name]
-        # the container's own runtime keeps its network (Modal transfers large inputs / outputs through blob storage); the JOB's
-        # processes are guarded by /opt/devguard/sitecustomize.py (no network, no other programs)
-        kw = {"cpu": cpu, "memory": mem, "timeout": 6 * 3600, "max_containers": 64, "volumes": vols, "serialized": True,
-              "name": f"devrun_{name.replace('-', '_')}", "image": imgs[gpu is not None]}
-        if gpu:
-            kw["gpu"] = gpu
-        fns[name] = app.function(**kw)(run_job)
-    return app, fns
+def run_sandbox_job(ctx: dict, klass: str, payload: dict) -> dict:
+    """ONE job in its own Modal Sandbox (early review F, F-M7): no network at all (block_network), no Modal credentials inside, the
+    dev-data volume read-only, a fresh container per job; the code goes in and the results come out through the sandbox filesystem
+    API (orchestrator side), so the container itself never needs the network. The job runs as an unprivileged user (_run_job)."""
+    import modal
+    cpu, mem, gpu = CLASSES[klass]
+    kw = {"app": ctx["app"], "image": ctx["images"][gpu is not None], "cpu": cpu, "memory": mem, "block_network": True,
+          "timeout": int(payload["timeout_s"]) + 1800}
+    if gpu:
+        kw["gpu"] = gpu
+    if ctx.get("volume") is not None:
+        kw["volumes"] = {"/devdata": ctx["volume"]}
+    sb = modal.Sandbox.create("sleep", "infinity", **kw)
+    try:
+        sb.filesystem.write_bytes(payload["code_tar"], "/job/code.tar")
+        sb.filesystem.write_text(json.dumps({k: v for k, v in payload.items() if k != "code_tar"}), "/job/payload.json")
+        proc = sb.exec("python", "-c", "import sys; sys.path.insert(0, '/opt/devrun'); import devrun4; sys.exit(devrun4.job_main('/job'))",
+                       timeout=int(payload["timeout_s"]) + 900)
+        proc.wait()
+        if proc.returncode != 0:
+            return {"exit_code": "infrastructure_error", "stderr_tail": (proc.stderr.read() or "")[-4000:], "result_tar": b"",
+                    "changed": []}
+        res = json.loads(sb.filesystem.read_text("/job/result.json"))
+        res["result_tar"] = sb.filesystem.read_bytes("/job/result.tar")
+        return res
+    finally:
+        sb.terminate()
 
 
 # ------------------------------------------------------------------------------------------------ dev-data volume
@@ -230,12 +281,14 @@ def sync_data(room: Path, chunk_mb: int = 256, volume: str = DEV_VOLUME) -> int:
 
 
 # ------------------------------------------------------------------------------------------------ daemon
-def _validate(room: Path, req: dict) -> tuple[str, str, list[str], str, float]:
+def _validate(room: Path, req: dict, queue_prefix: str | None = None) -> tuple[str, str, list[str], str, float]:
     script = str(req.get("script", "")).replace("\\", "/")
-    m = re.match(r"^runs/([A-Za-z0-9_]+)/[\w./\-]+\.py$", script)
-    if not m or ".." in script.split("/") or m.group(1).startswith("_"):
+    m = re.match(r"^runs/([A-Za-z0-9_][A-Za-z0-9_.-]*)/[\w./\-]+\.py$", script)
+    if not m or ".." in script.split("/") or m.group(1).startswith("_") or "/_remote/" in script:
         raise ValueError("script must be a .py file inside runs/<your prefix>/")
     prefix = m.group(1)
+    if queue_prefix is not None and prefix != queue_prefix:
+        raise ValueError("a request may only run a script of its own runs/<prefix>/ (the queue's owner)")
     if not (room / script).is_file():
         raise ValueError(f"script not found: {script}")
     args = req.get("args") or []
@@ -260,7 +313,7 @@ def _code_tar(room: Path, prefix: str) -> bytes:
                 rel = p.relative_to(room).as_posix()
                 if not p.is_file() or p.is_symlink() or "__pycache__" in p.parts or p.suffix == ".pyc":
                     continue
-                if rel.startswith(f"runs/{prefix}/remote/") or p.stat().st_size > MAX_FILE_IN_CODE:
+                if rel.startswith((f"runs/{prefix}/remote/", f"runs/{prefix}/_remote/")) or p.stat().st_size > MAX_FILE_IN_CODE:
                     continue
                 tf.add(p, arcname=rel)
                 if buf.tell() > MAX_CODE_TAR:
@@ -300,19 +353,19 @@ def _unpack_result(room: Path, prefix: str, job_id: str, tar_bytes: bytes) -> in
 
 
 def daemon(room: Path, poll_s: float = 3.0, volume: str = DEV_VOLUME) -> int:
-    app, fns = make_app(volume=volume)
+    from concurrent.futures import ThreadPoolExecutor
+    ctx = modal_context(volume=volume)
     running: dict[str, dict] = {}
-    q = _queue(room)
-    (q / "requests").mkdir(parents=True, exist_ok=True)
-    print(f"devrun4 daemon: queue {q}", flush=True)
-    with app.run():
+    print(f"devrun4 daemon: queues {room / 'runs'}/<prefix>/_remote", flush=True)
+    with ThreadPoolExecutor(max_workers=MAX_RUNNING) as pool:
         while True:
             for job_id, j in list(running.items()):
+                if not j["call"].done():
+                    continue
+                q = j["queue"]
                 try:
-                    res = j["call"].get(timeout=0)
+                    res = j["call"].result()
                 except Exception as e:  # noqa: BLE001
-                    if "timeout" in type(e).__name__.lower():
-                        continue
                     res = {"exit_code": "infrastructure_error", "stderr_tail": repr(e)[-4000:], "result_tar": b"", "changed": []}
                 tar_bytes = res.pop("result_tar", b"") or b""
                 n_files = _unpack_result(room, j["prefix"], job_id, tar_bytes)
@@ -327,13 +380,14 @@ def daemon(room: Path, poll_s: float = 3.0, volume: str = DEV_VOLUME) -> int:
                 del running[job_id]
             used = sum(CLASSES[j["class"]][1] for j in running.values())
             n_gpu = sum(1 for j in running.values() if CLASSES[j["class"]][2])
-            for f in sorted((q / "requests").glob("*.json")):
+            reqs = [(qp, qq, f) for qp, qq in _queues(room).items() for f in sorted((qq / "requests").glob("*.json"))]
+            for qprefix, q, f in reqs:
                 job_id = f.stem
-                if job_id in running or (q / "results" / f"{job_id}.json").exists():
+                if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", job_id) or job_id in running or (q / "results" / f"{job_id}.json").exists():
                     continue
                 try:
                     req = json.loads(f.read_text(encoding="utf-8"))
-                    script, prefix, args, klass, timeout = _validate(room, req)
+                    script, prefix, args, klass, timeout = _validate(room, req, qprefix)
                 except Exception as e:  # noqa: BLE001
                     _write_result(q, job_id, {"job_id": job_id, "status": "rejected", "reason": str(e)[:1000]})
                     _audit({"event": "rejected", "room": room.name, "job_id": job_id, "reason": str(e)[:1000]})
@@ -349,8 +403,8 @@ def daemon(room: Path, poll_s: float = 3.0, volume: str = DEV_VOLUME) -> int:
                     continue
                 payload = {"job_id": job_id, "code_tar": code, "prefix": prefix, "script": script, "args": args, "cpu": cpu,
                            "gpu": gpu, "timeout_s": timeout}
-                call = fns[klass].spawn(payload)
-                running[job_id] = {"call": call, "prefix": prefix, "script": script, "class": klass, "t0": time.time()}
+                call = pool.submit(run_sandbox_job, ctx, klass, payload)
+                running[job_id] = {"call": call, "prefix": prefix, "script": script, "class": klass, "t0": time.time(), "queue": q}
                 used += mem
                 n_gpu += 1 if gpu else 0
                 (q / "status").mkdir(parents=True, exist_ok=True)
@@ -365,14 +419,13 @@ def daemon(room: Path, poll_s: float = 3.0, volume: str = DEV_VOLUME) -> int:
 def smoke(room: Path, klass: str, script: str, with_volume: bool, volume: str = DEV_VOLUME) -> int:
     """Run ONE job synchronously (the daemon's code path without the queue); record the result."""
     prefix = script.split("/")[1]
-    app, fns = make_app([klass], with_volume=with_volume, volume=volume)
+    ctx = modal_context(with_volume=with_volume, volume=volume)
     job_id = time.strftime("%Y%m%dT%H%M%S") + "_smoke"
     code = _code_tar(room, prefix)
     cpu, mem, gpu = CLASSES[klass]
     t0 = time.time()
-    with app.run():
-        res = fns[klass].remote({"job_id": job_id, "code_tar": code, "prefix": prefix, "script": script, "args": [], "cpu": cpu,
-                                 "gpu": gpu, "timeout_s": 1800})
+    res = run_sandbox_job(ctx, klass, {"job_id": job_id, "code_tar": code, "prefix": prefix, "script": script, "args": [], "cpu": cpu,
+                                       "gpu": gpu, "timeout_s": 1800})
     tar_bytes = res.pop("result_tar", b"") or b""
     n = _unpack_result(room, prefix, job_id, tar_bytes)
     rec = {k: v for k, v in res.items()}
@@ -404,12 +457,16 @@ import time
 import uuid
 from pathlib import Path
 
-Q = Path(__file__).resolve().parents[1] / "runs" / "_remote" / "queue"
+import os
+PREFIX = os.environ.get("P4_AGENT_SCRATCH", "")           # your prefix = your sandbox scratch name (set by the sandbox)
+Q = Path(__file__).resolve().parents[1] / "runs" / PREFIX / "_remote"
 CLASSES = %s
 
 
 def submit(argv):
-    script = argv[0]
+    script = argv[0].replace("\\\\", "/")
+    if not PREFIX or not script.startswith(f"runs/{PREFIX}/"):
+        raise SystemExit(f"run this client through sbx, with a script inside your own runs/<prefix>/ (here: runs/{PREFIX or '?'}/)")
     klass, timeout, rest = "small", 3600, []
     i = 1
     while i < len(argv):
@@ -478,8 +535,8 @@ What a remote job is:
 - the room's `src/` and `baselines/` and your `runs/<prefix>/` are copied in (files over 25 MB and your `runs/<prefix>/remote/` are
   left out); `PYTHONPATH` contains `src/` and `baselines/`;
 - `data/` is an exact copy of this room's `data/` (the same public development data; nothing else);
-- the network is blocked and no other program may be started; the simulation service is NOT available (scripts that use SimClient
-  must run in the sandbox here);
+- the job container has no network, the job runs as an unprivileged user and may not start other programs; `data/` is read-only;
+  the simulation service is NOT available (scripts that use SimClient must run in the sandbox here);
 - numerics: the same pinned numerical stack as the sandbox; CPU classes use the development machine's kernel settings; GPU classes
   run PyPI's CUDA build of the same torch version (GPU results can differ from CPU results in the last digits; seed and report).
 
@@ -493,7 +550,8 @@ Usage (from the room root, through the sandbox):
     sbx python tools/remote_run.py status <job_id>
 
 Results: every new or changed file under your `runs/<prefix>/` comes back under `runs/<prefix>/remote/<job_id>/runs/<prefix>/...`,
-with the job's exit code, stdout / stderr tails, peak memory and wall time (`runs/_remote/queue/results/`). Write outputs under
+with the job's exit code, stdout / stderr tails, peak memory and wall time (`runs/<prefix>/_remote/results/`; your queue lives in
+your own `runs/<prefix>/_remote/`, and a request can only run a script of your own `runs/<prefix>/`). Write outputs under
 `runs/<prefix>/`. Never end your turn to wait for a job: poll with `wait`.
 '''
 
@@ -502,7 +560,7 @@ def install_client() -> int:
     tools = ROOT / "research" / "phase4" / "review_contracts"
     tools.mkdir(parents=True, exist_ok=True)
     classes = {k: {"cpu": v[0], "memory_gb": v[1] // 1024, "gpu": v[2]} for k, v in CLASSES.items()}
-    (tools / "remote_run_client.py").write_text(CLIENT % json.dumps(classes), encoding="utf-8", newline="\n")
+    (tools / "remote_run_client.py").write_text(CLIENT % repr(classes), encoding="utf-8", newline="\n")    # a Python literal (minor 1)
     desc = "; ".join(f"{k} = {v[0]:g} CPUs / {v[1] // 1024} GB" + (f" + 1 {v[2]}" if v[2] else "") for k, v in CLASSES.items())
     (tools / "remote_runner_notes.md").write_text(NOTES % desc, encoding="utf-8", newline="\n")
     print("wrote", tools / "remote_run_client.py", tools / "remote_runner_notes.md")

@@ -13,12 +13,16 @@ import time
 import uuid
 from pathlib import Path
 
-Q = Path(__file__).resolve().parents[1] / "runs" / "_remote" / "queue"
-CLASSES = {"small": {"cpu": 2.0, "memory_gb": 8, "gpu": null}, "medium": {"cpu": 4.0, "memory_gb": 16, "gpu": null}, "large": {"cpu": 8.0, "memory_gb": 32, "gpu": null}, "xlarge": {"cpu": 8.0, "memory_gb": 64, "gpu": null}, "xxlarge": {"cpu": 16.0, "memory_gb": 128, "gpu": null}, "gpu-t4": {"cpu": 4.0, "memory_gb": 32, "gpu": "T4"}, "gpu-l4": {"cpu": 4.0, "memory_gb": 32, "gpu": "L4"}, "gpu-a10g": {"cpu": 4.0, "memory_gb": 32, "gpu": "A10G"}, "gpu-l40s": {"cpu": 8.0, "memory_gb": 64, "gpu": "L40S"}, "gpu-a100-40gb": {"cpu": 8.0, "memory_gb": 64, "gpu": "A100-40GB"}, "gpu-a100-80gb": {"cpu": 8.0, "memory_gb": 64, "gpu": "A100-80GB"}, "gpu-h100": {"cpu": 8.0, "memory_gb": 64, "gpu": "H100"}, "gpu-h200": {"cpu": 8.0, "memory_gb": 128, "gpu": "H200"}, "gpu-b200": {"cpu": 8.0, "memory_gb": 128, "gpu": "B200"}}
+import os
+PREFIX = os.environ.get("P4_AGENT_SCRATCH", "")           # your prefix = your sandbox scratch name (set by the sandbox)
+Q = Path(__file__).resolve().parents[1] / "runs" / PREFIX / "_remote"
+CLASSES = {'small': {'cpu': 2.0, 'memory_gb': 8, 'gpu': None}, 'medium': {'cpu': 4.0, 'memory_gb': 16, 'gpu': None}, 'large': {'cpu': 8.0, 'memory_gb': 32, 'gpu': None}, 'xlarge': {'cpu': 8.0, 'memory_gb': 64, 'gpu': None}, 'xxlarge': {'cpu': 16.0, 'memory_gb': 128, 'gpu': None}, 'gpu-t4': {'cpu': 4.0, 'memory_gb': 32, 'gpu': 'T4'}, 'gpu-l4': {'cpu': 4.0, 'memory_gb': 32, 'gpu': 'L4'}, 'gpu-a10g': {'cpu': 4.0, 'memory_gb': 32, 'gpu': 'A10G'}, 'gpu-l40s': {'cpu': 8.0, 'memory_gb': 64, 'gpu': 'L40S'}, 'gpu-a100-40gb': {'cpu': 8.0, 'memory_gb': 64, 'gpu': 'A100-40GB'}, 'gpu-a100-80gb': {'cpu': 8.0, 'memory_gb': 64, 'gpu': 'A100-80GB'}, 'gpu-h100': {'cpu': 8.0, 'memory_gb': 64, 'gpu': 'H100'}, 'gpu-h200': {'cpu': 8.0, 'memory_gb': 128, 'gpu': 'H200'}, 'gpu-b200': {'cpu': 8.0, 'memory_gb': 128, 'gpu': 'B200'}}
 
 
 def submit(argv):
-    script = argv[0]
+    script = argv[0].replace("\\", "/")
+    if not PREFIX or not script.startswith(f"runs/{PREFIX}/"):
+        raise SystemExit(f"run this client through sbx, with a script inside your own runs/<prefix>/ (here: runs/{PREFIX or '?'}/)")
     klass, timeout, rest = "small", 3600, []
     i = 1
     while i < len(argv):

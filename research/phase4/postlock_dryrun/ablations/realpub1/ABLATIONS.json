@@ -1,0 +1,285 @@
+{
+ "Q20": {
+  "consequence_if_fail": "Phase 4's core hypothesis fails (goal5 section 88)",
+  "real_full_networks": {
+   "real:A:full": {
+    "n_cells": 8,
+    "note": "not computable",
+    "point": null
+   }
+  },
+  "rule": "removing interventional training worsens the verdict EE significantly (paired suite difference EE_ablated - EE_full, unstratified system bootstrap, one-sided p <= 0.05)",
+  "status": "FAIL",
+  "suite": null
+ },
+ "Q21": {
+  "direct_variant": {
+   "EE_M_minus_direct_suite": {
+    "n": 0,
+    "point": null
+   },
+   "EE_M_suite": {
+    "n": 0,
+    "point": null
+   },
+   "EE_direct_suite": {
+    "n": 0,
+    "point": null
+   },
+   "compact_predicts_near_direct": false,
+   "direct_predicts": false,
+   "real_full_networks": {
+    "real:A:full": {
+     "EE_M_minus_direct": {
+      "n_cells": 8,
+      "note": "not computable",
+      "point": null
+     },
+     "EE_direct": 1.039180273817204
+    }
+   },
+   "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)"
+  },
+  "levelb_fullstate_baseline": {
+   "EE_M_minus_direct_suite": {
+    "n": 0,
+    "point": null
+   },
+   "EE_M_suite": {
+    "n": 0,
+    "point": null
+   },
+   "EE_direct_suite": {
+    "n": 0,
+    "point": null
+   },
+   "compact_predicts_near_direct": false,
+   "direct_predicts": false,
+   "method": "p3stand.refstand:p3stand_fullstate",
+   "real_full_networks": {
+    "real:A:full": {
+     "EE_M_minus_direct": {
+      "n_cells": 8,
+      "note": "not computable",
+      "point": null
+     },
+     "EE_direct": 1.039180273817204
+    }
+   },
+   "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)"
+  },
+  "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)",
+  "thresholds": {
+   "near": "one-sided 95 % upper bound of mean(EE_M - EE_direct) < delta_C_suite = 0.05",
+   "predicts": "one-sided 95 % upper bound of the suite mean EE < 1 - delta_A = 0.9"
+  }
+ },
+ "compressible": [],
+ "descriptive_note": "per-switch tests are descriptive (Holm across switches per metric reported); Q20 / Q21 are the pre-registered critical tests",
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "full_networks": [
+  "real:A:full"
+ ],
+ "margins": {
+  "calibrated": false,
+  "source": "C:\\Dev\\BrainIR\\benchmarks\\causal_state_v1\\public\\tolerances.json",
+  "suite": {
+   "delta_C_suite": 0.05,
+   "tau_SMS_suite": 0.1
+  },
+  "suite_fallback_per_system": [
+   "delta_C_suite",
+   "tau_SMS_suite"
+  ],
+  "tolerances": {
+   "delta_A": 0.1,
+   "delta_C": 0.05,
+   "delta_H": 0.1,
+   "tau_FC": 0.2,
+   "tau_ICG": 0.1,
+   "tau_MEV": 0.3,
+   "tau_SMS": 0.1
+  }
+ },
+ "method": "p3stand.refstand:p3stand_ref",
+ "n_systems": 3,
+ "not_applicable": {},
+ "phase3_regime": {
+  "EE_ablated": {
+   "n": 0,
+   "point": null
+  },
+  "EE_ablated_minus_phase3": {
+   "n": 0,
+   "point": null
+  },
+  "EE_phase3": {
+   "n": 0,
+   "point": null
+  },
+  "phase3_method": "frozen_brainir_state_v1"
+ },
+ "real_level": "public",
+ "run_id": "realpub1",
+ "seed": 0,
+ "switches": {
+  "interventional_training": {
+   "honoured_on": [
+    "real:A:full",
+    "real:A:m1",
+    "real:B:m1"
+   ],
+   "metrics": {
+    "EE": {
+     "description": "class-balanced EE on the verdict items (PROTOCOL 5.1 / 9 A)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "EE_heldout": {
+     "description": "class-balanced EE on held-out families (near / far / hidden; 9 H)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "EE_target": {
+     "description": "class-balanced EE on target-shift items",
+     "suite_paired_ablated_minus_full": null
+    },
+    "ICG_y": {
+     "description": "interventional closure gap, linear (5.4)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "MEV": {
+     "description": "microstate equivalence ratio (5.5; untestable = missing)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "SMS": {
+     "description": "state mediation score (5.3)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "coverage": {
+     "description": "share of intervention items not abstained (descriptive)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "false_confidence": {
+     "description": "false-confidence rate on the verdict items (5.9 / 9 G)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "k": {
+     "ablated": {},
+     "full": {}
+    },
+    "lift_consistency": {
+     "description": "multiple-lift consistency, adjusted (5.7; untestable = missing)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "lift_success": {
+     "description": "native lift success rate over all requests (5.7)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "obs_nmse": {
+     "description": "passive rollout NMSE at the primary horizon (5.2)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "post_nmse": {
+     "description": "post-intervention trajectory NMSE at the primary horizon",
+     "suite_paired_ablated_minus_full": null
+    }
+   },
+   "networks": {
+    "real:A:full": {
+     "n_cells": 8,
+     "note": "not computable",
+     "point": null
+    },
+    "real:A:m1": {
+     "n_cells": 8,
+     "note": "not computable",
+     "point": null
+    },
+    "real:B:m1": {
+     "n_cells": 6,
+     "note": "not computable",
+     "point": null
+    }
+   }
+  },
+  "state_bottleneck": {
+   "honoured_on": [
+    "real:A:full",
+    "real:A:m1",
+    "real:B:m1"
+   ],
+   "metrics": {
+    "EE": {
+     "description": "class-balanced EE on the verdict items (PROTOCOL 5.1 / 9 A)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "EE_heldout": {
+     "description": "class-balanced EE on held-out families (near / far / hidden; 9 H)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "EE_target": {
+     "description": "class-balanced EE on target-shift items",
+     "suite_paired_ablated_minus_full": null
+    },
+    "ICG_y": {
+     "description": "interventional closure gap, linear (5.4)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "MEV": {
+     "description": "microstate equivalence ratio (5.5; untestable = missing)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "SMS": {
+     "description": "state mediation score (5.3)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "coverage": {
+     "description": "share of intervention items not abstained (descriptive)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "false_confidence": {
+     "description": "false-confidence rate on the verdict items (5.9 / 9 G)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "k": {
+     "ablated": {},
+     "full": {}
+    },
+    "lift_consistency": {
+     "description": "multiple-lift consistency, adjusted (5.7; untestable = missing)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "lift_success": {
+     "description": "native lift success rate over all requests (5.7)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "obs_nmse": {
+     "description": "passive rollout NMSE at the primary horizon (5.2)",
+     "suite_paired_ablated_minus_full": null
+    },
+    "post_nmse": {
+     "description": "post-intervention trajectory NMSE at the primary horizon",
+     "suite_paired_ablated_minus_full": null
+    }
+   },
+   "networks": {
+    "real:A:full": {
+     "n_cells": 8,
+     "note": "not computable",
+     "point": null
+    },
+    "real:A:m1": {
+     "n_cells": 8,
+     "note": "not computable",
+     "point": null
+    },
+    "real:B:m1": {
+     "n_cells": 6,
+     "note": "not computable",
+     "point": null
+    }
+   }
+  }
+ },
+ "tier": null
+}

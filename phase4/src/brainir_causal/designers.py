@@ -12,23 +12,38 @@ Designers are stateful within ONE loop run (a new instance per run) and determin
     uniform         coverage: cycles through every (family, first target, magnitude class) cell in a seeded order before repeating
     magnitude_sweep for each (family, target) in a seeded order, the magnitude classes in increasing order
     greedy_error    75 %: near the experiments with the largest effect-prediction error of the current model (same family and
-                    targets, magnitude class one step up / same / down, new onset and draw); 25 %: random (also the first round)
+                    targets, magnitude class one step up / same / down, new onset and draw); 25 %: random (also the first round).
+                    The error of an experiment is the evaluator's item error (PROTOCOL 5.1): the squared effect error over rows 1..h
+                    of the primary horizon divided by max(true effect energy, n_t n_y f_s^2), f_s = 0.05 x the pooled training sd
+                    of y (from the loop's passive training records), capped at 10 (review H, minor 5); it is computed on a fresh
+                    copy of the model, so the designer never changes the learner's model
     structural      targets ranked by public connectivity (out-weight of a unit onto observed / readout units in the public graph;
                     without a graph, by passive-data variance), highest first, cycling families and magnitude classes
     passive         observational trajectories only (stimulus schedules, initial states, weight-noise draws, parameter draws)
     fixed           a pre-registered design independent of the loop seed: every (family, target) at the moderate magnitude with a
                     fixed onset (0.3 T), then the weak and strong classes, in a fixed order
+
+Control (PROTOCOL 5.17, reported beside the success rule, never part of it):
+    random_matched  the random design with its magnitudes MATCHED to a profile: the relative magnitudes (|amplitude| / the
+                    capability's moderate magnitude of the kind) of the experiments another designer ran on the same system and loop
+                    seed (`magnitude_profile`, `load_profile` from that loop's experiments.jsonl). Family, targets and onset are drawn
+                    as by `random`; each event's magnitude is drawn from the profile's values of the same event kind (pooled over
+                    kinds when the kind has none; the random magnitude classes when the profile is empty, counted as unmatched).
+                    A control for large-effect selection: an active design that only chose large magnitudes does not beat it.
 """
 
 from __future__ import annotations
 
 import hashlib
+import json
+from pathlib import Path
 
 import numpy as np
 
 from . import protocol as P
 from .api import Designer, register_designer
-from .suites import MAG_CLASSES, N_TARGETS_NEEDED, FamilySampler, feasible, intervention_families, public_seed_of
+from .evalio import FLOOR_FRAC, HORIZON_FRACTIONS, ITEM_CAP, PRIMARY, pooled_y_sd
+from .sampling import MAG_CLASSES, N_TARGETS_NEEDED, FamilySampler, feasible, intervention_families, normalize_capability, public_seed_of
 
 ORDERED_CLASSES = ("below", "weak", "moderate", "strong")
 
@@ -146,18 +161,42 @@ class MagnitudeSweepDesigner(_Base):
         return out
 
 
-def effect_errors(model, system_id: str, data: list, max_items: int = 100) -> list[tuple[float, object]]:
-    """(error, record) of the most recent intervention trajectories with a twin: the model's effect-prediction error over the
-    primary horizon (squared error over the true effect power, floored), from the history up to the onset."""
+def effect_floor_sq(data: list) -> float:
+    """f_s^2 of the evaluator (PROTOCOL 5.1: f_s = 0.05 x the pooled training sd of y) from the loop's training records: the records of
+    split 'train' that are not twins (as the evaluator's public 'train' split), blow-ups excluded (`evalio.pooled_y_sd`)."""
+    recs = [r for r in data if getattr(r, "split", "train") == "train" and not (getattr(r, "meta", None) or {}).get("twin_of")]
+    if not recs:
+        return 0.0
+    return float((FLOOR_FRAC * pooled_y_sd([np.asarray(r.y, float) for r in recs], [np.asarray(r.x, float) for r in recs])) ** 2)
+
+
+def _fresh(model):
+    """A copy of the learner's model for the designer's own calls (the loop hands the same object back to the learner)."""
+    from .fresh import Fresh
+    try:
+        return Fresh(model).get()
+    except Exception:  # noqa: BLE001 - an uncopyable model is used as is (its own responsibility)
+        return model
+
+
+def effect_errors(model, system_id: str, data: list, max_items: int = 100, *, sysrec: dict | None = None) -> list[tuple[float, object]]:
+    """(error, record) of the most recent intervention trajectories with a twin: the evaluator's item error (PROTOCOL 5.1; review H,
+    minor 5) of the model's predicted effect over rows 1..h of the primary horizon (h = 12.5 % of the system's default duration),
+    num / max(sum of the true effect energy, h n_y f_s^2), capped at ITEM_CAP; a failed prediction scores the cap."""
     twins = {r.meta.get("twin_of"): r for r in data if getattr(r, "meta", {}).get("twin_of")}
     items = [r for r in data if r.protocol.get("events") and r.key in twins][-max_items:]
+    if not items:
+        return []
+    f2 = effect_floor_sq(data)
+    m = _fresh(model)
     out = []
     for r in items:
         tw = twins[r.key]
         dt = float(r.protocol["dt"])
         onset = min(P.event_start(e) for e in r.protocol["events"])
         i0 = round(onset / dt)
-        h = max(1, round(0.125 * float(r.protocol["t_end"]) / dt))
+        t_def = float((sysrec or {}).get("t_end_default") or r.protocol["t_end"])
+        h = max(1, round(HORIZON_FRACTIONS[PRIMARY] * t_def / dt))
         h = min(h, len(r.t) - 1 - i0)
         if h < 1:
             continue
@@ -166,16 +205,17 @@ def effect_errors(model, system_id: str, data: list, max_items: int = 100) -> li
             for key in ("t", "t0", "t1"):
                 if e.get(key) is not None:
                     e[key] = round(float(e[key]) - float(r.t[i0]), 9)
+        true = (np.asarray(r.y, float) - np.asarray(tw.y, float))[i0 + 1: i0 + h + 1]
+        n_y = true.shape[1] if true.ndim == 2 else 1
+        den = max(float(np.sum(true ** 2)), h * n_y * f2, 1e-300)
         try:
-            pred = model.intervention_effect(system_id, r.x[: i0 + 1], r.u[: i0 + 1], r.u[i0: i0 + h + 1], ev, dt)
-            eff = np.asarray(pred["effect"], float)[: h + 1]
-            true = (np.asarray(r.y, float) - np.asarray(tw.y, float))[i0: i0 + h + 1]
-            err = float(np.sum((eff - true) ** 2) / max(float(np.sum(true ** 2)), 1e-12 + 1e-6 * true.size))
-            if not np.isfinite(err):
-                err = 1e6
-        except Exception:  # noqa: BLE001 - a failing prediction is the largest error
-            err = 1e6
-        out.append((err, r))
+            pred = m.intervention_effect(system_id, r.x[: i0 + 1], r.u[: i0 + 1], r.u[i0: i0 + h + 1], ev, dt)
+            eff = np.asarray(pred["effect"], float)[1: h + 1]
+            num = float(np.sum((eff.reshape(true.shape) - true) ** 2))
+            err = min(num, ITEM_CAP * den) / den if np.isfinite(num) else ITEM_CAP
+        except Exception:  # noqa: BLE001 - a failing prediction scores the cap
+            err = ITEM_CAP
+        out.append((float(err), r))
     return out
 
 
@@ -189,7 +229,7 @@ class GreedyErrorDesigner(_Base):
         fams = self.families(system)
         if not fams:
             return []
-        scored = effect_errors(model, system_id, data) if model is not None else []
+        scored = effect_errors(model, system_id, data, sysrec=system) if model is not None else []
         scored.sort(key=lambda er: -er[0])
         out = []
         for j in range(n):
@@ -267,12 +307,13 @@ class StructuralDesigner(_Base):
 
 @register_designer
 class PassiveDesigner(_Base):
-    """Two passive trajectories per requested experiment (the same simulator calls as an intervention and its twin)."""
+    """Two passive trajectories per requested experiment (the same simulator calls as an intervention and its twin). 'obs.init' is
+    a restart from a nominal passive trajectory (LOG P4-D36), which a designer cannot plan without a source: it is left out."""
     name = "passive"
 
     def propose(self, system_id, system, model, data, n, budget_left, rng):
         s = self.sampler(system_id, system, rng)
-        fams = [f for f in ("obs.stim", "obs.init", "obs.wnoise", "obs.nominal") if f in system["split"]["families_train"]]
+        fams = [f for f in ("obs.stim", "obs.wnoise", "obs.nominal") if f in system["split"]["families_train"]]
         out = []
         for j in range(2 * n):
             out.append(P.validate(s.obs(fams[j % len(fams)])))
@@ -312,4 +353,129 @@ class FixedDesigner(_Base):
         return out
 
 
+def _moderate(cap: dict, kind: str, fld: str | None = None) -> float:
+    if kind == "param":
+        return float(cap["param"]["moderate"][fld])
+    return float(cap[kind if kind != "current_seq" else "current"]["moderate"])
+
+
+def event_magnitudes(protocol: dict, sysrec: dict) -> list[dict]:
+    """The relative magnitudes {"kind", "rel"} of the events of one protocol: rel = |amplitude| / the capability's moderate magnitude
+    of the kind (kicks: the largest |delta|; currents and current sequences: the largest |I| over the current moderate; edge scalings:
+    the depth 1 - factor over the edge moderate (removals have no magnitude); parameter changes: |g - 1|, |c - 1| or |d| over the
+    field's moderate). Silencing has no magnitude (skipped)."""
+    q = P.validate(protocol)
+    cap = normalize_capability(sysrec.get("capability"), t_end=float(sysrec.get("t_end_default") or q["t_end"]), dt=float(q["dt"]),
+                               input_dim=int(sysrec.get("input_dim", 1)))
+    out = []
+    for e in q["events"]:
+        k = e["kind"]
+        if k == "kick":
+            out.append({"kind": k, "rel": max(abs(float(v)) for v in e["delta"].values()) / _moderate(cap, k)})
+        elif k == "current":
+            out.append({"kind": k, "rel": max(abs(float(v)) for v in e["targets"].values()) / _moderate(cap, k)})
+        elif k == "current_seq":
+            out.append({"kind": k, "rel": max(abs(float(v)) for lst in e["targets"].values() for v in lst) / _moderate(cap, k)})
+        elif k == "edge_scale" and float(e["factor"]) > 0:
+            out.append({"kind": k, "rel": abs(1.0 - float(e["factor"])) / _moderate(cap, k)})
+        elif k == "param":
+            for v in e["targets"].values():
+                for fld, x in v.items():
+                    dev = abs(float(x) - 1.0) if fld in ("gain", "tau") else abs(float(x))
+                    out.append({"kind": k, "rel": dev / _moderate(cap, k, fld)})
+    return out
+
+
+def magnitude_profile(protocols: list[dict], sysrec: dict) -> list[dict]:
+    """The relative magnitudes of every event of the INTERVENTION protocols a designer ran (the profile of `random_matched`)."""
+    out = []
+    for q in protocols:
+        if q and (q.get("events") or []):
+            out += event_magnitudes(q, sysrec)
+    return out
+
+
+def load_profile(loop_dir: Path | str, sysrec: dict) -> list[dict]:
+    """The magnitude profile of a finished loop from its experiments.jsonl (written by `loop.run_loop`)."""
+    rows = [json.loads(line) for line in (Path(loop_dir) / "experiments.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+    return magnitude_profile([r["protocol"] for r in rows if r.get("protocol") and not r.get("twin_of")], sysrec)
+
+
+@register_designer
+class MagnitudeMatchedDesigner(RandomDesigner):
+    """The random design with magnitudes matched to a profile (see the module docstring). `MagnitudeMatchedDesigner(profile)`; the
+    registry's no-argument instance has an empty profile and behaves like `random` (every event counted as unmatched)."""
+    name = "random_matched"
+
+    def __init__(self, profile: list[dict] | None = None):
+        super().__init__()
+        self.profile = [dict(p) for p in (profile or []) if p.get("rel") is not None and np.isfinite(float(p["rel"]))]
+        self.n_matched = 0
+        self.n_unmatched = 0
+
+    @classmethod
+    def from_loop(cls, loop_dir: Path | str, sysrec: dict) -> MagnitudeMatchedDesigner:
+        return cls(load_profile(loop_dir, sysrec))
+
+    def _draw(self, kind: str, rng: np.random.Generator) -> float | None:
+        same = [p["rel"] for p in self.profile if p["kind"] == kind]
+        pool = same or [p["rel"] for p in self.profile]
+        if not pool:
+            return None
+        return float(pool[int(rng.integers(len(pool)))])
+
+    def _rescale(self, q: dict, s: FamilySampler, rng: np.random.Generator) -> dict:
+        cap = s.cap
+        q = json.loads(json.dumps(q))
+        for e in q["events"]:
+            k = e["kind"]
+            if k == "silence" or (k == "edge_scale" and float(e["factor"]) == 0.0):
+                continue
+            rel = self._draw(k, rng)
+            if rel is None:
+                self.n_unmatched += 1
+                continue
+            self.n_matched += 1
+            if k == "kick":
+                a = min(rel * _moderate(cap, k), float(cap["kick"]["max"]))
+                e["delta"] = {u: round(float(np.sign(v) or 1.0) * a, 6) for u, v in e["delta"].items()}
+            elif k == "current":
+                a = min(rel * _moderate(cap, k), float(cap["current"]["max"]))
+                e["targets"] = {u: round(float(np.sign(v) or 1.0) * a, 6) for u, v in e["targets"].items()}
+            elif k == "current_seq":
+                peak = max(abs(float(v)) for lst in e["targets"].values() for v in lst)
+                if peak > 0:
+                    f = min(rel * _moderate(cap, k), float(cap["current"]["max"])) / peak
+                    e["targets"] = {u: [round(float(v) * f, 6) for v in lst] for u, lst in e["targets"].items()}
+            elif k == "edge_scale":
+                depth = min(rel * _moderate(cap, k), 3.0 * _moderate(cap, k), 0.95)
+                e["factor"] = round(1.0 - depth, 6)
+            elif k == "param":
+                for u, v in list(e["targets"].items()):
+                    new = {}
+                    for fld, x in v.items():
+                        dev = min(rel * _moderate(cap, k, fld), 3.0 * _moderate(cap, k, fld))
+                        if fld in ("gain", "tau"):
+                            new[fld] = round(max(0.05, 1.0 + (1.0 if float(x) >= 1.0 else -1.0) * dev), 6)
+                        else:
+                            new[fld] = round((1.0 if float(x) >= 0.0 else -1.0) * dev, 6)
+                    e["targets"][u] = new
+        return P.validate(q)
+
+    def propose(self, system_id, system, model, data, n, budget_left, rng):
+        s = self.sampler(system_id, system, rng)
+        fams = self.families(system)
+        if not fams:
+            return []
+        out = []
+        for _ in range(n):
+            fam = fams[int(rng.integers(len(fams)))]
+            q = self._one(s, fam, mclass=MAG_CLASSES[int(rng.integers(len(MAG_CLASSES)))])
+            out.append(self._rescale(q, s, rng) if self.profile else q)
+            if not self.profile:
+                self.n_unmatched += sum(1 for e in q["events"] if e["kind"] != "silence")
+        return out
+
+
 REFERENCE_DESIGNERS = ("random", "uniform", "magnitude_sweep", "greedy_error", "structural", "passive", "fixed")
+CONTROL_DESIGNERS = ("random_matched",)

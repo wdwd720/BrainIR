@@ -1,0 +1,45 @@
+THIRD PRE-FREEZE ROUND (verification). The orchestrator has changed the generator, the dataset design, the evaluation statistics, the selection driver, the reference learner and the isolation stack in response to the round-2 reviews, and rebuilt the data. The room was re-synced (see the ROUND-3 NOTES below for what changed and where).
+
+1. For EVERY blocker, major and minor of your round-2 review (reviews/E/E2_review.md; reviewer T: reviews/T/T_review.md), and for every round-1 finding you left "partly", "not fixed" or "unverified": answer "fixed", "partly", "not fixed" or "unverified", with the location of the fix and your own re-run of your demonstration adapted to the new code and data (scratch under .tmp/E/r3/). A fix you cannot verify by running is "unverified", not "fixed".
+2. Any NEW problem the changes introduced, with the same standard of evidence (blocker / major / minor, location, concrete fix).
+3. Your own area applied to what is new this round (listed in the notes).
+
+Write reviews/E/E3_review.md with the per-finding table, the new findings and a one-paragraph verdict ("ready to freeze" or not, and why). Reply with the table's counts and the new blockers / majors.
+
+ROUND-3 NOTES (what changed since your round-2 review; the room was re-synced):
+- Your files: your earlier reviews are now in reviews/E/ (the only part of reviews/ you can write); write the round-3
+  review there. Scratch under .tmp/E/r3/. The sandbox is the bare command `sbx`.
+- Isolation v4 (extra/LEAKAGE_POLICY.md sections 1-5; extra/results/CANARY_TEST.md): the simulation service keeps a separate store
+  namespace per agent (an agent's requests never read or write another agent's records), tokens are bound to the agent's queue and
+  forwarded into the sandbox from a file outside the room (never in the host environment; the guard refuses environment listings),
+  shared areas are owned per agent (methods/<prefix>/, tests/methods/<prefix>/, runs/<prefix>/, notes/<prefix>/; reviews/<letter>/),
+  the feedback-release history persists across calls (4 rounds, one system set, validation tier only), the guard resolves
+  abbreviated long options like getopt, fresh workers when a history continues one the same worker already saw. The service runs its
+  simulations in a pinned worker container (extra/EVAL_ARCHITECTURE.md section 11).
+- Dataset design v2 (docs/PROTOCOL.md section 4; extra/brainir_causal/suites.py): no explicit initial states in any development /
+  passive / public-policy dataset (r0 'state' = a kick at t = 0); obs.init = a restart from a nominal passive trajectory of the same
+  parameter draw; capability records carry system-wide values only; every item equals its twin up to its onset (build check); kick
+  items are classed by their REALIZED size; synthetic simulations host-gated; real public data and Level B sets REBUILT with this
+  design (0 errors; 0 explicit states); calibration targets version 3 from the rebuilt real data (reproducible builder).
+- Statistics and selection (docs/PROTOCOL.md sections 5.1, 5.3, 5.4, 5.10, 5.17, 7, 9-11): class-balanced EE intervals by a
+  delete-one-family jackknife-t with classes of < 3 units merged; latent-missing items stay in both mediation arms and the unusable
+  allowance is 1 %; binding flags fixed at p = 90 (a base-binding criterion without power makes the calibration "not attainable"); one
+  item set for the calibration target and P_t; the active-design rule (i) as one intersection-union test on the mean over budgets and
+  rule (ii) a log-ratio delta-method bound; criterion F needs exactly 3 seeds / 5 refits; the tournament evaluates every seed and
+  writes the gate references' rows; k is judged CONSISTENT with the truth when k_true <= k <= k_true + d_draw (per-trajectory
+  parameter draws).
+- Reference learner version 2 (docs/PROTOCOL.md section 8; extra/brainir_causal/refs.py docstring; extra/results where present):
+  control-affine read-in learned per (unit, kind), kick read-in learned from kicks vs twins (never a correlational probe), abstention on
+  units never intervened with a kind, paired item / twin unrolling over the full primary horizon, a per-horizon effect calibration.
+- The synthetic generator is being revised by its author (exact causal state under state-reading interventions, non-trivial
+  equivalent states, genuinely non-compressible controls, no public field predicting type / k / roles, no intervention visible at its
+  onset sample, lifts that meet their request, seed-agnostic tests, recalibration, draw dimension in the truth). If extra/generator/ in
+  your room is the revised version, its SYNTHETIC_BENCHMARK.md section 14 lists the changes; otherwise it is the round-2 version and
+  a later sync brings the revision.
+- E-specific: the tolerance calibration and the active-design MDE will be recomputed on the dev tier rebuilt from the REVISED generator;
+  their outputs (tolerances, binding flags at every percentile, power table, verdict distributions, MDE tables with the false-positive
+  rates under the weaker-fixed nulls) reach you in a follow-up message: verify everything else now. Your area this round: the new
+  interval (family jackknife-t with class merging) and its simulation evidence, the latent-missing handling, the fixed binding flags and
+  "not attainable" rule, P_t / P_m on one item set, the active-design rules (i) / (ii), criterion F, the seed-averaged selection and the
+  end-to-end decide step, the k-consistency rule (k_true <= k <= k_true + d_draw), and whether reference learner version 2 is a
+  credible "correct state with a generic learner" for calibrating tolerances (docs/PROTOCOL.md section 8; extra/brainir_causal/refs.py).

@@ -6,8 +6,8 @@ intervention sequences and under no intervention ("none"). The model only encode
 
 5.5 MEV. CANDIDATE pairs = states of the SAME parameter draw from DIFFERENT pool source trajectories (states of one trajectory are
     trivially similar; different draws are different parameters); truth-only states (`main_pool`) never enter them. Latent distances
-    are WHITENED: by the covariance of the model's encodings of PUBLIC training data (`latent_whitener`; eigenvalue floor 1e-8 x the
-    largest), else by the pool's own covariance (a development fallback, reported as `whiten_source`); either way the distance is
+    are WHITENED: by the covariance of the model's encodings of PUBLIC training data (`latent_whitener`; eigenvalue floor 1e-6 x the
+    largest, review H minor 11), else by the pool's own covariance (a development fallback, reported as `whiten_source`); either way the distance is
     invariant to invertible linear maps of z. For each sequence s the future divergence of a pair is the mean over the primary horizon
     and readout dimensions of the squared difference of the futures (in units of the public readout sd). MATCHED pairs = the M = 20
     closest candidate pairs in latent distance (a FIXED COUNT, ties at the threshold included; PROTOCOL 5.5, LOG P4-D14: a fixed
@@ -16,15 +16,25 @@ intervention sequences and under no intervention ("none"). The model only encode
     (the same matched set for every sequence). MEV = the MEAN OF ratio_s over the testable sequences (each sequence gets equal weight,
     so a large-effect sequence cannot dominate). 95 % CI by resampling pool source trajectories within their draw (a pair's weight =
     the product of its trajectories' multiplicities; the matched set is recomputed in every replicate as the closest pairs whose
-    cumulative weight reaches M). UNTESTABLE when the matched pairs are not close (median matched / median random latent distance >
-    0.2) or when no sequence's random pairs diverge at least 2x the numerical floor (sequences below the floor are left out of the mean
-    and listed).
+    cumulative weight reaches M). NUMERICAL FLOOR (review H, B1; `floor_statistic`): the SAME statistic as the divergence (mean squared
+    difference, public readout-sd units, rows 1..m of the primary horizon) between the two futures of each floor-state pair (a) the
+    no-intervention future and a repeat run with a no-op breakpoint one sample after the restart, (b) the float64 continuation and the
+    restart from the float32-rounded stored state; the floor is the larger of the two kinds' means over the floor states. A sequence
+    is TESTABLE when its random-pair divergence is at least max(2 x floor, (2 f_s / y_sd)^2 = 0.01) (the detection floor: two effect
+    floors). UNTESTABLE when the matched pairs are not close (median matched / median random latent distance > 0.2) or when no
+    sequence is testable (untestable sequences are left out of the mean and listed). An untestable MEV does NOT satisfy criterion E
+    (verdict.system_verdict). Every quantity is in readout-sd units, so scaling y changes nothing.
     SENSITIVITY (reported, never the verdict quantity): the same ratio under the draft's rule (the 2 % closest candidate pairs), with
     its own distance ratio and CI.
     Also reported (same candidate pairs, same rule, same resamples): truth-matched pairs (synthetic: z_true, whitened by its pool
     covariance), observation-matched pairs (the current readout, whitened) and PCA-matched pairs (the top-k public PCs of x, k = the
-    model's k), each per sequence and averaged; and truth-EQUIVALENT pairs (synthetic: states sharing `equiv_class`, including the
-    truth-only states constructed as equivalents: their mean divergence relative to the random pairs).
+    model's k), each per sequence and averaged. TRUTH-EQUIVALENT pairs (synthetic: states of the full pool sharing `equiv_class`,
+    including the truth-only states the builder constructs as equivalents: equal true causal state, different microstate detail that
+    is visible in x) test the MODEL (review T round 3, N2): its whitened latent distance between equivalent states relative to the
+    random candidate pairs (same whitening; a causal state maps them close: ratio near 0), and its PREDICTED-future divergence under
+    the pool sequences (the divergence statistic on the model's own predictions from each state's history), relative to the
+    detection floor of 5.5 (max(2 x numerical floor, the effect-floor term)) and to the predicted divergence of random candidate
+    pairs. The divergence of their TRUE futures is zero up to numerics by construction: reported only as the builder's check.
 5.6 BISIMULATION-LIKE (descriptive). The candidate pairs of 5.5 (truth-only states excluded), sampled evenly across 10 quantile
     bins of latent distance. Per pair: (1) the RMS
     difference of the current readouts; (2) per intervention kind, the RMS difference of the two states' RESPONSES (future under the
@@ -38,14 +48,15 @@ from __future__ import annotations
 import numpy as np
 
 from . import stats as S
-from .evalio import PRIMARY, EvalSystem, Pool
+from .evalio import PRIMARY, EvalSystem, Pool, detection_floor_sq
 from .fresh import as_fresh, safe_call
 
 MATCH_M = 20                 # matched pairs: the M closest candidate pairs (a fixed count; PROTOCOL 5.5)
 MATCH_Q_SENS = 0.02          # sensitivity variant only (the draft's rule): the 2 % closest candidate pairs
 RESOLUTION_MAX = 0.2
 FLOOR_FACTOR = 2.0
-EIG_FLOOR = 1e-8
+MEV_CAP = 10.0               # the worst admissible MEV, charged to non-finite bootstrap replicates (finite bounds, PROTOCOL 11)
+EIG_FLOOR = 1e-6             # whitening eigenvalue floor relative to the largest eigenvalue (review H, minor 11)
 CHUNK_ELEMS = 16_000_000     # array elements per chunk of pair differences (pools of 600 states have about 21,000 pairs)
 
 
@@ -101,6 +112,32 @@ def _futures(pool: Pool, sysc: EvalSystem, seqs: list[str]) -> dict[str, np.ndar
     out = {}
     for s in seqs:
         out[s] = np.stack([np.asarray(st.futures[s], np.float64)[1: m + 1] for st in pool.states]) / sysc.y_sd
+    return out
+
+
+def _predicted_futures(F, sid: str, states: list, pool: Pool, sysc: EvalSystem, seqs: list[str]) -> dict[str, np.ndarray]:
+    """{sequence: (n_states, m, n_y)} the model's PREDICTED readout futures of the given pool states under the pool sequences (rows
+    1..m of the primary horizon, readout-sd units; 'none' = the model's prediction without events under the common input), from
+    each state's own history (`intervention_effect`); NaN where the model fails or abstains."""
+    m = sysc.horizon_steps(PRIMARY, pool.dt)
+    n_y = int(sysc.n_y)
+    base_u = (pool.sequences.get("none") or next(iter(pool.sequences.values()), {}) or {}).get("u_future")
+    out = {s: np.full((len(states), m, n_y), np.nan) for s in seqs}
+    for k, st in enumerate(states):
+        for s in seqs:
+            spec = pool.sequences.get(s) or {}
+            uf = spec.get("u_future", base_u)
+            if uf is None:
+                continue
+            ev = [] if s == "none" else list(spec.get("events") or [])
+            r, err = safe_call(F.intervention_effect, sid, st.x_hist, st.u_hist, np.asarray(uf, np.float64), ev, pool.dt)
+            if err is not None or not isinstance(r, dict) or r.get("abstain") or r.get("y_int") is None:
+                continue
+            y = np.asarray(r["y_int"], np.float64)
+            y = y[:, None] if y.ndim == 1 else y
+            if y.shape[0] < m + 1 or y.shape[1] != n_y or not np.isfinite(y[1: m + 1]).all():
+                continue
+            out[s][k] = y[1: m + 1] / sysc.y_sd
     return out
 
 
@@ -167,12 +204,50 @@ def _boot_ratios(DIV: np.ndarray, matchers: dict[str, _Match], rules: dict[str, 
 
 
 def _summ(point: np.ndarray, reps: np.ndarray, seqs: list[str], testable: np.ndarray) -> dict:
-    """Mean over testable sequences with its CI, and the per-sequence ratios."""
+    """Mean over testable sequences with its CI, and the per-sequence ratios. A replicate whose mean is non-finite (no matched pair
+    with positive weight, or no finite testable sequence) is charged the worst admissible value MEV_CAP: counted against the claim
+    (MEV <= tau), with finite bounds (PROTOCOL 11)."""
     if not testable.any():
-        return {"mean": float("nan"), "ci95": [float("nan")] * 2, "per_sequence": {s: float(v) for s, v in zip(seqs, point)}}
-    mean_rep = np.nanmean(reps[:, testable], axis=1) if reps is not None else None
-    return {"mean": float(np.nanmean(point[testable])), "ci95": S.percentile_ci(mean_rep) if mean_rep is not None else [float("nan")] * 2,
-            "per_sequence": {s: float(v) for s, v in zip(seqs, point)}}
+        return {"mean": float("nan"), "ci95": [float("nan")] * 2, "per_sequence": {s: float(v) for s, v in zip(seqs, point)},
+                "n_nonfinite_reps": 0}
+    with np.errstate(invalid="ignore"):
+        mean_rep = np.nanmean(reps[:, testable], axis=1) if reps is not None else None
+    est = S.make_estimate(float(np.nanmean(point[testable])) if np.isfinite(point[testable]).any() else float("nan"), mean_rep, 0,
+                          worst=MEV_CAP)
+    return {"mean": est.point, "ci95": est.ci95 if mean_rep is not None else [float("nan")] * 2,
+            "per_sequence": {s: float(v) for s, v in zip(seqs, point)}, "n_nonfinite_reps": est.n_nonfinite_reps}
+
+
+def floor_statistic(pool: Pool, sysc: EvalSystem) -> dict:
+    """The MEV numerical floor (PROTOCOL 5.5; review H, B1) with the divergence's own statistic: for every floor state and pair kind
+    ("noop": [no-intervention future, repeat with a no-op breakpoint one sample after the restart]; "f32": [float64 continuation,
+    restart from the float32-rounded stored state]) the mean squared difference of the two futures in public readout-sd units over
+    rows 1..m of the primary horizon; per kind the mean over the floor states; the floor is the larger kind mean. Without floor
+    futures: the pool's (or states') `floor_div`, which must already be this statistic; else 0 (reported as source "none")."""
+    m = sysc.horizon_steps(PRIMARY, pool.dt)
+    per_kind: dict[str, list[float]] = {}
+    for st in pool.states:
+        for kind, pair in (st.floor_futures or {}).items():
+            if pair is None or len(pair) != 2:
+                continue
+            a, b = (np.asarray(v, np.float64) for v in pair)
+            a = a[:, None] if a.ndim == 1 else a
+            b = b[:, None] if b.ndim == 1 else b
+            if len(a) <= m or len(b) <= m:
+                continue
+            d = (a[1: m + 1] - b[1: m + 1]) / sysc.y_sd
+            v = float(np.mean(d * d))
+            per_kind.setdefault(kind, []).append(v if np.isfinite(v) else float("inf"))
+    if per_kind:
+        means = {k: float(np.mean(v)) for k, v in per_kind.items()}
+        return {"floor": float(max(means.values())), "per_kind": means, "n_states": {k: len(v) for k, v in per_kind.items()},
+                "source": "floor_futures"}
+    if pool.floor_div is not None:
+        return {"floor": float(pool.floor_div), "per_kind": {}, "n_states": {}, "source": "pool.floor_div"}
+    fl = [st.floor_div for st in pool.states if st.floor_div is not None]
+    if fl:
+        return {"floor": float(np.mean(fl)), "per_kind": {}, "n_states": {"state": len(fl)}, "source": "state.floor_div"}
+    return {"floor": 0.0, "per_kind": {}, "n_states": {}, "source": "none"}
 
 
 def main_pool(pool: Pool) -> Pool:
@@ -222,11 +297,10 @@ def eval_microstate(model, sysc: EvalSystem, pool: Pool, *, whiten_z=None, k_mod
     res["n_pairs"] = n_pairs
     res["whiten_source"] = "train" if whiten_z is not None else "pool"
     rm = DIV.mean(1)
-    floor = pool.floor_div
-    if floor is None:
-        fl = [st.floor_div for st in pool.states if st.floor_div is not None]
-        floor = float(np.mean(fl)) if fl else 0.0
-    seq_testable = rm >= FLOOR_FACTOR * float(floor)
+    fls = floor_statistic(full_pool, sysc)
+    floor = fls["floor"]
+    detect = detection_floor_sq(sysc.floor_frac)
+    seq_testable = (rm >= FLOOR_FACTOR * floor) & (rm >= detect)
     # distance vectors: the model's latent and the comparison pairings (same candidate pairs, same rule, same resamples)
     dz = _dist(Z, ii, jj, whiten_z)
     dists = {"latent": dz}
@@ -253,9 +327,13 @@ def eval_microstate(model, sysc: EvalSystem, pool: Pool, *, whiten_z=None, k_mod
     if not rho <= RESOLUTION_MAX:
         reasons.append(f"matched pairs not close (median distance ratio {rho:.3g} > {RESOLUTION_MAX})")
     if not seq_testable.any():
-        reasons.append(f"no sequence's random pairs diverge {FLOOR_FACTOR} x the numerical floor {float(floor):.3g}")
+        reasons.append(f"no sequence's random-pair divergence reaches max({FLOOR_FACTOR} x the numerical floor {floor:.3g}, the "
+                       f"detection floor {detect:.3g})")
     lat = _summ(points["latent"], boots["latent"], seqs, seq_testable)
-    res["MEV"] = {"point": lat["mean"], "ci95": lat["ci95"]}
+    # the descriptive value is always reported; the verdict quantity MEV is NaN (with the reason) when the MEV is untestable
+    res["MEV_descriptive"] = {"point": lat["mean"], "ci95": lat["ci95"], "n_nonfinite_reps": lat["n_nonfinite_reps"]}
+    res["MEV"] = ({"point": lat["mean"], "ci95": lat["ci95"], "n_nonfinite_reps": lat["n_nonfinite_reps"]} if not reasons else
+                  {"point": float("nan"), "ci95": [float("nan"), float("nan")], "untestable": "; ".join(reasons)})
     res["matched"] = {"rule": "count", "M": int(m_match), "n_pairs": len(sel_m), "fraction_of_candidates": len(sel_m) / n_pairs,
                       "median_dist_ratio": rho}
     res["per_sequence"] = {sq: {"ratio": float(r), "random_div": float(v), "testable": bool(t)}
@@ -267,29 +345,103 @@ def eval_microstate(model, sysc: EvalSystem, pool: Pool, *, whiten_z=None, k_mod
                                             "per_sequence": qs["per_sequence"]}}
     res["comparisons"] = {name: _summ(points[name], boots[name], seqs, seq_testable) for name in dists if name != "latent"}
     res["comparisons"]["pca_k"]["k"] = k_eff
-    # truth-equivalent pairs (synthetic): every pair of states of the FULL pool (incl. truth-only states) sharing an equivalence class,
-    # their mean future divergence relative to the random pairs of the main pool
+    # truth-equivalent pairs (synthetic; review T round 3, N2): every pair of states of the FULL pool (incl. truth-only states)
+    # sharing an equivalence class. They test the MODEL: its whitened latent distance (same whitening as the MEV) relative to the
+    # random candidate pairs, and its predicted-future divergence relative to the detection floor and to random pairs. The true-future
+    # divergence (zero up to numerics by construction) is only the builder's construction check.
     classes: dict = {}
     for i_s, st in enumerate(full_pool.states):
         if st.equiv_class is not None:
             classes.setdefault(st.equiv_class, []).append(i_s)
     eq_pairs = [(a, b) for mem in classes.values() for x, a in enumerate(mem) for b in mem[x + 1:]]
-    if eq_pairs and all(all(sq in st.futures for sq in seqs) for st in full_pool.states):
-        FutF = _futures(full_pool, sysc, seqs)
-        ea, eb = np.array([a for a, _ in eq_pairs]), np.array([b for _, b in eq_pairs])
-        DIV_eq = np.stack([pair_divergence(FutF[sq], ea, eb) for sq in seqs])
-        with np.errstate(divide="ignore", invalid="ignore"):
-            r_eq = np.where(rm > 0, DIV_eq.mean(1) / rm, np.nan)
-        res["comparisons"]["truth_equivalent"] = {"mean": float(np.nanmean(r_eq[seq_testable])) if seq_testable.any() else float("nan"),
-                                                  "n_pairs": len(eq_pairs), "n_classes": len(classes),
-                                                  "per_sequence": {sq: float(v) for sq, v in zip(seqs, r_eq)}}
+    if eq_pairs:
+        res["comparisons"]["truth_equivalent"] = _truth_equivalent(F, sid, full_pool, pool, sysc, Z, dz, ii, jj, whiten_z, seqs,
+                                                                   seq_testable, rm, floor, detect, classes, eq_pairs, seed)
     res["numerical_floor"] = float(floor)
+    res["floor_detail"] = fls
+    res["detection_floor"] = detect
+    res["k"] = int(Z.shape[1])
     res["testable"] = not reasons
     res["untestable_reason"] = "; ".join(reasons) or None
     res["sequences"] = seqs
     res["_units"] = {"dz": dz.tolist(), "ti": tix[ii].tolist(), "tj": tix[jj].tolist(), "traj_draw": traj_draw.tolist(),
                      "div": DIV.tolist()}
     return res
+
+
+def _finite_mean(v) -> float:
+    a = np.asarray(v, np.float64).reshape(-1)
+    a = a[np.isfinite(a)]
+    return float(a.mean()) if a.size else float("nan")
+
+
+def _truth_equivalent(F, sid: str, full_pool: Pool, pool: Pool, sysc: EvalSystem, Z: np.ndarray, dz: np.ndarray, ii: np.ndarray,
+                      jj: np.ndarray, whiten_z, seqs: list[str], seq_testable: np.ndarray, rm: np.ndarray, floor: float, detect: float,
+                      classes: dict, eq_pairs: list[tuple[int, int]], seed: int, n_random_max: int = 200) -> dict:
+    """The truth-equivalent comparison of 5.5 (module docstring; review T round 3, N2)."""
+    full = full_pool.states
+    main_row = {id(st): r for r, st in enumerate(pool.states)}
+    need = sorted({a for a, _ in eq_pairs} | {b for _, b in eq_pairs})
+    enc: dict[int, np.ndarray] = {}
+    n_fail = 0
+    for i_f in need:
+        r = main_row.get(id(full[i_f]))
+        if r is not None:
+            enc[i_f] = Z[r]
+            continue
+        z, err = safe_call(F.encode, sid, full[i_f].x_hist, full[i_f].u_hist, full_pool.dt)
+        zz = None if err or z is None else np.asarray(z, np.float64).reshape(-1)
+        if zz is None or zz.shape[0] != Z.shape[1] or not np.isfinite(zz).all():
+            n_fail += 1
+            continue
+        enc[i_f] = zz
+    ok = [(a, b) for a, b in eq_pairs if a in enc and b in enc]
+    out: dict = {"n_pairs": len(eq_pairs), "n_classes": len(classes), "n_pairs_encoded": len(ok), "n_encode_failed": n_fail}
+    mu, W = whiten_z if whiten_z is not None else whitener(Z)
+    d_eq = np.array([float(np.sqrt(((((enc[a] - mu) @ W) - ((enc[b] - mu) @ W)) ** 2).sum())) for a, b in ok])
+    med_r, mean_r = float(np.median(dz)), float(np.mean(dz))
+    out["latent_distance_ratio"] = float(np.median(d_eq) / med_r) if len(d_eq) and med_r > 0 else float("nan")
+    out["latent_distance_ratio_mean"] = float(np.mean(d_eq) / mean_r) if len(d_eq) and mean_r > 0 else float("nan")
+    # the model's predicted futures: the states of the encoded equivalent pairs and a seeded sample of random candidate pairs
+    rng = np.random.default_rng([int(seed), 7919])
+    n_r = int(min(len(ii), max(len(ok), 1) * 2, n_random_max))
+    pick = np.sort(rng.choice(len(ii), size=n_r, replace=False)) if n_r else np.zeros(0, int)
+    eq_states = sorted({a for a, _ in ok} | {b for _, b in ok})
+    rnd_states = sorted({int(ii[k]) for k in pick} | {int(jj[k]) for k in pick})
+    states = [full[i] for i in eq_states] + [pool.states[i] for i in rnd_states]
+    pos_eq = {i: k for k, i in enumerate(eq_states)}
+    pos_rd = {i: len(eq_states) + k for k, i in enumerate(rnd_states)}
+    PF = _predicted_futures(F, sid, states, full_pool, sysc, seqs)
+    ea = np.array([pos_eq[a] for a, _ in ok], int)
+    eb = np.array([pos_eq[b] for _, b in ok], int)
+    ra = np.array([pos_rd[int(ii[k])] for k in pick], int)
+    rb = np.array([pos_rd[int(jj[k])] for k in pick], int)
+    gate = max(FLOOR_FACTOR * float(floor), float(detect))
+    pred_eq, pred_rd, over, rel = {}, {}, {}, {}
+    for s in seqs:
+        de = pair_divergence(PF[s], ea, eb) if len(ea) else np.zeros(0)
+        dr = pair_divergence(PF[s], ra, rb) if len(ra) else np.zeros(0)
+        pred_eq[s] = _finite_mean(de)
+        pred_rd[s] = _finite_mean(dr)
+        over[s] = pred_eq[s] / gate if gate > 0 else float("nan")
+        rel[s] = pred_eq[s] / pred_rd[s] if pred_rd[s] and np.isfinite(pred_rd[s]) and pred_rd[s] > 0 else float("nan")
+    test = [s for s, t in zip(seqs, seq_testable) if t]
+    out["predicted_divergence"] = {"per_sequence": pred_eq, "random_pairs_per_sequence": pred_rd, "n_random_pairs": int(n_r),
+                                   "over_detection_floor": over, "relative_to_random": rel, "detection_floor": gate,
+                                   "mean_over_detection_floor": _finite_mean([over[s] for s in test]),
+                                   "mean_relative_to_random": _finite_mean([rel[s] for s in test])}
+    # the builder's construction check: TRUE futures of equivalent states agree up to numerics
+    if all(all(sq in st.futures for sq in seqs) for st in full):
+        FutF = _futures(full_pool, sysc, seqs)
+        ta, tb = np.array([a for a, _ in eq_pairs]), np.array([b for _, b in eq_pairs])
+        DIV_eq = np.stack([pair_divergence(FutF[sq], ta, tb) for sq in seqs])
+        with np.errstate(divide="ignore", invalid="ignore"):
+            r_eq = np.where(rm > 0, DIV_eq.mean(1) / rm, np.nan)
+        out["construction_check"] = {"true_future_ratio": float(np.nanmean(r_eq[seq_testable])) if seq_testable.any() else float("nan"),
+                                     "per_sequence": {sq: float(v) for sq, v in zip(seqs, r_eq)},
+                                     "note": "true futures of truth-equivalent states: zero up to numerics by construction (a check of "
+                                             "the dataset builder, not of the model)"}
+    return out
 
 
 # ------------------------------------------------------------------------------------------------------------ 5.6

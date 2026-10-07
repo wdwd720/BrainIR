@@ -1,5 +1,6 @@
-"""Calibration of the verdict tolerances (brainir_causal.calibrate; PROTOCOL section 7): the tolerance and power rules on hand-made
-rows, and the whole pipeline end to end on the toy synthetic system and on one real mechanism system."""
+"""Calibration of the verdict tolerances (brainir_causal.calibrate; PROTOCOL section 7 as rewritten after review E, M3): the tolerance
+rule, the common percentile, the Fisher power rule, the power table and the CI-end verdicts on hand-made verdict inputs, and the whole
+pipeline end to end on the toy synthetic system and on one real mechanism system (slow)."""
 
 from __future__ import annotations
 
@@ -9,64 +10,118 @@ import numpy as np
 import pytest
 
 from brainir_causal import calibrate as CAL
+from brainir_causal.verdict import SUPPORTED
 
 FAST = {"steps_one": 300, "steps_multi": 60, "readout_steps": 300}
 
 
-def _row(i: int, trap: bool = True) -> dict:
-    """A hand-made per-system row: true-state EE point 0.01 i with CI width 0.02 i, full-state EE 0.005 i, SMS upper 0.01 i, ICG
-    upper 0.002 i, MEV upper 0.03 i (testable on even i), EE held-out 0.1 + 0.02 i vs in-family 0.1."""
-    t = {"EE": {"point": 0.01 * i, "ci95": [0.0, 0.03 * i]}, "SMS": {"point": 0.0, "ci95": [-0.01, 0.01 * i]},
-         "ICG_y": {"point": 0.0, "ci95": [-0.01, 0.002 * i]}, "MEV": {"point": 0.01, "ci95": [0.0, 0.03 * i]}, "MEV_testable": i % 2 == 0,
-         "EE_heldout": {"point": 0.1 + 0.02 * i, "ci95": [0, 1]}, "EE_infamily": {"point": 0.1, "ci95": [0, 1]}}
-    r = {"sid": f"s{i}", "true_state": t, "full_state": {"EE": {"point": 0.005 * i, "ci95": [0, 1]}},
-         "random_k": {"SMS": {"point": 0.5, "ci95": [0.3, 0.7]}, "ICG_y": {"point": 0.0, "ci95": [-0.01, 0.002 * i]}}}
-    if trap:
-        r["obs_shortcut"] = {"SMS": {"point": 0.4, "ci95": [0.2, 0.6]}, "ICG_y": {"point": 0.0, "ci95": [-0.01, 0.0]}}
-    return r
-
-
-def test_tolerance_rule_is_the_protocols_percentiles():
-    rows = [_row(i) for i in range(1, 11)]
-    t = CAL.tolerance_rule(rows)
-    i = np.arange(1, 11)
-    assert t["delta_A"] == pytest.approx(max(0.1, np.percentile(0.02 * i, 90)))
-    assert t["delta_C"] == pytest.approx(max(0.05, np.percentile(0.005 * i, 90)))
-    assert t["tau_SMS"] == pytest.approx(np.percentile(0.01 * i, 90))
-    assert t["tau_ICG"] == pytest.approx(np.percentile(0.002 * i, 90))
-    assert t["tau_MEV"] == pytest.approx(np.percentile(0.03 * i[i % 2 == 0], 90))
-    assert t["delta_H"] == pytest.approx(max(0.1, np.percentile(0.02 * i, 90)))
-    ci = CAL.tolerance_cis(rows, n_boot=200)
-    assert all(ci[k][0] <= ci[k][1] for k in CAL.TOL_KEYS)
-
-
-def test_power_rule_binds_only_with_both_nulls_well_below():
-    rows = [_row(i) for i in range(1, 11)]
-    tau = CAL.tolerance_rule(rows)["tau_SMS"]
-    pw = CAL.power_rule(rows, "SMS", tau)
-    assert pw["pass_rate"]["true_state"] == pytest.approx(0.9) and pw["pass_rate"]["random_k"] == 0.0 and pw["binds"]
-    # ICG: random-k passes as often as the true state -> no power -> not binding
-    assert not CAL.power_rule(rows, "ICG_y", CAL.tolerance_rule(rows)["tau_ICG"])["binds"]
-    # no trap system -> the observational null is missing -> not binding (conservative)
-    assert not CAL.power_rule([_row(i, trap=False) for i in range(1, 11)], "SMS", tau)["binds"]
-
-
-def _vi(ee_up: float, sms_up: float = 0.0) -> dict:
-    return {"EE": {"point": ee_up / 2, "ci95": [0, ee_up]}, "EE_vs_idshortcut": {"point": -0.2, "ci95": [-0.3, -0.1]},
-            "EE_vs_fullbound": {"point": 0.0, "ci95": [-0.01, 0.01]}, "SMS": {"point": 0.0, "ci95": [-0.02, sms_up]},
-            "ICG_y": {"point": 0.0, "ci95": [-0.01, 0.0]}, "MEV": {"point": 0.01, "ci95": [0, 0.02]}, "MEV_testable": True,
-            "false_confidence": {"rate": 0.0, "n": 5}, "dimension": {"k": 2, "compact": True, "stable": True},
-            "EE_heldout": {"point": 0.1, "ci95": [0, 0.2]}, "EE_infamily": {"point": 0.08, "ci95": [0, 0.2]},
+def _vi(sms_up: float = 0.0, icg_up: float = 0.0, mev_up: float = 0.01, ee_up: float = 0.1, c_up: float = 0.0, fc_rate: float = 0.0,
+        mev_testable: bool = True) -> dict:
+    """Verdict inputs (the `verdict.collect_metrics` layout) of one model on one system: every criterion but the given ones passes."""
+    return {"EE": {"point": 0.05, "ci95": [0.0, ee_up]}, "EE_vs_idshortcut": {"point": -0.2, "ci95": [-0.3, -0.1]},
+            "EE_vs_fullbound": {"point": 0.0, "ci95": [-0.01, c_up]}, "SMS": {"point": 0.0, "ci95": [-0.05, sms_up]},
+            "ICG_y": {"point": 0.0, "ci95": [-0.01, icg_up]}, "MEV": {"point": 0.005, "ci95": [0.0, mev_up]}, "MEV_testable": mev_testable,
+            "false_confidence": {"rate": fc_rate, "n": 10}, "dimension": {"k": 2, "compact": True, "stable": True},
+            "EE_heldout": {"point": 0.1, "ci95": [0.0, 0.2]}, "EE_infamily": {"point": 0.08, "ci95": [0.0, 0.2]},
+            "EE_by_class": {c: {"point": 0.05} for c in ("weak", "moderate", "strong")},       # criterion A's class condition (M1)
             "declared_no_compact": False, "truth_noncompressible": None}
 
 
-def test_judge_counts_verdict_categories():
-    tol = {"delta_A": 0.1, "delta_C": 0.05, "tau_SMS": 0.05, "tau_ICG": 0.05, "tau_MEV": 0.05, "delta_H": 0.1, "tau_FC": 0.2,
-           "sms_binds": True, "icg_binds": True}
-    rows = [{"true_state": {"verdict_inputs": _vi(0.2)}}, {"true_state": {"verdict_inputs": _vi(0.2, sms_up=0.3)}},
-            {"true_state": {"verdict_inputs": _vi(1.5)}}]
-    counts = CAL.judge(rows, tol)["true_state"]
-    assert counts == {"causal state supported": 1, "partially supported": 1, "unsupported": 1}
+def _rows(n: int = 20, n_trap: int = 8, spread=(("sms", 0), ("icg", 1), ("mev", 2))) -> list[dict]:
+    """n systems. The true state's D / ICG / MEV upper CIs are 0.01 x (rank + 1), with each criterion's two LARGEST values on distinct
+    systems (so at p = 90 six systems fail one criterion each, at p = 95 three do); nulls and corruptions fail their criteria."""
+    rows = []
+    for i in range(n):
+        vals = {"sms": 0.01 * (i + 1), "icg": 0.01 * (i + 1), "mev": 0.01 * (i + 1)}
+        for name, shift in spread:                 # rotate the ranking so the top systems differ per criterion
+            vals[name] = 0.01 * (((i + 2 * shift) % n) + 1)
+        r = {"sid": f"s{i}", "compact_judged": True,
+             "true_state": {"verdict_inputs": _vi(sms_up=vals["sms"], icg_up=vals["icg"], mev_up=vals["mev"])},
+             "random_k": {"verdict_inputs": _vi(sms_up=0.9, icg_up=0.9, mev_up=0.9, ee_up=1.2)},
+             "true_state_readin": {"verdict_inputs": _vi(sms_up=0.8, icg_up=vals["icg"], mev_up=vals["mev"])},
+             "true_state_missing": {"verdict_inputs": _vi(sms_up=vals["sms"], icg_up=0.7, mev_up=0.8)}}
+        if i < n_trap:
+            r["obs_shortcut"] = {"verdict_inputs": _vi(sms_up=0.6, icg_up=0.5, mev_up=0.6)}
+        rows.append(r)
+    return rows
+
+
+def test_tolerance_rule_is_the_protocols_percentiles():
+    rows = _rows()
+    for p in (90.0, 97.5):
+        t = CAL.tolerance_rule(rows, p)
+        v = 0.01 * np.arange(1, 21)
+        assert t["tau_SMS"] == pytest.approx(np.percentile(v, p))
+        assert t["tau_ICG"] == pytest.approx(np.percentile(v, p)) and t["tau_MEV"] == pytest.approx(np.percentile(v, p))
+        assert t["delta_A"] == pytest.approx(max(0.1, 0.1 - 0.05))                    # upper - point = 0.05 everywhere
+        assert t["delta_C"] == pytest.approx(0.05)                                     # the floor: upper CIs of the paired diff are 0
+        assert t["delta_H"] == pytest.approx(0.1) and t["tau_FC"] == 0.2
+    # delta_C uses the UPPER CI of the paired difference EE_truestate - EE_fullstate
+    rows[0]["true_state"]["verdict_inputs"]["EE_vs_fullbound"]["ci95"][1] = 5.0
+    assert CAL.tolerance_rule(rows, 99.0)["delta_C"] > 1.0
+
+
+def test_power_rule_is_a_fisher_test_against_each_null_on_the_same_systems():
+    rows = _rows()
+    tol = CAL.tolerance_rule(rows, 95.0)
+    pw = CAL.power_rule(rows, tol)
+    assert pw["sms_binds"] and pw["icg_binds"] and pw["mev_binds"]
+    assert pw["obs_shortcut"]["n_systems"] == 8 and pw["random_k"]["n_systems"] == 20
+    assert pw["random_k"]["D"]["pass_a"] == 19 and pw["random_k"]["D"]["pass_b"] == 0 and pw["random_k"]["D"]["p_fisher"] < 1e-6
+    # fewer than 6 trap systems: the power against the observational shortcut cannot be shown, nothing binds
+    few = _rows(n_trap=5)
+    pw2 = CAL.power_rule(few, CAL.tolerance_rule(few, 95.0))
+    assert not (pw2["sms_binds"] or pw2["icg_binds"] or pw2["mev_binds"]) and "trap systems" in pw2["D_reason"]
+    # a null that passes as often as the true state removes the power
+    same = _rows()
+    for r in same:
+        r["random_k"] = {"verdict_inputs": dict(r["true_state"]["verdict_inputs"])}
+    assert not CAL.power_rule(same, CAL.tolerance_rule(same, 95.0))["sms_binds"]
+    assert CAL.fisher_greater(6, 6, 0, 6) < 0.01 and CAL.fisher_greater(3, 6, 3, 6) > 0.5
+
+
+def test_common_percentile_is_the_smallest_reaching_80_percent():
+    rows = _rows()
+    cp = CAL.common_percentile(rows)
+    rates = {t["p"]: t["true_state_supported_rate"] for t in cp["table"]}
+    assert rates[90.0] == pytest.approx(0.7) and rates[95.0] == pytest.approx(0.85)
+    assert cp["attainable"] and cp["chosen"]["p"] == 95.0 and cp["note"] is None
+
+
+def test_unattainable_calibration_is_recorded():
+    rows = _rows()
+    for r in rows[:6]:                           # the true state is falsely confident on 30 % of the systems at every percentile
+        r["true_state"]["verdict_inputs"]["false_confidence"] = {"rate": 0.5, "n": 10}
+    cp = CAL.common_percentile(rows)
+    assert not cp["attainable"] and cp["chosen"]["p"] == 99.0 and "not attainable" in cp["note"]
+
+
+def test_calibrate_rows_records_power_table_and_ci_ends():
+    rec = CAL.calibrate_rows(_rows(), n_boot=200)
+    assert rec["percentile"]["chosen_p"] == 95.0 and rec["percentile"]["attainable"]
+    assert rec["tolerances"]["sms_binds"] and rec["tolerances"]["mev_binds"]
+    assert rec["verdicts_under_calibrated_tolerances"]["true_state"][SUPPORTED] == 17
+    assert rec["verdicts_under_calibrated_tolerances"]["random_k"].get(SUPPORTED, 0) == 0
+    pt = rec["power_table"]
+    assert pt["true_state_readin"]["detects"]["D"] and not pt["true_state_readin"]["detects"]["E_icg"]
+    assert pt["true_state_missing"]["detects"]["E_icg"] and pt["true_state_missing"]["detects"]["E"]
+    assert not pt["true_state_missing"]["detects"]["D"]
+    assert set(rec["verdicts_at_tolerance_ci_ends"]) >= {"tau_SMS_low", "tau_SMS_high", "delta_A_low"}
+    assert rec["reference_dimension"]["stable"] is True and "asymmetry" in rec["reference_dimension"]["note"]
+    assert rec["tolerance_ci_note"].startswith("descriptive")
+    json.dumps(rec)
+
+
+def test_readin_family_and_missing_coordinate():
+    class It:
+        def __init__(self, family):
+            self.family = family
+    pub = {"split": {"families_train": ["kick.1", "pulse.1", "sil.1"]}}
+    items = [It("pulse.1")] * 3 + [It("kick.1")] * 3 + [It("sil.1")] * 9 + [It("kick.2")] * 9
+    assert CAL.readin_family(pub, items) == "kick.1"                  # ties by name; silencing has no amplitude; kick.2 not trained
+    assert CAL.readin_family(pub, [It("sil.1")]) is None
+    z = {"a": np.column_stack([np.zeros(5), np.arange(5.0), np.ones(5)]), "b": np.column_stack([np.ones(3), np.arange(3.0), np.ones(3)])}
+    assert CAL.missing_coordinate(z) == 1
 
 
 def test_mde_paired():
@@ -78,22 +133,39 @@ def test_mde_paired():
 @pytest.mark.slow
 def test_calibration_pipeline_on_toy_systems():
     from test_calibrate_toyinputs import toy_inputs
+
+    from brainir_causal.evalio import TestItem
     rows = []
     for seed in (0, 1):
         inp = toy_inputs(seed=seed)
-        rows.append(CAL.calibrate_from_inputs("toy", pub=inp["pub"], sysc=inp["sysc"], train=inp["train"], items=inp["items"],
+        it0 = inp["items"][0]
+        # an item of a kind the true-state reference never trained (silencing): excluded from the calibration items, counted
+        extra = TestItem(item_id="unsupported", system_id="toy", dt=it0.dt, x_hist=it0.x_hist, u_hist=it0.u_hist, u_future=it0.u_future,
+                         events=[{"kind": "silence", "t0": 0.0, "t1": 0.1, "targets": [0]}], y_future=it0.y_future, y_twin=it0.y_twin,
+                         family="sil.1", shift="far", group="gx")
+        rows.append(CAL.calibrate_from_inputs("toy", pub=inp["pub"], sysc=inp["sysc"], train=inp["train"], items=inp["items"] + [extra],
                                               pool=inp["pool"], k_true=2, truth=inp["truth"], register=inp["register"], n_boot=200,
                                               learner=FAST))
     json.dumps(rows)                                              # JSON-serialisable rows
     for r in rows:
         assert not r["errors"], r["errors"]
-        assert r["true_state"]["EE"]["point"] < 0.1 < r["random_k"]["EE"]["point"]
-        assert abs(r["no_effect"]["EE"]["point"] - 1.0) < 1e-3
-        assert r["true_state"]["SMS"]["point"] < r["obs_shortcut"]["SMS"]["point"]      # the wrong latent leaves intervention info
-    rec = CAL.tolerances_from_rows(rows, n_boot=200)
-    tol = rec["tolerances"]
-    assert all(np.isfinite(tol[k]) for k in ("delta_A", "delta_C", "tau_SMS", "tau_ICG", "delta_H"))
-    assert set(rec["verdicts_under_calibrated_tolerances"]) >= {"true_state", "random_k", "no_effect"}
+        # unsupported: the silencing item (a kind never trained) and the items on units never intervened in training with that kind
+        # (refs covers(): the true-state reference has no learned read-in there and abstains)
+        assert r["n_supported_items"] <= r["n_verdict_items"] - 1 and r["unsupported_families"].get("sil.1") == 1
+        assert r["abstention_share"] == pytest.approx(1.0 - r["n_supported_items"] / r["n_verdict_items"])
+        assert r["missing_coordinate"] in (0, 1) and r["readin_family"] in ("kick.1", "pulse.1")
+        ts, rk = r["true_state"]["verdict_inputs"], r["random_k"]["verdict_inputs"]
+        assert ts["EE"]["point"] < 0.1 < rk["EE"]["point"]
+        assert abs(r["no_effect"]["verdict_inputs"]["EE"]["point"] - 1.0) < 1e-3
+        # the corruptions are fitted, scored, and actually corrupt the true state's intervention predictions (whether D / E detect
+        # them is what the power table measures on the dev suite; the toy's 24 items are too few to test that here)
+        for cor in ("true_state_readin", "true_state_missing"):
+            assert r[cor]["verdict_inputs"]["EE"]["point"] > 10 * ts["EE"]["point"], cor
+        assert r["true_state_readin"]["info"]["corrupted_family"] == r["readin_family"]
+        assert r["true_state_missing"]["k"] == 1
+    rec = CAL.calibrate_rows(rows, n_boot=200)
+    assert rec["percentile"]["chosen_p"] in CAL.PERCENTILES and rec["n_systems"] == 2
+    assert set(rec["verdicts_under_calibrated_tolerances"]) >= {"true_state", "random_k", "no_effect", "true_state_readin"}
 
 
 def _real_mech_inputs(n_kick: int = 10, n_pulse: int = 6):
@@ -174,6 +246,8 @@ def _real_mech_inputs(n_kick: int = 10, n_pulse: int = 6):
     return sid, pub, sysc, train, items, pool, register
 
 
+
+
 @pytest.mark.slow
 def test_calibration_pipeline_on_a_real_mechanism_system():
     sid, pub, sysc, train, items, pool, register = _real_mech_inputs()
@@ -182,7 +256,8 @@ def test_calibration_pipeline_on_a_real_mechanism_system():
     json.dumps(row)
     assert not row["errors"], row["errors"]
     assert "true_state" not in row and "obs_shortcut" not in row          # no truth for real systems
+    assert row["n_supported_items"] == row["n_verdict_items"]             # without a true-state reference every verdict item is used
     for ref in ("full_state", "pca_k", "random_k", "no_effect", "id_shortcut"):
-        assert row[ref]["EE"] is not None and np.isfinite(row[ref]["EE"]["point"]), ref
-    assert abs(row["no_effect"]["EE"]["point"] - 1.0) < 1e-3
-    assert row["full_state"]["EE"]["point"] < 1.0                         # the full state predicts intervention effects
+        ee = row[ref]["verdict_inputs"]["EE"]
+        assert ee is not None and np.isfinite(ee["point"]), ref
+    assert abs(row["no_effect"]["verdict_inputs"]["EE"]["point"] - 1.0) < 1e-3

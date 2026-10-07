@@ -108,7 +108,12 @@ def test_every_family_round_trips_through_family_of(family):
     rng = np.random.default_rng(11)
     s = S.FamilySampler(pub, rng, S.seed_counter(False, "t"), targets=[0, 1, 2, 3, 4, 5], edges=[[0, 1], [1, 2], [2, 3]])
     for _ in range(12):
-        p, _info = s.make(family, mclass="moderate") if family not in F.OBS else (s.obs(family), {"family": family})
+        if family == "obs.init":             # a restart from a nominal passive source, completed after the source (LOG P4-D36)
+            sp = S.resolve_restart(S.init_spec(s, "src", "train", "d0"), "ab" * 32, s.base(params_seed=3))
+            p = sp.protocol
+            assert p["r0"]["kind"] == "restart" and p["params_seed"] == 3
+        else:
+            p, _info = s.make(family, mclass="moderate") if family not in F.OBS else (s.obs(family), {"family": family})
         q = P.validate(p)
         got = F.family_of(q, pub)
         if family == "obs.nominal":

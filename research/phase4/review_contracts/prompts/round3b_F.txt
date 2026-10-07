@@ -1,0 +1,20 @@
+ROUND-3 FOLLOW-UP (isolation re-check of the revised generator's public surface). Since your round-3 review (reviews/F/F3_review.md) the room was re-synced: extra/generator/ is the REVISED generator (its SYNTHETIC_BENCHMARK.md section 14 lists the changes) and data/synthetic_dev holds the PUBLIC part of 10 development systems REBUILT with it and with dataset design v2.
+
+Verify, with your own runs (scratch under .tmp/F/r3b/):
+1. The generator's PUBLIC surface carries nothing that identifies type, k, unit roles or truth: public_record(), the non-full simulate() output (info fields: clipping, realized kick sizes, step counts must appear only in the FULL output), the capability record (system-wide values only, no per-unit lists), and the rebuilt public dataset files (rows, meta, info, manifests, pools, lift cases). Use the benchmark's own checks (extra/brainir_causal/suites.py assert_public_record / assert_public_row and the public-part checks) and your own scans, and try to predict type / k / roles from public fields over many generated systems.
+2. The module split: the public-policy sampler now lives in the public module `sampling`; `suites` is an orchestrator module that must never reach a model worker or a method room (extra/brainir_causal/worker.py PUBLIC_MODULES; extra/scripts/make_phase4_cleanroom.py CLEAN_MODULES; isolation.build_pubdir). Check that nothing public imports `suites`, and that the worker's public directory and the method-room module list exclude it.
+3. The service's new checks: a recomputed public restart source must reproduce the public arrays bit for bit (simservice.SimServer._ensure_source), and benchmark simulations refuse off the reference platform (p4modal/gate.require_reference_platform; simservice.run_job). Check that none of this opens a new channel: error texts stay generic toward agents, details only in the service's error log outside the room.
+4. STAGING of large data on the isolated Modal classes (extra/LEAKAGE_POLICY.md section 2.13; extra/EVAL_ARCHITECTURE.md;
+   extra/brainir_causal/isolation.py run_iso_payload / pack_ready / namespaces_ok; extra/brainir_causal/p4modal/app.py and remote.py):
+   Modal moves every function input / output above 2 MiB through its blob store over HTTPS from inside the container, which
+   block_network forbids. block_network stays on EVERY iso class (an attempt to drop it on the packed classes was reversed: on
+   Modal's gVisor a worker's own network namespace still showed eth0, and the fail-closed check refused it). Instead the trusted
+   driver stages large data (a fit's model, large eval records, loop files) through a mounted volume: it writes and commits new
+   files, and a later driver reads them. Workers never touch the volume or the network. Decide whether staging opens a channel:
+   can a worker read or write staged files (its own, another slot's, another job's), learn their names or sizes, or influence
+   where the driver writes? Can a staged model or record carry anything from one method's job to another method's? Is the
+   volume lockdown (0700 mount points) kept across writes, commits and reloads? Use the smokes' evidence (extra/results where
+   present) and your own reading, and state what a successful attack would need.
+5. Any new leak or isolation problem that the revision introduced (blocker / major / minor, location, concrete fix).
+
+Write reviews/F/F3b_review.md with the per-item table and a one-paragraph verdict ("ready to freeze" or not, and why). Reply with the counts and any blocker / major.

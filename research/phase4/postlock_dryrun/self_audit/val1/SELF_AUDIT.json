@@ -1,0 +1,2624 @@
+{
+ "checks": {
+  "Q1": {
+   "SMS_id_share_within_tau": 0.13043478260869565,
+   "comparators": {
+    "id_baseline": {
+     "available": true,
+     "n_networks": 0,
+     "networks": {},
+     "networks_better": 0,
+     "networks_ok": null,
+     "suite": {
+      "ci95": [
+       -8.994205737762409,
+       -8.635148892370715
+      ],
+      "direction": "lower",
+      "lower95": -8.970178996032248,
+      "n": 46,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "per_system": {
+       "syn-0c04b49d585b": -9.394210442877386,
+       "syn-0d00e6913cf5": -9.223905470304697,
+       "syn-0f5fcca09063": -9.108522945533458,
+       "syn-1079fc8c6f30": -9.056586068146657,
+       "syn-10d717b5b101": -9.011527839136514,
+       "syn-116cfb751be3": -9.015215124445131,
+       "syn-17901d14439d": -8.948586489066239,
+       "syn-199221f837fc": -9.001668250518438,
+       "syn-1ebb80247f37": -8.795729180564448,
+       "syn-21ce7239e168": -7.343032551617976,
+       "syn-25605fff4693": -8.218298710712638,
+       "syn-27b794a93981": -8.988762425703525,
+       "syn-282b393e6358": -6.880971494599099,
+       "syn-3598350693d4": -9.040677842049984,
+       "syn-36f2f17365ad": -8.924971348814216,
+       "syn-4661d35b7639": -8.78755628207103,
+       "syn-4a9fa9e40e47": -7.678776563689506,
+       "syn-4eacef5428a3": -9.19805915346242,
+       "syn-583797456cd4": -9.217066369026858,
+       "syn-6be4760915ca": -8.826237753839326,
+       "syn-7021c9527755": -9.145625356908948,
+       "syn-768b9cc2cc4c": -8.96763342503392,
+       "syn-7f8e17bab2c1": -9.056465194664675,
+       "syn-87860e14fbba": -7.921687543251597,
+       "syn-8edcc33533fa": -9.05119796952585,
+       "syn-90c096b89419": -9.58971203817841,
+       "syn-959658667d8a": -9.291686099478342,
+       "syn-af2acb826a7e": -8.045803759448848,
+       "syn-b315a46edab6": -8.881983504959976,
+       "syn-b4d38a79abad": -9.10723076829457,
+       "syn-b7013ac667eb": -9.005342034031694,
+       "syn-b90958e50f9e": -8.986591421749583,
+       "syn-bdc018345260": -9.429093850551418,
+       "syn-be1e506b7d71": -9.04364592803443,
+       "syn-c023053091da": -9.254893822654001,
+       "syn-c45d32168549": -9.250185468259206,
+       "syn-c7c32739b062": -9.236691582573707,
+       "syn-cd616dff6d8a": -9.142447743193124,
+       "syn-d50b072cbfef": -8.770781960227932,
+       "syn-d5634d033ef0": -9.219610272882479,
+       "syn-d64c229e6a15": -6.575522531417844,
+       "syn-df19afd70813": -9.10484561638707,
+       "syn-e175ac854c0c": -8.986431559912477,
+       "syn-e49f9d9d7009": -8.973745968039736,
+       "syn-ede68f1e5bec": -8.515864986689648,
+       "syn-f5194e3b7194": -8.970675215994623
+      },
+      "point": -8.830125172359208,
+      "upper95": -8.667731260225448
+     },
+     "suite_better": true
+    }
+   },
+   "n_sms": 46,
+   "pass_rule": "method better (upper CI < 0) on the confirmation suite and on >= 2 of 3 real full networks; SMS_ID upper CI <= tau_SMS on >= 50 % of systems",
+   "question": "Could intervention ID alone explain results?",
+   "status": "FAIL",
+   "tau_SMS": 0.1,
+   "test": "paired EE vs the ID-shortcut comparators on target-shift and held-out-family items; SMS with the ID features alone"
+  },
+  "Q10": {
+   "pass_rule": "if active design succeeds (PROTOCOL 5.17) it must also beat magnitude-matched random at >= 2 budgets",
+   "question": "Does active design just choose large-effect interventions?",
+   "reason": "the locked method has no designer of its own (no active-design claim to audit)",
+   "status": "NOT_APPLICABLE",
+   "test": "designed vs magnitude-matched random design at the same budgets"
+  },
+  "Q11": {
+   "below_definition": "share of covered below-detection items whose predicted effect is detectable (pred ES >= 1)",
+   "below_false_confidence_mean": 0.4345393210779728,
+   "n_below_systems": 46,
+   "n_weak_systems": 46,
+   "pass_rule": "weak class: upper CI of EE < 1, or abstention >= 50 %; below-detection class: false-confidence rate <= tau_FC",
+   "question": "Does causal state fail under weak effects?",
+   "status": "FAIL",
+   "tau_FC": 0.2,
+   "test": "EE and abstention per detectability class",
+   "weak_EE_suite": {
+    "ci95": [
+     1.454510569092433,
+     1.8952123668468153
+    ],
+    "lower95": 1.48540757798999,
+    "n": 46,
+    "n_charged": 0,
+    "point": 1.6681033123268467,
+    "upper95": 1.858693807104262
+   },
+   "weak_abstention_mean": 0.5441977776809207
+  },
+  "Q12": {
+   "n_testable": 46,
+   "pass_rule": "far-shift EE upper CI < 1 on >= 50 % of systems",
+   "per_system": {
+    "syn-0c04b49d585b": {
+     "EE_far": 0.6342986490000204,
+     "EE_far_upper": 444.1227629725246,
+     "EE_in": 0.9545150939630388,
+     "ok": false
+    },
+    "syn-0d00e6913cf5": {
+     "EE_far": 0.9509751765609982,
+     "EE_far_upper": 3.8535754605968786,
+     "EE_in": 1.1759686267624345,
+     "ok": false
+    },
+    "syn-0f5fcca09063": {
+     "EE_far": 0.9019285619535685,
+     "EE_far_upper": 1.6689233861193438,
+     "EE_in": 0.6546380494165434,
+     "ok": false
+    },
+    "syn-1079fc8c6f30": {
+     "EE_far": 0.9953938871054635,
+     "EE_far_upper": 1.0412842187589282,
+     "EE_in": 6.580172214783214,
+     "ok": false
+    },
+    "syn-10d717b5b101": {
+     "EE_far": 0.9949911467860572,
+     "EE_far_upper": 1.0157225044780582,
+     "EE_in": 0.9866652337512716,
+     "ok": false
+    },
+    "syn-116cfb751be3": {
+     "EE_far": 0.9863643193236807,
+     "EE_far_upper": 3.2705213477442303,
+     "EE_in": 1.0262874627667493,
+     "ok": false
+    },
+    "syn-17901d14439d": {
+     "EE_far": 0.9163979178452979,
+     "EE_far_upper": 1.1850230476217294,
+     "EE_in": 0.6596073080639541,
+     "ok": false
+    },
+    "syn-199221f837fc": {
+     "EE_far": 0.09877138348518834,
+     "EE_far_upper": null,
+     "EE_in": 0.7959582464988832,
+     "ok": false
+    },
+    "syn-1ebb80247f37": {
+     "EE_far": 0.9928881362410013,
+     "EE_far_upper": 1.0092937591527296,
+     "EE_in": 1.0100042018607565,
+     "ok": false
+    },
+    "syn-21ce7239e168": {
+     "EE_far": 0.9884314807218355,
+     "EE_far_upper": 3.488252493228603,
+     "EE_in": 0.710817544861376,
+     "ok": false
+    },
+    "syn-25605fff4693": {
+     "EE_far": 1.751502258472292e-05,
+     "EE_far_upper": null,
+     "EE_in": 8.41104642743388,
+     "ok": false
+    },
+    "syn-27b794a93981": {
+     "EE_far": 0.9903070395204219,
+     "EE_far_upper": 1.5602639087416919,
+     "EE_in": 0.6322566321315791,
+     "ok": false
+    },
+    "syn-282b393e6358": {
+     "EE_far": 0.9919243771284187,
+     "EE_far_upper": 1.0182386738118994,
+     "EE_in": 0.938739548107083,
+     "ok": false
+    },
+    "syn-3598350693d4": {
+     "EE_far": 0.9883621310268922,
+     "EE_far_upper": 1.156514804569494,
+     "EE_in": 0.9913593376201459,
+     "ok": false
+    },
+    "syn-36f2f17365ad": {
+     "EE_far": 0.8500002905610939,
+     "EE_far_upper": 1.3717317309943615,
+     "EE_in": 0.7665550853922654,
+     "ok": false
+    },
+    "syn-4661d35b7639": {
+     "EE_far": 0.22639939659951075,
+     "EE_far_upper": null,
+     "EE_in": 1.4276257405115997,
+     "ok": false
+    },
+    "syn-4a9fa9e40e47": {
+     "EE_far": 0.918639901418266,
+     "EE_far_upper": 3.240322901202063,
+     "EE_in": 0.7301021410375658,
+     "ok": false
+    },
+    "syn-4eacef5428a3": {
+     "EE_far": 0.36884804083192,
+     "EE_far_upper": null,
+     "EE_in": 0.9790381572575347,
+     "ok": false
+    },
+    "syn-583797456cd4": {
+     "EE_far": 0.9370192379938614,
+     "EE_far_upper": 374.88488047201247,
+     "EE_in": 0.9090430988008724,
+     "ok": false
+    },
+    "syn-6be4760915ca": {
+     "EE_far": 0.010892453962320768,
+     "EE_far_upper": null,
+     "EE_in": 1.2132670248506547,
+     "ok": false
+    },
+    "syn-7021c9527755": {
+     "EE_far": 0.9963965090367114,
+     "EE_far_upper": null,
+     "EE_in": 0.6218164759506041,
+     "ok": false
+    },
+    "syn-768b9cc2cc4c": {
+     "EE_far": 0.01634063611248204,
+     "EE_far_upper": null,
+     "EE_in": 1.106356112444079,
+     "ok": false
+    },
+    "syn-7f8e17bab2c1": {
+     "EE_far": 0.995413640357112,
+     "EE_far_upper": 1.0308341115154718,
+     "EE_in": 2.616602075094457,
+     "ok": false
+    },
+    "syn-87860e14fbba": {
+     "EE_far": 0.7594105681232342,
+     "EE_far_upper": 4.212984808455109,
+     "EE_in": 0.6455105927288296,
+     "ok": false
+    },
+    "syn-8edcc33533fa": {
+     "EE_far": 0.981972409510472,
+     "EE_far_upper": 2.873415301802097,
+     "EE_in": 0.38181133695955627,
+     "ok": false
+    },
+    "syn-90c096b89419": {
+     "EE_far": 0.13990763655641494,
+     "EE_far_upper": 0.5865733363900999,
+     "EE_in": 0.0665687370604273,
+     "ok": true
+    },
+    "syn-959658667d8a": {
+     "EE_far": 0.4251636883737273,
+     "EE_far_upper": 2.602540771072126,
+     "EE_in": 0.4460017919199559,
+     "ok": false
+    },
+    "syn-af2acb826a7e": {
+     "EE_far": 0.45734739375278083,
+     "EE_far_upper": null,
+     "EE_in": 0.85865748706179,
+     "ok": false
+    },
+    "syn-b315a46edab6": {
+     "EE_far": 0.7670007412349698,
+     "EE_far_upper": null,
+     "EE_in": 3.070796538751574,
+     "ok": false
+    },
+    "syn-b4d38a79abad": {
+     "EE_far": 0.986741847919486,
+     "EE_far_upper": 1.0149562943024093,
+     "EE_in": 0.35220215809433825,
+     "ok": false
+    },
+    "syn-b7013ac667eb": {
+     "EE_far": 0.9706978526652782,
+     "EE_far_upper": 14.650995324201347,
+     "EE_in": 1.0463296226314134,
+     "ok": false
+    },
+    "syn-b90958e50f9e": {
+     "EE_far": 0.9963229574540465,
+     "EE_far_upper": 1.0410478535352046,
+     "EE_in": 0.9651493723732631,
+     "ok": false
+    },
+    "syn-bdc018345260": {
+     "EE_far": 0.7419590673796985,
+     "EE_far_upper": 11779.753716940679,
+     "EE_in": 0.02984348342620203,
+     "ok": false
+    },
+    "syn-be1e506b7d71": {
+     "EE_far": 0.949173183611121,
+     "EE_far_upper": 3.384183947957731,
+     "EE_in": 0.43746780448214456,
+     "ok": false
+    },
+    "syn-c023053091da": {
+     "EE_far": 0.2351953593703365,
+     "EE_far_upper": 0.5044419341472965,
+     "EE_in": 0.801186058660206,
+     "ok": true
+    },
+    "syn-c45d32168549": {
+     "EE_far": 0.9808932006827373,
+     "EE_far_upper": 2.334886096751798,
+     "EE_in": 0.45824963609361763,
+     "ok": false
+    },
+    "syn-c7c32739b062": {
+     "EE_far": 0.9886407151754938,
+     "EE_far_upper": 7.798249021261676,
+     "EE_in": 1.1133180222166854,
+     "ok": false
+    },
+    "syn-cd616dff6d8a": {
+     "EE_far": 0.9846420785786633,
+     "EE_far_upper": 1.1467422284145583,
+     "EE_in": 1.001731461101548,
+     "ok": false
+    },
+    "syn-d50b072cbfef": {
+     "EE_far": 0.9751235216445809,
+     "EE_far_upper": 595.8777492302343,
+     "EE_in": 0.9539174834667037,
+     "ok": false
+    },
+    "syn-d5634d033ef0": {
+     "EE_far": 0.9853057066394172,
+     "EE_far_upper": 1.0052137124245777,
+     "EE_in": 0.14120143138243021,
+     "ok": false
+    },
+    "syn-d64c229e6a15": {
+     "EE_far": 0.9882775957182744,
+     "EE_far_upper": 1.6456445280187975,
+     "EE_in": 1.0201335396589017,
+     "ok": false
+    },
+    "syn-df19afd70813": {
+     "EE_far": 0.7376149474748123,
+     "EE_far_upper": null,
+     "EE_in": 0.5819924269186543,
+     "ok": false
+    },
+    "syn-e175ac854c0c": {
+     "EE_far": 0.9932457200735648,
+     "EE_far_upper": 3.113447727918924,
+     "EE_in": 3.3068812768473483,
+     "ok": false
+    },
+    "syn-e49f9d9d7009": {
+     "EE_far": 0.9984512044942802,
+     "EE_far_upper": 1.008963068062287,
+     "EE_in": 1.0120227529888386,
+     "ok": false
+    },
+    "syn-ede68f1e5bec": {
+     "EE_far": 0.5927696735793166,
+     "EE_far_upper": null,
+     "EE_in": 0.9854580334095326,
+     "ok": false
+    },
+    "syn-f5194e3b7194": {
+     "EE_far": 0.48166046980694727,
+     "EE_far_upper": null,
+     "EE_in": 0.9705672457942061,
+     "ok": false
+    }
+   },
+   "question": "Does performance disappear on unseen intervention types?",
+   "share": 0.043478260869565216,
+   "status": "FAIL",
+   "test": "EE on far-shift families vs in-family"
+  },
+  "Q13": {
+   "n_systems": 50,
+   "pass_rule": "stable on >= 70 % of confirmation systems",
+   "per_system": {
+    "syn-0963ac95e081": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-0c04b49d585b": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-0d00e6913cf5": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-0f5fcca09063": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-1079fc8c6f30": {
+     "k": 2,
+     "refits": [
+      8,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": false
+    },
+    "syn-10d717b5b101": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      6
+     ],
+     "stable": false
+    },
+    "syn-116cfb751be3": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-17901d14439d": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      7
+     ],
+     "stable": false
+    },
+    "syn-199221f837fc": {
+     "k": 8,
+     "refits": [
+      7,
+      6,
+      8,
+      8,
+      8
+     ],
+     "stable": false
+    },
+    "syn-1ebb80247f37": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": true
+    },
+    "syn-21ce7239e168": {
+     "k": 6,
+     "refits": [
+      8,
+      8,
+      8,
+      5,
+      4
+     ],
+     "stable": false
+    },
+    "syn-25605fff4693": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-27b794a93981": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-282b393e6358": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-3598350693d4": {
+     "k": 6,
+     "refits": [
+      8,
+      8,
+      8,
+      7,
+      5
+     ],
+     "stable": false
+    },
+    "syn-36f2f17365ad": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-4661d35b7639": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-4a9fa9e40e47": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-4eacef5428a3": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-583797456cd4": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      4,
+      8
+     ],
+     "stable": false
+    },
+    "syn-60d2a6b27326": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-6be4760915ca": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-6cf0800e9575": {
+     "k": 4,
+     "refits": [
+      4,
+      4,
+      4,
+      4,
+      4
+     ],
+     "stable": true
+    },
+    "syn-7021c9527755": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": true
+    },
+    "syn-768b9cc2cc4c": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-7806c724db44": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-7f8e17bab2c1": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-87860e14fbba": {
+     "k": 4,
+     "refits": [
+      3,
+      4,
+      4,
+      4,
+      3
+     ],
+     "stable": false
+    },
+    "syn-8edcc33533fa": {
+     "k": 4,
+     "refits": [
+      4,
+      3,
+      4,
+      2,
+      3
+     ],
+     "stable": false
+    },
+    "syn-90c096b89419": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-959658667d8a": {
+     "k": 3,
+     "refits": [
+      3,
+      3,
+      3,
+      3,
+      3
+     ],
+     "stable": true
+    },
+    "syn-af2acb826a7e": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-b315a46edab6": {
+     "k": 2,
+     "refits": [
+      8,
+      2,
+      8,
+      2,
+      8
+     ],
+     "stable": false
+    },
+    "syn-b4d38a79abad": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-b7013ac667eb": {
+     "k": 8,
+     "refits": [
+      2,
+      8,
+      4,
+      8,
+      8
+     ],
+     "stable": false
+    },
+    "syn-b90958e50f9e": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      4,
+      8,
+      8
+     ],
+     "stable": false
+    },
+    "syn-bdc018345260": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": true
+    },
+    "syn-be1e506b7d71": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-c023053091da": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-c45d32168549": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-c7c32739b062": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      3
+     ],
+     "stable": false
+    },
+    "syn-cd616dff6d8a": {
+     "k": 2,
+     "refits": [
+      6,
+      5,
+      2,
+      2,
+      6
+     ],
+     "stable": false
+    },
+    "syn-d50b072cbfef": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-d5634d033ef0": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-d64c229e6a15": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": true
+    },
+    "syn-df19afd70813": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-e175ac854c0c": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": true
+    },
+    "syn-e49f9d9d7009": {
+     "k": 8,
+     "refits": [
+      8,
+      8,
+      8,
+      8,
+      8
+     ],
+     "stable": true
+    },
+    "syn-ede68f1e5bec": {
+     "k": 2,
+     "refits": [
+      3,
+      2,
+      2,
+      2,
+      2
+     ],
+     "stable": false
+    },
+    "syn-f5194e3b7194": {
+     "k": 2,
+     "refits": [
+      2,
+      2,
+      8,
+      7,
+      2
+     ],
+     "stable": false
+    }
+   },
+   "question": "Does k change wildly across resamples?",
+   "share_stable": 0.68,
+   "status": "FAIL",
+   "test": "bootstrap-refit k (PROTOCOL 5.10)"
+  },
+  "Q14": {
+   "available": true,
+   "if_fail": "goal5 section 94 D: the simple linear controlled model is to be used",
+   "method_significantly_better_on_suite": false,
+   "n_networks": 0,
+   "networks": {},
+   "networks_better": 0,
+   "networks_ok": null,
+   "pass_rule": "report; FAIL = not significantly better (goal5 94 D)",
+   "question": "Does a simple linear controlled model perform equally well?",
+   "status": "FAIL",
+   "suite": {
+    "ci95": [
+     0.06466290987505179,
+     0.34706916809236205
+    ],
+    "direction": "lower",
+    "lower95": 0.0790247197131215,
+    "n": 46,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 0.9995002498750625,
+    "p_a_worse": 0.0009995002498750624,
+    "per_system": {
+     "syn-0c04b49d585b": -0.019645282300491007,
+     "syn-0d00e6913cf5": 0.03148657536094268,
+     "syn-0f5fcca09063": 0.11261224889364518,
+     "syn-1079fc8c6f30": 0.13596228192973914,
+     "syn-10d717b5b101": -0.00993631862730815,
+     "syn-116cfb751be3": 0.02700019604736248,
+     "syn-17901d14439d": -0.4755577669881168,
+     "syn-199221f837fc": 0.0023159150867673173,
+     "syn-1ebb80247f37": 0.13315463291404894,
+     "syn-21ce7239e168": 1.6182475300638632,
+     "syn-25605fff4693": 1.2463023241823126,
+     "syn-27b794a93981": -0.13275620027018098,
+     "syn-282b393e6358": 0.8907577238818822,
+     "syn-3598350693d4": 0.00900423438151543,
+     "syn-36f2f17365ad": 0.22735582903527862,
+     "syn-4661d35b7639": 0.34820334115246654,
+     "syn-4a9fa9e40e47": 0.7270995615409648,
+     "syn-4eacef5428a3": -0.1874483662458719,
+     "syn-583797456cd4": -0.13566947829175235,
+     "syn-6be4760915ca": 0.291742316809142,
+     "syn-7021c9527755": -0.07137905309578596,
+     "syn-768b9cc2cc4c": 0.04247164104112333,
+     "syn-7f8e17bab2c1": 0.13744936174124067,
+     "syn-87860e14fbba": 0.15841552427956307,
+     "syn-8edcc33533fa": -0.045078537520174544,
+     "syn-90c096b89419": -0.0125523015784752,
+     "syn-959658667d8a": -0.20434251985597873,
+     "syn-af2acb826a7e": 1.1052094285708507,
+     "syn-b315a46edab6": -0.17335790803472917,
+     "syn-b4d38a79abad": 0.09491721207219794,
+     "syn-b7013ac667eb": -0.0026779137560690724,
+     "syn-b90958e50f9e": 0.08173726289944971,
+     "syn-bdc018345260": 0.02417933998612143,
+     "syn-be1e506b7d71": 0.06818651722706326,
+     "syn-c023053091da": 0.1551055002840458,
+     "syn-c45d32168549": -0.24201646257505582,
+     "syn-c7c32739b062": -0.29077742598590584,
+     "syn-cd616dff6d8a": -0.1591856039077224,
+     "syn-d50b072cbfef": 0.2530226273294941,
+     "syn-d5634d033ef0": -0.057322767888164705,
+     "syn-d64c229e6a15": 2.3185485338012572,
+     "syn-df19afd70813": 0.03476170343274754,
+     "syn-e175ac854c0c": 0.04551548144427753,
+     "syn-e49f9d9d7009": 0.024309719934277108,
+     "syn-ede68f1e5bec": 0.5098677445266233,
+     "syn-f5194e3b7194": 0.17340055895738937
+    },
+    "point": 0.19149215134534506,
+    "upper95": 0.3199634140541907
+   },
+   "suite_better": false,
+   "test": "paired EE vs the best linear controlled baseline"
+  },
+  "Q15": {
+   "attribution": "on these systems a compact-state failure is attributed to excitation / data (goal5 section 94 B)",
+   "fails": [
+    "syn-0c04b49d585b",
+    "syn-0d00e6913cf5",
+    "syn-0f5fcca09063",
+    "syn-1079fc8c6f30",
+    "syn-10d717b5b101",
+    "syn-116cfb751be3",
+    "syn-17901d14439d",
+    "syn-199221f837fc",
+    "syn-1ebb80247f37",
+    "syn-21ce7239e168",
+    "syn-25605fff4693",
+    "syn-27b794a93981",
+    "syn-282b393e6358",
+    "syn-3598350693d4",
+    "syn-36f2f17365ad",
+    "syn-4661d35b7639",
+    "syn-4a9fa9e40e47",
+    "syn-4eacef5428a3",
+    "syn-583797456cd4",
+    "syn-6be4760915ca",
+    "syn-7021c9527755",
+    "syn-768b9cc2cc4c",
+    "syn-7f8e17bab2c1",
+    "syn-87860e14fbba",
+    "syn-8edcc33533fa",
+    "syn-90c096b89419",
+    "syn-959658667d8a",
+    "syn-af2acb826a7e",
+    "syn-b315a46edab6",
+    "syn-b4d38a79abad",
+    "syn-b7013ac667eb",
+    "syn-b90958e50f9e",
+    "syn-bdc018345260",
+    "syn-be1e506b7d71",
+    "syn-c023053091da",
+    "syn-c45d32168549",
+    "syn-c7c32739b062",
+    "syn-cd616dff6d8a",
+    "syn-d50b072cbfef",
+    "syn-d5634d033ef0",
+    "syn-d64c229e6a15",
+    "syn-df19afd70813",
+    "syn-e175ac854c0c",
+    "syn-e49f9d9d7009",
+    "syn-ede68f1e5bec",
+    "syn-f5194e3b7194"
+   ],
+   "n_fullstate_fails_A": 46,
+   "n_systems": 46,
+   "pass_rule": "report; where it fails, the compact-state failure is attributed to excitation / data (goal5 94 B)",
+   "per_system": {
+    "syn-0c04b49d585b": {
+     "A": false,
+     "EE": 0.6160621728234641,
+     "EE_upper": 1.0681174539941374
+    },
+    "syn-0d00e6913cf5": {
+     "A": false,
+     "EE": 0.7521782563122038,
+     "EE_upper": 32.88744260082011
+    },
+    "syn-0f5fcca09063": {
+     "A": false,
+     "EE": 0.7874668022648648,
+     "EE_upper": 0.9186381700500519
+    },
+    "syn-1079fc8c6f30": {
+     "A": false,
+     "EE": 0.8656933250230988,
+     "EE_upper": 1.1423202958556173
+    },
+    "syn-10d717b5b101": {
+     "A": false,
+     "EE": 0.9943208892623809,
+     "EE_upper": 1.1506339294795287
+    },
+    "syn-116cfb751be3": {
+     "A": false,
+     "EE": 0.9598964488340248,
+     "EE_upper": 1.043280755238205
+    },
+    "syn-17901d14439d": {
+     "A": false,
+     "EE": 1.5143738767533983,
+     "EE_upper": 2.2489875623022435
+    },
+    "syn-199221f837fc": {
+     "A": false,
+     "EE": 0.9951115601017094,
+     "EE_upper": 1.1808123268141568
+    },
+    "syn-1ebb80247f37": {
+     "A": false,
+     "EE": 1.0655715434075794,
+     "EE_upper": 1.3847632844572515
+    },
+    "syn-21ce7239e168": {
+     "A": false,
+     "EE": 0.979742193295846,
+     "EE_upper": 1.3044965211749742
+    },
+    "syn-25605fff4693": {
+     "A": false,
+     "EE": 0.655667211305344,
+     "EE_upper": 1.0171177332123804
+    },
+    "syn-27b794a93981": {
+     "A": false,
+     "EE": 1.1639056916500343,
+     "EE_upper": 1.3867925362058775
+    },
+    "syn-282b393e6358": {
+     "A": false,
+     "EE": 2.0101368739625234,
+     "EE_upper": 7.888463338221998
+    },
+    "syn-3598350693d4": {
+     "A": false,
+     "EE": 0.9505347751600847,
+     "EE_upper": 1.0047175195358806
+    },
+    "syn-36f2f17365ad": {
+     "A": false,
+     "EE": 0.8472347646764113,
+     "EE_upper": 1.3077670487141386
+    },
+    "syn-4661d35b7639": {
+     "A": false,
+     "EE": 1.0169339118872847,
+     "EE_upper": 1.1469695267717925
+    },
+    "syn-4a9fa9e40e47": {
+     "A": false,
+     "EE": 1.4647855322132046,
+     "EE_upper": 3.4985822856277005
+    },
+    "syn-4eacef5428a3": {
+     "A": false,
+     "EE": 0.9932198794947794,
+     "EE_upper": 1.282691197099743
+    },
+    "syn-583797456cd4": {
+     "A": false,
+     "EE": 0.9079791769879456,
+     "EE_upper": 1.1363980532910276
+    },
+    "syn-6be4760915ca": {
+     "A": false,
+     "EE": 0.8384197431599996,
+     "EE_upper": 1.203004095478215
+    },
+    "syn-7021c9527755": {
+     "A": false,
+     "EE": 0.8624391387704808,
+     "EE_upper": 1.0470935029004713
+    },
+    "syn-768b9cc2cc4c": {
+     "A": false,
+     "EE": 0.9888624789810011,
+     "EE_upper": 1.0866678781051988
+    },
+    "syn-7f8e17bab2c1": {
+     "A": false,
+     "EE": 0.8048645104230626,
+     "EE_upper": 0.9341372777843369
+    },
+    "syn-87860e14fbba": {
+     "A": false,
+     "EE": 1.8293083775823284,
+     "EE_upper": 8.419521487128657
+    },
+    "syn-8edcc33533fa": {
+     "A": false,
+     "EE": 0.9902958901811488,
+     "EE_upper": 1.2059562851301049
+    },
+    "syn-90c096b89419": {
+     "A": false,
+     "EE": 0.41330246387918707,
+     "EE_upper": 0.9284071249527351
+    },
+    "syn-959658667d8a": {
+     "A": false,
+     "EE": 1.0047195103286046,
+     "EE_upper": 10.817532186612501
+    },
+    "syn-af2acb826a7e": {
+     "A": false,
+     "EE": 0.8214201218121457,
+     "EE_upper": 1.1593971186975003
+    },
+    "syn-b315a46edab6": {
+     "A": false,
+     "EE": 1.3820456010097597,
+     "EE_upper": 2.638156250732198
+    },
+    "syn-b4d38a79abad": {
+     "A": false,
+     "EE": 0.7253161700585328,
+     "EE_upper": 1.0031481522142265
+    },
+    "syn-b7013ac667eb": {
+     "A": false,
+     "EE": 0.994597130100549,
+     "EE_upper": 1.4765484163300362
+    },
+    "syn-b90958e50f9e": {
+     "A": false,
+     "EE": 0.9720851516411064,
+     "EE_upper": 1.125521422733112
+    },
+    "syn-bdc018345260": {
+     "A": false,
+     "EE": 0.5234009524455808,
+     "EE_upper": 1.6445836904563502
+    },
+    "syn-be1e506b7d71": {
+     "A": false,
+     "EE": 0.882677423695563,
+     "EE_upper": 1.0823869244093032
+    },
+    "syn-c023053091da": {
+     "A": false,
+     "EE": 0.5724993860321814,
+     "EE_upper": 0.9945626439003823
+    },
+    "syn-c45d32168549": {
+     "A": false,
+     "EE": 0.9892055337325115,
+     "EE_upper": 1.0066044764617705
+    },
+    "syn-c7c32739b062": {
+     "A": false,
+     "EE": 1.05393793047981,
+     "EE_upper": 9.219987911570794
+    },
+    "syn-cd616dff6d8a": {
+     "A": false,
+     "EE": 1.0050151377670846,
+     "EE_upper": 1.6124476928105504
+    },
+    "syn-d50b072cbfef": {
+     "A": false,
+     "EE": 0.9678916983137339,
+     "EE_upper": 1.1540371639170963
+    },
+    "syn-d5634d033ef0": {
+     "A": false,
+     "EE": 0.7983470497977416,
+     "EE_upper": 0.9569726589646607
+    },
+    "syn-d64c229e6a15": {
+     "A": false,
+     "EE": 1.0801469447626577,
+     "EE_upper": 1.7493796575445035
+    },
+    "syn-df19afd70813": {
+     "A": false,
+     "EE": 0.8772253671340373,
+     "EE_upper": 1.8934946134445736
+    },
+    "syn-e175ac854c0c": {
+     "A": false,
+     "EE": 0.9956844945296943,
+     "EE_upper": 1.2444200180452583
+    },
+    "syn-e49f9d9d7009": {
+     "A": false,
+     "EE": 0.9970254864389444,
+     "EE_upper": 1.006923552553282
+    },
+    "syn-ede68f1e5bec": {
+     "A": false,
+     "EE": 0.9644618269006022,
+     "EE_upper": 1.2813535712794284
+    },
+    "syn-f5194e3b7194": {
+     "A": false,
+     "EE": 0.8539181465078068,
+     "EE_upper": 1.1217929012229735
+    }
+   },
+   "question": "Does the full-state model itself fail?",
+   "status": "REPORT",
+   "test": "the full-state bound's EE and criterion A per system",
+   "threshold_A": 0.9
+  },
+  "Q16": {
+   "failing": [
+    "input_gain_elasticity_y"
+   ],
+   "missing": [],
+   "n_ok": 34,
+   "n_tested": 35,
+   "pass_rule": "required statistics in range (acceptance criterion 11)",
+   "question": "Does the synthetic benchmark resemble real response statistics?",
+   "source": "C:/Dev/BrainIR/research/phase4/CALIBRATION_CHECK_dev.json",
+   "status": "FAIL",
+   "test": "calibstats compare of the confirmation suite vs the public real targets",
+   "tier": "criterion 11: synthetic tier dev public data vs calibration_targets.json (calibstats.compute_all, suite rule)"
+  },
+  "Q17": {
+   "categories": {
+    "syn-0963ac95e081": "unsupported",
+    "syn-60d2a6b27326": "unsupported",
+    "syn-6cf0800e9575": "unsupported",
+    "syn-7806c724db44": "unsupported"
+   },
+   "n_noncompressible": 4,
+   "n_supported": 0,
+   "pass_rule": "at most 1 of their confirmation systems",
+   "question": "False compact causal states on non-compressible systems?",
+   "status": "PASS",
+   "test": "CAUSAL STATE SUPPORTED on types 20 / 21",
+   "types": {
+    "syn-0963ac95e081": "20",
+    "syn-60d2a6b27326": "21",
+    "syn-6cf0800e9575": "20",
+    "syn-7806c724db44": "21"
+   }
+  },
+  "Q18": {
+   "pass_rule": "rejected on every unrelated pair",
+   "question": "Does shared dynamics fail when systems are unrelated?",
+   "reason": "the method declares shared dynamics not applicable: {'reason': 'the stand-in fits every system independently', 'status': 'not_applicable'}",
+   "status": "NOT_APPLICABLE",
+   "test": "sharing rule on unrelated pairs"
+  },
+  "Q19": {
+   "n_found": 30,
+   "n_systems": 46,
+   "pass_rule": "found on <= 50 % of confirmation systems",
+   "question": "Can adversarial counterexample search break the model immediately?",
+   "share_found": 0.6521739130434783,
+   "source_run": "val1",
+   "status": "FAIL",
+   "systems_with_fewer_evaluations": [],
+   "test": "counterexample search, 50 evaluations per system"
+  },
+  "Q2": {
+   "available": true,
+   "n_networks": 0,
+   "networks": {},
+   "networks_better": 0,
+   "networks_ok": null,
+   "pass_rule": "method better on the confirmation suite and on >= 2 of 3 full networks",
+   "question": "Could stimulus alone explain results?",
+   "status": "FAIL",
+   "suite": {
+    "ci95": [
+     0.10152092580421823,
+     0.4262579439111261
+    ],
+    "direction": "lower",
+    "lower95": 0.12279557827130086,
+    "n": 46,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 1.0,
+    "p_a_worse": 0.0004997501249375312,
+    "per_system": {
+     "syn-0c04b49d585b": 0.0018989793512589337,
+     "syn-0d00e6913cf5": -0.20014733459588263,
+     "syn-0f5fcca09063": 0.03177197947287613,
+     "syn-1079fc8c6f30": 0.0075481892884147195,
+     "syn-10d717b5b101": 0.0020783189229119925,
+     "syn-116cfb751be3": -0.005939104830959052,
+     "syn-17901d14439d": 0.08631204417656169,
+     "syn-199221f837fc": -9.214562994741549e-05,
+     "syn-1ebb80247f37": 0.21501375223471064,
+     "syn-21ce7239e168": 1.6079109246793752,
+     "syn-25605fff4693": 1.1534390278034854,
+     "syn-27b794a93981": 0.036733276995891906,
+     "syn-282b393e6358": 1.9083821770442473,
+     "syn-3598350693d4": -0.0024125802444502353,
+     "syn-36f2f17365ad": 0.11818249827981742,
+     "syn-4661d35b7639": 0.4021721955708003,
+     "syn-4a9fa9e40e47": 1.31943740681665,
+     "syn-4eacef5428a3": -0.19342772041716372,
+     "syn-583797456cd4": -0.13098737224065515,
+     "syn-6be4760915ca": 0.1498167661143578,
+     "syn-7021c9527755": -0.2079648985500635,
+     "syn-768b9cc2cc4c": 0.060656455565208045,
+     "syn-7f8e17bab2c1": 0.1279187197606556,
+     "syn-87860e14fbba": 1.015428193121898,
+     "syn-8edcc33533fa": 0.012505657794623648,
+     "syn-90c096b89419": -0.0013879292197518933,
+     "syn-959658667d8a": 3.753018829089072e-05,
+     "syn-af2acb826a7e": 0.9370263583971187,
+     "syn-b315a46edab6": 0.25310578364394054,
+     "syn-b4d38a79abad": -0.15459309023395995,
+     "syn-b7013ac667eb": 0.026282273935160805,
+     "syn-b90958e50f9e": 0.1037502294523931,
+     "syn-bdc018345260": 0.02992068498749989,
+     "syn-be1e506b7d71": -0.0004131922037295954,
+     "syn-c023053091da": 0.13037463872726818,
+     "syn-c45d32168549": -0.2477783849872751,
+     "syn-c7c32739b062": -0.22500700362492,
+     "syn-cd616dff6d8a": -0.011938013836398254,
+     "syn-d50b072cbfef": 0.24320452164663886,
+     "syn-d5634d033ef0": -0.2386323945035681,
+     "syn-d64c229e6a15": 2.415330483763052,
+     "syn-df19afd70813": -0.06335378090123411,
+     "syn-e175ac854c0c": 0.08215188015188324,
+     "syn-e49f9d9d7009": 0.026517662957005528,
+     "syn-ede68f1e5bec": 0.5630904694687646,
+     "syn-f5194e3b7194": 0.10155055261111146
+    },
+    "point": 0.24968423232399814,
+    "upper95": 0.39747168982252107
+   },
+   "suite_better": false,
+   "test": "paired EE vs the input-only baseline"
+  },
+  "Q20": {
+   "consequence_if_fail": "Phase 4's core hypothesis fails (goal5 section 88)",
+   "pass_rule": "removal worsens EE significantly (paired, system bootstrap)",
+   "question": "Does intervention training matter?",
+   "source_run": "val1",
+   "status": "FAIL",
+   "suite": {
+    "ci95": [
+     -0.43095805776493795,
+     -0.09285749450995678
+    ],
+    "direction": "lower",
+    "lower95": -0.3984158212074341,
+    "n": 46,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 0.0009995002498750624,
+    "p_a_worse": 0.9995002498750625,
+    "per_system": {
+     "syn-0c04b49d585b": -0.0018989793512589337,
+     "syn-0d00e6913cf5": 0.20014733459588263,
+     "syn-0f5fcca09063": -0.03177197947287613,
+     "syn-1079fc8c6f30": -0.0075481892884147195,
+     "syn-10d717b5b101": -0.0020783189229119925,
+     "syn-116cfb751be3": 0.005939104830959052,
+     "syn-17901d14439d": -0.08631204417656169,
+     "syn-199221f837fc": 9.214562994741549e-05,
+     "syn-1ebb80247f37": -0.21501375223471064,
+     "syn-21ce7239e168": -1.6079109246793752,
+     "syn-25605fff4693": -1.1534390278034854,
+     "syn-27b794a93981": -0.036733276995891906,
+     "syn-282b393e6358": -1.9083821770442473,
+     "syn-3598350693d4": 0.0024125802444502353,
+     "syn-36f2f17365ad": -0.11818249827981742,
+     "syn-4661d35b7639": -0.4021721955708003,
+     "syn-4a9fa9e40e47": -1.31943740681665,
+     "syn-4eacef5428a3": 0.19342772041716372,
+     "syn-583797456cd4": 0.13098737224065515,
+     "syn-6be4760915ca": -0.1498167661143578,
+     "syn-7021c9527755": 0.2079648985500635,
+     "syn-768b9cc2cc4c": -0.060656455565208045,
+     "syn-7f8e17bab2c1": -0.1279187197606556,
+     "syn-87860e14fbba": -1.015428193121898,
+     "syn-8edcc33533fa": -0.012505657794623648,
+     "syn-90c096b89419": 0.0013879292197518933,
+     "syn-959658667d8a": -3.753018829089072e-05,
+     "syn-af2acb826a7e": -0.9370263583971187,
+     "syn-b315a46edab6": -0.25310578364394054,
+     "syn-b4d38a79abad": 0.15459309023395995,
+     "syn-b7013ac667eb": -0.026282273935160805,
+     "syn-b90958e50f9e": -0.1037502294523931,
+     "syn-bdc018345260": -0.02992068498749989,
+     "syn-be1e506b7d71": 0.0004131922037295954,
+     "syn-c023053091da": -0.13037463872726818,
+     "syn-c45d32168549": 0.2477783849872751,
+     "syn-c7c32739b062": 0.22500700362492,
+     "syn-cd616dff6d8a": 0.011938013836398254,
+     "syn-d50b072cbfef": -0.24320452164663886,
+     "syn-d5634d033ef0": 0.2386323945035681,
+     "syn-d64c229e6a15": -2.415330483763052,
+     "syn-df19afd70813": 0.06335378090123411,
+     "syn-e175ac854c0c": -0.08215188015188324,
+     "syn-e49f9d9d7009": -0.026517662957005528,
+     "syn-ede68f1e5bec": -0.5630904694687646,
+     "syn-f5194e3b7194": -0.10155055261111146
+    },
+    "point": -0.24968423232399814,
+    "upper95": -0.12215613953169553
+   },
+   "test": "the locked method with all interventional training removed"
+  },
+  "Q21": {
+   "levelb_fullstate_baseline": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)",
+   "pass_rule": "report 'outcomes predictable but compact causal abstraction unsupported' if the direct model predicts and the compact one does not",
+   "question": "Is the state bottleneck needed?",
+   "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)",
+   "source_run": "val1",
+   "status": "REPORT",
+   "test": "the locked method without the state bottleneck"
+  },
+  "Q3": {
+   "available": true,
+   "n_networks": 0,
+   "networks": {},
+   "networks_better": 0,
+   "networks_ok": null,
+   "pass_rule": "method better on EE on the confirmation suite and on >= 2 of 3 full networks",
+   "passive_nmse_suite_method_minus_baseline": {
+    "ci95": [
+     -9.576195886145484,
+     -9.321156271231617
+    ],
+    "direction": "lower",
+    "lower95": -9.558288538895647,
+    "n": 46,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 0.0004997501249375312,
+    "p_a_worse": 1.0,
+    "per_system": {
+     "syn-0c04b49d585b": -8.987461856686028,
+     "syn-0d00e6913cf5": -9.721070275662607,
+     "syn-0f5fcca09063": -8.94397454625352,
+     "syn-1079fc8c6f30": -9.640921062320663,
+     "syn-10d717b5b101": -8.915322532373388,
+     "syn-116cfb751be3": -9.4356071668098,
+     "syn-17901d14439d": -9.679543626629346,
+     "syn-199221f837fc": -9.678489604260468,
+     "syn-1ebb80247f37": -8.476799853539163,
+     "syn-21ce7239e168": -9.60924388098565,
+     "syn-25605fff4693": -8.728489326932094,
+     "syn-27b794a93981": -9.175837591987925,
+     "syn-282b393e6358": -8.928442060002105,
+     "syn-3598350693d4": -9.05226270775256,
+     "syn-36f2f17365ad": -9.932581462381997,
+     "syn-4661d35b7639": -9.685072941022792,
+     "syn-4a9fa9e40e47": -9.668651125879009,
+     "syn-4eacef5428a3": -9.84669527087839,
+     "syn-583797456cd4": -9.55906674048823,
+     "syn-6be4760915ca": -9.744350048459992,
+     "syn-7021c9527755": -9.922952070907703,
+     "syn-768b9cc2cc4c": -9.394210977157616,
+     "syn-7f8e17bab2c1": -9.37426958971127,
+     "syn-87860e14fbba": -9.559476667629017,
+     "syn-8edcc33533fa": -9.666164058273859,
+     "syn-90c096b89419": -9.934481189591876,
+     "syn-959658667d8a": -9.242839872112082,
+     "syn-af2acb826a7e": -9.370101035550451,
+     "syn-b315a46edab6": -9.776379240585786,
+     "syn-b4d38a79abad": -9.728409114511335,
+     "syn-b7013ac667eb": -8.672685541670413,
+     "syn-b90958e50f9e": -9.436098515691171,
+     "syn-bdc018345260": -9.992748779644824,
+     "syn-be1e506b7d71": -9.755404547043472,
+     "syn-c023053091da": -9.986177845229054,
+     "syn-c45d32168549": -9.439777708071102,
+     "syn-c7c32739b062": -9.600921879498726,
+     "syn-cd616dff6d8a": -9.953052455870095,
+     "syn-d50b072cbfef": -9.487194428003123,
+     "syn-d5634d033ef0": -9.77149652584117,
+     "syn-d64c229e6a15": -9.855251843921625,
+     "syn-df19afd70813": -9.817271391567367,
+     "syn-e175ac854c0c": -9.242256543771717,
+     "syn-e49f9d9d7009": -7.835167821933517,
+     "syn-ede68f1e5bec": -9.459527419508392,
+     "syn-f5194e3b7194": -9.309464035633933
+    },
+    "point": -9.456384016961662,
+    "upper95": -9.341090159422768
+   },
+   "question": "Could readout history explain results?",
+   "status": "PARTIAL",
+   "suite": {
+    "ci95": [
+     -8.999370186329473,
+     -8.646871497311357
+    ],
+    "direction": "lower",
+    "lower95": -8.973903598558792,
+    "n": 46,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 0.0004997501249375312,
+    "p_a_worse": 1.0,
+    "per_system": {
+     "syn-0c04b49d585b": -9.403583109477028,
+     "syn-0d00e6913cf5": -9.216335168326854,
+     "syn-0f5fcca09063": -9.09992094884149,
+     "syn-1079fc8c6f30": -8.998344393047162,
+     "syn-10d717b5b101": -9.015615429364928,
+     "syn-116cfb751be3": -9.013103355118613,
+     "syn-17901d14439d": -8.961183890234718,
+     "syn-199221f837fc": -9.002572524811523,
+     "syn-1ebb80247f37": -8.801273823678372,
+     "syn-21ce7239e168": -7.402010276640291,
+     "syn-25605fff4693": -8.098030464512343,
+     "syn-27b794a93981": -8.968850508620147,
+     "syn-282b393e6358": -7.099105402155594,
+     "syn-3598350693d4": -9.0404609904584,
+     "syn-36f2f17365ad": -8.92540940628831,
+     "syn-4661d35b7639": -8.634862746960248,
+     "syn-4a9fa9e40e47": -7.80811490624583,
+     "syn-4eacef5428a3": -9.194228486751092,
+     "syn-583797456cd4": -9.227690301303806,
+     "syn-6be4760915ca": -8.869837940030859,
+     "syn-7021c9527755": -9.208939914325304,
+     "syn-768b9cc2cc4c": -8.968665879977875,
+     "syn-7f8e17bab2c1": -9.057686127835696,
+     "syn-87860e14fbba": -8.01227609813811,
+     "syn-8edcc33533fa": -9.054782647339026,
+     "syn-90c096b89419": -9.599249837699288,
+     "syn-959658667d8a": -9.199623009527373,
+     "syn-af2acb826a7e": -8.073370449617004,
+     "syn-b315a46edab6": -8.79131230702497,
+     "syn-b4d38a79abad": -9.17976661786927,
+     "syn-b7013ac667eb": -9.00808078365552,
+     "syn-b90958e50f9e": -8.946177585459443,
+     "syn-bdc018345260": -9.452419707568298,
+     "syn-be1e506b7d71": -9.049136059077371,
+     "syn-c023053091da": -9.272395113683773,
+     "syn-c45d32168549": -9.252810928842544,
+     "syn-c7c32739b062": -9.236839495506096,
+     "syn-cd616dff6d8a": -9.154170466140638,
+     "syn-d50b072cbfef": -8.779085674356772,
+     "syn-d5634d033ef0": -9.258975718090422,
+     "syn-d64c229e6a15": -6.601304521436084,
+     "syn-df19afd70813": -9.088012929433216,
+     "syn-e175ac854c0c": -8.958800024026027,
+     "syn-e49f9d9d7009": -8.978664793626779,
+     "syn-ede68f1e5bec": -8.525670428572774,
+     "syn-f5194e3b7194": -8.972681294534803
+    },
+    "point": -8.836118097526782,
+    "upper95": -8.68249589280818
+   },
+   "suite_better": true,
+   "test": "paired EE and passive NMSE vs the readout-history baseline"
+  },
+  "Q4": {
+   "a_truncation": {
+    "n_systems": 8,
+    "ok": true
+   },
+   "b_decoys": {
+    "n_systems": 8,
+    "ok": true
+   },
+   "c_sandbox": {
+    "fatal_workers": [],
+    "n_evals_scanned": 50,
+    "n_fits_scanned": 50,
+    "ok": true,
+    "tripwire_hits": []
+   },
+   "d_code_audit": {
+    "findings": [],
+    "ok": true
+   },
+   "pass_rule": "all four hold",
+   "question": "Did future data leak?",
+   "status": "PASS",
+   "test": "(a) truncated-history encodings bitwise equal after the worker saw the future; (b) decoy encodings change no prediction; (c) no refused event in the fit / evaluation sandboxes; (d) code audit for global state"
+  },
+  "Q5": {
+   "n_k_ge_2": 50,
+   "n_systems": 50,
+   "pass_rule": "PR >= min(k, 1.5) on >= 80 % of systems with k >= 2; floor binds on < 5 %",
+   "per_system": {
+    "syn-0963ac95e081": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.714839147825267
+    },
+    "syn-0c04b49d585b": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 3.3307318161951107
+    },
+    "syn-0d00e6913cf5": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.539605190178549
+    },
+    "syn-0f5fcca09063": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.3607311246723433
+    },
+    "syn-1079fc8c6f30": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0001636940530005
+    },
+    "syn-10d717b5b101": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0831786216444026
+    },
+    "syn-116cfb751be3": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.6443993688229397
+    },
+    "syn-17901d14439d": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.2173740474426213
+    },
+    "syn-199221f837fc": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.381308070959828
+    },
+    "syn-1ebb80247f37": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0047691183894594
+    },
+    "syn-21ce7239e168": {
+     "floor_binds": false,
+     "k": 6,
+     "pr_pool": 1.1465196721701172
+    },
+    "syn-25605fff4693": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.3726263782477393
+    },
+    "syn-27b794a93981": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 3.3400376368242157
+    },
+    "syn-282b393e6358": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.7789264151448398
+    },
+    "syn-3598350693d4": {
+     "floor_binds": false,
+     "k": 6,
+     "pr_pool": 2.2168166248653027
+    },
+    "syn-36f2f17365ad": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.3684630696759097
+    },
+    "syn-4661d35b7639": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.9171831730896
+    },
+    "syn-4a9fa9e40e47": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.5211305385363898
+    },
+    "syn-4eacef5428a3": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.7572690672303748
+    },
+    "syn-583797456cd4": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0636238010800014
+    },
+    "syn-60d2a6b27326": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 3.0556845476973282
+    },
+    "syn-6be4760915ca": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.1767525115104562
+    },
+    "syn-6cf0800e9575": {
+     "floor_binds": false,
+     "k": 4,
+     "pr_pool": 1.4368869273050258
+    },
+    "syn-7021c9527755": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.1239117930738267
+    },
+    "syn-768b9cc2cc4c": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 3.3518537146149234
+    },
+    "syn-7806c724db44": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 3.820223466857994
+    },
+    "syn-7f8e17bab2c1": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.0331084792210277
+    },
+    "syn-87860e14fbba": {
+     "floor_binds": false,
+     "k": 4,
+     "pr_pool": 1.359276636472227
+    },
+    "syn-8edcc33533fa": {
+     "floor_binds": false,
+     "k": 4,
+     "pr_pool": 1.4929930540997756
+    },
+    "syn-90c096b89419": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.427351614614967
+    },
+    "syn-959658667d8a": {
+     "floor_binds": false,
+     "k": 3,
+     "pr_pool": 1.394853374362594
+    },
+    "syn-af2acb826a7e": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.1956950606020096
+    },
+    "syn-b315a46edab6": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.6364621450215855
+    },
+    "syn-b4d38a79abad": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.6080779116882327
+    },
+    "syn-b7013ac667eb": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.110041617163787
+    },
+    "syn-b90958e50f9e": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.821199977198579
+    },
+    "syn-bdc018345260": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.5343668633751635
+    },
+    "syn-be1e506b7d71": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.8158342125736606
+    },
+    "syn-c023053091da": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.2341515620445813
+    },
+    "syn-c45d32168549": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.3331097015023725
+    },
+    "syn-c7c32739b062": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.025965879365902
+    },
+    "syn-cd616dff6d8a": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0040318152479764
+    },
+    "syn-d50b072cbfef": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.0175311181878581
+    },
+    "syn-d5634d033ef0": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 1.1959596200584444
+    },
+    "syn-d64c229e6a15": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0002983571062198
+    },
+    "syn-df19afd70813": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.33254835007905
+    },
+    "syn-e175ac854c0c": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.9938045085106335
+    },
+    "syn-e49f9d9d7009": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.258954060649067
+    },
+    "syn-ede68f1e5bec": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.1983464185358808
+    },
+    "syn-f5194e3b7194": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0727485292713659
+    }
+   },
+   "question": "Does the latent state collapse?",
+   "share_floor_binds": 0.0,
+   "share_pr_ok": 0.5,
+   "status": "FAIL",
+   "test": "participation ratio of the encodings over the pool vs k; whitening floor"
+  },
+  "Q6": {
+   "n_syn": 46,
+   "networks_ok": [],
+   "pass_rule": "upper CI <= tolerance on >= 60 % of compressible confirmation systems and on the real full networks where testable",
+   "per_system": {
+    "syn-0c04b49d585b": {
+     "ICG_y_upper": 7.430875098506147e-05,
+     "SMS_x_res_upper": 0.0903520208195936,
+     "ok": true
+    },
+    "syn-0d00e6913cf5": {
+     "ICG_y_upper": 0.0005510003971095216,
+     "SMS_x_res_upper": 0.06403280809579734,
+     "ok": true
+    },
+    "syn-0f5fcca09063": {
+     "ICG_y_upper": 0.0004153122311995772,
+     "SMS_x_res_upper": 0.04047748909698564,
+     "ok": true
+    },
+    "syn-1079fc8c6f30": {
+     "ICG_y_upper": 0.18915935483871654,
+     "SMS_x_res_upper": 0.18656621972136367,
+     "ok": false
+    },
+    "syn-10d717b5b101": {
+     "ICG_y_upper": 0.0010319605854912021,
+     "SMS_x_res_upper": 0.02876463914925443,
+     "ok": true
+    },
+    "syn-116cfb751be3": {
+     "ICG_y_upper": 7.92425752910769e-06,
+     "SMS_x_res_upper": 0.05971975659604134,
+     "ok": true
+    },
+    "syn-17901d14439d": {
+     "ICG_y_upper": 0.0005808718077509604,
+     "SMS_x_res_upper": 0.09786860654238799,
+     "ok": true
+    },
+    "syn-199221f837fc": {
+     "ICG_y_upper": 6.0188619350400915e-05,
+     "SMS_x_res_upper": 0.02725897261752825,
+     "ok": true
+    },
+    "syn-1ebb80247f37": {
+     "ICG_y_upper": 0.0001069506864058968,
+     "SMS_x_res_upper": 0.018988368054535614,
+     "ok": true
+    },
+    "syn-21ce7239e168": {
+     "ICG_y_upper": 9.582632420634832e-05,
+     "SMS_x_res_upper": 0.03463116138626335,
+     "ok": true
+    },
+    "syn-25605fff4693": {
+     "ICG_y_upper": 5.531822579793815e-05,
+     "SMS_x_res_upper": 0.06073525205703935,
+     "ok": true
+    },
+    "syn-27b794a93981": {
+     "ICG_y_upper": 2.4247361029802852e-05,
+     "SMS_x_res_upper": 0.04154882973082326,
+     "ok": true
+    },
+    "syn-282b393e6358": {
+     "ICG_y_upper": 1.188596841864198e-06,
+     "SMS_x_res_upper": 0.18567613003831782,
+     "ok": false
+    },
+    "syn-3598350693d4": {
+     "ICG_y_upper": 0.0004346252261840555,
+     "SMS_x_res_upper": 0.0264483004215071,
+     "ok": true
+    },
+    "syn-36f2f17365ad": {
+     "ICG_y_upper": 0.0005017736726789125,
+     "SMS_x_res_upper": 0.029104890370732002,
+     "ok": true
+    },
+    "syn-4661d35b7639": {
+     "ICG_y_upper": 0.006001165558743122,
+     "SMS_x_res_upper": 0.5350948231936483,
+     "ok": false
+    },
+    "syn-4a9fa9e40e47": {
+     "ICG_y_upper": 0.009374093144629784,
+     "SMS_x_res_upper": 0.15847155331684418,
+     "ok": false
+    },
+    "syn-4eacef5428a3": {
+     "ICG_y_upper": 0.0035881505521040105,
+     "SMS_x_res_upper": 0.13685904878332697,
+     "ok": false
+    },
+    "syn-583797456cd4": {
+     "ICG_y_upper": 0.16436389305241683,
+     "SMS_x_res_upper": 0.14285795885425834,
+     "ok": false
+    },
+    "syn-6be4760915ca": {
+     "ICG_y_upper": 0.00015122989931883122,
+     "SMS_x_res_upper": 0.05026559536107274,
+     "ok": true
+    },
+    "syn-7021c9527755": {
+     "ICG_y_upper": 0.0007060901155087018,
+     "SMS_x_res_upper": 0.9956314816209573,
+     "ok": false
+    },
+    "syn-768b9cc2cc4c": {
+     "ICG_y_upper": 0.00020203447793222946,
+     "SMS_x_res_upper": 0.0021700561780891503,
+     "ok": true
+    },
+    "syn-7f8e17bab2c1": {
+     "ICG_y_upper": 0.00029203717589359947,
+     "SMS_x_res_upper": 0.2491582071389985,
+     "ok": false
+    },
+    "syn-87860e14fbba": {
+     "ICG_y_upper": 0.0005198214435730618,
+     "SMS_x_res_upper": 0.07968730727530061,
+     "ok": true
+    },
+    "syn-8edcc33533fa": {
+     "ICG_y_upper": 0.006736116397391885,
+     "SMS_x_res_upper": 0.092864509655518,
+     "ok": true
+    },
+    "syn-90c096b89419": {
+     "ICG_y_upper": 0.7370712510829436,
+     "SMS_x_res_upper": 0.16449088639536824,
+     "ok": false
+    },
+    "syn-959658667d8a": {
+     "ICG_y_upper": 0.12858560368317237,
+     "SMS_x_res_upper": 0.09075816740722413,
+     "ok": false
+    },
+    "syn-af2acb826a7e": {
+     "ICG_y_upper": 0.0669412371334703,
+     "SMS_x_res_upper": 0.3685493633904904,
+     "ok": false
+    },
+    "syn-b315a46edab6": {
+     "ICG_y_upper": 0.2708119629533805,
+     "SMS_x_res_upper": 0.21165096888677354,
+     "ok": false
+    },
+    "syn-b4d38a79abad": {
+     "ICG_y_upper": 0.028590039524514103,
+     "SMS_x_res_upper": 0.23434823713353273,
+     "ok": false
+    },
+    "syn-b7013ac667eb": {
+     "ICG_y_upper": 2.0229895369368565e-05,
+     "SMS_x_res_upper": 0.06351455834580948,
+     "ok": true
+    },
+    "syn-b90958e50f9e": {
+     "ICG_y_upper": 8.63867628611327e-06,
+     "SMS_x_res_upper": 0.012879642590772344,
+     "ok": true
+    },
+    "syn-bdc018345260": {
+     "ICG_y_upper": 0.0608194090806538,
+     "SMS_x_res_upper": 0.1960230798251315,
+     "ok": false
+    },
+    "syn-be1e506b7d71": {
+     "ICG_y_upper": 0.0017424277235898093,
+     "SMS_x_res_upper": 0.04196019613487974,
+     "ok": true
+    },
+    "syn-c023053091da": {
+     "ICG_y_upper": 1.1576894691708004e-05,
+     "SMS_x_res_upper": 0.06087933731350752,
+     "ok": true
+    },
+    "syn-c45d32168549": {
+     "ICG_y_upper": 0.015708914789836922,
+     "SMS_x_res_upper": 0.0953465543849397,
+     "ok": true
+    },
+    "syn-c7c32739b062": {
+     "ICG_y_upper": 0.12296658448502806,
+     "SMS_x_res_upper": 0.09123531539918048,
+     "ok": false
+    },
+    "syn-cd616dff6d8a": {
+     "ICG_y_upper": 0.00500339223278329,
+     "SMS_x_res_upper": 0.0399640390324989,
+     "ok": true
+    },
+    "syn-d50b072cbfef": {
+     "ICG_y_upper": 7.538651517552857e-05,
+     "SMS_x_res_upper": 0.6134969986804995,
+     "ok": false
+    },
+    "syn-d5634d033ef0": {
+     "ICG_y_upper": 0.00034016546983877565,
+     "SMS_x_res_upper": 0.12303613957492339,
+     "ok": false
+    },
+    "syn-d64c229e6a15": {
+     "ICG_y_upper": 0.00011059351168565072,
+     "SMS_x_res_upper": 0.27098968826856296,
+     "ok": false
+    },
+    "syn-df19afd70813": {
+     "ICG_y_upper": 0.0029167152569336257,
+     "SMS_x_res_upper": 0.40959848663138054,
+     "ok": false
+    },
+    "syn-e175ac854c0c": {
+     "ICG_y_upper": 0.023543973922967663,
+     "SMS_x_res_upper": 0.03857221634200095,
+     "ok": true
+    },
+    "syn-e49f9d9d7009": {
+     "ICG_y_upper": 5.574464924586601e-07,
+     "SMS_x_res_upper": 0.17704631062333887,
+     "ok": false
+    },
+    "syn-ede68f1e5bec": {
+     "ICG_y_upper": 0.22542501145400895,
+     "SMS_x_res_upper": 0.0968327105946199,
+     "ok": false
+    },
+    "syn-f5194e3b7194": {
+     "ICG_y_upper": 0.10999646105110478,
+     "SMS_x_res_upper": 0.22731052207407254,
+     "ok": false
+    }
+   },
+   "question": "Does residual microstate predict intervention outcomes?",
+   "share_syn": 0.5217391304347826,
+   "status": "FAIL",
+   "test": "ICG_y and SMS with x_res alone"
+  },
+  "Q7": {
+   "flagged_state_independent": [],
+   "n_testable": 50,
+   "pass_rule": "descriptive; flag where the model's read-in is state-independent but the truth's state-dependence explains > 30 %",
+   "per_system": {
+    "syn-0963ac95e081": {
+     "model_share": 3.3306690738754696e-16,
+     "n_states": 32,
+     "truth_mapped_share": -1.1102230246251565e-15,
+     "truth_share": -2.220446049250313e-16
+    },
+    "syn-0c04b49d585b": {
+     "model_share": 7.771561172376096e-16,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-0d00e6913cf5": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-0f5fcca09063": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-1079fc8c6f30": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": 7.771561172376096e-16,
+     "truth_share": -4.440892098500626e-16
+    },
+    "syn-10d717b5b101": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-116cfb751be3": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": 0.0036338730290174093,
+     "truth_share": 0.0036338730290172983
+    },
+    "syn-17901d14439d": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": -8.881784197001252e-16,
+     "truth_share": -1.1102230246251565e-15
+    },
+    "syn-199221f837fc": {
+     "model_share": -2.220446049250313e-16,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-1ebb80247f37": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-21ce7239e168": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-25605fff4693": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": -4.440892098500626e-16,
+     "truth_share": 8.881784197001252e-16
+    },
+    "syn-27b794a93981": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": -4.440892098500626e-16,
+     "truth_share": 5.551115123125783e-16
+    },
+    "syn-282b393e6358": {
+     "model_share": 1.1102230246251565e-16,
+     "n_states": 32,
+     "truth_mapped_share": -4.440892098500626e-16,
+     "truth_share": 1.2212453270876722e-15
+    },
+    "syn-3598350693d4": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-36f2f17365ad": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": 0.0,
+     "truth_share": -4.440892098500626e-16
+    },
+    "syn-4661d35b7639": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": -2.220446049250313e-16,
+     "truth_share": -8.881784197001252e-16
+    },
+    "syn-4a9fa9e40e47": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-4eacef5428a3": {
+     "model_share": 6.661338147750939e-16,
+     "n_states": 32,
+     "truth_mapped_share": 0.0003228547838949325,
+     "truth_share": 0.0003228547838949325
+    },
+    "syn-583797456cd4": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-60d2a6b27326": {
+     "model_share": 1.1102230246251565e-16,
+     "n_states": 32,
+     "truth_mapped_share": 1.1102230246251565e-16,
+     "truth_share": 0.0
+    },
+    "syn-6be4760915ca": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-6cf0800e9575": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-7021c9527755": {
+     "model_share": 6.661338147750939e-16,
+     "n_states": 32,
+     "truth_mapped_share": -1.5543122344752192e-15,
+     "truth_share": 2.220446049250313e-16
+    },
+    "syn-768b9cc2cc4c": {
+     "model_share": -2.220446049250313e-16,
+     "n_states": 32,
+     "truth_mapped_share": 0.004351317069096083,
+     "truth_share": 0.004351317069095972
+    },
+    "syn-7806c724db44": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": 1.1102230246251565e-16,
+     "truth_share": -4.440892098500626e-16
+    },
+    "syn-7f8e17bab2c1": {
+     "model_share": 0.0,
+     "n_states": 32,
+     "truth_mapped_share": -6.661338147750939e-16,
+     "truth_share": -8.881784197001252e-16
+    },
+    "syn-87860e14fbba": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-8edcc33533fa": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": 1.1102230246251565e-16,
+     "truth_share": -2.220446049250313e-16
+    },
+    "syn-90c096b89419": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-959658667d8a": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-af2acb826a7e": {
+     "model_share": 8.881784197001252e-16,
+     "n_states": 32,
+     "truth_mapped_share": -2.220446049250313e-16,
+     "truth_share": 6.661338147750939e-16
+    },
+    "syn-b315a46edab6": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-b4d38a79abad": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": -4.440892098500626e-16,
+     "truth_share": 0.0
+    },
+    "syn-b7013ac667eb": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-b90958e50f9e": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-bdc018345260": {
+     "model_share": 3.3306690738754696e-16,
+     "n_states": 32,
+     "truth_mapped_share": -1.1102230246251565e-15,
+     "truth_share": -6.661338147750939e-16
+    },
+    "syn-be1e506b7d71": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-c023053091da": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-c45d32168549": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-c7c32739b062": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-cd616dff6d8a": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-d50b072cbfef": {
+     "model_share": 4.440892098500626e-16,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-d5634d033ef0": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-d64c229e6a15": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": -8.881784197001252e-16,
+     "truth_share": 6.661338147750939e-16
+    },
+    "syn-df19afd70813": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-e175ac854c0c": {
+     "model_share": null,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    },
+    "syn-e49f9d9d7009": {
+     "model_share": 3.3306690738754696e-16,
+     "n_states": 32,
+     "truth_mapped_share": 4.440892098500626e-16,
+     "truth_share": -6.661338147750939e-16
+    },
+    "syn-ede68f1e5bec": {
+     "model_share": 0.0,
+     "n_states": 32,
+     "truth_mapped_share": 0.00023799629246101794,
+     "truth_share": 0.000237996292461351
+    },
+    "syn-f5194e3b7194": {
+     "model_share": -4.440892098500626e-16,
+     "n_states": 32,
+     "truth_mapped_share": null,
+     "truth_share": null
+    }
+   },
+   "question": "Are intervention operators state-dependent?",
+   "rule": "flag: truth state-dependence share > 0.3 and model share < 0.05 (whitened coordinates)",
+   "status": "REPORT",
+   "test": "read-in dz for one event at many states vs the true state-dependence"
+  },
+  "Q8": {
+   "mean_success": 0.0031887755102040817,
+   "mean_success_jitter": 0.0038265306122448974,
+   "n_systems": 49,
+   "note": "",
+   "pass_rule": "success drops by < 50 % relative; < 20 % saturating / out-of-range",
+   "question": "Does the lift exploit simulator quirks?",
+   "relative_drop": -0.19999999999999973,
+   "saturation_measure": "all simulated candidates (conservative proxy)",
+   "share_saturating_or_beyond": 0.18915215402311492,
+   "status": "PASS",
+   "test": "lift success under +-10 % amplitude jitter; share of successful lifts at clipping bounds or beyond the development range"
+  },
+  "Q9": {
+   "n_testable": 23,
+   "pass_rule": "long / medium ratio <= 2 on >= 60 % of testable systems",
+   "question": "Do multiple lifts diverge later?",
+   "ratios": {
+    "syn-0c04b49d585b": 0.9531298864620246,
+    "syn-199221f837fc": 0.9475014833957744,
+    "syn-25605fff4693": 1.0229891439684984,
+    "syn-282b393e6358": 0.9912619020334473,
+    "syn-4661d35b7639": 1.0015087055632237,
+    "syn-4eacef5428a3": 0.9171183997849345,
+    "syn-60d2a6b27326": 0.9572528438852177,
+    "syn-6be4760915ca": 0.9786368895742384,
+    "syn-768b9cc2cc4c": 1.0244769123433115,
+    "syn-7f8e17bab2c1": 0.9860355296118506,
+    "syn-af2acb826a7e": 1.0051288954896789,
+    "syn-b315a46edab6": 0.5642748680924875,
+    "syn-b90958e50f9e": 0.9912179379919998,
+    "syn-bdc018345260": 0.500000241595378,
+    "syn-c023053091da": 0.93442301926321,
+    "syn-cd616dff6d8a": 0.6452739253592495,
+    "syn-d50b072cbfef": 1.0596013641481348,
+    "syn-d5634d033ef0": 1.1815254067988523,
+    "syn-d64c229e6a15": 0.9976384469566411,
+    "syn-df19afd70813": 0.9856690188498294,
+    "syn-e49f9d9d7009": 1.021379070415585,
+    "syn-ede68f1e5bec": 0.8455023366179663,
+    "syn-f5194e3b7194": 0.9922793741786723
+   },
+   "share_ratio_le_2": 1.0,
+   "status": "PASS",
+   "test": "multiple-lift divergence at the long vs the medium horizon"
+  }
+ },
+ "config": {
+  "calibration_check": "C:/Dev/BrainIR/research/phase4/CALIBRATION_CHECK_dev.json",
+  "designer": "none",
+  "dirs": {
+   "full_state_bound": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/fullstate_baseline",
+   "id_baseline": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/id_baseline",
+   "input_only": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/input_only",
+   "linear_controlled": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/fullstate_baseline",
+   "method": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/full",
+   "phase3": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/phase3",
+   "readout_history": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/id_baseline",
+   "strongest_baseline": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/fullstate_baseline"
+  },
+  "dry_run_on_val": true,
+  "method": "p3stand.refstand:p3stand_ref",
+  "methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+  "out_dir": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/self_audit/val1",
+  "prep_methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+  "prep_run_dir": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1",
+  "probes_dir": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/probes",
+  "real_level": null,
+  "role_methods": {
+   "id_baseline": "p3stand.refstand:p3stand_idshortcut",
+   "input_only": "p3stand.refstand:p3stand_noeffect"
+  },
+  "seed": 0,
+  "stand_in_notes": "readout_history and linear_controlled are stand-ins (the ID-shortcut and full-state stand-ins); the stand-in method has no designer (Q10 not applicable) and declares shared dynamics not applicable (Q18). Q16 reads the dev tier calibration compare as a stand-in (no val compare exists).",
+  "studies": {
+   "ablations": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/ablations/val1",
+   "counterexamples": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/counterexamples/val1"
+  },
+  "tier": "val",
+  "what": "DRY RUN configuration of scripts/p4/self_audit_p4.py on the val tier (the dev evaluation part was lost on the eval volume and is being rebuilt; orchestrator instruction 2026-09-27) with stand-in models (fork P3). The post-lock configuration names the Level C run instead (levelc_run + roles; see research/phase4/POSTLOCK_DRIVERS.md)."
+ },
+ "created_utc": "2026-09-27T11:08:34Z",
+ "dry_run": true,
+ "dry_run_on_val": true,
+ "hidden": false,
+ "lock": {},
+ "method": "p3stand.refstand:p3stand_ref",
+ "n_compressible": 46,
+ "n_networks": 0,
+ "n_systems": 50,
+ "not_a_result": "DRY RUN on the Level B selection tier with stand-in models, before the lock: not a result; never released, never used for any decision",
+ "real_level": null,
+ "stand_in": {
+  "methods": [
+   "p3stand.refstand:p3stand_ref",
+   "p3stand.refstand:p3stand_idshortcut",
+   "p3stand.refstand:p3stand_noeffect"
+  ],
+  "methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+  "standin_package": "scripts/p4/standin_methods"
+ },
+ "status_counts": {
+  "FAIL": 11,
+  "NOT_APPLICABLE": 2,
+  "PARTIAL": 1,
+  "PASS": 4,
+  "REPORT": 3
+ },
+ "tier": "val",
+ "tolerances_calibrated": false,
+ "wall_s": 14.7,
+ "what": "Phase 4 self-audit (goal5 section 91; research/phase4/SELF_AUDIT_PLAN.md)"
+}

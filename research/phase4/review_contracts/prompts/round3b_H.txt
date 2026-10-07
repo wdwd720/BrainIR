@@ -1,0 +1,15 @@
+ROUND-3 FOLLOW-UP (verification of the generator side and of your round-3 minors). Since your round-3 review (reviews/H/H3_review.md) the room was re-synced:
+- extra/generator/ is the REVISED generator (its SYNTHETIC_BENCHMARK.md section 14 lists the changes; calibration_report.json is its check against calibration targets version 3), and data/synthetic_dev holds the PUBLIC part of 10 development systems REBUILT with it and with dataset design v2 (no truth; build systems yourself for truth: the generator is deterministic given the tier name and seed, suites.DEV_SEED).
+- The orchestrator addressed your round-3 minors (extra/brainir_causal and extra/scripts):
+  NEW-1: a public restart source the service recomputes must reproduce the public dataset's t, x, u and y bit for bit (SimServer._ensure_source; the public-keys table carries each row's trajectory file; a mismatching record is removed from the agent's namespace), and run_job refuses every benchmark system off the reference platform (p4modal/gate.require_reference_platform: Linux, gated host, CPU pins, numpy / scipy exact, python 3.12, torch 2.14.0); the service CLI refuses benchmark systems without --docker off the reference platform.
+  NEW-3: the public-policy sampler moved into the public module `sampling`; `suites` is an orchestrator module and never ships to model workers or method rooms.
+  NEW-4: the planning container runs the sandbox image by its recorded id with the CPU pins; plan_synthetic.py refuses a host off the reference platform.
+  N4: the true read-in accuracy compares each model quantity with the truth of its own definition (headline: rollout difference one sample after the onset vs the true item - twin difference one sample after the onset; beside it: the read-in dz vs the exact jump; evaluate_truth.eval_readin_truth, TestItem.dz_true_next).
+  NEW-2: the reference learner's paired windows cover the full primary horizon after the onset (refs.py), if delivered in this sync (check the docstring and the code).
+
+Verify, with your own runs (scratch under .tmp/H/r3b/):
+1. N1 (generator side), N2 (step accuracy on several seeds and spreads, including the extreme windows), N3 (non-trivial truth-equivalent states), N5 synthetic side (realized kick sizes in the FULL output only; kick items classed by realized size), N6 (synthetic simulations host-gated), on the revised generator and the rebuilt data.
+2. NEW-1 to NEW-4 and N4 as described above (reproduce your round-3 demonstrations against the new code: e.g. the 1e-9 perturbation must now be refused; run_job on a faked non-reference host must refuse).
+3. Any new problem in your area that the revision introduced (blocker / major / minor, location, concrete fix).
+
+Write reviews/H/H3b_review.md with the per-finding table (fixed / partly / not fixed / unverified, location, your re-run) and a one-paragraph verdict ("ready to freeze" or not, and why). Reply with the counts and any blocker / major.

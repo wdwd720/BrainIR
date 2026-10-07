@@ -92,3 +92,10 @@ robustness; calibration; self-audit (section 91, tested); review I (claims) + po
 6. After the lock: hidden data, Level C, ablations, counterexamples, self-audit, reviews I / verification, report.
 
 Every barrier in 4-6 is serial by design (blindness); everything inside a stage is parallel.
+
+## 7. Notes for the post-lock drivers (collected before the freeze)
+- Level C conclusion (fork E15): P_t from `calibrate.true_state_categories` (via `calibrate_system` with the FROZEN tolerances);
+  P_m on the same items from `calibrate.calibrate_from_inputs(extra_models={"method": (model, dimension)})` +
+  `calibrate.model_categories`; pass both to `verdict.phase4_conclusion` (missing results are charged).
+- Official rounds and Level C run with `--backend modal` only (reference platform, P4-D32); synthetic tiers are planned in the
+  pinned image (`build_on_modal.py` does it); the conf tier and real Level C sets only after the method lock.

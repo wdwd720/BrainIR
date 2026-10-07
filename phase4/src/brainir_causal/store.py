@@ -16,6 +16,10 @@ JSONL index (appends are serialised by a lock file, so concurrent writers never 
     key = store.key(protocol, system_hash, engine_id)   # engine_id e.g. f"{realsim.ENGINE_VERSION}|{brainir MODEL_ID}"
     key, rec, computed = store.get_or_compute(key, compute_fn, meta)
     key, rec, computed = store.get_or_run(real_engine, real_system, protocol, system_hash, meta)   # real systems
+
+VALIDITY (review H, M4 / M5): `put` refuses a record whose info says `success: false` or whose simulated arrays (x, y, rates, state,
+z, z_obs) hold a non-finite value (`InvalidRecord`; nothing is written, so the key stays free), and adds the host fingerprint of the
+writing process (`p4modal.gate.host_fingerprint`) to the info of a record that carries none (records computed elsewhere keep theirs).
 """
 
 from __future__ import annotations
@@ -45,16 +49,35 @@ def _acquire(path: Path, stale_s: float, poll: float = 0.01, timeout: float | No
             os.write(fd, str(os.getpid()).encode())
             os.close(fd)
             return True
-        except FileExistsError:
+        except (FileExistsError, PermissionError):     # Windows: PermissionError while another process deletes the lock file
             try:
                 if time.time() - path.stat().st_mtime > stale_s:
                     path.unlink(missing_ok=True)
                     continue
-            except FileNotFoundError:
+            except (FileNotFoundError, PermissionError):
                 continue
             if timeout is not None and time.time() - t0 > timeout:
                 return False
             time.sleep(poll)
+
+
+class InvalidRecord(RuntimeError):
+    """A simulation result that must not be stored (failed or non-finite; review H, M4)."""
+
+
+CHECKED_ARRAYS = ("x", "y", "rates", "state", "z", "z_obs")
+
+
+def check_record(rec: dict) -> None:
+    """Raise InvalidRecord when a record is not a successful, finite simulation."""
+    info = rec.get("info") or {}
+    if info.get("success") is False:
+        raise InvalidRecord("the simulation failed (info.success is false)")
+    for k in CHECKED_ARRAYS:
+        if k in rec and rec[k] is not None:
+            a = np.asarray(rec[k])
+            if a.dtype.kind in "fc" and not np.isfinite(a).all():
+                raise InvalidRecord(f"the simulation produced non-finite values in {k!r}")
 
 
 class TrajectoryStore:
@@ -86,11 +109,17 @@ class TrajectoryStore:
         return rec
 
     def put(self, key: str, rec: dict, meta: dict) -> None:
+        check_record(rec)
+        info = dict(rec.get("info") or {})
+        if "host" not in info:
+            from .p4modal.gate import host_fingerprint
+            info["host"] = host_fingerprint()
+            rec["info"] = info
         p = self.path(key)
         p.parent.mkdir(parents=True, exist_ok=True)
         tmp = p.with_name(f"{key}.{os.getpid()}.{threading.get_ident()}.tmp.npz")
         arrays = {k: np.asarray(v) for k, v in rec.items() if k != "info"}
-        np.savez_compressed(tmp, info=np.array(json.dumps(rec.get("info") or {}, sort_keys=True)), **arrays)
+        np.savez_compressed(tmp, info=np.array(json.dumps(info, sort_keys=True)), **arrays)
         os.replace(tmp, p)
         self._append_index({"key": key, **meta})
 

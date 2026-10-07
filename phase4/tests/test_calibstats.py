@@ -1,5 +1,6 @@
 """Toy records with hand-derived statistics for brainir_causal.calibstats (goal5 section 8, acceptance criterion 11)."""
 
+import json
 import math
 
 import numpy as np
@@ -101,6 +102,87 @@ def test_pair_statistics_of_a_single_kick():
     assert ps["decay_x_s"] == pytest.approx(0.03, abs=2 * DT)
     assert ps["kick_clipped"] is False
     assert ps["latency_y_peak_s"] == pytest.approx(DT, abs=DT)       # the readout effect peaks right after the kick
+
+
+def test_step_schedule_drops_only_no_op_breakpoints():
+    assert C.step_schedule([[0.0, 0.0], [0.1, 1.0], [0.7, 1.0], [0.9, 1.0]]) == [[0.0, 0.0], [0.1, 1.0]]
+    assert C.step_schedule([[0.1, 1.0], [0.0, 0.0], [0.5, 2.0]]) == [[0.0, 0.0], [0.1, 1.0], [0.5, 2.0]]   # sorted, real steps kept
+    assert C.step_schedule([[0.0, [0.0, 1.0]], [0.3, [0.0, 1.0]], [0.4, [1.0, 1.0]]]) == [[0.0, [0.0, 1.0]], [0.4, [1.0, 1.0]]]
+    assert C.step_schedule(None) == []
+
+
+def test_twins_with_no_op_breakpoints_are_paired_and_read_as_nominal():
+    """A counterfactual twin that keeps its item's integration pieces carries no-op stimulus breakpoints at the event times."""
+    ri, rt = _kick_pair(3.0, "k3")
+    rt["protocol"] = {**rt["protocol"], "stimulus": [[0.0, 0.0], [0.1, 1.0], [1.0, 1.0]]}
+    pairs = C.pair_twins([ri, rt])
+    assert len(pairs) == 1 and pairs[0] == (ri, rt)
+    assert C.record_kind(rt) == "obs:nominal"
+    assert C._stim_onset_and_scale(rt) == (0.1, 1.0, T_END)          # the input segment does not end at the no-op breakpoint
+    # a real change of the input is still a different protocol: no pair
+    rt2 = {**rt, "protocol": {**rt["protocol"], "stimulus": [[0.0, 0.0], [0.1, 1.0], [1.0, 1.2]]}}
+    assert C.pair_twins([ri, rt2]) == []
+    assert C.record_kind(rt2) == "obs:stim"
+    st = C.compute_all([ri, rt], SYS)
+    assert st["counts"]["n_pairs"] == 1 and st["counts"]["record_kinds"] == {"int:kick": 1, "obs:nominal": 1}
+
+
+def test_load_dataset_dir(tmp_path):
+    recs = []
+    for i in range(5):
+        x, y = _base(phase=0.1 * i)
+        recs.append(_rec(x, y, _proto(seed=i), f"n{i}"))
+    ri, rt = _kick_pair(3.0, "k1")
+    rt["protocol"] = {**rt["protocol"], "stimulus": [[0.0, 0.0], [0.1, 1.0], [1.0, 1.0]]}
+    recs += [ri, rt]
+    (tmp_path / "traj").mkdir()
+    rows = []
+    for r in recs:
+        np.savez_compressed(tmp_path / "traj" / f"{r['key']}.npz", t=r["t"], x=r["x"].astype(np.float32), u=r["u"].astype(np.float32),
+                            y=r["y"].astype(np.float32))
+        rows.append({"key": r["key"], "system_id": "toy", "split": "train", "family": "f", "protocol": r["protocol"], "meta": r["meta"],
+                     "info": {}})
+    (tmp_path / "index.jsonl").write_text("\n".join(json.dumps(r) for r in rows) + "\n", encoding="utf-8")
+    (tmp_path / "manifest.json").write_text(json.dumps({"format": "p4-dataset-1", "systems": {"toy": SYS}}), encoding="utf-8")
+    sysrec, got = C.load_dataset_dir(tmp_path)
+    assert sysrec == SYS and len(got) == 7 and got[0]["x"].dtype == np.float32
+    assert len(C.pair_twins(got)) == 1
+    _, capped = C.load_dataset_dir(tmp_path, max_per_kind=2)
+    kinds = [C.record_kind(r) for r in capped]
+    assert kinds.count("obs:nominal") == 3 and kinds.count("int:kick") == 1     # 2 nominal records + the kept item's twin
+    assert len(C.pair_twins(capped)) == 1
+
+
+def test_every_statistic_has_a_definition_and_a_dependence_class():
+    recs = []
+    for i in range(4):
+        x, y = _base(phase=0.3 * i)
+        recs.append(_rec(x, y, _proto(seed=i), f"n{i}"))
+    ri, rt = _kick_pair(3.0, "k1")
+    st = C.compute_all(recs + [ri, rt], SYS)
+    for k in st:
+        if k in ("stat_version", "counts"):
+            continue
+        assert C.describe(k), k
+        cls, why = C.dependence(k)
+        assert cls in C.DEPENDENCE_CLASSES and why != "not classified", k
+    assert C.dependence("spec_x_f_peak")[0] == "system" and C.dependence("eff_rel_y_p50")[0] == "design"
+    assert C.dependence("effect_energy_outside_passive95")[0] == "mixed" and C.dependence("decay_x_censored_frac")[0] == "mixed"
+
+
+def test_initial_states_that_end_in_another_persistent_state():
+    recs = []
+    for i in range(3):
+        x, y = _base(phase=0.2 * i)
+        recs.append(_rec(x, y, _proto(seed=i), f"n{i}"))
+    x, y = _base()
+    relax = _rec(x, y, _proto(r0={"kind": "state", "values": {"10": 9.0}}, seed=5), "i0")        # relaxes to the nominal behaviour
+    high = _rec(x * 10.0, y * 10.0, _proto(r0={"kind": "state", "values": {"10": 200.0}}, seed=6), "i1")   # stays 10x higher
+    sc = C.system_scales(recs + [relax, high])
+    st = C.stats_init_states(recs + [relax, high], sc)
+    assert st["init_high_state_frac_x"] == 0.5 and st["init_high_state_frac_y"] == 0.5
+    assert st["init_late_rms_ratio_x_median"] == pytest.approx((1.0 + 10.0) / 2, rel=0.05)
+    assert C.dependence("init_high_state_frac_x")[0] == "mixed" and C.describe("init_high_state_frac_x")
 
 
 def test_negative_kick_on_a_unit_at_rest_is_clipped():

@@ -43,7 +43,9 @@ from __future__ import annotations
 
 import hashlib
 import importlib
+import importlib.util
 import json
+import os
 import sys
 from abc import ABC, abstractmethod
 from functools import lru_cache
@@ -110,10 +112,94 @@ def load_generator(generator_dir: Path | str, package: str):
 
 
 _GENERATORS: dict[str, object] = {}
+#: review G's trap tier (goal5 sections 41 / 84; research/phase4/review_contracts/REVIEW_G_CONTRACT.md): its systems are
+#: `review_g_catalog(seed)` of the module review G delivers as `p4synth/review_g.py`. The module is kept OUTSIDE the frozen generator
+#: copy (the benchmark lock refuses new files there) and loaded as the submodule `<package>.review_g` of the registered generator
+#: package, so its relative imports resolve. Location: $P4_TRAP_CATALOG, else <repository>/TRAP_CATALOG_REL (baked root-only into the
+#: images that build or evaluate the trap tier; it never enters a room).
+TRAP_TIER = "trap"
+TRAP_CATALOG_REL = "research/phase4/review_g/review_g.py"
+
+
+def trap_catalog_path() -> Path:
+    env = os.environ.get("P4_TRAP_CATALOG")
+    return Path(env) if env else Path(__file__).resolve().parents[3] / TRAP_CATALOG_REL
+
+
+def load_trap_catalog(generator: str = "default"):
+    """Review G's catalog module, loaded once as `<generator package>.review_g`."""
+    mod = _GENERATORS.get(generator)
+    if mod is None:
+        raise RuntimeError("no synthetic generator registered (register_generator(dir, package))")
+    name = f"{mod.__name__}.review_g"
+    if name in sys.modules:
+        return sys.modules[name]
+    path = trap_catalog_path()
+    if not path.is_file():
+        raise RuntimeError(f"review G's trap catalog is not delivered ({path}): the trap tier needs it")
+    spec = importlib.util.spec_from_file_location(name, path)
+    m = importlib.util.module_from_spec(spec)
+    sys.modules[name] = m
+    try:
+        spec.loader.exec_module(m)
+    except Exception:
+        sys.modules.pop(name, None)
+        raise
+    return m
+
+
+_TPC = None                         # threadpoolctl controller (it scans the loaded BLAS libraries: rebuilt only after new imports)
+_TPC_NMOD = -1
+
+
+def single_blas_thread():
+    """A context in which every BLAS library of this process uses ONE thread: the reference numerics of the synthetic generator. Its
+    system construction and simulation are bit-identical across processes only at a fixed thread count (with more threads 3 of the 50
+    development systems of the round-2 generator get another content hash, and an evaluation process running 2-4 BLAS threads
+    computed another hash for a validation system and refused the restarts from its stored records; LOG P4-D50)."""
+    global _TPC, _TPC_NMOD
+    from threadpoolctl import ThreadpoolController
+    n = len(sys.modules)
+    if _TPC is None or n != _TPC_NMOD:              # rescan after new imports (e.g. scipy's own OpenBLAS loads with scipy.linalg)
+        _TPC, _TPC_NMOD = ThreadpoolController(), n
+    return _TPC.limit(limits=1)
+
+
+class SingleThreadedSystem:
+    """A generator system whose every method call runs with ONE BLAS thread (`single_blas_thread`), whatever the calling process's
+    thread settings (evaluation jobs run 2-4 BLAS threads). Data attributes pass through unchanged."""
+    __slots__ = ("_obj",)
+
+    def __init__(self, obj):
+        object.__setattr__(self, "_obj", obj)
+
+    def __getattr__(self, name):
+        if name == "_obj":
+            raise AttributeError(name)
+        v = getattr(self._obj, name)
+        if callable(v) and not isinstance(v, type):
+            def call(*a, **k):
+                with single_blas_thread():
+                    return v(*a, **k)
+            call.__name__ = getattr(v, "__name__", name)
+            call.__doc__ = getattr(v, "__doc__", None)
+            return call
+        return v
+
+    def __reduce__(self):
+        return (SingleThreadedSystem, (self._obj,))
+
+    def __repr__(self) -> str:
+        return f"SingleThreadedSystem({self._obj!r})"
 
 
 def register_generator(generator_dir: Path | str, package: str, name: str = "default") -> None:
-    _GENERATORS[name] = load_generator(generator_dir, package)
+    """Register (or replace) the generator `name`. Re-registering the same module is a no-op, so the suites built from it stay cached
+    (planning a tier registers the generator once per system)."""
+    mod = load_generator(generator_dir, package)
+    if _GENERATORS.get(name) is mod:
+        return
+    _GENERATORS[name] = mod
     suite_systems.cache_clear()
 
 
@@ -125,9 +211,15 @@ def suite_systems(tier: str, seed: int, generator: str = "default", n_per_type: 
     mod = _GENERATORS.get(generator)
     if mod is None:
         raise RuntimeError("no synthetic generator registered (register_generator(dir, package))")
-    if n_per_type is None:
-        return dict(mod.build_suite(tier, int(seed)))
-    return dict(mod.build_suite(tier, int(seed), n_per_type=int(n_per_type)))
+    if tier == TRAP_TIER:               # review G's new trap systems (hidden, after the lock; see TRAP_TIER)
+        cat = load_trap_catalog(generator)
+        with single_blas_thread():
+            built = {s.system_id: s for s in cat.review_g_catalog(int(seed))}
+        return {sid: SingleThreadedSystem(s) for sid, s in built.items()}
+    with single_blas_thread():          # construction and every later call at the reference numerics (one BLAS thread; LOG P4-D50)
+        built = dict(mod.build_suite(tier, int(seed))) if n_per_type is None else \
+            dict(mod.build_suite(tier, int(seed), n_per_type=int(n_per_type)))
+    return {sid: SingleThreadedSystem(s) for sid, s in built.items()}
 
 
 def observe_synthetic(record: dict, sysrec: dict, proto: dict, *, allow_truth: bool = False) -> dict:
@@ -368,3 +460,9 @@ class ToySystem(SyntheticSystem):
             out["state"] = X.astype(np.float64)
             out["z"] = Z.astype(np.float64)
         return out
+
+
+def suite_content_hashes(tier: str, seed: int, generator_dir: str, package: str = "p4synth") -> dict:
+    """{system_id: content_hash} of a synthetic suite built in THIS process (cross-platform identity checks, LOG P4-D32)."""
+    register_generator(generator_dir, package, "hashcheck")
+    return {sid: s.content_hash() for sid, s in suite_systems(tier, int(seed), "hashcheck").items()}

@@ -1,0 +1,23 @@
+{
+ "tag": "brainir-p4-driver:1",
+ "id": "sha256:b09e56df2be17b941b03a7b312e35c8da549349468ada60c291441d3407e5da5",
+ "size_bytes": 486699465,
+ "built_utc": "2026-09-27T14:04:24Z",
+ "build_s": 11.3,
+ "base": "python@sha256:f77ac9e44ae96ef2c90b8053ea08c31f8be030f824196b0ae4db6d462c84e51f",
+ "docker_cli": {
+  "from": "docker@sha256:862099ada15c669000bef53aa4cb9d821262829f45b0dda2159ccb276443043b",
+  "version": "Docker version 29.6.1, build 8900f1d"
+ },
+ "uv": "0.12.18",
+ "stack": {
+  "python": "3.12.14",
+  "numpy": "2.5.3",
+  "scipy": "1.18.1",
+  "pandas": "3.0.6",
+  "modal": "1.5.5",
+  "torch": "2.14.0+cpu",
+  "scikit-learn": "1.9.1"
+ },
+ "notes": "ORCHESTRATOR driver image, never an agent image. phase4/uv.lock synced with --frozen into /opt/p4venv, without the three local packages (they come from the mounted repository) and without the CUDA stack (torch = the CPU build of the locked version). No repository file or credential is baked; see scripts/p4/linux_driver.py."
+}

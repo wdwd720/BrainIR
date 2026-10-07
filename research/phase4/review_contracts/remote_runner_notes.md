@@ -8,8 +8,8 @@ What a remote job is:
 - the room's `src/` and `baselines/` and your `runs/<prefix>/` are copied in (files over 25 MB and your `runs/<prefix>/remote/` are
   left out); `PYTHONPATH` contains `src/` and `baselines/`;
 - `data/` is an exact copy of this room's `data/` (the same public development data; nothing else);
-- the network is blocked and no other program may be started; the simulation service is NOT available (scripts that use SimClient
-  must run in the sandbox here);
+- the job container has no network, the job runs as an unprivileged user and may not start other programs; `data/` is read-only;
+  the simulation service is NOT available (scripts that use SimClient must run in the sandbox here);
 - numerics: the same pinned numerical stack as the sandbox; CPU classes use the development machine's kernel settings; GPU classes
   run PyPI's CUDA build of the same torch version (GPU results can differ from CPU results in the last digits; seed and report).
 
@@ -23,5 +23,6 @@ Usage (from the room root, through the sandbox):
     sbx python tools/remote_run.py status <job_id>
 
 Results: every new or changed file under your `runs/<prefix>/` comes back under `runs/<prefix>/remote/<job_id>/runs/<prefix>/...`,
-with the job's exit code, stdout / stderr tails, peak memory and wall time (`runs/_remote/queue/results/`). Write outputs under
+with the job's exit code, stdout / stderr tails, peak memory and wall time (`runs/<prefix>/_remote/results/`; your queue lives in
+your own `runs/<prefix>/_remote/`, and a request can only run a script of your own `runs/<prefix>/`). Write outputs under
 `runs/<prefix>/`. Never end your turn to wait for a job: poll with `wait`.

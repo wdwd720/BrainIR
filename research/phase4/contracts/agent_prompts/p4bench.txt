@@ -6,5 +6,5 @@ Then build the `p4synth` package with all 25 system types (several variants each
 - Calibrate to the targets with ref/calibstats.py on a dev-tier build and report every statistic; keep each type's defining property while matching distributions.
 - Keep simulation deterministic, accurate (convergence-tested) and fast (about 0.2 s CPU per typical trajectory or less).
 - You may use subagents inside this workspace to parallelise independent types, but you own the consistency of the whole package.
-- Run code only through ./sbx. Save progress often.
+- Run code only through the bare command sbx. Save progress often.
 When you finish, reply with a short report: the types and variants, how the central trap works in each type that carries it, the truth functions, the calibration check (pass / outside per statistic), timings, the test count and known limitations.

@@ -37,8 +37,8 @@
    "path": "CLAUDE.md",
    "source": "$REPO/research/phase4/contracts/p4bench_CLAUDE.md",
    "destination": "$ROOMS/BrainIR_p4bench/CLAUDE.md",
-   "sha256": "561b2514b16e348de8a9cc33fdd0f0594f061e0fe13838bf47482c79bccfade0",
-   "bytes": 1424,
+   "sha256": "d0773a754588074555704f5b8eb71bd9ed738c7609d2bea181d957195919a4bb",
+   "bytes": 1420,
    "reason": "room rules",
    "classification": "contract"
   },
@@ -46,8 +46,8 @@
    "path": "docs/CALIBRATION_TARGETS.md",
    "source": "$REPO/research/phase4/CALIBRATION_TARGETS.md",
    "destination": "$ROOMS/BrainIR_p4bench/docs/CALIBRATION_TARGETS.md",
-   "sha256": "342513c1121a1f0710818ed5774b4b90eb99b9ba059a38f08de8cce6a7f181b7",
-   "bytes": 42540,
+   "sha256": "46c53172a77b76518212dcc5aef3f828cb43a7989b0549e7bb3b4e7773e14800",
+   "bytes": 60870,
    "reason": "generic calibration targets from public data",
    "classification": "public-derived"
   },
@@ -55,8 +55,8 @@
    "path": "docs/PROTOCOL.md",
    "source": "$REPO/benchmarks/causal_state_v1/PROTOCOL.md",
    "destination": "$ROOMS/BrainIR_p4bench/docs/PROTOCOL.md",
-   "sha256": "1f5e41fad52f7b8d1a15df531b596242348ac95f64832163f495013d7bafe429",
-   "bytes": 28770,
+   "sha256": "c7de1a917d8add2f2e05e8f680582b4f93aa9bf92b222bef87287c1ac20e16d7",
+   "bytes": 70021,
    "reason": "benchmark protocol (how the systems are used)",
    "classification": "benchmark-public"
   },
@@ -64,8 +64,8 @@
    "path": "docs/PROTOCOL_V2.md",
    "source": "$REPO/benchmarks/causal_state_v1/docs/PROTOCOL_V2.md",
    "destination": "$ROOMS/BrainIR_p4bench/docs/PROTOCOL_V2.md",
-   "sha256": "97d4eeaf7b63082a6185bfa9417018ff5570d3bba880db460771e097463e60db",
-   "bytes": 14080,
+   "sha256": "d99b56cd27e5d4e69b75bf3b8b16f23ad0902113908e4af04dece6d17648da2c",
+   "bytes": 15322,
    "reason": "protocol format, families, system records",
    "classification": "benchmark-public"
   },
@@ -73,8 +73,8 @@
    "path": "docs/SYNTHETIC_BENCHMARK_CONTRACT.md",
    "source": "$REPO/research/phase4/contracts/SYNTHETIC_BENCHMARK_CONTRACT.md",
    "destination": "$ROOMS/BrainIR_p4bench/docs/SYNTHETIC_BENCHMARK_CONTRACT.md",
-   "sha256": "f22af62fe9ba1c96ea61c3d79d10ca8fd2e3d10dfd5587232d1ae8c180e2da99",
-   "bytes": 12770,
+   "sha256": "d753a797dd84f9440c56f99eed75e281a986689d69021ad2326f4bc168a57cbb",
+   "bytes": 14604,
    "reason": "the author's contract",
    "classification": "contract"
   },
@@ -82,8 +82,8 @@
    "path": "ref/calibration_targets.json",
    "source": "$REPO/benchmarks/causal_state_v1/public/calibration_targets.json",
    "destination": "$ROOMS/BrainIR_p4bench/ref/calibration_targets.json",
-   "sha256": "c3dc1c6e7631fcdaadc56e7e1e95ba9177c7b2592a77ffd0b52350c125838045",
-   "bytes": 309016,
+   "sha256": "f3a57d9122b98f4e226c81a5408258225573d4ca5969235d17d3dc9b8460ca7e",
+   "bytes": 491360,
    "reason": "calibration target values",
    "classification": "public-derived"
   },
@@ -91,8 +91,8 @@
    "path": "ref/calibstats.py",
    "source": "$REPO/phase4/src/brainir_causal/calibstats.py",
    "destination": "$ROOMS/BrainIR_p4bench/ref/calibstats.py",
-   "sha256": "fc6079e18ed2fc679607b9965f40e06141c3a7999588269636983c1b6cd81a91",
-   "bytes": 47314,
+   "sha256": "94782f16910882968f4ba681d8bc60b2bf85dd9d69f81f1c3fc2f2f3612e0e58",
+   "bytes": 60696,
    "reason": "reference calibration statistics",
    "classification": "generic-public"
   },
@@ -109,8 +109,8 @@
    "path": "ref/protocol.py",
    "source": "$REPO/phase4/src/brainir_causal/protocol.py",
    "destination": "$ROOMS/BrainIR_p4bench/ref/protocol.py",
-   "sha256": "288307b674e3952bca42428cd1e87f4d3c0ad8c0297917a3830e73e84aa97742",
-   "bytes": 22957,
+   "sha256": "e2140ef2dc802be4e78e066be06db559c6dcece09ed36c6ab1e982e2b07c91bc",
+   "bytes": 23483,
    "reason": "reference protocol validation",
    "classification": "generic-public"
   },
@@ -118,8 +118,8 @@
    "path": "sbx",
    "source": "generated from scripts/p4agent/sbx_template.sh",
    "destination": "$ROOMS/BrainIR_p4bench/sbx",
-   "sha256": "9257e85412314835f3f546fcaeda62d29dde8f82a5499890ff86a21f34093d70",
-   "bytes": 4849,
+   "sha256": "fc6642e68dffb1be49f0c13be236bfbe89a92cdf5346ada49cfd6dd8ed3030fd",
+   "bytes": 14057,
    "reason": "Docker sandbox wrapper",
    "classification": "generated"
   }
@@ -139,10 +139,17 @@
    "ref",
    "sbx"
   ],
+  "rw_areas": "every top-level entry that is not allowlisted",
+  "agent_areas": [
+   ".tmp"
+  ],
+  "owned_areas": [],
   "rw_nested": [],
   "outside_copy": "$AUDIT/sbx_bin/BrainIR_p4bench/sbx",
   "max_cpus": 4,
-  "max_mem_gb": 12
+  "max_mem_gb": 12,
+  "room_mount": "read-only",
+  "bytecode": "PYTHONDONTWRITEBYTECODE=1, PYTHONPYCACHEPREFIX=/tmp/pyc"
  },
  "refusal_list": [
   "(^|/)PHASE\\d+_REPORT\\.md$",
@@ -167,7 +174,9 @@
   "(^|/)\\.modal\\.toml$",
   "(^|/)\\.credentials",
   "(^|/)SALT(_REVEAL)?[^/]*$",
-  "(^|/)salt(\\.json|\\.txt|\\.bin)?$"
+  "(^|/)salt(\\.json|\\.txt|\\.bin)?$",
+  "^scripts/p4config/",
+  "(^|/)canary[^/]*\\.txt$"
  ],
  "syncs": [
   {
@@ -187,7 +196,93 @@
    "time_utc": "2026-09-26T17:49:32Z",
    "reason": "sbx: --pull never (never contact a registry)",
    "files": []
+  },
+  {
+   "time_utc": "2026-09-26T18:56:57Z",
+   "reason": "early review F-B5: in-room manifest reduced to paths / hashes / sizes (no sources, no refusal list); manifest no longer exempt from the content scan",
+   "files": [
+    "docs/PROTOCOL.md"
+   ]
+  },
+  {
+   "time_utc": "2026-09-26T19:08:00Z",
+   "reason": "contract addendum section 8 (numerical requirements from the early numerics review; generic) and PROTOCOL.md updates from the early reviews",
+   "files": [
+    "docs/SYNTHETIC_BENCHMARK_CONTRACT.md",
+    "docs/PROTOCOL.md"
+   ]
+  },
+  {
+   "time_utc": "2026-09-26T19:09:10Z",
+   "reason": "protocol.py: events starting at or after the last step are refused (numerics review minor 4)",
+   "files": [
+    "ref/protocol.py"
+   ]
+  },
+  {
+   "time_utc": "2026-09-26T20:29:28Z",
+   "reason": "isolation v3 (early review F: F-B4 NTFS protection, bare sbx, read-only room mount with the author's top-level entries bound read-write, own .tmp only, no bytecode; F-M1 in-room manifest view)",
+   "files": [
+    "docs/PROTOCOL.md"
+   ],
+   "caches_removed": 0,
+   "planted_reports": [],
+   "refused_optional": []
+  },
+  {
+   "time_utc": "2026-09-27T00:08:17Z",
+   "reason": "recalibration request: calibration targets v2 (recomputed on the benchmark's own public real design) and the current calibration-statistics reference",
+   "files": [
+    "CLAUDE.md",
+    "docs/SYNTHETIC_BENCHMARK_CONTRACT.md",
+    "docs/PROTOCOL.md",
+    "docs/CALIBRATION_TARGETS.md",
+    "ref/calibstats.py",
+    "ref/calibration_targets.json"
+   ],
+   "removed": [],
+   "purged": [],
+   "caches_removed": 0,
+   "planted_reports": [],
+   "refused_optional": []
+  },
+  {
+   "time_utc": "2026-09-27T10:37:53Z",
+   "reason": "calibration targets v3 and current reference modules for the author's round-2 follow-up (A-C)",
+   "files": [
+    "docs/PROTOCOL.md",
+    "docs/CALIBRATION_TARGETS.md",
+    "ref/calibration_targets.json"
+   ],
+   "removed": [],
+   "purged": [],
+   "caches_removed": 0,
+   "planted_reports": [],
+   "refused_optional": []
+  },
+  {
+   "time_utc": "2026-09-28T04:14:01Z",
+   "reason": "revision v3.3: sandbox wrapper with the machine slot (NF3c-1 / NF3c-2 fixes)",
+   "files": [
+    "docs/PROTOCOL.md",
+    "docs/PROTOCOL_V2.md",
+    "ref/calibstats.py"
+   ],
+   "removed": [],
+   "purged": [],
+   "caches_removed": 0,
+   "planted_reports": [],
+   "refused_optional": []
   }
  ],
- "build_scan_problems": []
+ "build_scan_problems": [],
+ "acl": {
+  "enabled": true,
+  "n_protected": 21,
+  "file_mask": "0x90116",
+  "dir_mask": "0x90156",
+  "parent_mask": "0x90040",
+  "anchor_mask": "0x90000",
+  "trustee": "S-1-1-0"
+ }
 }

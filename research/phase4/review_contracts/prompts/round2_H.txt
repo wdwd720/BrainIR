@@ -1,0 +1,32 @@
+SECOND EARLY ROUND (verification). The orchestrator has changed the evaluation machinery, the isolation stack and the protocol in response to your first-round review. The room was re-synced: docs/PROTOCOL.md (rewritten sections 4, 4.1, 5.1, 5.3-5.5, 5.7, 5.10, 5.17, 7, 9, 10, 11 and the conclusion rule), src/brainir_causal/ and extra/ (the new evaluation architecture is described in extra/EVAL_ARCHITECTURE.md where present), extra/generator/ (the synthetic generator, new in this round) and data/ (the public development data, new or rebuilt).
+
+1. For EVERY blocker, major and minor of your first review (reviews/<your letter>_review.md): answer "fixed", "partly" or "not fixed", with the location of the fix and your own re-run of your demonstration script (adapt it to the new code; keep scratch under .tmp/<your letter>/r2/). A fix you cannot verify by running is "unverified", not "fixed".
+2. Any NEW problem the changes introduced, with the same standard of evidence (blocker / major / minor, location, concrete fix).
+3. Your own area applied to the NEW parts: the synthetic generator (extra/generator/) and the rebuilt data.
+
+Write reviews/<your letter>2_review.md with the per-finding table, the new findings and a one-paragraph verdict ("ready to freeze" or not, and why). Reply with the table's counts and the new blockers / majors.
+
+ROUND-2 NOTES (what changed since your first review; details are in the synced files):
+- Sandbox: run code with the bare command `sbx ...` (a path spelling such as ./sbx is refused). The room root is read-only inside the
+  sandbox; writable areas are reviews/, runs/, notes/ and your own .tmp/<your letter>/ (other reviewers' scratch is invisible).
+- Evaluation architecture (extra/EVAL_ARCHITECTURE.md): method and designer code run only in model-worker processes (fresh process
+  per method, system, role and phase; unprivileged user; scrubbed environment; no network on remote containers); the trusted driver
+  holds held-out data, simulator and truth, calls the unchanged metric code on the workers' replies (JSON and plain arrays only), and
+  runs the active-design loops itself (policy check, simulation, budget).
+- Isolation (extra/LEAKAGE_POLICY.md): OS-level deny ACLs on every protected file, a guard with write-capable options refused, the
+  sandbox with a read-only room root and per-agent areas, remote development jobs in network-less sandboxes, names in one
+  orchestrator-only config (the review room has a placeholder at extra/scripts/p4config/names.py).
+- Protocol (docs/PROTOCOL.md): active-design success rules (i) and (ii) each one-sided at alpha 0.025; cross-fitting on item folds
+  stratified by identity cell, one closure row per item, per-system verdicts from two-sided 95 % bounds (one-sided only in the
+  primary family), 'hi' as its own magnitude class; salted protocol streams for every orchestrator-held set; plus the sections your
+  first review touched.
+- Data: the synthetic development tier (data/synthetic_dev: the public part, no truth, of 10 of its 50 systems; built from
+  extra/generator/) and the public
+  real-circuit data (data/real_public, rebuilt; one engine-bookkeeping field removed from the index rows). The benchmark imposes its
+  own public parameter-seed range [0, 10^9) and its own development dt on every system, whatever a generator declares.
+- Simulation service: one queue per agent (simq/<agent>/), identity by a launcher-issued token.
+- Orchestrator-held truth simulations of synthetic systems (evaluation pool sources from generator pool states, truth-equivalent
+  states) start from FULL generator microstates through one-sample "state carrier" store records and an ordinary r0 restart
+  (extra/brainir_causal/suites.py: carrier_r0, put_carrier); public parts never hold carriers.
+- The frozen earlier baseline's adapter is src/brainir_causal/frozen_v1.py (method name frozen_brainir_state_v1).
+- The calibration outputs (tolerances, power table) are computed after this sync and reach reviewer E in a follow-up message.

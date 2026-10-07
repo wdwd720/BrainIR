@@ -138,7 +138,27 @@ every statistic (pass / outside, with values). Do not copy any real system: matc
 
 ## 7. Rules
 
-- Work only inside your workspace; run code only through `./sbx` (a Docker sandbox: `./sbx python ...`, `./sbx pytest ...`).
+- Work only inside your workspace; run code only through `sbx` (a Docker sandbox: `sbx python ...`, `sbx pytest ...`).
 - The benchmark is generic. Do not model any specific biological circuit, dataset or published result.
 - Do not tune anything to make a particular method succeed or fail; traps must be principled.
 - Report honestly what is and is not tested.
+
+## 8. Addendum (numerical requirements; tests must check each)
+
+1. Integration step: the internal step is independent of the output dt (or the output dt is fixed per system); document the step and
+   its accuracy with a self-convergence test (halving the step changes y by less than 1e-3 of the system's detection floor over a
+   long horizon).
+2. Stability at the extremes: every system integrates stably at the benchmark's largest magnitudes (time-constant factor down to
+   0.1, gain factor up to 1.9, kicks and currents up to the `hi` ranges of the capability record, i.e. up to about 9 x the moderate
+   magnitude); a failed or non-finite integration must be reported through `info["success"] = False`, never returned silently.
+3. Process noise: drawn from a counter-based stream keyed by (seed, absolute step index), so that a restart from a stored state or a
+   split of the integration into pieces reproduces the uninterrupted trajectory exactly; Euler-Maruyama or better; the sd per sqrt(s)
+   documented in the capability record.
+4. Clipping: a kick clipped to the admissible range is clipped identically in `simulate` and in `true_latent_effect`.
+5. Latent effects: `true_latent_effect` matches the simulated jump of the true state (state which definition, e.g. the jump between
+   the pre-event sample and the next sample, and test it).
+6. Equivalent states: `equivalent_states` verified by simulation (identical readout futures under every event kind the system
+   supports).
+7. Hashes: `content_hash` covers everything that changes a trajectory; `engine_id` changes whenever the simulation code changes.
+8. Restarts: `simulate(protocol, restart_state=s)` from a state recorded at sample i reproduces the original trajectory from sample i
+   on (without process noise: bit for bit; with process noise: through requirement 3).

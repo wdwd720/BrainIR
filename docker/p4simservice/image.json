@@ -1,0 +1,14 @@
+{
+ "tag": "brainir-p4-simsvc:1",
+ "id": "sha256:869280e12e213278fffd250cf09c1ca164f6f078a23f06e907e9b76d6751f16b",
+ "size_bytes": 501016578,
+ "base": {
+  "tag": "brainir-p4-sandbox:1",
+  "id": "sha256:9604f491883e614371a16bc365f4f544119b6f3d3b60516fecca7faf1dc18076"
+ },
+ "added": [
+  "duckdb==1.5.5"
+ ],
+ "built_utc": "2026-09-26T22:52:21Z",
+ "notes": "Simulation-service workers only (brainir_causal.simdocker; never an agent image). The pinned sandbox stack plus duckdb (--no-deps) for the real engine's graph loader; every other package identical to the base (checked by pip freeze)."
+}

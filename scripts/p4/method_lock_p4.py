@@ -38,9 +38,29 @@ LOCK = ROOT / "research" / "phase4" / "METHOD_LOCK.json"
 LOCKED_DIR = ROOT / "phase4" / "src" / "brainir_causal" / "methods"
 NOTES_COPY = ROOT / "research" / "phase4" / "METHOD_NOTES.md"
 TEXT = {".py", ".md", ".txt", ".json", ".jsonl", ".toml", ".lock"}
+#: the frozen benchmark (its lock covers the protocol, the evaluator, the calibration, the tolerances and every dataset through the
+#: build manifests), the clean room's manifest, the images, the Level B-fixed decisions (bounds, strongest baseline, delta_NI as a
+#: NUMBER; `level_c.py fixed-from-levelb`) and every post-lock driver (Level C, ablations, counterexample search, robustness sweeps,
+#: counterfactual API, self-audit): the lock fixes HOW the hidden evaluation runs as well as WHAT is evaluated
 INPUTS = ("benchmarks/causal_state_v1/BENCHMARK_LOCK.json", "benchmarks/causal_state_v1/public/tolerances.json",
-          "research/phase4/CLEANROOM_MANIFEST.json", "data/phase4/public/real/manifest.json", "data/phase4/public/real/index.jsonl",
-          "data/phase4/suites/dev/public/manifest.json", "data/phase4/suites/dev/public/index.jsonl", "docker/p4sandbox/image.json")
+          "research/phase4/CLEANROOM_MANIFEST.json", "docker/p4sandbox/image.json", "docker/p4simservice/image.json",
+          "research/phase4/LEVEL_B_FIXED.json",            # written by `level_c.py fixed-from-levelb` (levelc_lib.LEVEL_B_FIXED)
+          "research/phase4/review_g/review_g.py",          # review G's trap catalog (synthadapter.TRAP_CATALOG_REL): fixed before any
+                                                           # hidden evaluation
+          "research/phase4/SELF_AUDIT_CONFIG.json")        # the self-audit's comparator roles and baselines (template: the
+                                                           # self-audit CONFIG.json of the dry run under research/phase4)
+AFTERLOCK_SCRIPTS = ("scripts/p4/level_c.py", "scripts/p4/levelc_lib.py", "scripts/p4/levelc_remote.py", "scripts/p4/ablations_p4.py",
+                    "scripts/p4/counterexamples_p4.py", "scripts/p4/robustness_p4.py", "scripts/p4/counterfactual_p4.py",
+                    "scripts/p4/self_audit_p4.py", "scripts/p4/p4post_iso.py", "scripts/p4/method_lock_p4.py")
+AFTERLOCK_DIRS = ("scripts/p4/p4post",)                     # every .py below is a post-lock driver module (hashed as well)
+
+
+def afterlock_driver_files() -> list[str]:
+    """Every post-lock driver file the lock hashes: AFTERLOCK_SCRIPTS plus every .py under AFTERLOCK_DIRS."""
+    out = list(AFTERLOCK_SCRIPTS)
+    for d in AFTERLOCK_DIRS:
+        out += sorted(p.relative_to(ROOT).as_posix() for p in (ROOT / d).rglob("*.py") if "__pycache__" not in p.parts)
+    return out
 
 
 def sha(p: Path) -> str:
@@ -81,8 +101,8 @@ def check() -> int:
     lock = json.loads(LOCK.read_text(encoding="utf-8"))
     bad = [k for k, v in lock["source_sha256"].items() if not (ROOT / k).exists() or sha(ROOT / k) != v]
     extra = [k for k in tree_hashes(LOCKED_DIR) if k not in lock["source_sha256"]]
-    for k, v in lock["inputs_sha256"].items():
-        if (ROOT / k).exists() and sha(ROOT / k) != v:
+    for k, v in {**lock["inputs_sha256"], **(lock.get("afterlock_drivers_sha256") or {})}.items():
+        if not (ROOT / k).exists() or sha(ROOT / k) != v:          # a deleted input fails too
             bad.append(k)
     if bad or extra:
         print("METHOD LOCK CHECK FAILED:", {"changed": bad, "added": extra})
@@ -117,12 +137,21 @@ def main(argv=None) -> int:
     sys.path.insert(0, str(ROOT / "phase4" / "src"))
     import importlib
     from brainir_causal import api
-    for p in sorted(LOCKED_DIR.glob("*.py")):
-        if p.stem != "__init__":
-            importlib.import_module(f"brainir_causal.methods.{p.stem}")
+    import pkgutil
+    import brainir_causal.methods as _methods
+    for mod in pkgutil.walk_packages(_methods.__path__, prefix="brainir_causal.methods."):   # per-developer packages methods/<prefix>/
+        importlib.import_module(mod.name)
     m = api.get_method(args.method)
     d = api.get_designer(args.designer) if args.designer != "none" else None
-    inputs = {rel: sha(ROOT / rel) for rel in INPUTS if (ROOT / rel).exists()}
+    missing = [rel for rel in INPUTS if not (ROOT / rel).exists()]
+    if missing:
+        raise SystemExit(f"refusing to lock: missing inputs {missing}")
+    inputs = {rel: sha(ROOT / rel) for rel in INPUTS}
+    missing_drivers = [rel for rel in afterlock_driver_files() if not (ROOT / rel).exists()]
+    if missing_drivers:
+        raise SystemExit(f"refusing to lock: missing post-lock drivers {missing_drivers}")
+    drivers = {rel: sha(ROOT / rel) for rel in afterlock_driver_files()}
+    fixed = json.loads((ROOT / "research" / "phase4" / "LEVEL_B_FIXED.json").read_text(encoding="utf-8"))
     commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True).stdout.strip()
     notes = Path(args.notes).read_text(encoding="utf-8") if args.notes and Path(args.notes).exists() else ""
     if notes:
@@ -144,6 +173,7 @@ def main(argv=None) -> int:
            "budgets": {"fit_timeout_s": {"synthetic": 900, "real_full": 1800, "shared": "2x"}, "threads_per_fit": 4, "gpu_fit_timeout_s": 600},
            "thresholds_and_metrics": "benchmarks/causal_state_v1 BENCHMARK_LOCK.json (PROTOCOL.md, evaluator code, public/tolerances.json)",
            "ablation_plan": abl, "environment": environment(), "simulators": simulators(),
+           "level_b_fixed": fixed, "afterlock_drivers_sha256": drivers,
            "source_sha256": tree_hashes(LOCKED_DIR), "inputs_sha256": inputs}
     LOCK.write_text(json.dumps(rec, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
     print(f"wrote {LOCK.relative_to(ROOT)}: {args.method} ({len(rec['source_sha256'])} source files)")

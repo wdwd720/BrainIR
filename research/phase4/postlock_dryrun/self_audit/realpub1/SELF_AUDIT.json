@@ -1,0 +1,295 @@
+{
+ "checks": {
+  "Q1": {
+   "SMS_id_share_within_tau": 0.0,
+   "comparators": {},
+   "n_sms": 1,
+   "pass_rule": "method better (upper CI < 0) on the confirmation suite and on >= 2 of 3 real full networks; SMS_ID upper CI <= tau_SMS on >= 50 % of systems",
+   "question": "Could intervention ID alone explain results?",
+   "status": "NOT_TESTABLE",
+   "tau_SMS": 0.1,
+   "test": "paired EE vs the ID-shortcut comparators on target-shift and held-out-family items; SMS with the ID features alone"
+  },
+  "Q10": {
+   "pass_rule": "if active design succeeds (PROTOCOL 5.17) it must also beat magnitude-matched random at >= 2 budgets",
+   "question": "Does active design just choose large-effect interventions?",
+   "reason": "the locked method has no designer of its own (no active-design claim to audit)",
+   "status": "NOT_APPLICABLE",
+   "test": "designed vs magnitude-matched random design at the same budgets"
+  },
+  "Q11": {
+   "below_definition": "share of covered below-detection items whose predicted effect is detectable (pred ES >= 1)",
+   "below_false_confidence_mean": null,
+   "n_below_systems": 0,
+   "n_weak_systems": 0,
+   "pass_rule": "weak class: upper CI of EE < 1, or abstention >= 50 %; below-detection class: false-confidence rate <= tau_FC",
+   "question": "Does causal state fail under weak effects?",
+   "status": "NOT_TESTABLE",
+   "tau_FC": 0.2,
+   "test": "EE and abstention per detectability class",
+   "weak_EE_suite": null,
+   "weak_abstention_mean": null
+  },
+  "Q12": {
+   "n_testable": 0,
+   "pass_rule": "far-shift EE upper CI < 1 on >= 50 % of systems",
+   "per_system": {
+    "real:A:full": {
+     "testable": false
+    }
+   },
+   "question": "Does performance disappear on unseen intervention types?",
+   "share": null,
+   "status": "NOT_TESTABLE",
+   "test": "EE on far-shift families vs in-family"
+  },
+  "Q13": {
+   "n_systems": 0,
+   "pass_rule": "stable on >= 70 % of confirmation systems",
+   "per_system": {},
+   "question": "Does k change wildly across resamples?",
+   "share_stable": null,
+   "status": "NOT_TESTABLE",
+   "test": "bootstrap-refit k (PROTOCOL 5.10)"
+  },
+  "Q14": {
+   "pass_rule": "report; FAIL = not significantly better (goal5 94 D)",
+   "question": "Does a simple linear controlled model perform equally well?",
+   "reason": "no evaluations of the linear controlled baseline",
+   "status": "NOT_TESTABLE",
+   "test": "paired EE vs the best linear controlled baseline"
+  },
+  "Q15": {
+   "attribution": "on these systems a compact-state failure is attributed to excitation / data (goal5 section 94 B)",
+   "fails": [
+    "real:A:full"
+   ],
+   "n_fullstate_fails_A": 1,
+   "n_systems": 1,
+   "pass_rule": "report; where it fails, the compact-state failure is attributed to excitation / data (goal5 94 B)",
+   "per_system": {
+    "real:A:full": {
+     "A": false,
+     "EE": 1.039180273817204,
+     "EE_upper": null
+    }
+   },
+   "question": "Does the full-state model itself fail?",
+   "status": "REPORT",
+   "test": "the full-state bound's EE and criterion A per system",
+   "threshold_A": 0.9
+  },
+  "Q16": {
+   "pass_rule": "required statistics in range (acceptance criterion 11)",
+   "question": "Does the synthetic benchmark resemble real response statistics?",
+   "reason": "no calibration compare of the confirmation suite (None)",
+   "status": "NOT_TESTABLE",
+   "test": "calibstats compare of the confirmation suite vs the public real targets"
+  },
+  "Q17": {
+   "pass_rule": "at most 1 of their confirmation systems",
+   "question": "False compact causal states on non-compressible systems?",
+   "reason": "no non-compressible confirmation system",
+   "status": "NOT_TESTABLE",
+   "test": "CAUSAL STATE SUPPORTED on types 20 / 21"
+  },
+  "Q18": {
+   "pass_rule": "rejected on every unrelated pair",
+   "question": "Does shared dynamics fail when systems are unrelated?",
+   "reason": "no sharing results configured",
+   "status": "NOT_TESTABLE",
+   "test": "sharing rule on unrelated pairs"
+  },
+  "Q19": {
+   "pass_rule": "found on <= 50 % of confirmation systems",
+   "question": "Can adversarial counterexample search break the model immediately?",
+   "reason": "no counterexample study configured",
+   "status": "NOT_TESTABLE",
+   "test": "counterexample search, 50 evaluations per system"
+  },
+  "Q2": {
+   "pass_rule": "method better on the confirmation suite and on >= 2 of 3 full networks",
+   "question": "Could stimulus alone explain results?",
+   "reason": "no evaluations of the role 'input_only'",
+   "status": "NOT_TESTABLE",
+   "test": "paired EE vs the input-only baseline"
+  },
+  "Q20": {
+   "consequence_if_fail": "Phase 4's core hypothesis fails (goal5 section 88)",
+   "pass_rule": "removal worsens EE significantly (paired, system bootstrap)",
+   "question": "Does intervention training matter?",
+   "source_run": "realpub1",
+   "status": "FAIL",
+   "suite": null,
+   "test": "the locked method with all interventional training removed"
+  },
+  "Q21": {
+   "levelb_fullstate_baseline": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)",
+   "pass_rule": "report 'outcomes predictable but compact causal abstraction unsupported' if the direct model predicts and the compact one does not",
+   "question": "Is the state bottleneck needed?",
+   "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)",
+   "source_run": "realpub1",
+   "status": "REPORT",
+   "test": "the locked method without the state bottleneck"
+  },
+  "Q3": {
+   "pass_rule": "method better on EE on the confirmation suite and on >= 2 of 3 full networks",
+   "question": "Could readout history explain results?",
+   "reason": "no evaluations of the role 'readout_history'",
+   "status": "NOT_TESTABLE",
+   "test": "paired EE and passive NMSE vs the readout-history baseline"
+  },
+  "Q4": {
+   "a_truncation": {
+    "n_systems": 1,
+    "ok": true
+   },
+   "b_decoys": {
+    "n_systems": 1,
+    "ok": true
+   },
+   "c_sandbox": {
+    "fatal_workers": [],
+    "n_evals_scanned": 3,
+    "n_fits_scanned": 3,
+    "ok": true,
+    "tripwire_hits": []
+   },
+   "d_code_audit": {
+    "findings": [],
+    "ok": true
+   },
+   "pass_rule": "all four hold",
+   "question": "Did future data leak?",
+   "status": "PASS",
+   "test": "(a) truncated-history encodings bitwise equal after the worker saw the future; (b) decoy encodings change no prediction; (c) no refused event in the fit / evaluation sandboxes; (d) code audit for global state"
+  },
+  "Q5": {
+   "n_k_ge_2": 3,
+   "n_systems": 3,
+   "pass_rule": "PR >= min(k, 1.5) on >= 80 % of systems with k >= 2; floor binds on < 5 %",
+   "per_system": {
+    "real:A:full": {
+     "floor_binds": false,
+     "k": 8,
+     "pr_pool": 2.0316417522615047
+    },
+    "real:A:m1": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.0852507102713596
+    },
+    "real:B:m1": {
+     "floor_binds": false,
+     "k": 2,
+     "pr_pool": 1.1377603258253002
+    }
+   },
+   "question": "Does the latent state collapse?",
+   "share_floor_binds": 0.0,
+   "share_pr_ok": 0.3333333333333333,
+   "status": "FAIL",
+   "test": "participation ratio of the encodings over the pool vs k; whitening floor"
+  },
+  "Q6": {
+   "n_syn": 0,
+   "networks_ok": [
+    false
+   ],
+   "pass_rule": "upper CI <= tolerance on >= 60 % of compressible confirmation systems and on the real full networks where testable",
+   "per_system": {
+    "real:A:full": {
+     "ICG_y_upper": 0.1335418819750396,
+     "SMS_x_res_upper": 0.9683704508568795,
+     "ok": false
+    }
+   },
+   "question": "Does residual microstate predict intervention outcomes?",
+   "share_syn": null,
+   "status": "FAIL",
+   "test": "ICG_y and SMS with x_res alone"
+  },
+  "Q7": {
+   "flagged_state_independent": [],
+   "n_testable": 0,
+   "pass_rule": "descriptive; flag where the model's read-in is state-independent but the truth's state-dependence explains > 30 %",
+   "per_system": {},
+   "question": "Are intervention operators state-dependent?",
+   "rule": "flag: truth state-dependence share > 0.3 and model share < 0.05 (whitened coordinates)",
+   "status": "NOT_TESTABLE",
+   "test": "read-in dz for one event at many states vs the true state-dependence"
+  },
+  "Q8": {
+   "mean_success": 0.17361111111111108,
+   "mean_success_jitter": 0.1875,
+   "n_systems": 3,
+   "note": "",
+   "pass_rule": "success drops by < 50 % relative; < 20 % saturating / out-of-range",
+   "question": "Does the lift exploit simulator quirks?",
+   "relative_drop": -0.0800000000000003,
+   "saturation_measure": "all simulated candidates (conservative proxy)",
+   "share_saturating_or_beyond": 0.14245014245014245,
+   "status": "PASS",
+   "test": "lift success under +-10 % amplitude jitter; share of successful lifts at clipping bounds or beyond the development range"
+  },
+  "Q9": {
+   "n_testable": 1,
+   "pass_rule": "long / medium ratio <= 2 on >= 60 % of testable systems",
+   "question": "Do multiple lifts diverge later?",
+   "ratios": {
+    "real:A:full": 1.002524180397511
+   },
+   "share_ratio_le_2": 1.0,
+   "status": "PASS",
+   "test": "multiple-lift divergence at the long vs the medium horizon"
+  }
+ },
+ "config": {
+  "designer": "none",
+  "dirs": {
+   "full_state_bound": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/fullstate_baseline",
+   "method": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/full",
+   "phase3": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/phase3",
+   "strongest_baseline": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/fullstate_baseline"
+  },
+  "dry_run_on_val": false,
+  "method": "p3stand.refstand:p3stand_ref",
+  "methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+  "out_dir": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/self_audit/realpub1",
+  "probes_dir": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/realpub1/probes",
+  "real_level": "public",
+  "seed": 0,
+  "stand_in_notes": "No ID / input-only / readout-history / linear-controlled roles here (Q1-Q3, Q14 NOT_TESTABLE by design); the val1 configuration covers them.",
+  "studies": {
+   "ablations": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/ablations/realpub1"
+  },
+  "systems": [
+   "real:A:full",
+   "real:A:m1",
+   "real:B:m1"
+  ],
+  "tier": null,
+  "what": "DRY RUN configuration of scripts/p4/self_audit_p4.py on three PUBLIC real systems (the real-system paths: memo_probe on a real network, encodings, lift_jitter; the checks that read real networks) with stand-in models (fork P3). Admissible before the lock under the official rule (public real data); outputs under the dry-run roots only."
+ },
+ "created_utc": "2026-09-27T11:13:56Z",
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "hidden": false,
+ "lock": {},
+ "method": "p3stand.refstand:p3stand_ref",
+ "n_compressible": 0,
+ "n_networks": 1,
+ "n_systems": 3,
+ "real_level": "public",
+ "status_counts": {
+  "FAIL": 3,
+  "NOT_APPLICABLE": 1,
+  "NOT_TESTABLE": 12,
+  "PASS": 3,
+  "REPORT": 2
+ },
+ "tier": null,
+ "tolerances_calibrated": false,
+ "wall_s": 0.1,
+ "what": "Phase 4 self-audit (goal5 section 91; research/phase4/SELF_AUDIT_PLAN.md)"
+}

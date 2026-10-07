@@ -1,0 +1,279 @@
+{
+ "build": {
+  "real:A:full": {
+   "counts": {
+    "constant_future_items": {},
+    "dropped": 0,
+    "errors": 0,
+    "failures_by_family": {},
+    "kick_clipping": {
+     "kick.1": {
+      "clipped": 15,
+      "items": 23,
+      "relabelled": 14,
+      "unknown": 0
+     }
+    },
+    "planned": 46,
+    "records": 92,
+    "replaced": 0
+   },
+   "wall_s": 483.5
+  },
+  "real:A:m1": {
+   "counts": {
+    "constant_future_items": {},
+    "dropped": 0,
+    "errors": 0,
+    "failures_by_family": {},
+    "kick_clipping": {
+     "kick.1": {
+      "clipped": 8,
+      "items": 23,
+      "relabelled": 5,
+      "unknown": 0
+     }
+    },
+    "planned": 46,
+    "records": 92,
+    "replaced": 0
+   },
+   "wall_s": 20.0
+  },
+  "real:B:m1": {
+   "counts": {
+    "constant_future_items": {},
+    "dropped": 0,
+    "errors": 0,
+    "failures_by_family": {},
+    "kick_clipping": {
+     "kick.1": {
+      "clipped": 7,
+      "items": 23,
+      "relabelled": 6,
+      "unknown": 0
+     }
+    },
+    "planned": 46,
+    "records": 92,
+    "replaced": 0
+   },
+   "wall_s": 19.8
+  }
+ },
+ "created_utc": "2026-09-27T10:30:00Z",
+ "custom_tier": "pl_dry_rb_realpub1_grid",
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "eval_errors": {},
+ "exclude_families": [
+  "sil.1",
+  "sil.2",
+  "sil.g",
+  "sil.1p",
+  "param.1",
+  "comp.seq",
+  "comp.sim"
+ ],
+ "fits_from": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/full",
+ "grid": {
+  "amplitude_jitter": [
+   0.1,
+   0.2,
+   0.3,
+   0.5
+  ],
+  "obs_noise": [
+   0.025,
+   0.05,
+   0.1,
+   0.2
+  ],
+  "param_noise": [
+   1.25,
+   1.5,
+   1.75,
+   2.0,
+   2.5
+  ],
+  "process_noise": [
+   0.025,
+   0.05,
+   0.1,
+   0.2
+  ],
+  "timing_jitter": [
+   1,
+   2,
+   4,
+   8
+  ],
+  "weight_noise": [
+   0.025,
+   0.05,
+   0.075,
+   0.1,
+   0.15
+  ]
+ },
+ "hidden": false,
+ "items_per_level": 2,
+ "levelc_run": null,
+ "lock": {},
+ "method": "p3stand.refstand:p3stand_ref",
+ "method_hashes": {
+  "__init__.py": "bb76dd76bd4460cc91f65c14463fbaa45af2ce0db6f6ee3d61977c9269540dfc",
+  "p3stand/__init__.py": "4842d44ed6976d1c43f025114d2d16c9bee2ba638c85ea95407028b81d407b7c",
+  "p3stand/refstand.py": "60b57676609682b6cdc4f249d7c41d106312c4d110b3e8e841f57ce186fdc89d"
+ },
+ "modal": {
+  "build_s": 607.0,
+  "cost": {
+   "app_id": "ap-2Jx9VWYdE3gWE75mqmVx35",
+   "calls": [
+    {
+     "calls": 3,
+     "class": "build",
+     "container_s": 566.7,
+     "label": "call:brainir_causal.suites:build_system_job",
+     "peak_container_mb_max": 8562.8,
+     "usd_approx": 0.1993
+    },
+    {
+     "calls": 3,
+     "class": "iso_eval_l",
+     "container_s": 823.5,
+     "eager": true,
+     "label": "robust-eval:iso_eval_l",
+     "peak_container_mb_max": 1413.7,
+     "usd_approx": 0.2033
+    }
+   ],
+   "hosts": {
+    "unknown": 6
+   },
+   "refusals": {},
+   "usd_approx_total": 0.4026
+  },
+  "eval_s": 525.1
+ },
+ "plan": {
+  "real:A:full": {
+   "families": [
+    "kick.1",
+    "pulse.1"
+   ],
+   "levels": {
+    "robust:amplitude_jitter@0.1": 2,
+    "robust:amplitude_jitter@0.2": 2,
+    "robust:amplitude_jitter@0.3": 2,
+    "robust:amplitude_jitter@0.5": 2,
+    "robust:nominal@0": 2,
+    "robust:obs_noise@0.025": 2,
+    "robust:obs_noise@0.05": 2,
+    "robust:obs_noise@0.1": 2,
+    "robust:obs_noise@0.2": 2,
+    "robust:param_noise@1.25": 2,
+    "robust:param_noise@1.5": 2,
+    "robust:param_noise@1.75": 2,
+    "robust:param_noise@2.0": 2,
+    "robust:param_noise@2.5": 2,
+    "robust:timing_jitter@1": 2,
+    "robust:timing_jitter@2": 2,
+    "robust:timing_jitter@4": 2,
+    "robust:timing_jitter@8": 2,
+    "robust:weight_noise@0.025": 2,
+    "robust:weight_noise@0.05": 2,
+    "robust:weight_noise@0.075": 2,
+    "robust:weight_noise@0.1": 2,
+    "robust:weight_noise@0.15": 2
+   },
+   "n_items": 46,
+   "skipped": {
+    "robust:process_noise": "not supported by the system's capability"
+   }
+  },
+  "real:A:m1": {
+   "families": [
+    "kick.1",
+    "pulse.1"
+   ],
+   "levels": {
+    "robust:amplitude_jitter@0.1": 2,
+    "robust:amplitude_jitter@0.2": 2,
+    "robust:amplitude_jitter@0.3": 2,
+    "robust:amplitude_jitter@0.5": 2,
+    "robust:nominal@0": 2,
+    "robust:obs_noise@0.025": 2,
+    "robust:obs_noise@0.05": 2,
+    "robust:obs_noise@0.1": 2,
+    "robust:obs_noise@0.2": 2,
+    "robust:param_noise@1.25": 2,
+    "robust:param_noise@1.5": 2,
+    "robust:param_noise@1.75": 2,
+    "robust:param_noise@2.0": 2,
+    "robust:param_noise@2.5": 2,
+    "robust:timing_jitter@1": 2,
+    "robust:timing_jitter@2": 2,
+    "robust:timing_jitter@4": 2,
+    "robust:timing_jitter@8": 2,
+    "robust:weight_noise@0.025": 2,
+    "robust:weight_noise@0.05": 2,
+    "robust:weight_noise@0.075": 2,
+    "robust:weight_noise@0.1": 2,
+    "robust:weight_noise@0.15": 2
+   },
+   "n_items": 46,
+   "skipped": {
+    "robust:process_noise": "not supported by the system's capability"
+   }
+  },
+  "real:B:m1": {
+   "families": [
+    "kick.1",
+    "pulse.1"
+   ],
+   "levels": {
+    "robust:amplitude_jitter@0.1": 2,
+    "robust:amplitude_jitter@0.2": 2,
+    "robust:amplitude_jitter@0.3": 2,
+    "robust:amplitude_jitter@0.5": 2,
+    "robust:nominal@0": 2,
+    "robust:obs_noise@0.025": 2,
+    "robust:obs_noise@0.05": 2,
+    "robust:obs_noise@0.1": 2,
+    "robust:obs_noise@0.2": 2,
+    "robust:param_noise@1.25": 2,
+    "robust:param_noise@1.5": 2,
+    "robust:param_noise@1.75": 2,
+    "robust:param_noise@2.0": 2,
+    "robust:param_noise@2.5": 2,
+    "robust:timing_jitter@1": 2,
+    "robust:timing_jitter@2": 2,
+    "robust:timing_jitter@4": 2,
+    "robust:timing_jitter@8": 2,
+    "robust:weight_noise@0.025": 2,
+    "robust:weight_noise@0.05": 2,
+    "robust:weight_noise@0.075": 2,
+    "robust:weight_noise@0.1": 2,
+    "robust:weight_noise@0.15": 2
+   },
+   "n_items": 46,
+   "skipped": {
+    "robust:process_noise": "not supported by the system's capability"
+   }
+  }
+ },
+ "real_level": "public",
+ "run_id": "realpub1",
+ "seed": 0,
+ "status": "complete",
+ "study": "robustness",
+ "systems": [
+  "real:A:full",
+  "real:A:m1",
+  "real:B:m1"
+ ],
+ "tier": null,
+ "wall_s": 1150.4
+}

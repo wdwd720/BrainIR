@@ -22,7 +22,7 @@ def toy_inputs(seed: int = 0, n_test_kick: int = 16, n_test_pulse: int = 8, n_po
     train, tz = make_records(s, seed=seed)
     truth = {"z": tz["z"], "z_obs": {r["key"]: z_obs_of(s, r["x"]) for r in train}}
     pub = s.record()
-    pub.update({"kind": "synthetic", "n_units": s.n})
+    pub.update({"kind": "synthetic", "n_units": s.n, "split": {"families_train": ["obs.stim", "kick.1"], "families_heldout": ["pulse.1"]}})
     sysc = make_eval_system("toy", "synthetic", DT, T_END, [r["x"] for r in train if r["split"] == "train"],
                             [r["y"] for r in train if r["split"] == "train"], 1)
     rng = np.random.default_rng(100 + seed)

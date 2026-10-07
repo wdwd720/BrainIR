@@ -1,0 +1,233 @@
+{
+ "budget": 20,
+ "created_utc": "2026-09-27T10:28:00Z",
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "exclude_families": [
+  "sil.1",
+  "sil.2",
+  "sil.g",
+  "sil.1p",
+  "param.1",
+  "comp.seq",
+  "comp.sim"
+ ],
+ "families": {
+  "real:A:full": [
+   "kick.1",
+   "pulse.1",
+   "kick.2",
+   "kick.g",
+   "pulse.2",
+   "pulse.g",
+   "act.1",
+   "inh.1",
+   "edge.w",
+   "edge.rm",
+   "seq.train",
+   "seq.prbs",
+   "seq.pp",
+   "seq.chirp"
+  ],
+  "real:A:m1": [
+   "kick.1",
+   "pulse.1",
+   "kick.2",
+   "kick.g",
+   "pulse.2",
+   "pulse.g",
+   "act.1",
+   "inh.1",
+   "edge.w",
+   "edge.rm",
+   "seq.train",
+   "seq.prbs",
+   "seq.pp",
+   "seq.chirp"
+  ],
+  "real:B:m1": [
+   "kick.1",
+   "pulse.1",
+   "kick.2",
+   "kick.g",
+   "pulse.2",
+   "pulse.g",
+   "act.1",
+   "inh.1",
+   "edge.w",
+   "edge.rm",
+   "seq.train",
+   "seq.prbs",
+   "seq.pp",
+   "seq.chirp"
+  ]
+ },
+ "fits_from": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/realpub1/full",
+ "hidden": false,
+ "levelc_run": null,
+ "lock": {},
+ "method": "p3stand.refstand:p3stand_ref",
+ "method_hashes": {
+  "__init__.py": "bb76dd76bd4460cc91f65c14463fbaa45af2ce0db6f6ee3d61977c9269540dfc",
+  "p3stand/__init__.py": "4842d44ed6976d1c43f025114d2d16c9bee2ba638c85ea95407028b81d407b7c",
+  "p3stand/refstand.py": "60b57676609682b6cdc4f249d7c41d106312c4d110b3e8e841f57ce186fdc89d"
+ },
+ "modal": {
+  "cost": {
+   "app_ids": [
+    "ap-cKEi3CU5OlgsGIwbCYpiRw",
+    "ap-FZbI1zbK8PuXXrccfZPEXp",
+    "ap-9UpBcnGT4KFYoTPReKgyt4"
+   ],
+   "per_round": [
+    {
+     "app_id": "ap-cKEi3CU5OlgsGIwbCYpiRw",
+     "calls": [
+      {
+       "calls": 3,
+       "class": "build",
+       "container_s": 56.3,
+       "label": "call:brainir_causal.suites:build_system_job",
+       "peak_container_mb_max": 7936.0,
+       "usd_approx": 0.0198
+      },
+      {
+       "calls": 3,
+       "class": "iso_eval_l",
+       "container_s": 306.1,
+       "eager": true,
+       "label": "ce-eval-r1:iso_eval_l",
+       "peak_container_mb_max": 1695.6,
+       "usd_approx": 0.0756
+      }
+     ],
+     "hosts": {
+      "unknown": 6
+     },
+     "refusals": {
+      "build": 1
+     },
+     "usd_approx_total": 0.0954
+    },
+    {
+     "app_id": "ap-FZbI1zbK8PuXXrccfZPEXp",
+     "calls": [
+      {
+       "calls": 3,
+       "class": "build",
+       "container_s": 53.5,
+       "label": "call:brainir_causal.suites:build_system_job",
+       "peak_container_mb_max": 6213.8,
+       "usd_approx": 0.0188
+      },
+      {
+       "calls": 3,
+       "class": "iso_eval_l",
+       "container_s": 741.0,
+       "eager": true,
+       "label": "ce-eval-r2:iso_eval_l",
+       "peak_container_mb_max": 1694.0,
+       "usd_approx": 0.1829
+      }
+     ],
+     "hosts": {
+      "unknown": 6
+     },
+     "refusals": {
+      "iso_eval_l": 6
+     },
+     "usd_approx_total": 0.2017
+    },
+    {
+     "app_id": "ap-9UpBcnGT4KFYoTPReKgyt4",
+     "calls": [
+      {
+       "calls": 3,
+       "class": "build",
+       "container_s": 58.0,
+       "label": "call:brainir_causal.suites:build_system_job",
+       "peak_container_mb_max": 6368.5,
+       "usd_approx": 0.0204
+      },
+      {
+       "calls": 3,
+       "class": "iso_eval_l",
+       "container_s": 877.0,
+       "eager": true,
+       "label": "ce-eval-r3:iso_eval_l",
+       "peak_container_mb_max": 2016.3,
+       "usd_approx": 0.2165
+      }
+     ],
+     "hosts": {
+      "unknown": 6
+     },
+     "refusals": {
+      "build": 2,
+      "iso_eval_l": 12
+     },
+     "usd_approx_total": 0.2369
+    }
+   ],
+   "usd_approx_total": 0.534
+  },
+  "rounds": [
+   {
+    "app_id": "ap-cKEi3CU5OlgsGIwbCYpiRw",
+    "build_errors": {},
+    "build_s": 89.1,
+    "eval_errors": {},
+    "eval_s": 488.5,
+    "n_candidates": 24,
+    "plan_errors": {},
+    "round": 1,
+    "round_s": 577.9,
+    "simulation_errors": {},
+    "tier": "pl_dry_ce_realpub1_r1"
+   },
+   {
+    "app_id": "ap-FZbI1zbK8PuXXrccfZPEXp",
+    "build_errors": {},
+    "build_s": 65.6,
+    "eval_errors": {},
+    "eval_s": 551.5,
+    "n_candidates": 18,
+    "plan_errors": {},
+    "round": 2,
+    "round_s": 617.5,
+    "simulation_errors": {},
+    "tier": "pl_dry_ce_realpub1_r2"
+   },
+   {
+    "app_id": "ap-9UpBcnGT4KFYoTPReKgyt4",
+    "build_errors": {},
+    "build_s": 181.4,
+    "eval_errors": {},
+    "eval_s": 361.7,
+    "n_candidates": 18,
+    "plan_errors": {},
+    "round": 3,
+    "round_s": 543.5,
+    "simulation_errors": {},
+    "tier": "pl_dry_ce_realpub1_r3"
+   }
+  ]
+ },
+ "real_level": "public",
+ "rounds": [
+  8,
+  6,
+  6
+ ],
+ "run_id": "realpub1",
+ "seed": 0,
+ "status": "complete",
+ "study": "counterexamples",
+ "systems": [
+  "real:A:full",
+  "real:A:m1",
+  "real:B:m1"
+ ],
+ "tier": null,
+ "wall_s": 1767.9
+}

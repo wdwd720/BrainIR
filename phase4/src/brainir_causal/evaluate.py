@@ -10,7 +10,14 @@ and `encode` for the latent at the onset. The scorers below only read these pred
     e_i(t) = y_i(t) - y_twin_i(t);  e-hat_i(t) = y-hat_int(t) - y-hat_base(t);  window rows 1..m_h
     num_i = sum ||e-hat_i - e_i||^2,  den_i = max(sum ||e_i||^2, m_h n_y f^2),  EE(h) = sum_i min(num_i, 10 den_i) / sum_i den_i
     abstained items are scored as predicting NO effect (e-hat = 0, so num_i = sum ||e_i||^2 <= den_i); a non-finite or failed
-    prediction counts as the cap (num_i = 10 den_i) and is never dropped; both are counted. CIs: cluster bootstrap (item groups).
+    prediction counts as the cap (num_i = 10 den_i) and is never dropped; both are counted. Items whose TRUE arrays are non-finite
+    (a failed simulation) are dropped and counted (`n_dropped_nonfinite_truth`), never poisoning a ratio (review H, M4).
+    CLUSTERS: the IDENTITY CELL (`TestItem.cell()`: family x target set x magnitude class; review E, M2); the number of cells is
+    reported with every estimate. The VERDICT EE is CLASS-BALANCED (review E, M1): the unweighted mean over the magnitude classes
+    present (below, weak, moderate, strong, hi, na; classes with fewer than 3 units merged toward moderate) of the per-class ratio of
+    sums (`EE_cb_<h>`), with the family-jackknife-t interval of `stats.class_balanced_estimate` (cells nested in families; review E,
+    N2 / M2); the pooled ratio (`EE_<h>`) is descriptive. `ee_cb` / `ee_cb_diff` compute both on subsets of item roles from the
+    per-item units (the verdict of PROTOCOL 9 uses the verdict roles in / target / near / far / hidden).
     Detectability ES_i = RMS(e_i over the PRIMARY window) / f; classes below / weak / moderate / strong (evalio.DETECT_CLASSES).
     Sign accuracy: per readout dimension whose true window mean effect exceeds the floor, the sign of the time-integrated predicted
     effect must match (a zero prediction is wrong); reported over covered items and over all items (abstained = wrong).
@@ -19,7 +26,8 @@ and `encode` for the latent at the onset. The scorers below only read these pred
 5.2 observational prediction: window NMSE of the passive rollout per horizon, capped at 10 per window, averaged per resampling group
     (a source trajectory with its several onsets), CI by resampling groups.
 5.8 composition: EE on comp.* items (the family breakdown of 5.1) and composition consistency (predicted non-additivity against
-    the true non-additivity, from the true single-component futures `item.components`), descriptive.
+    the true non-additivity, from the true single-component futures `item.components`), descriptive; the horizon is taken per item
+    with the item's own dt (review H, M1).
 5.9 abstention and calibration: coverage (per detectability class, shift kind and OOD / robustness category), EE over covered items,
     FALSE-CONFIDENCE rate (covered items with a detectable true effect, ES >= 1, whose EE_i > 1 or whose dominant readout effect has
     a confidently wrong sign), 90 % interval coverage of the model's y_sd per horizon (no y_sd = zero-width intervals: confident
@@ -35,6 +43,8 @@ Resolutions of protocol-draft ambiguities (documented for the orchestrator):
 - The false-confidence "confidently wrong sign" is judged on the item's dominant readout dimension (largest |true integral| among
   detectable dimensions): the predicted window mean exceeds the floor in magnitude with the opposite sign.
 - Interval coverage uses y_sd of the INTERVENED prediction (from intervention_effect's "y_sd", else uncertainty()["y_sd"]).
+- The verdict's false-confidence rate (criterion G) is computed on the verdict items only (`false_confidence_verdict`); the rate over
+  every item is reported beside it.
 """
 
 from __future__ import annotations
@@ -45,7 +55,7 @@ from dataclasses import dataclass, field
 import numpy as np
 
 from . import stats as S
-from .evalio import DETECT_CLASSES, HORIZON_FRACTIONS, ITEM_CAP, PRIMARY, EvalSystem, TestItem, detect_class
+from .evalio import DETECT_CLASSES, HORIZON_FRACTIONS, ITEM_CAP, PRIMARY, VERDICT_KINDS, EvalSystem, TestItem, detect_class
 from .fresh import Fresh, as_fresh, safe_call
 
 Z90 = 1.6448536269514722
@@ -161,6 +171,17 @@ class ItemScore:
     pred_mean_effect: np.ndarray | None = None   # (n_y,) predicted window-mean effect (standardised), primary horizon
     pred_es: float = 0.0             # the PREDICTED effect's detectability, RMS(e-hat over the primary window) / floor
     true_mean_effect: np.ndarray | None = None
+    cell: str = ""                   # the identity cell (resampling unit)
+
+    @property
+    def fc_eligible(self) -> bool:
+        """A covered item with a detectable true effect (the false-confidence denominator)."""
+        return bool(self.covered and np.isfinite(self.es) and self.es >= 1.0)
+
+    @property
+    def fc(self) -> bool:
+        """A false-confidence event: eligible and worse than predicting no effect, or with a confidently wrong sign."""
+        return bool(self.fc_eligible and ((self.ee_i > 1.0) or self.wrong_sign_confident))
 
 
 def score_item(sysc: EvalSystem, it: TestItem, p: Prediction, horizons=tuple(HORIZON_FRACTIONS)) -> ItemScore | None:
@@ -224,13 +245,14 @@ def score_item(sysc: EvalSystem, it: TestItem, p: Prediction, horizons=tuple(HOR
     return ItemScore(item_id=it.item_id, group=it.group, family=it.family, shift=it.shift, magnitude_class=it.magnitude_class,
                      abstain=bool(p.abstain), covered=covered, failed=failed, num=num, den=den, raw_sq=raw, n_cells=cells, post_nmse=post,
                      es=es, dclass=detect_class(es), sign_hits=sh, sign_total=stot, wrong_sign_confident=wrong, ee_i=float(ee_i),
-                     pred_mean_effect=pm, true_mean_effect=tm, pred_es=pes)
+                     pred_mean_effect=pm, true_mean_effect=tm, pred_es=pes, cell=it.cell())
 
 
 def score_items(sysc: EvalSystem, items: list[TestItem], preds: dict[str, Prediction]) -> list[ItemScore]:
+    """Scores of the intervention items with finite truth (items with non-finite true arrays are skipped: `n_nonfinite_truth`)."""
     out = []
     for it in items:
-        if it.is_passive or it.item_id not in preds:
+        if it.is_passive or it.item_id not in preds or not it.truth_ok():
             continue
         s = score_item(sysc, it, preds[it.item_id])
         if s is not None:
@@ -238,14 +260,32 @@ def score_items(sysc: EvalSystem, items: list[TestItem], preds: dict[str, Predic
     return out
 
 
+def n_nonfinite_truth(items: list[TestItem], passive: bool = False) -> int:
+    """Number of items (intervention items, or passive windows) dropped because their true arrays are non-finite."""
+    return int(sum(1 for it in items if it.is_passive == passive and not it.truth_ok()))
+
+
 def _ee(scores: list[ItemScore], h: str, n_boot: int, seed: int) -> dict:
+    """Pooled ratio of sums with an identity-cell bootstrap CI (descriptive)."""
     rows = [s for s in scores if h in s.num]
     if not rows:
-        return {"point": float("nan"), "ci95": [float("nan")] * 2, "n_items": 0}
-    est = S.boot_ratio([s.num[h] for s in rows], [s.den[h] for s in rows], [s.group for s in rows], n_boot, seed)
-    return {"point": est.point, "ci95": est.ci95, "n_items": len(rows), "n_clusters": est.n_units,
+        return {"point": float("nan"), "ci95": [float("nan")] * 2, "n_items": 0, "n_cells": 0}
+    est = S.boot_ratio([s.num[h] for s in rows], [s.den[h] for s in rows], [s.cell for s in rows], n_boot, seed)
+    return {"point": est.point, "ci95": est.ci95, "n_items": len(rows), "n_cells": est.n_units,
             "n_failed": int(sum(s.failed for s in rows)), "n_abstained": int(sum(s.abstain for s in rows)),
-            "n_capped": int(sum(s.num[h] >= ITEM_CAP * s.den[h] * (1 - 1e-12) for s in rows))}
+            "n_capped": int(sum(s.num[h] >= ITEM_CAP * s.den[h] * (1 - 1e-12) for s in rows)),
+            "n_nonfinite_reps": est.n_nonfinite_reps}
+
+
+def _ee_cb(scores: list[ItemScore], h: str, n_boot: int, seed: int, mode: str = "class") -> dict:
+    """Class-balanced ratio (PROTOCOL 5.1) with the family-jackknife-t interval (`stats.boot_class_balanced`; `mode` recorded)."""
+    rows = [s for s in scores if h in s.num]
+    if not rows:
+        return {"point": float("nan"), "ci95": [float("nan")] * 2, "n_items": 0, "n_cells": 0}
+    design = S.CellDesign.build([s.cell for s in rows], [s.magnitude_class for s in rows], [s.family for s in rows])
+    est = S.boot_class_balanced([s.num[h] for s in rows], [s.den[h] for s in rows], design, n_boot, seed, mode)
+    return {"point": est.point, "ci95": est.ci95, "n_items": len(rows), "n_cells": est.n_units, "classes": design.classes,
+            "mode": mode, "n_nonfinite_reps": est.n_nonfinite_reps}
 
 
 def _breakdown(scores: list[ItemScore], key, h: str, n_boot: int, seed: int) -> dict:
@@ -261,15 +301,18 @@ def eval_effects(sysc: EvalSystem, items: list[TestItem], preds: dict[str, Predi
     units under "_units" for paired comparisons (strip before reporting)."""
     sc = score_items(sysc, items, preds)
     res: dict = {"n_items": len(sc), "n_abstained": int(sum(s.abstain for s in sc)), "n_failed": int(sum(s.failed for s in sc)),
-                 "n_errors": int(sum(preds[s.item_id].error is not None for s in sc)), "floor": sysc.floor, "item_cap": ITEM_CAP}
+                 "n_errors": int(sum(preds[s.item_id].error is not None for s in sc)), "floor": sysc.floor, "item_cap": ITEM_CAP,
+                 "n_dropped_nonfinite_truth": n_nonfinite_truth([it for it in items if it.item_id in preds]),
+                 "n_cells": len({s.cell for s in sc})}
     for h in HORIZON_FRACTIONS:
         res[f"EE_{h}"] = _ee(sc, h, n_boot, seed)
+        res[f"EE_cb_{h}"] = _ee_cb(sc, h, n_boot, seed)
         rows = [s for s in sc if h in s.num and np.isfinite(s.raw_sq[h])]
         cells = sum(s.n_cells[h] for s in rows)
         res[f"abs_effect_rmse_{h}"] = float(np.sqrt(sum(s.raw_sq[h] for s in rows) / cells)) if cells else float("nan")
         pn = [s for s in sc if h in s.post_nmse]
         if pn:
-            e = S.boot_mean([s.post_nmse[h] for s in pn], [s.group for s in pn], n_boot, seed)
+            e = S.boot_mean([s.post_nmse[h] for s in pn], [s.cell for s in pn], n_boot, seed)
             res[f"post_nmse_{h}"] = {"point": e.point, "ci95": e.ci95, "n_items": len(pn)}
     h = PRIMARY
     res["by_family"] = _breakdown(sc, lambda s: s.family, h, n_boot, seed)
@@ -285,6 +328,8 @@ def eval_effects(sysc: EvalSystem, items: list[TestItem], preds: dict[str, Predi
     res["detectability_counts"] = {name: int(sum(s.dclass == name for s in sc)) for name, _, _ in DETECT_CLASSES}
     res["_units"] = {"item": [s.item_id for s in sc], "group": [s.group for s in sc], "family": [s.family for s in sc],
                      "shift": [s.shift for s in sc], "abstain": [s.abstain for s in sc], "failed": [s.failed for s in sc],
+                     "cell": [s.cell for s in sc], "mclass": [s.magnitude_class for s in sc], "covered": [s.covered for s in sc],
+                     "fc_eligible": [s.fc_eligible for s in sc], "fc": [s.fc for s in sc],
                      **{f"num_{hh}": [s.num.get(hh, float("nan")) for s in sc] for hh in HORIZON_FRACTIONS},
                      **{f"den_{hh}": [s.den.get(hh, float("nan")) for s in sc] for hh in HORIZON_FRACTIONS},
                      "es": [s.es for s in sc], "dclass": [s.dclass for s in sc]}
@@ -292,9 +337,13 @@ def eval_effects(sysc: EvalSystem, items: list[TestItem], preds: dict[str, Predi
     return res
 
 
+def _cells_of(units: dict) -> list:
+    return units.get("cell") or units["group"]
+
+
 def paired_ee_diff(units_a: dict, units_b: dict, h: str = PRIMARY, subset=None, n_boot: int = S.N_BOOT, seed: int = 0) -> S.Estimate:
-    """Paired EE_a - EE_b on the items both scored (the same denominators: den depends on the truth only). subset(item_index_dict)
-    -> bool selects items (e.g. held-out families)."""
+    """Paired POOLED EE_a - EE_b on the items both scored (the same denominators: den depends on the truth only), identity-cell
+    clusters. subset(item_index_dict) -> bool selects items (e.g. held-out families). Descriptive; the verdict uses `ee_cb_diff`."""
     ia = {it: j for j, it in enumerate(units_a["item"])}
     ib = {it: j for j, it in enumerate(units_b["item"])}
     common = [it for it in units_a["item"] if it in ib]
@@ -303,17 +352,77 @@ def paired_ee_diff(units_a: dict, units_b: dict, h: str = PRIMARY, subset=None, 
     na = np.array([units_a[f"num_{h}"][ia[i]] for i in common], float)
     nb = np.array([units_b[f"num_{h}"][ib[i]] for i in common], float)
     den = np.array([units_a[f"den_{h}"][ia[i]] for i in common], float)
-    grp = [units_a["group"][ia[i]] for i in common]
+    grp = [_cells_of(units_a)[ia[i]] for i in common]
     ok = np.isfinite(na) & np.isfinite(nb) & np.isfinite(den)
     return S.boot_ratio_diff(na[ok], den[ok], nb[ok], den[ok], np.asarray(grp)[ok], n_boot, seed)
+
+
+def unit_indices(units: dict, kinds: tuple[str, ...] | None = VERDICT_KINDS, h: str = PRIMARY) -> list[int]:
+    """Indices of the per-item units whose role (shift kind) is in `kinds` (None = every role) and that were scored at horizon h."""
+    out = []
+    for j, sh in enumerate(units["shift"]):
+        if kinds is not None and str(sh).split(":", 1)[0] not in kinds:
+            continue
+        if not np.isfinite(units[f"den_{h}"][j]):
+            continue
+        out.append(j)
+    return out
+
+
+def _design_of(units: dict, idx: list[int]) -> S.CellDesign:
+    cells = _cells_of(units)
+    mcl = units.get("mclass") or ["na"] * len(units["item"])
+    return S.CellDesign.build([cells[j] for j in idx], [mcl[j] for j in idx], [units["family"][j] for j in idx])
+
+
+def ee_cb(units: dict, h: str = PRIMARY, kinds: tuple[str, ...] | None = VERDICT_KINDS, mode: str = "class", n_boot: int = S.N_BOOT,
+          seed: int = 0) -> S.Estimate:
+    """CLASS-BALANCED EE (PROTOCOL 5.1, the verdict EE) on the items of the given roles, from `eval_effects(...)["_units"]`, with
+    the family-jackknife-t interval of `stats.class_balanced_estimate` (review E, N2 / M2; the same for every role subset, `mode` is
+    recorded only). Estimate.n_units = the number of cells."""
+    idx = unit_indices(units, kinds, h)
+    if not idx:
+        return S.Estimate(float("nan"), [float("nan")] * 2, 0, None)
+    num = np.array([units[f"num_{h}"][j] for j in idx], float)
+    den = np.array([units[f"den_{h}"][j] for j in idx], float)
+    return S.boot_class_balanced(num, den, _design_of(units, idx), n_boot, seed, mode)
+
+
+def ee_cb_diff(units_a: dict, units_b: dict, h: str = PRIMARY, kinds: tuple[str, ...] | None = VERDICT_KINDS, mode: str = "class",
+               n_boot: int = S.N_BOOT, seed: int = 0) -> S.Estimate:
+    """PAIRED class-balanced EE_a - EE_b on the items of the given roles that both evaluations scored (the same cells and resamples;
+    den is truth-based). An item that model b did not score at all is charged the cap for b (never dropped)."""
+    idx = unit_indices(units_a, kinds, h)
+    if not idx:
+        return S.Estimate(float("nan"), [float("nan")] * 2, 0, None)
+    ib = {it: j for j, it in enumerate(units_b["item"])}
+    num_a = np.array([units_a[f"num_{h}"][j] for j in idx], float)
+    den = np.array([units_a[f"den_{h}"][j] for j in idx], float)
+    num_b = np.array([units_b[f"num_{h}"][ib[units_a["item"][j]]] if units_a["item"][j] in ib else ITEM_CAP * den[k]
+                      for k, j in enumerate(idx)], float)
+    n_missing_b = int(sum(1 for j in idx if units_a["item"][j] not in ib))
+    est = S.boot_class_balanced_diff(num_a, num_b, den, _design_of(units_a, idx), n_boot, seed, mode)
+    est.n_charged = n_missing_b
+    return est
+
+
+def false_confidence_units(units: dict, kinds: tuple[str, ...] | None = VERDICT_KINDS, n_boot: int = S.N_BOOT, seed: int = 0) -> dict:
+    """False-confidence rate (PROTOCOL 5.9, criterion G) over the eligible items of the given roles, identity-cell CI."""
+    idx = [j for j in unit_indices(units, kinds) if units.get("fc_eligible", [False] * len(units["item"]))[j]]
+    if not idx:
+        return {"rate": float("nan"), "ci95": [float("nan")] * 2, "n": 0, "n_cells": 0}
+    ind = np.array([float(units["fc"][j]) for j in idx])
+    e = S.boot_mean(ind, [_cells_of(units)[j] for j in idx], n_boot, seed)
+    return {"rate": e.point, "ci95": e.ci95, "n": len(idx), "n_cells": e.n_units}
 
 
 # ------------------------------------------------------------------------------------------------------------ 5.2
 def eval_observational(sysc: EvalSystem, items: list[TestItem], preds: dict[str, Prediction], n_boot: int = S.N_BOOT,
                        seed: int = 0) -> dict:
     """5.2: passive multi-horizon readout NMSE (capped at 10 per window), averaged per group, CI by resampling groups."""
-    passive = [it for it in items if it.is_passive and it.item_id in preds]
-    res: dict = {"n_windows": len(passive)}
+    passive = [it for it in items if it.is_passive and it.item_id in preds and it.truth_ok()]
+    res: dict = {"n_windows": len(passive), "n_dropped_nonfinite_truth": n_nonfinite_truth([it for it in items if it.item_id in preds],
+                                                                                          passive=True)}
     for h in HORIZON_FRACTIONS:
         per_group: dict[str, list[float]] = defaultdict(list)
         n_cap = n_fail = 0
@@ -343,14 +452,14 @@ def eval_composition(model, sysc: EvalSystem, items: list[TestItem], preds: dict
                      n_boot: int = S.N_BOOT, seed: int = 0) -> dict:
     """5.8: EE on comp.* items and the composition consistency of the model's predicted non-additivity (descriptive)."""
     F = as_fresh(model)
-    comp = [it for it in items if not it.is_passive and it.family.startswith("comp.") and it.item_id in preds]
+    comp = [it for it in items if not it.is_passive and it.family.startswith("comp.") and it.item_id in preds and it.truth_ok()]
     res: dict = {"n_items": len(comp)}
     eff = eff if eff is not None else eval_effects(sysc, items, preds, n_boot, seed)
     res["EE_by_family"] = {k: v for k, v in eff.get("by_family", {}).items() if k.startswith("comp.")}
-    m = sysc.horizon_steps(PRIMARY)
     num = den = mag_na = mag_ab = 0.0
     n_ok = 0
     for it in comp:
+        m = sysc.horizon_steps(PRIMARY, it.dt)             # per item, with the item's own dt (review H, M1)
         c = it.components or {}
         if not ("a" in c and "b" in c) or len(it.y_future) <= m:
             continue
@@ -369,7 +478,7 @@ def eval_composition(model, sysc: EvalSystem, items: list[TestItem], preds: dict
         eh_ab = (yi - yb) / sd
         ya, yab = _rows(_as2d(pa.get("y_int"), sysc.n_y), m), _rows(_as2d(pa.get("y_base"), sysc.n_y), m)
         yb2, ybb = _rows(_as2d(pb.get("y_int"), sysc.n_y), m), _rows(_as2d(pb.get("y_base"), sysc.n_y), m)
-        if any(v is None or v.shape != e_ab.shape for v in (ya, yab, yb2, ybb)):
+        if any(v is None or v.shape != e_ab.shape for v in (ya, yab, yb2, ybb)) or not (np.isfinite(e_a).all() and np.isfinite(e_b).all()):
             continue
         na_true = e_ab - e_a - e_b
         na_pred = eh_ab - (ya - yab) / sd - (yb2 - ybb) / sd
@@ -419,15 +528,16 @@ def eval_calibration(sysc: EvalSystem, items: list[TestItem], preds: dict[str, P
     res["abstention_rate_by_detectability"] = {k: 1.0 - v["coverage"] for k, v in res["coverage_by_detectability"].items()}
     covd = [s for s in sc if s.covered]
     res["EE_covered"] = _ee(covd, PRIMARY, n_boot, seed)
-    det_cov = [s for s in covd if np.isfinite(s.es) and s.es >= 1.0]
-    if det_cov:
-        ind = np.array([(s.ee_i > 1.0) or s.wrong_sign_confident for s in det_cov], float)
-        e = S.boot_mean(ind, [s.group for s in det_cov], n_boot, seed)
-        res["false_confidence"] = {"rate": e.point, "ci95": e.ci95, "n": len(det_cov),
-                                   "n_worse_than_no_effect": int(sum(s.ee_i > 1.0 for s in det_cov)),
-                                   "n_wrong_sign": int(sum(s.wrong_sign_confident for s in det_cov))}
-    else:
-        res["false_confidence"] = {"rate": float("nan"), "ci95": [float("nan")] * 2, "n": 0}
+    for key, rows in (("false_confidence", sc), ("false_confidence_verdict", [s for s in sc if s.shift.split(":", 1)[0] in VERDICT_KINDS])):
+        det_cov = [s for s in rows if s.fc_eligible]
+        if det_cov:
+            ind = np.array([s.fc for s in det_cov], float)
+            e = S.boot_mean(ind, [s.cell for s in det_cov], n_boot, seed)
+            res[key] = {"rate": e.point, "ci95": e.ci95, "n": len(det_cov), "n_cells": e.n_units,
+                        "n_worse_than_no_effect": int(sum(s.ee_i > 1.0 for s in det_cov)),
+                        "n_wrong_sign": int(sum(s.wrong_sign_confident for s in det_cov))}
+        else:
+            res[key] = {"rate": float("nan"), "ci95": [float("nan")] * 2, "n": 0, "n_cells": 0}
     pairs = [(by_id[s.item_id], preds[s.item_id]) for s in sc]
     res["interval_coverage_90"] = {}
     for h in HORIZON_FRACTIONS:
@@ -562,15 +672,20 @@ __all__ = [
     "Fresh",
     "ItemScore",
     "Prediction",
+    "ee_cb",
+    "ee_cb_diff",
     "eval_calibration",
     "eval_composition",
     "eval_effects",
     "eval_observational",
     "eval_ood",
     "evaluate_items",
+    "false_confidence_units",
+    "n_nonfinite_truth",
     "paired_ee_diff",
     "predict_items",
     "score_item",
     "score_items",
     "strip_private",
+    "unit_indices",
 ]

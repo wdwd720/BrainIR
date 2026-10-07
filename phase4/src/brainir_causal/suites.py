@@ -4,10 +4,21 @@ What this module fixes (frozen with the benchmark):
 
 SEEDS. The dev tier uses the PUBLIC seed `DEV_SEED`; the `val` and `conf` synthetic tiers and every hidden protocol seed derive from
 the SECRET salt (`data/phase4/hidden/salt.txt`, git-ignored), committed by sha256 in `benchmarks/causal_state_v1/hidden/
-salt_commitment.json` before any method existed. Development-policy protocols (dev tier, public real data, the real Level B
+salt_commitment.json` before any method existed, by HMAC-SHA256: the val / conf tier seeds have 128 bits (`tier_seed`), the real
+Level B / hidden parts get 128-bit stream seeds (`real_stream_seed`; the public real data keeps 0), and every public-range seed of a
+SALTED tier (val, conf, real_levelb, real_levelc: their public parts included) is `salted_public_seed`, so nothing of them can be
+regenerated from the public code (review F, M6). Development-policy protocols (dev tier, public real data, the real Level B
 validation sets, D0 / D1 / validation data of every tier) draw parameter and noise seeds in [0, 10^9); held-out sets of the `val`
 and `conf` tiers and the real hidden sets draw in [10^9, 2 x 10^9) (`hidden_seed`), which the simulation service refuses. The
-confirmation tier and the real hidden sets are generated only after the method lock (`require_lock`).
+intervention sequences of every NON-public pool come from a salted stream (`pool_seq_seed_of`; review F, minor 8). The
+confirmation tier and the real hidden sets are generated only after the method lock (`require_lock`). Each planned trajectory
+carries N_SPARE_SEEDS replacement parameter seeds of its own stream: a failed or non-finite simulation is never stored and is
+replaced under the rule of `add_spares` (review H, M4; failures per family in the build summary).
+
+PUBLIC FILES (review F, B1 / minor 7): whitelists (`PUBLIC_*_KEYS`, `PUBLIC_FUTURE_KEY`) for system records, rows, meta, info, pool
+and lift files; truth (incl. the true latents of pool futures) only under <tier>/truth/; `assert_public_part` checks a built public
+part file by file. Development dt = the nominal dt (review H, M3); the temporal-sampling OOD items are simulated at the nominal dt
+and recorded at every second sample. Test items are grouped by IDENTITY CELL for resampling (review E, M2).
 
 ROTATIONS (synthetic; PROTOCOL section 3). `assign_rotations` walks through the types in a seeded order (and each type's systems in a
 seeded order) along ONE seeded cycle of R1-R4, so the four rotations are used equally often over the suite (up to one) and the
@@ -30,8 +41,9 @@ windows (silencing, edge and parameter changes) U(D_p, min(3 D_s, 0.4 T)), persi
 `sil.1p`). Patterns (`seq.*`) are `current_seq` events on one target starting at the onset.
 
 SETS PER SYSTEM (PROTOCOL section 4):
-- D0 passive (split 'train'): 8 nominal trajectories over parameter draws 0-7, 16 stimulus schedules, 8 initial-condition changes,
-  8 weight-noise draws;
+- D0 passive (split 'train'): 8 nominal trajectories over parameter draws 0-7, 16 stimulus schedules, 8 'obs.init' trajectories
+  (each a RESTART from a sample time of one of the nominal trajectories, with its parameter draw; LOG P4-D36: an explicit initial
+  state is a kick at t = 0 and never a development protocol), 8 weight-noise draws;
 - D1 reference interventions (split 'train'): B_main = 200 (real full networks 120) intervention trajectories drawn uniformly over
   families_train x public targets x magnitude classes x onsets, each with its counterfactual twin (split 'twin', meta twin_of);
 - public validation (split 'val' + twins): 20 % more of D0 and D1;
@@ -40,15 +52,20 @@ SETS PER SYSTEM (PROTOCOL section 4):
   (families_train, hidden targets), family shift (families_heldout, public targets; role near / far), hidden-only (public targets);
   composition items also simulate each component alone (split 'component', meta component_of); Level C adds OOD (section 4.1) and
   robustness (section 4.2); 16 passive test trajectories;
-- pools (P4-D14): 8 parameter draws x 15 source trajectories (split 'pool_src') x 5 sample times = 600 states, each a time point of
+- pools (P4-D14): 8 parameter draws x 15 source trajectories (split 'pool_src'; the first of each draw nominal, its 'init' sources
+  restarts from it) x 5 sample times = 600 states, each a time point of
   a stored held-out trajectory (its history is that trajectory's past); futures (25 % of T) simulated from restarts of the stored
   microstate under the nominal input level (shared by every state), with no intervention and under one fixed sequence per supported
-  event kind; stored as readouts, plus the observed microstate over the primary horizon for the no-intervention future only; 20
-  states repeat the no-intervention future with a no-op breakpoint (numerical floor); synthetic systems add truth-equivalent states
-  (the generator's `equivalent_states`, 2 for each of 20 pool states; excluded from model pairing, reference only);
+  event kind; stored as readouts, plus the observed microstate over the primary horizon and the simulated input for the
+  no-intervention future only; 20 floor states (of 'init' sources) add the numerical-floor futures of review H, B1 (FLOOR_DOC: a
+  repeat with a no-op breakpoint one sample after the restart; a restart from the float32-rounded state and the float64
+  continuation); synthetic systems add truth-equivalent states (the generator's `equivalent_states`, 2 for each of 20 pool states;
+  excluded from model pairing, reference only);
 - lift cases: 16 states of the passive test trajectories (histories, restart keys).
 
-OOD and ROBUSTNESS (Level C). 'parameter spread' = `params_spread` 1.5; 'parameter noise' = `params_spread` 1.5 and 2.0 (hidden-range
+OOD and ROBUSTNESS (Level C). 'altered initial conditions' = a state-carrier start from the full microstate of a same-draw nominal
+trajectory with half the observed units displaced by twice the development kick maximum (`resolve_carrier_start`; LOG P4-D36);
+'parameter spread' = `params_spread` 1.5; 'parameter noise' = `params_spread` 1.5 and 2.0 (hidden-range
 draws); 'process noise' only where capability['process_noise']['supported']. While the protocol format lacks these fields the
 builder falls back to documented PROXIES (weight noise at 1.5x the development maximum) and marks the items meta['proxy'] = true.
 Robustness items whose simulated events differ from what the model is told (amplitude / timing jitter) keep the told events in
@@ -63,17 +80,27 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import hmac
 import json
 import math
+import os
+import re
+import shutil
 import time
+import uuid
 from concurrent.futures import ProcessPoolExecutor
-from dataclasses import dataclass, field
-from pathlib import Path
+from dataclasses import asdict
+from pathlib import Path, PurePosixPath
 
 import numpy as np
 
 from . import families as F
 from . import protocol as P
+# the public-policy sampler and the capability rules live in the PUBLIC module `sampling` (model workers and method rooms import
+# it; this orchestrator module does not ship to them; review H round 3, NEW-3)
+from .sampling import (EDGE_DEPTH_MAX, HIDDEN_SEED_BASE, HORIZON_FRACTIONS, INIT_T_FRAC, JITTER, MAG_CLASSES, MAG_MULT,  # noqa: F401
+                       N_TARGETS_NEEDED, ONSET_FRAC, P_PERSIST, FamilySampler, Spec, _runs, _shift_events, class_value, feasible,
+                       intervention_families, moderate_value, normalize_capability, per_unit_lists, public_seed_of, relative_events)
 
 ROOT = Path(__file__).resolve().parents[3]
 BENCH = ROOT / "benchmarks" / "causal_state_v1"
@@ -86,20 +113,13 @@ REAL_SETS = DATA / "real"
 STORE = DATA / "store"
 
 DEV_SEED = 20260926
-HIDDEN_SEED_BASE = 10**9
-TIERS = ("dev", "val", "conf")
-HIDDEN_TIERS = ("val", "conf", "real_hidden")
+TIERS = ("dev", "val", "conf", "trap")         # "trap": review G's new trap systems (synthadapter.TRAP_TIER; hidden, after the lock)
+HIDDEN_TIERS = ("val", "conf", "trap", "real_levelc")
+LOCKED_TIERS = ("conf", "trap")                  # built only after the method lock
 N_PER_TYPE = {"dev": 2, "val": 2, "conf": 3}
-LEVEL_OF_TIER = {"dev": "B", "val": "B", "conf": "C", "toy": "B", "toyC": "C"}
+LEVEL_OF_TIER = {"dev": "B", "val": "B", "conf": "C", "trap": "C", "toy": "B", "toyC": "C"}
 
-MAG_MULT = {"below": 0.1, "weak": 0.3, "moderate": 1.0, "strong": 3.0}
-MAG_CLASSES = tuple(MAG_MULT)
-JITTER = (0.8, 1.25)
-ONSET_FRAC = (0.15, 0.5)
-HORIZON_FRACTIONS = {"short": 0.025, "medium": 0.125, "long": 0.5}
 POOL_FUTURE_FRAC = 0.25
-EDGE_DEPTH_MAX = 0.95
-P_PERSIST = 0.3
 
 D0_DESIGN = {"obs.nominal": 8, "obs.stim": 16, "obs.init": 8, "obs.wnoise": 8}
 B_MAIN = {"synthetic": 200, "full": 120, "mech": 200}
@@ -119,6 +139,36 @@ PROCESS_NOISE_LEVELS = (0.05, 0.1)
 CHUNK = 192
 SEQ_KINDS = (("kick", "kick.1"), ("current", "pulse.1"), ("current_seq", "seq.train"), ("silence", "sil.1"), ("edge_scale", "edge.w"),
              ("param", "param.1"))
+TIER_SEED_HEX = 32                      # 128-bit tier / stream seeds (review F, M6)
+#: tiers whose every stream (and public-range seed) is salted: nothing of them is derivable from the public code (review F, M6 / minor 8)
+SALTED_TIERS = ("val", "conf", "trap", "real_levelb", "real_levelc")
+N_SPARE_SEEDS = 3                       # replacement parameter seeds per planned trajectory (failed simulations; review H, M4)
+
+# ------------------------------------------------------------------ what PUBLIC files may hold (whitelists; review F, B1 / minor 7)
+#: keys of a public system record (synthetic: the generator's pass-through keys are GENERATOR_PUBLIC_KEYS only)
+PUBLIC_RECORD_KEYS = frozenset({"system_id", "kind", "mode", "dt", "t_end_default", "horizons_s", "targets_public", "edges_public",
+                                "capability", "split", "cost_units", "public_graph", "n_units", "observed", "readout", "readout_dim",
+                                "input_dim", "stimulus", "members", "obs_scale", "lineage"})
+GENERATOR_PUBLIC_KEYS = ("n_units", "observed", "readout", "readout_dim", "input_dim", "stimulus", "obs_scale", "lineage")
+PUBLIC_ROW_KEYS = frozenset({"key", "system_id", "split", "family", "protocol", "meta", "provenance", "info"})
+PUBLIC_META_KEYS = frozenset({"role", "mclass", "target_set", "cell", "state", "store_key", "onset", "edges", "twin_of", "draw", "traj",
+                              "source", "family_planned", "replaced"})
+#: engine bookkeeping that may enter any dataset row (real engine: never the network, its size or the bundle; synthetic: never the
+#: generator's engine string, which may name the type)
+PUBLIC_INFO_KEYS = ("engine", "n_calls", "n_pieces", "success", "kicks_applied", "host")      # never "simulator" (LOG P4-D26)
+#: synthetic rows never carry realized kick sizes: clipping reveals where a unit's admissible bound lies (review T, M1); the realized
+#: sizes stay orchestrator side (meta of the non-public parts; LOG P4-D36)
+SYNTHETIC_INFO_KEYS = ("n_calls", "n_pieces", "success", "host")
+#: meta keys of the plan that never enter a dataset row (dependency bookkeeping; carriers hold microstates)
+PLAN_ONLY_META = ("components", "carrier", "src_id", "restart_from", "carrier_from")
+PUBLIC_MANIFEST_KEYS = frozenset({"format", "dataset_id", "systems", "part", "policy", "tier"})
+PUBLIC_POOL_KEYS = frozenset({"states", "sequences", "level", "future_s", "policy", "equivalents", "floor_states", "floors"})
+PUBLIC_POOL_STATE_KEYS = frozenset({"state_id", "key", "store_key", "index", "t", "draw", "params_seed", "weight_noise", "params_spread",
+                                    "source"})
+PUBLIC_LIFT_KEYS = frozenset({"case_id", "key", "store_key", "index", "t", "params_seed", "weight_noise", "stimulus"})
+POOL_FUTURE_NAMES = ("none",) + tuple(k for k, _ in SEQ_KINDS) + ("floor", "r32", "cont")
+PUBLIC_FUTURE_KEY = re.compile(r"^s\d+_(" + "|".join(POOL_FUTURE_NAMES) + r")_(y|x|u)$")
+PUBLIC_TRAJ_ARRAYS = frozenset({"t", "x", "u", "y"})
 
 
 def protocol_has(field_name: str) -> bool:
@@ -136,39 +186,75 @@ def read_salt() -> str:
     return salt
 
 
-def tier_seed(tier: str) -> int:
+def _hmac_hex(salt: str, *parts) -> str:
+    """HMAC-SHA256 of the parts under the salt (hex)."""
+    return hmac.new(salt.encode(), "|".join(str(p) for p in parts).encode(), hashlib.sha256).hexdigest()
+
+
+def tier_seed(tier: str, *, salt: str | None = None) -> int:
+    """The generator / stream seed of a synthetic tier: the PUBLIC `DEV_SEED` for dev, toy and toyC; for val and conf a 128-bit
+    HMAC-SHA256(salt, tier) (review F, M6: a 32-bit seed is recoverable by brute force from public parameter seeds)."""
     if tier in ("dev", "toy", "toyC"):
         return DEV_SEED
     if tier not in TIERS:
         raise ValueError(f"unknown synthetic tier {tier!r}")
-    return int(hashlib.sha256(f"{read_salt()}|synthetic|{tier}".encode()).hexdigest()[:8], 16)
+    return int(_hmac_hex(read_salt() if salt is None else salt, "synthetic-tier", tier)[:TIER_SEED_HEX], 16)
+
+
+def real_stream_seed(level: str, *, salt: str | None = None) -> int:
+    """The stream seed of a real part: 0 (public) for the public real data; a 128-bit HMAC-SHA256(salt, tier) for the Level B
+    validation sets and the hidden test, so their protocols cannot be derived from the public code (their parameter seeds stay in the
+    range each part's policy requires)."""
+    if level == "public":
+        return 0
+    return int(_hmac_hex(read_salt() if salt is None else salt, "real-tier", REAL_TIERS[level])[:TIER_SEED_HEX], 16)
 
 
 def hidden_seed(*parts, salt: str | None = None) -> int:
-    """A parameter / noise seed in the hidden range [10^9, 2 x 10^9), derived from the salt and the parts."""
+    """A parameter / noise seed in the hidden range [10^9, 2 x 10^9): HMAC-SHA256(salt, parts)."""
     s = read_salt() if salt is None else salt
-    h = hashlib.sha256((s + "|" + "|".join(str(p) for p in parts)).encode()).hexdigest()
-    return HIDDEN_SEED_BASE + int(h[:12], 16) % HIDDEN_SEED_BASE
+    return HIDDEN_SEED_BASE + int(_hmac_hex(s, "hidden-seed", *parts)[:16], 16) % HIDDEN_SEED_BASE
 
 
-def public_seed_of(*parts) -> int:
-    """A deterministic PUBLIC-range seed from the parts (no salt)."""
-    return int(hashlib.sha256("|".join(str(p) for p in parts).encode()).hexdigest()[:12], 16) % HIDDEN_SEED_BASE
+def salted_public_seed(*parts, salt: str | None = None) -> int:
+    """A PUBLIC-range seed [0, 10^9) that only the salt holder can derive: HMAC-SHA256(salt, parts) (public parts of the hidden tiers
+    and the orchestrator-held public-policy sets; review F, M6)."""
+    s = read_salt() if salt is None else salt
+    return int(_hmac_hex(s, "public-seed", *parts)[:16], 16) % HIDDEN_SEED_BASE
+
+
+def salted_stream_seed(*parts, salt: str | None = None) -> int:
+    """A 128-bit stream seed from the salt (e.g. the evaluation pools' intervention sequences, review F minor 8); computed where the
+    salt is and handed to remote builds as a number."""
+    return int(_hmac_hex(read_salt() if salt is None else salt, "stream", *parts)[:TIER_SEED_HEX], 16)
 
 
 def rng_of(*parts) -> np.random.Generator:
     return np.random.default_rng(int(hashlib.sha256("|".join(str(p) for p in parts).encode()).hexdigest()[:16], 16))
 
 
-def seed_counter(hidden: bool, *parts):
-    """A counter-based seed function: public-range seeds, or hidden-range seeds derived from the salt."""
+def seed_counter(hidden: bool, *parts, salted: bool = False):
+    """A counter-based seed function: public-range seeds (unsalted, or `salted`: derivable only with the salt), or hidden-range seeds
+    derived from the salt."""
     counter = [0]
-    salt = read_salt() if hidden else None
+    salt = read_salt() if (hidden or salted) else None
 
     def fn() -> int:
         counter[0] += 1
-        return hidden_seed(*parts, counter[0], salt=salt) if hidden else public_seed_of(*parts, counter[0])
+        if hidden:
+            return hidden_seed(*parts, counter[0], salt=salt)
+        if salted:
+            return salted_public_seed(*parts, counter[0], salt=salt)
+        return public_seed_of(*parts, counter[0])
     return fn
+
+
+def seed_of_fn(hidden: bool, salted: bool):
+    """A seed function of explicit parts with the same salting rule as `seed_counter`."""
+    if hidden or salted:
+        salt = read_salt()
+        return (lambda *p: hidden_seed(*p, salt=salt)) if hidden else (lambda *p: salted_public_seed(*p, salt=salt))
+    return public_seed_of
 
 
 def locked() -> bool:
@@ -181,72 +267,6 @@ def require_lock(what: str) -> None:
 
 
 # ================================================================================================================ capability
-def normalize_capability(cap: dict | None, *, t_end: float, dt: float, input_dim: int = 1) -> dict:
-    """The capability record with every threshold the family rules and the samplers need; an explicit value always wins."""
-    c = json.loads(json.dumps(cap or {}))
-    for kind in ("kick", "current", "current_seq"):
-        k = c.setdefault(kind, {})
-        k.setdefault("supported", kind != "current_seq" or bool(c.get("current", {}).get("supported")))
-        if "moderate" not in k and "max" in k:
-            k["moderate"] = float(k["max"]) / 3.0
-        k.setdefault("moderate", 1.0)
-        k.setdefault("max", 3.0 * float(k["moderate"]))
-        k.setdefault("hi_range", [1.5 * float(k["max"]), 3.0 * float(k["max"])])
-    cur = c["current"]
-    cur.setdefault("pulse_max_duration", round(0.075 * t_end, 9))
-    cur.setdefault("sustained_min_duration", max(float(cur["pulse_max_duration"]), round(0.15 * t_end, 9)))
-    c["current_seq"].setdefault("min_seg_steps", P.MIN_SEG_STEPS)
-    c.setdefault("silence", {}).setdefault("supported", False)
-    e = c.setdefault("edge_scale", {})
-    e.setdefault("supported", False)
-    e.setdefault("moderate", 0.3)
-    e.setdefault("max", min(EDGE_DEPTH_MAX, 3.0 * float(e["moderate"])))     # weakening DEPTH (1 - factor), development maximum
-    e.setdefault("factor_range", [0.0, 2.0])
-    pm = c.setdefault("param", {})
-    pm.setdefault("supported", False)
-    pm.setdefault("fields", ["gain", "threshold", "tau"])
-    mod = pm.setdefault("moderate", {})
-    for fld, v in (("gain", 0.3), ("threshold", 1.0), ("tau", 0.3)):
-        mod.setdefault(fld, v)
-    init = c.setdefault("init", {})
-    init.setdefault("state", True)
-    init.setdefault("restart", True)
-    init.setdefault("units", "observed")
-    st = c.setdefault("stimulus", {})
-    st.setdefault("channels", int(input_dim))
-    st.setdefault("nominal_level", 1.0)
-    st.setdefault("max_onset", round(0.075 * t_end, 9))
-    st.setdefault("range", [0.55, 1.45])
-    st.setdefault("allow_zero", True)
-    pr = c.setdefault("params", {})
-    pr.setdefault("public_seed_max", HIDDEN_SEED_BASE)
-    pr.setdefault("nominal_seed", None)
-    c.setdefault("weight_noise", {}).setdefault("max_sd", 0.1)
-    c.setdefault("obs_noise", {}).setdefault("max_sd", 0.5)
-    tm = c.setdefault("timing", {})
-    tm.setdefault("dt_allowed", [float(dt)])
-    tm.setdefault("t_end_max", 2.0 * float(t_end))
-    c.setdefault("latent", {}).setdefault("supported", False)
-    c.setdefault("process_noise", {}).setdefault("supported", False)
-    return c
-
-
-def moderate_value(cap: dict, kind: str, fld: str | None = None) -> float:
-    if kind == "param":
-        return float(cap["param"]["moderate"][fld])
-    return float(cap[kind]["moderate"])
-
-
-def class_value(cap: dict, kind: str, mclass: str, rng: np.random.Generator, fld: str | None = None) -> float:
-    """A positive magnitude of class `mclass` for this kind (and parameter field). The strong class is jittered DOWNWARD only
-    (U(0.8, 1.0)), so it never exceeds the development maximum 3 m_s (which would make it a `*.hi` family)."""
-    if mclass == "hi":
-        lo, hi = cap[kind]["hi_range"]
-        return float(rng.uniform(lo, hi))
-    jit = rng.uniform(JITTER[0], 1.0) if mclass == "strong" else rng.uniform(*JITTER)
-    v = float(MAG_MULT[mclass] * moderate_value(cap, kind, fld) * jit)
-    mx = cap.get(kind, {}).get("max") if kind != "param" else None
-    return min(v, float(mx)) if mx is not None else v
 
 
 # ================================================================================================================ rotations / targets
@@ -303,6 +323,30 @@ def horizons_s(t_end: float) -> dict:
     return {k: round(v * float(t_end), 9) for k, v in HORIZON_FRACTIONS.items()}
 
 
+#: the keys under which a synthetic system's public record lists EVERY targetable unit: the generator's `targets`
+#: (p4synth System.public_record) and the unit-test systems' `targetable`. A record with neither, with both disagreeing, or with an
+#: empty set is refused: never a fallback to the observed units, which made the hidden targets = observed - public targets
+#: (review F round 3b, NF-1)
+TARGETABLE_KEYS = ("targets", "targetable")
+
+
+def generator_targetable(pub: dict) -> list[int]:
+    """The generator's targetable units of a synthetic public record (sorted, unique, within 0..n_units-1); ValueError otherwise."""
+    sid = pub.get("system_id")
+    vals = [sorted({int(u) for u in pub[k]}) for k in TARGETABLE_KEYS if pub.get(k) is not None]
+    if not vals:
+        raise ValueError(f"{sid}: the generator's public record lists no targetable units (keys {TARGETABLE_KEYS})")
+    if any(v != vals[0] for v in vals[1:]):
+        raise ValueError(f"{sid}: the generator's public record lists two different targetable sets")
+    units = vals[0]
+    if not units:
+        raise ValueError(f"{sid}: the generator's targetable set is empty")
+    n = pub.get("n_units")
+    if n is not None and not all(0 <= u < int(n) for u in units):
+        raise ValueError(f"{sid}: targetable units outside 0..{int(n) - 1}")
+    return units
+
+
 def synthetic_records(pub: dict, *, tier: str, seed: int, rotation: dict, system_hash: str, engine_id: str) -> tuple[dict, dict]:
     """(public record, internal record) of a synthetic system from the generator's public record (which lists every targetable
     unit and scalable edge): targets / edges partitioned, capability normalised, split added. The public record never lists the
@@ -310,337 +354,34 @@ def synthetic_records(pub: dict, *, tier: str, seed: int, rotation: dict, system
     sid = pub["system_id"]
     t_end, dt = float(pub["t_end_default"]), float(pub["dt"])
     cap = normalize_capability(pub.get("capability"), t_end=t_end, dt=dt, input_dim=int(pub.get("input_dim", 1)))
-    targetable = sorted(int(u) for u in (pub.get("targetable") or pub.get("observed") or []))
+    targetable = generator_targetable(pub)            # the generator's set, never the observed units (review F round 3b, NF-1)
     edges = sorted([int(a), int(b)] for a, b in (pub.get("edges") or []))
     t_pub, t_hid = partition(targetable, "targets", tier, seed, sid)
     e_pub, e_hid = partition(edges, "edges", tier, seed, sid)
     split = rotation_split_record(rotation, cap)
-    base = {k: v for k, v in pub.items() if k not in ("targetable", "edges", "capability", "split")}
+    base = {k: pub[k] for k in GENERATOR_PUBLIC_KEYS if k in pub}           # a WHITELIST of pass-through keys (review F, minor 7)
     public = {**base, "system_id": sid, "kind": "synthetic", "dt": dt, "t_end_default": t_end, "horizons_s": horizons_s(t_end),
               "targets_public": t_pub, "edges_public": e_pub, "capability": cap, "split": split,
               "cost_units": int(pub.get("cost_units", 1)), "public_graph": pub.get("public_graph")}
+    assert_public_record(public)
     internal = {**public, "targets_heldout": t_hid, "edges_heldout": e_hid, "targetable": targetable, "edges": edges,
                 "system_hash": system_hash, "engine": engine_id, "tier": tier}
     return public, internal
 
 
+def assert_public_record(rec: dict) -> None:
+    """A public system record holds only whitelisted keys (review F, minor 7), and its capability holds no per-unit field (review T,
+    M1: per-unit vectors reveal unit roles; the declared per-unit fields are the record's observed / readout / target / member / edge
+    lists and its public graph)."""
+    extra = sorted(set(rec) - PUBLIC_RECORD_KEYS)
+    if extra:
+        raise AssertionError(f"public record of {rec.get('system_id')} has non-public keys {extra}")
+    pu = per_unit_lists(rec.get("capability") or {})
+    if pu:
+        raise AssertionError(f"public record of {rec.get('system_id')} carries per-unit capability fields {pu}")
+
+
 # ================================================================================================================ protocol sampler
-def _shift_events(events: list[dict], shift: float) -> list[dict]:
-    out = []
-    for e in events:
-        e2 = json.loads(json.dumps(e))
-        for key in ("t", "t0", "t1"):
-            if e2.get(key) is not None:
-                e2[key] = round(float(e2[key]) + shift, 9)
-        out.append(e2)
-    return out
-
-
-def relative_events(events: list[dict], onset: float) -> list[dict]:
-    """Events with times relative to the onset (time 0 = the onset sample)."""
-    return _shift_events(events, -float(onset))
-
-
-@dataclass
-class Spec:
-    """One planned trajectory: its protocol and its role in the benchmark."""
-    protocol: dict
-    split: str                              # train | val | twin | test | pool_src | component
-    role: str = ""                          # d0 | d1 | in | target | near | far | hidden | ood:<cat> | robust:<cond> | passive | pool_src
-    family: str = ""                        # the planned family (the stored label is always families.family_of)
-    mclass: str = "na"
-    target_set: tuple = ()
-    cell: str = ""                          # identity cell of test items
-    state: int = 0
-    twin: bool = False                      # simulate the counterfactual twin too
-    meta: dict = field(default_factory=dict)
-
-
-def _runs(on: list[bool]) -> tuple[list[int], list[int], list[int]]:
-    starts, lengths = [], []
-    i = 0
-    while i < len(on):
-        if on[i]:
-            j = i
-            while j < len(on) and on[j]:
-                j += 1
-            starts.append(i)
-            lengths.append(j - i)
-            i = j
-        else:
-            i += 1
-    gaps = [starts[k + 1] - (starts[k] + lengths[k]) for k in range(len(starts) - 1)]
-    return starts, lengths, gaps
-
-
-class FamilySampler:
-    """Protocols of every vocabulary family for one system (capability-aware; deterministic given the rng)."""
-
-    def __init__(self, sysrec: dict, rng: np.random.Generator, seed_fn, *, targets: list[int], edges: list | None = None,
-                 onset_frac: tuple[float, float] = ONSET_FRAC, stim_range: tuple[float, float] | None = None, t_end: float | None = None):
-        self.rec = sysrec
-        self.rng = rng
-        self.seed_fn = seed_fn
-        self.targets = sorted(int(t) for t in targets)
-        self.edges = [list(map(int, e)) for e in (edges or [])]
-        self.T = float(sysrec["t_end_default"] if t_end is None else t_end)
-        self.dt = float(sysrec["dt"])
-        self.cap = normalize_capability(sysrec.get("capability"), t_end=float(sysrec["t_end_default"]), dt=self.dt,
-                                        input_dim=int(sysrec.get("input_dim", 1)))
-        self.n_u = int(sysrec.get("input_dim", 1))
-        self.onset_frac = onset_frac
-        st = self.cap["stimulus"]
-        self.stim_range = tuple(stim_range or st["range"])
-        lev = st["nominal_level"]
-        self.level = float(lev[0]) if isinstance(lev, (list, tuple)) else float(lev)
-
-    # ------------------------------------------------------------------ basics
-    def snap(self, t: float) -> float:
-        return P.snap(t, self.dt)
-
-    def horizon(self, name: str) -> float:
-        return HORIZON_FRACTIONS[name] * float(self.rec["t_end_default"])
-
-    def value(self, level) -> float | list:
-        if self.n_u == 1:
-            return float(level[0]) if isinstance(level, (list, tuple)) else float(level)
-        if isinstance(level, (list, tuple)):
-            return [float(v) for v in level]
-        return [float(level)] * self.n_u
-
-    def base(self, *, level=None, t_on: float | None = None, params_seed: int | None = None) -> dict:
-        max_on = float(self.cap["stimulus"]["max_onset"])
-        t_on = self.snap(self.rng.uniform(self.dt, max(self.dt, max_on))) if t_on is None else self.snap(t_on)
-        lev = self.level if level is None else level
-        return {"system": self.rec["system_id"], "params_seed": int(self.seed_fn() if params_seed is None else params_seed),
-                "weight_noise": None, "r0": {"kind": "rest"}, "t_end": self.T, "dt": self.dt,
-                "stimulus": [[0.0, self.value(0.0)], [t_on, self.value(lev)]], "events": [], "obs_noise": None}
-
-    def onset(self, lo: float | None = None, hi: float | None = None) -> float:
-        a = self.onset_frac[0] * self.T if lo is None else lo
-        b = self.onset_frac[1] * self.T if hi is None else hi
-        return self.snap(self.rng.uniform(a, b))
-
-    def pick_targets(self, n: int, pool: list[int] | None = None) -> list[int]:
-        pool = self.targets if pool is None else pool
-        if len(pool) < n:
-            raise ValueError(f"needs {n} targets, the system has {len(pool)}")
-        return sorted(int(x) for x in self.rng.choice(pool, size=n, replace=False))
-
-    def sign(self, p_pos: float = 0.5) -> float:
-        return 1.0 if self.rng.random() < p_pos else -1.0
-
-    def d_pulse(self) -> float:
-        return float(self.cap["current"]["pulse_max_duration"])
-
-    def d_sustain(self) -> float:
-        return float(self.cap["current"]["sustained_min_duration"])
-
-    def pulse_duration(self) -> float:
-        dp = self.d_pulse()
-        lo = max(5 * self.dt, 0.1 * dp)
-        return max(self.dt, self.snap(self.rng.uniform(lo, max(lo, dp))))
-
-    def window_duration(self) -> float:
-        lo = self.d_pulse()
-        hi = max(lo, min(3.0 * self.d_sustain(), 0.4 * self.T))
-        return max(self.dt, self.snap(self.rng.uniform(lo, hi)))
-
-    def end_or_none(self, t0: float, dur: float, p_persist: float = P_PERSIST) -> float | None:
-        if self.rng.random() < p_persist:
-            return None
-        return min(self.T, self.snap(t0 + dur))
-
-    def initial_state(self, scale: float = 1.0) -> dict:
-        init = self.cap["init"]
-        units = list(self.rec.get("observed") or self.targets)
-        lo = float(init.get("min_value", 0.0)) * scale
-        hi = float(init.get("max_value", 1.0)) * scale
-        k = max(1, round(0.5 * len(units)))
-        chosen = self.rng.choice(units, size=min(k, len(units)), replace=False)
-        return {"kind": "state", "values": {str(int(u)): round(float(self.rng.uniform(lo, hi)), 4) for u in chosen}}
-
-    # ------------------------------------------------------------------ observational families
-    def obs(self, family: str, *, params_seed: int | None = None) -> dict:
-        if family in ("obs.nominal", "obs.param"):
-            return self.base(params_seed=params_seed)
-        if family == "obs.stim":
-            lo, hi = self.stim_range
-            p = self.base(level=float(self.rng.uniform(lo, hi)), params_seed=params_seed)
-            if self.rng.random() < 0.5:
-                p["stimulus"].append([self.snap(self.rng.uniform(0.3, 0.6) * self.T), self.value(float(self.rng.uniform(lo, hi)))])
-            if self.rng.random() < 0.4:
-                p["stimulus"].append([self.snap(self.rng.uniform(0.62, 0.9) * self.T), self.value(0.0)])
-            p["stimulus"] = sorted(p["stimulus"], key=lambda r: r[0])
-            if F.is_nominal_stimulus(P.validate(p)["stimulus"], {"capability": self.cap}):
-                p["stimulus"].append([self.snap(0.5 * self.T), self.value(lo)])
-            return p
-        if family == "obs.init":
-            p = self.base(params_seed=params_seed)
-            p["r0"] = self.initial_state()
-            return p
-        if family == "obs.wnoise":
-            p = self.base(params_seed=params_seed)
-            p["weight_noise"] = {"sd": round(float(self.rng.uniform(0.02, float(self.cap["weight_noise"]["max_sd"]))), 4),
-                                 "seed": int(self.seed_fn())}
-            return p
-        raise ValueError(family)
-
-    # ------------------------------------------------------------------ single-event families
-    def event(self, family: str, t0: float, targets: list[int], mclass: str, edges: list | None = None) -> dict:
-        cap = self.cap
-        if family in ("kick.1", "kick.2", "kick.g", "kick.hi"):
-            return {"kind": "kick", "t": t0, "delta": {str(u): round(self.sign() * class_value(cap, "kick", mclass, self.rng), 6)
-                                                        for u in targets}}
-        if family in ("pulse.1", "pulse.2", "pulse.g", "pulse.hi"):
-            s = self.sign(0.75)
-            return {"kind": "current", "t0": t0, "t1": min(self.T, self.snap(t0 + self.pulse_duration())),
-                    "targets": {str(u): round(s * class_value(cap, "current", mclass, self.rng), 6) for u in targets}}
-        if family in ("act.1", "inh.1"):
-            s = 1.0 if family == "act.1" else -1.0
-            dur = self.snap(self.rng.uniform(self.d_sustain(), 2.5 * self.d_sustain()))
-            t1 = self.end_or_none(t0, dur)
-            if t1 is not None and t1 - t0 < self.d_sustain() - 1e-9:
-                t1 = None
-            return {"kind": "current", "t0": t0, "t1": t1,
-                    "targets": {str(u): round(s * class_value(cap, "current", mclass, self.rng), 6) for u in targets}}
-        if family in ("sil.1", "sil.2", "sil.g", "sil.1p"):
-            if family == "sil.1p":
-                t1 = None
-            elif family == "sil.1":
-                t1 = min(self.T, self.snap(t0 + self.window_duration()))
-            else:
-                t1 = self.end_or_none(t0, self.window_duration())
-            return {"kind": "silence", "t0": t0, "t1": t1, "targets": [int(u) for u in targets]}
-        if family in ("edge.w", "edge.rm"):
-            if family == "edge.rm":
-                f = 0.0
-            else:
-                depth = min(EDGE_DEPTH_MAX, class_value(cap, "edge_scale", mclass if mclass in MAG_MULT else "moderate", self.rng))
-                f = round(1.0 - depth, 6)
-            return {"kind": "edge_scale", "t0": t0, "t1": self.end_or_none(t0, self.window_duration()), "edges": [list(e) for e in edges],
-                    "factor": f}
-        if family == "param.1":
-            fields = list(cap["param"]["fields"])
-            fld = fields[int(self.rng.integers(len(fields)))]
-            v = class_value(cap, "param", mclass, self.rng, fld)
-            change = {fld: round(max(0.05, 1.0 + self.sign() * v), 6)} if fld in ("gain", "tau") else {fld: round(self.sign() * v, 6)}
-            return {"kind": "param", "t0": t0, "t1": self.end_or_none(t0, self.window_duration()), "targets": {str(targets[0]): change}}
-        raise ValueError(family)
-
-    # ------------------------------------------------------------------ patterns
-    def sequence(self, family: str, t0: float, target: int, mclass: str) -> dict:
-        min_seg = int(self.cap["current_seq"].get("min_seg_steps", P.MIN_SEG_STEPS))
-        seg = self.snap(max(min_seg * self.dt, self.d_pulse() / 4.0))
-        amp = round(class_value(self.cap, "current", mclass, self.rng), 6)
-        if family == "seq.train":
-            on, off, n = int(self.rng.integers(1, 3)), int(self.rng.integers(2, 4)), int(self.rng.integers(3, 6))
-            vals = ([amp] * on + [0.0] * off) * n
-            vals = vals[: len(vals) - off]
-        elif family == "seq.pp":
-            on1, gap, on2 = int(self.rng.integers(1, 3)), int(self.rng.integers(3, 8)), int(self.rng.integers(1, 3))
-            vals = [amp] * on1 + [0.0] * gap + [amp] * on2
-        elif family == "seq.prbs":
-            vals = [amp, 0.0, amp, amp, 0.0, 0.0, amp]
-            for _ in range(200):
-                m = int(self.rng.integers(12, 25))
-                bits = self.rng.random(m) < 0.5
-                bits[0] = True
-                cand = [amp if b else 0.0 for b in bits]
-                while cand and cand[-1] == 0.0:
-                    cand.pop()
-                st, ln, gp = _runs([v != 0.0 for v in cand])
-                if len(st) >= 3 and not (len(set(ln)) == 1 and len(set(gp)) == 1):
-                    vals = cand
-                    break
-        elif family == "seq.chirp":
-            m = int(self.rng.integers(20, 41))
-            f0, f1 = 1.0 / (m * seg), 6.0 / (m * seg)
-            tt = np.arange(m) * seg
-            ph = 2 * np.pi * (f0 * tt + 0.5 * (f1 - f0) / (m * seg) * tt ** 2)
-            vals = [round(float(amp * math.sin(p_)), 6) for p_ in ph]
-            if len({round(v, 12) for v in vals}) < 3:
-                vals = [round(amp * (j % 3 - 1), 6) for j in range(m)]
-        else:
-            raise ValueError(family)
-        span = seg * len(vals)
-        if t0 + span > self.T - self.dt:
-            # too long for the window: shortest segments first, then trailing segments dropped; the family must survive
-            seg = self.snap(min_seg * self.dt)
-            max_len = int((self.T - self.dt - t0) / seg)
-            if len(vals) > max_len:
-                vals = vals[:max_len]
-                while vals and vals[-1] == 0.0:
-                    vals.pop()
-            span = seg * len(vals)
-            if not vals or t0 + span > self.T:
-                raise ValueError(f"{family} does not fit into the window")
-            st, ln, gp = _runs([v != 0.0 for v in vals])
-            ok = {"seq.train": len(st) >= 3 and len(set(ln)) == 1 and len(set(gp)) == 1, "seq.pp": len(st) == 2,
-                  "seq.prbs": len(st) >= 3 and not (len(set(ln)) == 1 and len(set(gp)) == 1),
-                  "seq.chirp": len({round(v, 12) for v in vals}) >= 3}[family]
-            if not ok:
-                raise ValueError(f"{family} does not fit into the window")
-        return {"kind": "current_seq", "t0": t0, "seg": seg, "targets": {str(int(target)): [float(v) for v in vals]}}
-
-    def composition(self, family: str, t0: float, targets: list[int]) -> tuple[list[dict], dict]:
-        """Two different single interventions: `comp.seq` = b starts after a ended; `comp.sim` = b overlaps a. Returns the events and
-        the components {"a": [...], "b": [...], "families": [fa, fb]} (absolute times)."""
-        kinds = [f for k, f in (("kick", "kick.1"), ("current", "pulse.1"), ("silence", "sil.1"), ("param", "param.1"))
-                 if self.cap.get(k, {}).get("supported")]
-        if len(kinds) < 2:
-            raise ValueError("composition needs two supported kinds")
-        fa, fb = [kinds[i] for i in self.rng.choice(len(kinds), size=2, replace=False)]
-        if family == "comp.sim" and fa == "kick.1":
-            fa, fb = fb, fa                                  # the first (windowed) component must be able to overlap the second
-        ta = targets[0]
-        tb = targets[1] if len(targets) > 1 else targets[0]
-        ea = self.event(fa, t0, [ta], "moderate")
-        if ea["kind"] != "kick" and ea.get("t1") is None:
-            ea["t1"] = min(self.T, self.snap(t0 + self.window_duration()))
-        end_a = t0 + self.dt if ea["kind"] == "kick" else float(ea["t1"])
-        if family == "comp.seq":
-            tb0 = self.snap(end_a + self.rng.uniform(self.dt, max(2 * self.dt, self.d_pulse())))
-        else:
-            tb0 = self.snap(t0 + self.rng.uniform(0.0, max(self.dt, 0.8 * (end_a - t0))))
-            tb0 = min(tb0, self.snap(end_a - self.dt))
-        tb0 = min(max(t0, tb0), self.snap(self.T - 2 * self.dt))
-        eb = self.event(fb, tb0, [tb], "moderate")
-        if eb["kind"] != "kick" and eb.get("t1") is None:
-            eb["t1"] = min(self.T, self.snap(eb["t0"] + self.window_duration()))
-        return [ea, eb], {"a": [ea], "b": [eb], "families": [fa, fb]}
-
-    # ------------------------------------------------------------------ one protocol of a family
-    def make(self, family: str, *, targets: list[int] | None = None, edges: list | None = None, mclass: str | None = None,
-             onset: float | None = None, params_seed: int | None = None, level=None) -> tuple[dict, dict]:
-        """(protocol, spec info) of one trajectory of `family`; interventions start at `onset`. Explicit `targets` / `edges` are
-        used exactly (identity cells)."""
-        if family in F.OBS:
-            return self.obs(family, params_seed=params_seed), {"family": family, "targets": (), "mclass": "na", "onset": None}
-        p = self.base(level=self.level if level is None else level, params_seed=params_seed)
-        t0 = self.onset() if onset is None else self.snap(onset)
-        if family in ("edge.w", "edge.rm"):
-            if edges is None:
-                if not self.edges:
-                    raise ValueError("no scalable edges")
-                k = min(len(self.edges), int(self.rng.integers(1, 3)))
-                edges = [list(self.edges[i]) for i in sorted(self.rng.choice(len(self.edges), size=k, replace=False))]
-            mc = "na" if family == "edge.rm" else (mclass or "moderate")
-            p["events"] = [self.event(family, t0, [], mc, edges=edges)]
-            return p, {"family": family, "targets": tuple(sorted({int(x) for e in edges for x in e})), "edges": edges, "mclass": mc,
-                       "onset": t0}
-        n_t = {"kick.2": 2, "pulse.2": 2, "sil.2": 2, "kick.g": int(self.rng.integers(3, 5)), "pulse.g": int(self.rng.integers(3, 5)),
-               "sil.g": int(self.rng.integers(3, 5))}.get(family, 1)
-        tg = sorted(int(t) for t in targets) if targets is not None else self.pick_targets(n_t)
-        mc = "hi" if family in ("kick.hi", "pulse.hi") else ("na" if family.startswith("sil.") else (mclass or "moderate"))
-        if family in F.SEQ:
-            p["events"] = [self.sequence(family, t0, tg[0], "moderate" if mc in ("na",) else mc)]
-        elif family in F.COMP:
-            p["events"], comp = self.composition(family, t0, tg)
-            return p, {"family": family, "targets": tuple(tg), "mclass": "na", "onset": t0, "components": comp}
-        else:
-            p["events"] = [self.event(family, t0, tg, mc)]
-        return p, {"family": family, "targets": tuple(tg), "mclass": mc, "onset": t0}
 
 
 # ================================================================================================================ set designs
@@ -651,31 +392,38 @@ def _spec(p: dict, info: dict, split: str, role: str, *, twin: bool, cell: str =
                 target_set=tuple(info.get("targets") or ()), cell=cell, state=state, twin=twin, meta=m)
 
 
-def intervention_families(split: dict) -> list[str]:
-    return [f for f in split["families_train"] if f in F.INTERVENTION_FAMILIES]
+def init_spec(sampler: FamilySampler, src: str, split: str, role: str, *, src_seed: int = 0, **meta) -> Spec:
+    """An 'obs.init' trajectory (LOG P4-D36): a RESTART from a sample time of the nominal passive trajectory `src` (a `src_id` of the
+    same plan), with the source's parameter draw, weight noise and spread and the nominal stimulus schedule of its own. Planned as a
+    placeholder protocol (r0 rest) plus meta['restart_from'] = {"src", "t_frac"}; `run_specs` completes it after the source is
+    simulated (r0 = {"kind": "restart", "key": <the source's store key>, "t": <a sample time>}). Genuinely passive initial-condition
+    variability: the concatenation of the source's schedule and this one is a trajectory from rest under a stimulus schedule.
+    `src_seed`: the source's planned parameter seed (the placeholder's, so the plan shows the right seed range)."""
+    p = sampler.base(params_seed=int(src_seed))
+    return _spec(p, {"family": "obs.init"}, split, role, twin=False, restart_from={"src": src, "t_frac": sampler.init_t_frac()}, **meta)
 
 
-N_TARGETS_NEEDED = {"kick.2": 2, "pulse.2": 2, "sil.2": 2, "kick.g": 3, "pulse.g": 3, "sil.g": 3}
-
-
-def feasible(family: str, targets: list[int], edges: list) -> bool:
-    if family in ("edge.w", "edge.rm"):
-        return bool(edges)
-    return len(targets) >= N_TARGETS_NEEDED.get(family, 1)
-
-
-def design_passive(sampler: FamilySampler, counts: dict[str, int], split: str, role: str, *, seed_parts: tuple) -> list[Spec]:
+def design_passive(sampler: FamilySampler, counts: dict[str, int], split: str, role: str, *, seed_parts: tuple,
+                   seed_of=public_seed_of) -> list[Spec]:
     """Passive trajectories: 'obs.nominal' of the training data cycles over parameter draws 0-7 (labelled obs.param by
-    `family_of` when the system names a different nominal draw); other families draw seeds from the sampler."""
+    `family_of` when the system names a different nominal draw); other families draw seeds from the sampler. `seed_of`: the seed
+    function of explicit parts (salted on the hidden tiers, `seed_of_fn`)."""
     out = []
+    n_nom = int(counts.get("obs.nominal", 0))
+    nom_seed: dict[str, int] = {}
     for fam, n in counts.items():
         for j in range(n):
             if fam == "obs.nominal":
-                ps = j % 8 if split == "train" else public_seed_of(*seed_parts, fam, j)
-                p = sampler.base(params_seed=ps)
+                ps = j % 8 if split == "train" else seed_of(*seed_parts, fam, j)
+                nom_seed[f"{split}:nominal:{j}"] = int(ps)
+                out.append(_spec(sampler.base(params_seed=ps), {"family": fam}, split, role, twin=False, src_id=f"{split}:nominal:{j}"))
+            elif fam == "obs.init":
+                if n_nom < 1 or fam != "obs.init" or not nom_seed:
+                    raise ValueError("obs.init needs nominal passive trajectories planned before it in the same set")
+                src = f"{split}:nominal:{j % n_nom}"
+                out.append(init_spec(sampler, src, split, role, src_seed=nom_seed[src]))
             else:
-                p = sampler.obs(fam)
-            out.append(_spec(p, {"family": fam}, split, role, twin=False))
+                out.append(_spec(sampler.obs(fam), {"family": fam}, split, role, twin=False))
     return out
 
 
@@ -742,13 +490,25 @@ def design_tests(s_pub: FamilySampler, s_hid: FamilySampler | None, sysrec: dict
             out += design_cells(s_pub, fam, "hidden", targets=s_pub.targets, edges=edges_pub, seed_fn=seed_fn)
         except ValueError:
             continue
-    for j in range(N_PASSIVE_TEST):
-        fam = ("obs.nominal", "obs.stim", "obs.init", "obs.stim")[j % 4]
-        p = s_pub.obs(fam, params_seed=seed_fn())
-        out.append(_spec(p, {"family": fam}, "test", "passive", twin=False))
+    out += design_passive_tests(s_pub, seed_fn)
     if level == "C":
         out += design_ood(s_pub, sysrec, edges_pub, seed_fn)
         out += design_robust(s_pub, sysrec, edges_pub, seed_fn)
+    return out
+
+
+def design_passive_tests(s: FamilySampler, seed_fn) -> list[Spec]:
+    """N_PASSIVE_TEST passive test trajectories cycling over obs.nominal, obs.stim, obs.init, obs.stim; each obs.init restarts from
+    the nominal trajectory two positions before it (LOG P4-D36)."""
+    out: list[Spec] = []
+    for j in range(N_PASSIVE_TEST):
+        fam = ("obs.nominal", "obs.stim", "obs.init", "obs.stim")[j % 4]
+        if fam == "obs.nominal":
+            out.append(_spec(s.base(params_seed=seed_fn()), {"family": fam}, "test", "passive", twin=False, src_id=f"passive:{j}"))
+        elif fam == "obs.init":
+            out.append(init_spec(s, f"passive:{j - 2}", "test", "passive", src_seed=out[j - 2].protocol["params_seed"]))
+        else:
+            out.append(_spec(s.obs(fam, params_seed=seed_fn()), {"family": fam}, "test", "passive", twin=False))
     return out
 
 
@@ -783,12 +543,28 @@ def design_ood(s: FamilySampler, sysrec: dict, edges: list, seed_fn) -> list[Spe
         on = s.snap(s.rng.uniform(0.02, 0.12) * s.T) if j % 2 == 0 else s.snap(s.rng.uniform(0.52, 0.6) * s.T)
         p, info = s.make(fam, params_seed=seed_fn(), onset=on)
         out.append(_spec(p, info, "test", "ood:timing", twin=True, cell=f"ood_timing|{fam}", state=j))
-        p, info = s.make(fam, params_seed=seed_fn())
-        p["r0"] = s.initial_state(scale=2.0)
-        out.append(_spec(p, info, "test", "ood:initial_condition", twin=True, cell=f"ood_init|{fam}", state=j))
-        s2 = FamilySampler({**sysrec, "dt": 2.0 * s.dt}, s.rng, seed_fn, targets=s.targets, edges=edges)
+        # altered initial conditions (off-pool microstates; LOG P4-D36): the full microstate of a nominal trajectory of the same draw
+        # at a random time with half the observed units displaced by twice the development kick maximum (random signs, clipped to the
+        # admissible range), started through a state carrier (P4-D31); never an explicit r0 'state'
+        src = f"oodinit:{j}"
+        src_spec = _spec(s.base(params_seed=seed_fn()), {"family": "obs.nominal"}, "aux", "ood_src", twin=False, src_id=src)
+        out.append(src_spec)
+        p, info = s.make(fam, params_seed=int(src_spec.protocol["params_seed"]))
+        obs_units = [int(u) for u in (sysrec.get("observed") or s.targets)]
+        k = max(1, round(0.5 * len(obs_units)))
+        chosen = sorted(int(u) for u in s.rng.choice(obs_units, size=min(k, len(obs_units)), replace=False))
+        dmax = 2.0 * float(s.cap["kick"]["max"])
+        disp = {str(u): round(s.sign() * dmax, 6) for u in chosen}
+        out.append(_spec(p, info, "test", "ood:initial_condition", twin=True, cell=f"ood_init|{fam}", state=j,
+                         carrier_from={"src": src, "t_frac": round(float(s.rng.uniform(0.3, 0.8)), 6), "displace": disp}))
+        # temporal sampling (review H, M3): stimulus and events on the 2 dt grid, SIMULATED at the nominal dt, every second sample kept
+        # (meta subsample 2; `run_specs` records the told protocol at 2 dt), so only the sampling changes
+        dt2 = 2.0 * s.dt
+        t2 = round(math.floor(s.T / dt2 + 1e-9) * dt2, 9)
+        s2 = FamilySampler({**sysrec, "dt": dt2}, s.rng, seed_fn, targets=s.targets, edges=edges, t_end=t2)
         p, info = s2.make(fam, params_seed=seed_fn())
-        out.append(_spec(p, info, "test", "ood:sampling", twin=True, cell=f"ood_dt|{fam}", state=j))
+        p = dict(p, dt=s.dt, t_end=t2)
+        out.append(_spec(p, info, "test", "ood:sampling", twin=True, cell=f"ood_dt|{fam}", state=j, subsample=2))
     return out
 
 
@@ -854,20 +630,80 @@ def design_robust(s: FamilySampler, sysrec: dict, edges: list, seed_fn) -> list[
     return out
 
 
-def state_r0(state) -> dict:
-    """r0 of an explicit full microstate vector (synthetic generators: indices of the full state, zeros omitted)."""
-    v = np.asarray(state, dtype=np.float64).ravel()
-    return {"kind": "state", "values": {str(i): float(x) for i, x in enumerate(v) if x != 0.0}}
+#: STATE CARRIERS (LOG P4-D31). The public protocol format sets UNIT values only (r0 'state'; internal variables start at rest), but
+#: orchestrator-held truth simulations of synthetic systems must start from a generator's FULL microstate (pool sources from
+#: `pool_states`, truth-equivalent states from `equivalent_states`). A carrier is a one-sample store record holding that microstate at
+#: an absolute time t; the simulation then starts from it through an ordinary r0 'restart' (same system, full state: the existing
+#: restart checks apply), so every protocol stays in the frozen format and names its start by a content-addressed key.
+CARRIER_FORMAT = "p4-carrier-1"
 
 
-def design_pool_sources(s: FamilySampler, sysrec: dict, edges: list, *, hidden: bool, parts: tuple, pool_state_fn=None) -> list[Spec]:
-    """POOL_DRAWS parameter draws x POOL_TRAJ source trajectories per draw (P4-D14: 8 x 15), cycling over POOL_SOURCES: a start from a
-    generator pool state (synthetic systems whose generator provides `pool_states`; otherwise an initial-state change), a stimulus
-    change, an initial-state change and two trained single interventions. States of one draw are compared with each other only."""
+def carrier_key(system_hash: str, t: float, state) -> str:
+    """Store key of the carrier of a full microstate of one system at absolute time t (its own hash domain, never a protocol key)."""
+    v = np.ascontiguousarray(np.asarray(state, dtype=np.float64).ravel())
+    h = hashlib.sha256(f"{CARRIER_FORMAT}|{system_hash}|{float(t)!r}|{v.size}|".encode())
+    h.update(v.tobytes())
+    return h.hexdigest()
+
+
+def carrier_r0(system_hash: str, t: float, state) -> tuple[dict, dict]:
+    """(r0, carrier) for a start from a FULL microstate at absolute time t: r0 = a restart from the carrier at t; carrier = {"key",
+    "t", "state"} (to be stored with `put_carrier` before the simulation)."""
+    v = [float(x) for x in np.asarray(state, dtype=np.float64).ravel()]
+    key = carrier_key(system_hash, t, v)
+    return {"kind": "restart", "key": key, "t": float(t)}, {"key": key, "t": float(t), "state": v}
+
+
+def put_carrier(store_root: Path | str, sid: str, system_hash: str, carrier: dict) -> None:
+    """Store a carrier record (idempotent; its key is re-derived and checked)."""
+    from .store import TrajectoryStore
+    store = TrajectoryStore(store_root)
+    v = np.asarray(carrier["state"], dtype=np.float64).ravel()
+    if carrier_key(system_hash, carrier["t"], v) != carrier["key"]:
+        raise ValueError("state carrier: key does not match its content")
+    if store.has(carrier["key"]):
+        return
+    rec = {"t": np.array([float(carrier["t"])], dtype=np.float64), "state": v[None, :],
+           "info": {"system_id": sid, "system_hash": system_hash, "carrier": CARRIER_FORMAT, "success": True}}
+    store.put(carrier["key"], rec, {"system_id": sid, "system_hash": system_hash, "role": "state_carrier"})
+
+
+def put_real_carrier(store_root: Path | str, sid: str, system_hash: str, t: float, neurons, rates) -> str:
+    """Store the carrier of a REAL network microstate (sparse: neuron ids and their rates, the engine's restart format) at absolute
+    time t and return its key (idempotent; rates are stored as float32 like every real record)."""
+    from .store import TrajectoryStore
+    nz = np.ascontiguousarray(np.asarray(neurons, dtype=np.int32).ravel())
+    rt = np.ascontiguousarray(np.asarray(rates, dtype=np.float32).ravel())
+    if nz.shape != rt.shape:
+        raise ValueError("real carrier: neurons and rates differ in length")
+    h = hashlib.sha256(f"{CARRIER_FORMAT}|real|{system_hash}|{float(t)!r}|{nz.size}|".encode())
+    h.update(nz.tobytes())
+    h.update(rt.tobytes())
+    key = h.hexdigest()
+    store = TrajectoryStore(store_root)
+    if not store.has(key):
+        rec = {"t": np.array([float(t)], dtype=np.float64), "neurons": nz, "rates": rt[None, :],
+               "info": {"system_id": sid, "system_hash": system_hash, "carrier": CARRIER_FORMAT, "success": True}}
+        store.put(key, rec, {"system_id": sid, "system_hash": system_hash, "role": "state_carrier"})
+    return key
+
+
+def design_pool_sources(s: FamilySampler, sysrec: dict, edges: list, *, hidden: bool, parts: tuple, pool_state_fn=None,
+                        salted: bool = False, system_hash: str | None = None) -> list[Spec]:
+    """POOL_DRAWS parameter draws x POOL_TRAJ source trajectories per draw (P4-D14: 8 x 15): the first source of every draw is a
+    NOMINAL passive trajectory; the others cycle over POOL_SOURCES: a start from a generator pool state (synthetic systems whose
+    generator provides `pool_states`; otherwise a restart from the draw's nominal source), a stimulus change, a restart from the
+    draw's nominal source ('init'; LOG P4-D36) and two trained single interventions. States of one draw are compared with each other
+    only.
+    Sources of kind 'init' carry the nominal input and no event after their stimulus onset: the pool's float64 continuations (the
+    numerical floor (b), review H B1) are read from them. A generator pool state is a FULL microstate: its source starts from it
+    through a state carrier (`carrier_r0`; meta 'carrier', stored by `build_system` before the simulation; needs `system_hash`)."""
     out = []
     fams = _in_family(s, sysrec, edges)
-    salt = read_salt() if hidden else None
-    n_gen = POOL_DRAWS * sum(1 for j in range(POOL_TRAJ) if POOL_SOURCES[j % len(POOL_SOURCES)] == "pool_state")
+    if pool_state_fn is not None and not system_hash:
+        raise ValueError("pool sources from generator pool states need the system hash (state carriers)")
+    salt = read_salt() if (hidden or salted) else None
+    n_gen = POOL_DRAWS * sum(1 for j in range(1, POOL_TRAJ) if POOL_SOURCES[j % len(POOL_SOURCES)] == "pool_state")
     gen_states = []
     if pool_state_fn is not None:
         try:
@@ -876,21 +712,39 @@ def design_pool_sources(s: FamilySampler, sysrec: dict, edges: list, *, hidden: 
             gen_states = []
     gi = 0
     for g in range(POOL_DRAWS):
-        ps = hidden_seed("pool", *parts, g, salt=salt) if hidden else public_seed_of("pool", *parts, g)
+        if hidden:
+            ps = hidden_seed("pool", *parts, g, salt=salt)
+        elif salted:
+            ps = salted_public_seed("pool", *parts, g, salt=salt)
+        else:
+            ps = public_seed_of("pool", *parts, g)
         for j in range(POOL_TRAJ):
-            src = POOL_SOURCES[j % len(POOL_SOURCES)]
-            if src == "pool_state" and gen_states:
+            src = "nominal" if j == 0 else POOL_SOURCES[j % len(POOL_SOURCES)]
+            carrier = None
+            meta = {"draw": g, "traj": j}
+            if src == "nominal":
+                # the draw's nominal passive source (LOG P4-D36): the restart source of its 'init' trajectories
+                p = s.base(params_seed=ps)
+                meta["src_id"] = f"pool:{g}"
+            elif src == "pool_state" and gen_states:
                 p = s.obs("obs.stim" if (j // len(POOL_SOURCES)) % 2 else "obs.nominal", params_seed=ps)
-                p["r0"] = state_r0(gen_states[gi % len(gen_states)])
+                p["r0"], carrier = carrier_r0(system_hash, 0.0, gen_states[gi % len(gen_states)])
                 gi += 1
             elif src in ("pool_state", "init"):
-                p, src = s.obs("obs.init", params_seed=ps), "init"
+                # a restart from the draw's nominal source (never an explicit r0 'state'; the float64 continuation of floor (b) stays
+                # available: nominal input, no event after the stimulus onset)
+                src = "init"
+                p = s.base(params_seed=ps)
+                meta["restart_from"] = {"src": f"pool:{g}", "t_frac": s.init_t_frac()}
             elif src == "stim" or not fams:
                 p, src = s.obs("obs.stim", params_seed=ps), "stim"
             else:
                 p, _ = s.make(fams[(g + j) % len(fams)], params_seed=ps)
             p["params_seed"] = int(ps)
-            out.append(Spec(protocol=p, split="pool_src", role="pool_src", meta={"draw": g, "traj": j, "source": src}))
+            meta["source"] = src
+            if carrier is not None:
+                meta["carrier"] = carrier
+            out.append(Spec(protocol=p, split="pool_src", role="pool_src", meta=meta))
     return out
 
 
@@ -937,9 +791,7 @@ def design_public_tests(s: FamilySampler, sysrec: dict, edges: list, seed_fn) ->
     out: list[Spec] = []
     for fam in intervention_families(sysrec["split"]):
         out += design_cells(s, fam, "in", targets=s.targets, edges=edges, seed_fn=seed_fn)
-    for j in range(N_PASSIVE_TEST):
-        fam = ("obs.nominal", "obs.stim", "obs.init", "obs.stim")[j % 4]
-        out.append(_spec(s.obs(fam, params_seed=seed_fn()), {"family": fam}, "test", "passive", twin=False))
+    out += design_passive_tests(s, seed_fn)
     return out
 
 
@@ -953,22 +805,25 @@ def plan_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str, 
     kind = "mech" if pub.get("mode") == "mech" else ("full" if pub["kind"] == "real" else "synthetic")
     edges_pub = [list(e) for e in pub.get("edges_public") or []]
     edges_hid = [list(e) for e in internal.get("edges_heldout") or []]
+    salted = tier in SALTED_TIERS
     specs: list[Spec] = []
     if "public" in sets:
         rng = rng_of("plan", tier, seed, sid)
-        s_pub = FamilySampler(pub, rng, seed_counter(False, "pub", tier, seed, sid), targets=pub["targets_public"], edges=edges_pub)
+        s_pub = FamilySampler(pub, rng, seed_counter(False, "pub", tier, seed, sid, salted=salted), targets=pub["targets_public"],
+                              edges=edges_pub)
         n1 = B_MAIN[kind]
         fams = intervention_families(pub["split"])
-        specs += design_passive(s_pub, D0_DESIGN, "train", "d0", seed_parts=("d0", tier, seed, sid))
+        seed_of = seed_of_fn(False, salted)
+        specs += design_passive(s_pub, D0_DESIGN, "train", "d0", seed_parts=("d0", tier, seed, sid), seed_of=seed_of)
         specs += design_interventions(s_pub, fams, n1, "train", "d1", edges=edges_pub)
         specs += design_passive(s_pub, {f: max(1, round(VAL_FRACTION * n)) for f, n in D0_DESIGN.items()}, "val", "d0",
-                                seed_parts=("val", tier, seed, sid))
+                                seed_parts=("val", tier, seed, sid), seed_of=seed_of)
         specs += design_interventions(s_pub, fams, round(VAL_FRACTION * n1), "val", "d1", edges=edges_pub)
     if "tests" in sets or "pool_src" in sets:
         public_only = policy == "public"
         tag = "test-public" if public_only else "test"
         hid = (tier in HIDDEN_TIERS) and not public_only
-        tseed = seed_counter(hid, tag, tier, seed, sid)
+        tseed = seed_counter(hid, tag, tier, seed, sid, salted=salted and not hid)
         rng_t = rng_of(tag, tier, seed, sid)
         # outside the public policy, systems without public edges (real systems: edge families are never trained) test edge families
         # on the strongest edges of their public connectivity summary
@@ -984,30 +839,177 @@ def plan_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str, 
         if "pool_src" in sets:
             s_pool = FamilySampler(pub, rng_of(f"{tag}-pool-src", tier, seed, sid), tseed, targets=pub["targets_public"], edges=edges_t)
             specs += design_pool_sources(s_pool, pub, edges_t, hidden=hid, parts=(tag, tier, seed, sid),
-                                         pool_state_fn=None if public_only else pool_state_fn)
+                                         pool_state_fn=None if public_only else pool_state_fn, salted=salted and not hid,
+                                         system_hash=internal.get("system_hash"))
+    add_spares(specs, tier=tier, seed=seed, sid=sid, policy=policy, salted=salted)
     return specs
 
 
+def add_spares(specs: list[Spec], *, tier: str, seed: int, sid: str, policy: str, salted: bool) -> None:
+    """N_SPARE_SEEDS replacement parameter seeds per planned trajectory (pool sources excluded: their draw structure is fixed), from a
+    counter-based stream with the planned seed's salting and range (hidden range for hidden-range seeds). The logged rule (review H,
+    M4): a trajectory whose simulation fails (an error, `success` false or non-finite values; the store refuses such records) is
+    simulated again with its next spare seed, twin and components included; `meta['replaced']` records the attempt, the build summary
+    counts failures per family; a trajectory whose spares are exhausted is dropped and counted."""
+    hid_fn, pub_fn = None, seed_of_fn(False, salted)
+    for i, sp in enumerate(specs):
+        if sp.split == "pool_src" or sp.meta.get("restart_from") or sp.meta.get("carrier_from"):
+            continue                      # fixed draw structure / the parameter draw is the restart source's (LOG P4-D36)
+        if int(sp.protocol["params_seed"]) >= HIDDEN_SEED_BASE:
+            hid_fn = hid_fn or seed_of_fn(True, False)
+            fn = hid_fn
+        else:
+            fn = pub_fn
+        sp.spares = [int(fn("spare", tier, seed, sid, policy, i, k)) for k in range(N_SPARE_SEEDS)]
+
+
 # ================================================================================================================ simulation
-def dataset_key(protocol: dict, system_hash: str, engine: str) -> str:
-    """Content key of a trajectory record (the full protocol, including observation noise)."""
+def dataset_key(protocol: dict, system_hash: str, engine: str, obs_scale: dict | None = None) -> str:
+    """Content key of a trajectory record (the full protocol, including observation noise). A NOISY record's observed arrays also
+    depend on the system's `obs_scale`, which then enters the key (review H, minor 9: a changed scale never reuses stale files)."""
+    on = protocol.get("obs_noise")
+    if on is not None and float(on.get("sd", 0.0)) > 0 and obs_scale:
+        system_hash = f"{system_hash}|obs_scale={json.dumps(obs_scale, sort_keys=True)}"
     return P.protocol_hash(protocol, system_hash=system_hash, simulator=engine)
 
 
-class SimContext:
-    """How to simulate one system (orchestrator side): a synthetic adapter system or a real engine + system, through the store."""
+def restart_index(src: dict, t: float) -> int:
+    """The sample index of an r0 'restart' time in its source record; refuses a time that is not a sample time within 1e-6 dt (review
+    H, M6: the real engine's rule, also for synthetic restarts)."""
+    ts = np.asarray(src["t"], dtype=np.float64)
+    dt_src = float(ts[1] - ts[0]) if len(ts) > 1 else 0.0
+    i = round(float(t) / dt_src) if dt_src > 0 else 0
+    if not (0 <= i < len(ts)) or abs(ts[i] - float(t)) > 1e-12 + 1e-6 * dt_src:
+        raise P.ProtocolError(f"r0.t={t} is not a sample time of the restart source")
+    return i
 
-    def __init__(self, internal: dict, *, store_root: Path | str = STORE, synthetic_system=None, bundle: Path | None = None):
+
+def restart_source_problems(store_root, system_id: str, system_hash: str, keys, *, need_state: bool) -> list[str]:
+    """Why some of `keys` are not usable restart sources of this system: every key must name a record of the store at `store_root` (or of
+    the first of several store roots that holds it) whose info names this system (id and, where recorded, content hash) and, for
+    synthetic systems, holds the full state. Reads only each record's info (and its member list). The builder calls it for every
+    restart source of a part; `verify_system_restart_sources` re-runs it on built parts (LOG P4-D50)."""
+    from .store import TrajectoryStore
+    stores = [TrajectoryStore(r) for r in (store_root if isinstance(store_root, (list, tuple)) else [store_root])]
+    out = []
+    for k in dict.fromkeys(str(k) for k in keys if k):
+        p = next((s.path(k) for s in stores if s.path(k).exists()), stores[0].path(k))
+        if not p.exists():
+            out.append(f"{k[:12]}: not in the store")
+            continue
+        with np.load(p, allow_pickle=False) as z:
+            info = json.loads(str(z["info"])) if "info" in z.files else {}
+            full = ("state" in z.files) or ("neurons" in z.files)
+        if info.get("system_id") not in (None, system_id):
+            out.append(f"{k[:12]}: a record of {info.get('system_id')}")
+        if system_hash and info.get("system_hash") not in (None, system_hash):
+            out.append(f"{k[:12]}: system hash {str(info.get('system_hash'))[:12]}, not {system_hash[:12]}")
+        if need_state and not full:
+            out.append(f"{k[:12]}: stored without its full state")
+    return out
+
+
+def part_restart_keys(part_dir: Path | str) -> list[str]:
+    """Every restart source a BUILT part refers to: its rows' restart keys (resolved to store keys through the part's rows), its lift
+    cases and its pool states."""
+    d = Path(part_dir)
+    rows = [json.loads(x) for x in (d / "index.jsonl").read_text(encoding="utf-8").splitlines() if x.strip()] \
+        if (d / "index.jsonl").exists() else []
+    by_key = {r["key"]: (r.get("meta") or {}).get("store_key") or r["key"] for r in rows}
+    keys = [by_key.get(str(r["protocol"]["r0"]["key"]), str(r["protocol"]["r0"]["key"])) for r in rows
+            if (r["protocol"].get("r0") or {}).get("kind") == "restart"]
+    if (d / "lift_cases.json").exists():
+        keys += [c["store_key"] for c in json.loads((d / "lift_cases.json").read_text(encoding="utf-8"))]
+    if (d / "pools" / "pool.json").exists():
+        keys += [s.get("store_key") for s in json.loads((d / "pools" / "pool.json").read_text(encoding="utf-8")).get("states") or []]
+    return [k for k in keys if k]
+
+
+def verify_system_restart_sources(tier: str, sid: str, roots: dict | None = None) -> dict:
+    """The build-time restart-source check on one system's BUILT parts (inside a volume container; default roots = REMOTE): the public
+    part under the fit volume, the other parts under the eval volume, records looked up in the eval store then the store volume.
+    Returns {"sid", "system_hash", "parts": {dest: {"n_keys", "problems"}}}."""
+    roots = dict(roots or REMOTE)
+    rec = json.loads((Path(roots["eval"]) / "suites" / tier / "internal_records.json").read_text(encoding="utf-8"))[sid]
+    stores = [roots["eval_store"], roots["store"]]
+    out = {"sid": sid, "system_hash": rec.get("system_hash"), "parts": {}}
+    for dest, _sets, _pol in TIER_PARTS.get(tier, ()):
+        base = Path(roots["fit"] if dest == "public" else roots["eval"]) / "suites" / tier / dest / _safe(sid)
+        if not base.exists():
+            out["parts"][dest] = {"n_keys": 0, "problems": ["part not found"]}
+            continue
+        keys = part_restart_keys(base)
+        bad = restart_source_problems(stores, sid, str(rec.get("system_hash") or ""), keys, need_state=rec.get("kind") == "synthetic")
+        out["parts"][dest] = {"n_keys": len(set(keys)), "problems": bad[:20], "n_problems": len(bad)}
+    return out
+
+
+def check_restart_source(src: dict | None, system_id: str, system_hash: str) -> None:
+    """A synthetic restart source must be a stored record of the SAME system with its full state (review H, M6)."""
+    if src is None or "state" not in src:
+        raise P.ProtocolError("restart source missing or stored without its full state")
+    info = src.get("info") or {}
+    if info.get("system_hash") != system_hash or info.get("system_id") not in (None, system_id):
+        raise P.ProtocolError("r0 'restart' must come from a trajectory of the same system")
+
+
+def read_through_store(root: Path | str, read_roots=()):
+    """A writable local store that also READS records from other stores (e.g. volume stores in an evaluation container): `get` /
+    `has` fall back to the read roots in order, `put` writes locally only (never into a shared volume store)."""
+    from .store import TrajectoryStore
+
+    class ReadThroughStore(TrajectoryStore):
+        def __init__(self, root_, roots):
+            super().__init__(root_)
+            self.read_roots = [Path(r) for r in roots]
+
+        def _src(self, key: str):
+            p = self.path(key)
+            if p.exists():
+                return p
+            for r in self.read_roots:
+                q = r / "rec" / key[:2] / f"{key}.npz"
+                if q.exists():
+                    return q
+            return None
+
+        def has(self, key: str) -> bool:
+            return self._src(key) is not None
+
+        def get(self, key: str):
+            p = self._src(key)
+            if p is None:
+                return None
+            with np.load(p, allow_pickle=False) as z:
+                rec = {k: z[k] for k in z.files if k != "info"}
+                rec["info"] = json.loads(str(z["info"])) if "info" in z.files else {}
+            return rec
+    return ReadThroughStore(root, list(read_roots or ()))
+
+
+class SimContext:
+    """How to simulate one system (orchestrator side): a synthetic adapter system or a real engine + system, through the store
+    (`read_roots`: further stores read-only, e.g. the volume stores inside an evaluation container)."""
+
+    def __init__(self, internal: dict, *, store_root: Path | str = STORE, synthetic_system=None, bundle: Path | None = None,
+                 read_roots=()):
         from .store import TrajectoryStore
         self.rec = internal
         self.sid = internal["system_id"]
         self.kind = internal["kind"]
-        self.store = TrajectoryStore(store_root)
+        self.store = read_through_store(store_root, read_roots) if read_roots else TrajectoryStore(store_root)
         self.syn = synthetic_system
         if self.kind == "synthetic":
             if synthetic_system is None:
                 raise ValueError("a synthetic context needs its generator system")
             self.system_hash, self.engine_id = synthetic_system.content_hash(), synthetic_system.engine_id
+            want = internal.get("system_hash")
+            if want and self.system_hash != want:
+                # the generator constructed the system differently in this process (BLAS threads or platform): every store key and
+                # every restart from a stored record would silently refer to another system (LOG P4-D50)
+                raise RuntimeError(f"{self.sid}: this process computes the system's content hash as {self.system_hash[:12]}, its record "
+                                   f"says {str(want)[:12]}: construct synthetic systems at the reference numerics (one BLAS thread, the "
+                                   "reference platform)")
         else:
             from brainir.sim.model import MODEL_ID
 
@@ -1025,49 +1027,64 @@ class SimContext:
         """Simulate (or fetch) one protocol: {"key", "store_key", "t", "x", "u", "y", "truth": {...}, "info"}. The observed arrays
         carry the protocol's observation noise; truth['y_clean'] is the noise-free readout (only when they differ). meta
         {"no_store": True}: simulate without writing the record to the store (pool futures: never restarted from; restart SOURCES are
-        still read from the store); a stored record is still reused."""
+        still read from the store); a stored record is still reused. meta {"restart_round": "float32"} (with no_store): a synthetic
+        restart starts from the float32-ROUNDED source state (the numerical floor (b) of the pools; real restarts always do, their
+        stored rates being float32). Restarts are checked (a sample time of the source within 1e-6 dt; a source of the same system:
+        review H, M6); failed or non-finite simulations raise `store.InvalidRecord` and are never stored (review H, M4)."""
+        from .store import check_record
         q = P.validate(protocol)
-        no_store = bool((meta or {}).get("no_store"))
+        meta = dict(meta or {})
+        no_store = bool(meta.pop("no_store", False))
+        round32 = meta.pop("restart_round", None) == "float32"
         if self.kind == "synthetic":
+            from .p4modal.gate import require_admissible
+            require_admissible("synthetic simulation")          # the same host gate as real systems (review H, N6)
             skey = self.store_key(q)
 
             def compute():
                 restart = None
                 if q["r0"]["kind"] == "restart":
                     src = self.store.get(q["r0"]["key"])
-                    if src is None or "state" not in src:
-                        raise P.ProtocolError("restart source missing or stored without its full state")
-                    t = np.asarray(src["t"], float)
-                    restart = np.asarray(src["state"][round(q["r0"]["t"] / (t[1] - t[0]))], dtype=np.float64)
+                    check_restart_source(src, self.sid, self.system_hash)
+                    restart = np.asarray(src["state"][restart_index(src, q["r0"]["t"])], dtype=np.float64)
+                    if round32:
+                        restart = restart.astype(np.float32).astype(np.float64)
                 rec = self.syn.simulate(P.microstate_protocol(q), full=True, restart_state=restart)
                 if "state" not in rec:
                     raise RuntimeError("the generator returned no full state (restarts impossible)")
+                rec["info"] = {**(rec.get("info") or {}), "system_id": self.sid, "system_hash": self.system_hash, "engine": self.engine_id}
                 return rec
             if no_store:
-                rec = self.store.get(skey) or compute()
+                rec = (None if round32 else self.store.get(skey)) or compute()
+                check_record(rec)
             else:
                 skey, rec, _ = self.store.get_or_compute(skey, compute, {"system_id": self.sid, "system_hash": self.system_hash,
-                                                                          "protocol": P.microstate_protocol(q), **(meta or {})})
+                                                                          "protocol": P.microstate_protocol(q), **meta})
             if "state" not in rec:
                 raise RuntimeError(f"store record {skey[:12]} has no full state (it was stored without full=True)")
             from .synthadapter import observe_synthetic
             obs = observe_synthetic(rec, self.rec, q)
             truth = {k: np.asarray(rec[k], np.float64) for k in ("z", "z_obs") if k in rec}
+            if hasattr(self.syn, "draw_effective"):            # the trajectory's effective draw parameters (LOG P4-D43), truth only
+                truth["draw"] = np.asarray(self.syn.draw_effective(P.microstate_protocol(q)), np.float64).reshape(-1)
             clean = np.asarray(rec["y"], np.float32)
         else:
             from .realsim import dense, observe
             if no_store:
                 skey = self.store_key(q)
                 rec = self.store.get(skey) or self.engine.run(self.real, q, store=self.store)
+                check_record(rec)
             else:
                 skey, rec, _ = self.store.get_or_run(self.engine, self.real, q, self.system_hash, meta=meta)
             obs = observe(rec, self.real, q, self.rec.get("obs_scale"))
             truth = {}
             clean = dense(rec, list(self.real.readout))
+        if not (np.isfinite(obs["x"]).all() and np.isfinite(obs["y"]).all()):
+            raise P.ProtocolError("non-finite observed values")          # e.g. observation noise on a non-finite scale
         if q["obs_noise"] is not None and float(q["obs_noise"]["sd"]) > 0:
             truth["y_clean"] = clean
-        return {"key": dataset_key(q, self.system_hash, self.engine_id), "store_key": skey, "t": obs["t"], "x": obs["x"], "u": obs["u"],
-                "y": obs["y"], "truth": truth, "info": dict(rec.get("info") or {})}
+        return {"key": dataset_key(q, self.system_hash, self.engine_id, self.rec.get("obs_scale")), "store_key": skey, "t": obs["t"],
+                "x": obs["x"], "u": obs["u"], "y": obs["y"], "truth": truth, "info": dict(rec.get("info") or {})}
 
 
 _WORKER: dict = {}
@@ -1176,9 +1193,12 @@ def modal_runner(backend, internals: dict, *, store: str = "store", batch: int =
             if r.get("key") and r["key"] != skey:
                 out[j] = {"error": f"remote store key {str(r['key'])[:12]} != local {skey[:12]}"}
                 continue
-            out[j] = {"key": dataset_key(q, rec["system_hash"], engine), "store_key": skey, "t": np.asarray(r["t"]), "x": np.asarray(r["x"]),
-                      "u": np.asarray(r["u"]), "y": np.asarray(r["y"]), "truth": {},
-                      "info": {"remote": True, "computed": r.get("computed"), "sim_wall_s": r.get("sim_wall_s")}}
+            if not (np.isfinite(np.asarray(r["x"], np.float64)).all() and np.isfinite(np.asarray(r["y"], np.float64)).all()):
+                out[j] = {"error": "InvalidRecord: non-finite observed values"}
+                continue
+            out[j] = {"key": dataset_key(q, rec["system_hash"], engine, rec.get("obs_scale")), "store_key": skey, "t": np.asarray(r["t"]),
+                      "x": np.asarray(r["x"]), "u": np.asarray(r["u"]), "y": np.asarray(r["y"]), "truth": {},
+                      "info": {"remote": True, "computed": r.get("computed"), "sim_wall_s": r.get("sim_wall_s"), "host": r.get("host")}}
         for j, y in clean.items():
             if out[j] is not None and "error" not in out[j]:
                 out[j]["truth"]["y_clean"] = y
@@ -1187,18 +1207,39 @@ def modal_runner(backend, internals: dict, *, store: str = "store", batch: int =
 
 
 # ================================================================================================================ writers
+def dataset_info(info: dict, kind: str) -> dict:
+    """The engine bookkeeping a dataset row may carry (a WHITELIST; review F, minor 7): never the network, its size, the bundle hash or
+    the system id; synthetic rows never the generator's engine string (it may name the type)."""
+    keys = SYNTHETIC_INFO_KEYS if kind == "synthetic" else PUBLIC_INFO_KEYS
+    return {k: info[k] for k in keys if info.get(k) is not None}
+
+
+def assert_public_row(row: dict) -> None:
+    """A row of a PUBLIC set holds only whitelisted keys, meta fields and info fields (review F, B1 / minor 7)."""
+    bad = sorted(set(row) - PUBLIC_ROW_KEYS)
+    bad += [f"meta.{k}" for k in sorted(set(row.get("meta") or {}) - PUBLIC_META_KEYS)]
+    bad += [f"info.{k}" for k in sorted(set(row.get("info") or {}) - set(PUBLIC_INFO_KEYS))]
+    if bad:
+        raise AssertionError(f"public row {str(row.get('key'))[:12]} carries non-public fields {bad}")
+    if int(row["protocol"]["params_seed"]) >= HIDDEN_SEED_BASE:
+        raise AssertionError("public row with a hidden-range parameter seed")
+
+
 class SetWriter:
     """Incremental writer of one system's experiment set in the p4-dataset-1 layout (manifest.json, index.jsonl, traj/<key>.npz),
-    readable with `brainir_causal.data.ExperimentSet.load`."""
+    readable with `brainir_causal.data.ExperimentSet.load`. `public`: every row and the manifest are checked against the whitelists."""
 
-    def __init__(self, root: Path, sid: str, pub: dict, dataset_id: str):
-        self.root, self.sid, self.pub, self.dataset_id = Path(root), sid, pub, dataset_id
+    def __init__(self, root: Path, sid: str, pub: dict, dataset_id: str, *, public: bool = False):
+        self.root, self.sid, self.pub, self.dataset_id, self.public = Path(root), sid, pub, dataset_id, public
         (self.root / "traj").mkdir(parents=True, exist_ok=True)
         self.index = self.root / "index.jsonl"
         self.index.write_text("", encoding="utf-8")
         self.n = 0
 
     def add(self, tr) -> None:
+        row = tr.row()
+        if self.public:
+            assert_public_row(row)
         p = self.root / "traj" / f"{tr.key}.npz"
         if not p.exists():
             tmp = p.with_name(p.stem + ".tmp.npz")
@@ -1206,12 +1247,17 @@ class SetWriter:
                                 y=np.asarray(tr.y, np.float32))
             tmp.replace(p)
         with open(self.index, "a", encoding="utf-8", newline="\n") as fh:
-            fh.write(json.dumps(tr.row(), sort_keys=True) + "\n")
+            fh.write(json.dumps(row, sort_keys=True) + "\n")
         self.n += 1
 
     def close(self, extra: dict | None = None) -> None:
         from .data import DATASET_FORMAT
         man = {"format": DATASET_FORMAT, "dataset_id": self.dataset_id, "systems": {self.sid: self.pub}, **(extra or {})}
+        if self.public:
+            bad = sorted(set(man) - PUBLIC_MANIFEST_KEYS)
+            if bad:
+                raise AssertionError(f"public manifest of {self.sid} carries non-public fields {bad}")
+            assert_public_record(self.pub)
         (self.root / "manifest.json").write_text(json.dumps(man, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
 
 
@@ -1222,66 +1268,292 @@ def _family_label(protocol: dict, pub: dict) -> str:
         return "other"
 
 
-def _jobs_of(sp: Spec, sid: str) -> list[tuple[str, dict, dict, str]]:
-    """The simulation jobs of one planned trajectory: itself, its twin, its composition components ((sid, protocol, meta, kind))."""
-    jobs = [(sid, sp.protocol, {"role": sp.role, "split": sp.split}, "item")]
+def _jobs_of(sp: Spec, sid: str, proto: dict | None = None) -> list[tuple[str, dict, dict, str]]:
+    """The simulation jobs of one planned trajectory (with `proto`, e.g. a replaced parameter seed, instead of the planned protocol):
+    itself, its twin, its composition components ((sid, protocol, meta, kind))."""
+    proto = sp.protocol if proto is None else proto
+    jobs = [(sid, proto, {"role": sp.role, "split": sp.split}, "item")]
     if sp.twin:
-        jobs.append((sid, P.counterfactual(sp.protocol), {"role": sp.role, "split": "twin"}, "twin"))
+        jobs.append((sid, P.counterfactual(proto), {"role": sp.role, "split": "twin"}, "twin"))
     comps = sp.meta.get("components")
     if comps:
         for part in ("a", "b"):
-            jobs.append((sid, dict(sp.protocol, events=comps[part]), {"role": sp.role, "split": "component", "component": part}, part))
+            jobs.append((sid, dict(proto, events=comps[part]), {"role": sp.role, "split": "component", "component": part}, part))
     return jobs
 
 
-def run_specs(specs: list[Spec], pub: dict, run, sink, *, provenance: str = "benchmark", chunk: int = CHUNK) -> dict:
-    """Simulate planned trajectories in chunks and hand every record to `sink(record, truth)`. Twins carry meta twin_of = their item's
-    key and components component_of; the twin / components of a failed item are dropped with it. Returns counts and errors."""
+def subsampled(r: dict, k: int) -> dict:
+    """Every k-th sample of a simulated result (observed arrays and truth arrays)."""
+    out = dict(r)
+    for a in ("t", "x", "u", "y"):
+        out[a] = np.asarray(r[a])[::k]
+    out["truth"] = {n: np.asarray(v)[::k] for n, v in (r.get("truth") or {}).items()}
+    return out
+
+
+def told_protocol(q: dict, k: int) -> dict:
+    """The protocol the MODEL is told for a trajectory simulated at dt and kept at every k-th sample: dt x k (its stimulus and events
+    lie on the k dt grid by construction; review H, M3)."""
+    return P.validate(dict(q, dt=round(float(q["dt"]) * k, 12)))
+
+
+def _dependency(sp: Spec) -> dict | None:
+    return sp.meta.get("restart_from") or sp.meta.get("carrier_from")
+
+
+def resolve_restart(sp: Spec, src_key: str, src_proto: dict) -> Spec:
+    """The planned 'obs.init' / pool 'init' trajectory completed from its simulated nominal source (LOG P4-D36): r0 = a restart from
+    the source's store key at the sample time nearest t_frac x its duration, and the source's parameter draw, weight noise and
+    spread."""
+    dep = sp.meta["restart_from"]
+    dt = float(src_proto["dt"])
+    t_r = min(P.snap(float(dep["t_frac"]) * float(src_proto["t_end"]), dt), P.snap(float(src_proto["t_end"]) - dt, dt))
+    q = json.loads(json.dumps(sp.protocol))
+    q["r0"] = {"kind": "restart", "key": str(src_key), "t": float(t_r)}
+    q["params_seed"] = int(src_proto["params_seed"])
+    q["weight_noise"] = src_proto.get("weight_noise")
+    if src_proto.get("params_spread") is not None:
+        q["params_spread"] = src_proto["params_spread"]
+    return Spec(**{**sp.__dict__, "protocol": q, "spares": []})
+
+
+def onset_mismatch(proto: dict, model_events, item: dict, twin: dict) -> str | None:
+    """None if an intervention item and its twin agree in x and y up to AND including the onset sample (the earliest start of the
+    simulated and the told events), on the simulated arrays; else the reason (PROTOCOL_V2 section 1: the sample at an event's time is
+    the pre-event state; review H, N1)."""
+    q = P.validate(proto)
+    evs = list(q["events"])
+    if model_events:
+        evs += list(P.validate(dict(q, events=model_events))["events"])
+    if not evs:
+        return None
+    i0 = round(min(P.event_start(e) for e in evs) / float(q["dt"]))
+    for a in ("x", "y"):
+        u, v = np.asarray(item[a]), np.asarray(twin[a])
+        n = min(i0 + 1, len(u), len(v))
+        if not np.array_equal(u[:n], v[:n]):
+            bad = int(np.flatnonzero(np.any(u[:n].reshape(n, -1) != v[:n].reshape(n, -1), axis=1))[0])
+            return f"{a} differs from the twin at sample {bad} (onset sample {i0})"
+    return None
+
+
+def _realized_kick(ent: dict, unit) -> float | None:
+    """The realized size of the kick on `unit` in one `kicks_applied` entry: the real engine's map "applied" or the synthetic
+    generator's map "units" (review H round 3c, NEW-7), keyed by the unit id as str or int; None when the entry does not report it."""
+    got = ent.get("applied")
+    if got is None:
+        got = ent.get("units")
+    if not isinstance(got, dict):
+        return None
+    keys = [unit, str(unit)]
+    try:
+        keys += [int(unit), str(int(unit))]
+    except (TypeError, ValueError):
+        pass
+    for k in keys:
+        if k in got:
+            return float(got[k])
+    return None
+
+
+def realized_kick_class(sp: Spec, proto: dict, info: dict, cap: dict) -> dict | None:
+    """The magnitude class of a kick item's REALIZED size (review H, N5; LOG P4-D36). None when the item has no kick class or the
+    simulation reports nothing about its kicks. From `kicks_applied` ([{"t", "requested": {unit: d}, "applied": {unit: a}}], the real
+    engine's field; the synthetic generator reports [{"t", "event_index", "units": {unit: a}, "requested": {unit: d}}], unit keys str or
+    int; `_realized_kick`): unclipped kicks keep the planned class; a clipped item takes the class nearest on a log scale to the median
+    realized |kick| / m_s over its kicked units (m_s = the capability's moderate kick; the planned 'hi' class is kept while that median
+    stays inside hi_range). A simulation that reports its kicks without a realized size for some kicked unit, or only reports THAT
+    kicks were clipped (a synthetic generator's `clipped_kicks` [[unit, step], ...]), gives {"unknown": True}: the planned class is
+    kept and the item is flagged (never silently read as unclipped)."""
+    if sp.mclass in ("na", "") or not sp.family.startswith("kick"):
+        return None
+    kicks = [e for e in P.validate(proto)["events"] if e["kind"] == "kick"]
+    if not kicks:
+        return None
+    applied = info.get("kicks_applied")
+    if applied:
+        req, got = [], []
+        for e in kicks:
+            ents = [a for a in applied if abs(float(a.get("t", -1.0)) - float(e["t"])) < 1e-9]    # several kick events may share a time
+            for u, d in e["delta"].items():
+                a = next((v for v in (_realized_kick(ent, u) for ent in ents) if v is not None), None)
+                if a is None:
+                    return {"requested_class": sp.mclass, "mclass": sp.mclass, "unknown": True}
+                req.append(abs(float(d)))
+                got.append(abs(a))
+        req_a, got_a = np.asarray(req), np.asarray(got)
+        clipped = int(np.sum(np.abs(req_a - got_a) > 1e-9 * np.maximum(1.0, req_a)))
+        out = {"requested_class": sp.mclass, "clipped": clipped, "n": int(req_a.size),
+               "median_ratio": float(np.median(got_a / np.maximum(req_a, 1e-300)))}
+        if not clipped:
+            return {**out, "mclass": sp.mclass}
+        m_s = float(cap["kick"]["moderate"])
+        m = float(np.median(got_a)) / m_s
+        if sp.mclass == "hi" and m >= float(cap["kick"]["hi_range"][0]) / m_s:
+            return {**out, "mclass": "hi"}
+        dist = {c: abs(math.log(max(m, 1e-12)) - math.log(MAG_MULT[c])) for c in MAG_CLASSES}
+        return {**out, "mclass": min(MAG_CLASSES, key=lambda c: (dist[c], MAG_CLASSES.index(c)))}
+    clipped_list = info.get("clipped_kicks")
+    if clipped_list:
+        units = {int(u) for e in kicks for u in e["delta"]}
+        if any(int(c[0]) in units for c in clipped_list):
+            return {"requested_class": sp.mclass, "mclass": sp.mclass, "unknown": True}
+    return None
+
+
+def _constant_after(a, i0: int) -> bool:
+    z = np.asarray(a)[max(0, int(i0)):]
+    return bool(z.size) and bool(np.all(z == z[:1]))
+
+
+def run_specs(specs: list[Spec], pub: dict, run, sink, *, provenance: str = "benchmark", chunk: int = CHUNK, public: bool = False,
+              resolver=None, policy_check=None) -> dict:
+    """Simulate planned trajectories in chunks and hand every record to `sink(record, truth)`. A planned trajectory is written only
+    when ALL its jobs succeed (item, twin, composition components): a failure (an error, `success` false or non-finite values: the
+    store refuses such records) re-simulates the whole group with the spec's next spare parameter seed (`add_spares`, the logged rule
+    of review H, M4; meta['replaced'] = {"attempt": k}); a group whose spares are exhausted is dropped. Twins carry meta twin_of =
+    their item's key and components component_of. Specs with meta['subsample'] = k (the temporal-sampling OOD items) are simulated at
+    the nominal dt and recorded at every k-th sample with the told protocol (dt x k; meta sim_dt). Returns counts, errors and the
+    failures per family.
+
+    DEPENDENT trajectories (LOG P4-D36) are simulated after the others: meta['restart_from'] (an 'obs.init' / pool 'init' restart from
+    a nominal source of the same plan, `resolve_restart`) or meta['carrier_from'] (a state-carrier start derived from a source;
+    `resolver(spec, source store key, source protocol) -> Spec`, given by `build_system`). A dependent whose source was dropped is
+    dropped too; dependents have no spares. `policy_check(protocol, allowed_restart_keys)` (public and public-policy parts) checks
+    every completed protocol.
+
+    CHECKS and LABELS: an intervention item whose x or y differs from its twin's at or before the onset sample aborts the build
+    (`onset_mismatch`; review H, N1). A kick item's magnitude class is its REALIZED class (`realized_kick_class`; review H, N5): in
+    non-public parts meta['mclass'] = the realized class with 'mclass_requested' and 'kick_realized' beside it; in public parts only
+    real systems are relabelled (their realized sizes are public already in info.kicks_applied) and no key is added. Counts: kick
+    clipping per family, and test items whose futures are constant from the onset (quiescent regimes; kept, counted)."""
     from .data import Trajectory
-    errors, n_ok = [], 0
-    i = 0
-    while i < len(specs):
-        batch, owners = [], []
-        while i < len(specs) and len(batch) < chunk:
-            for j in _jobs_of(specs[i], pub["system_id"]):
-                batch.append(j[:3])
-                owners.append((specs[i], j[3]))
-            i += 1
-        res = run(batch)
-        item_key: dict[int, str | None] = {}
-        for (sp, what), r in zip(owners, res):
-            if what == "item":
-                item_key[id(sp)] = None if "error" in r else r["key"]
-            if "error" in r:
-                errors.append({"role": sp.role, "what": what, "error": r["error"]})
-                continue
-            parent = item_key.get(id(sp))
-            if what != "item" and parent is None:
-                continue
-            meta = {k: v for k, v in sp.meta.items() if k != "components"}
-            meta.update({"role": sp.role, "mclass": sp.mclass, "target_set": list(sp.target_set), "cell": sp.cell, "state": sp.state,
-                         "store_key": r["store_key"]})
-            if what == "item" and sp.meta.get("components"):
-                meta["component_families"] = sp.meta["components"].get("families")
-            split = sp.split
-            proto = sp.protocol
-            if what == "twin":
-                split, meta["twin_of"] = "twin", parent
-                proto = P.counterfactual(sp.protocol)
-                meta.pop("model_events", None)
-            elif what in ("a", "b"):
-                split, meta["component_of"], meta["component"] = "component", parent, what
-                proto = dict(sp.protocol, events=sp.meta["components"][what])
-                meta.pop("model_events", None)
-            fam = _family_label(proto, pub)
-            if what == "item" and sp.family and fam != sp.family:
-                meta["family_planned"] = sp.family
-            q = P.validate(proto)
-            tr = Trajectory(key=r["key"], system_id=pub["system_id"], split=split, family=fam, protocol=q, t=r["t"], x=r["x"], u=r["u"],
-                            y=r["y"], meta=meta, provenance=provenance, info=r.get("info") or {})
-            sink(tr, r.get("truth") or {})
-            n_ok += 1
-    return {"ok": n_ok, "errors": errors}
+    errors: list[dict] = []
+    counters = {"ok": 0, "replaced": 0, "dropped": 0}
+    fails_by_family: dict[str, int] = {}
+    kick_stats: dict[str, dict[str, int]] = {}
+    constant_items: dict[str, int] = {}
+    sources: dict[str, tuple[str, dict]] = {}
+    cap = normalize_capability(pub.get("capability"), t_end=float(pub["t_end_default"]), dt=float(pub["dt"]),
+                               input_dim=int(pub.get("input_dim", 1)))
+    relabel_ok = (pub.get("kind") == "real") or not public
+
+    def stage(todo: list[Spec]) -> None:
+        pending = [(sp, 0) for sp in todo]          # (spec, attempt): 0 = the planned seed, k >= 1 = spare seed k - 1
+        while pending:
+            retry = []
+            i = 0
+            while i < len(pending):
+                batch, groups = [], []
+                while i < len(pending) and len(batch) < chunk:
+                    sp, att = pending[i]
+                    proto = sp.protocol if att == 0 else dict(sp.protocol, params_seed=int(sp.spares[att - 1]))
+                    js = _jobs_of(sp, pub["system_id"], proto)
+                    groups.append((sp, att, proto, len(batch), [j[3] for j in js]))
+                    batch += [j[:3] for j in js]
+                    i += 1
+                res = run(batch)
+                for sp, att, proto, start, whats in groups:
+                    rs = res[start: start + len(whats)]
+                    bad = [(w, r) for w, r in zip(whats, rs) if "error" in r]
+                    if bad:
+                        fam = sp.family or _family_label(proto, pub)
+                        fails_by_family[fam] = fails_by_family.get(fam, 0) + 1
+                        errors.extend({"role": sp.role, "family": fam, "what": w, "attempt": att, "error": r["error"]} for w, r in bad)
+                        if att < len(sp.spares):
+                            retry.append((sp, att + 1))
+                        else:
+                            counters["dropped"] += 1
+                        continue
+                    by = dict(zip(whats, rs))
+                    if "twin" in by:
+                        why = onset_mismatch(proto, sp.meta.get("model_events"), by["item"], by["twin"])
+                        if why:
+                            raise RuntimeError(f"{pub['system_id']}: {sp.family or 'item'} ({sp.role}) {why}: the sample at an event's "
+                                               "time must be the pre-event state (PROTOCOL_V2 section 1; review H, N1)")
+                    counters["replaced"] += int(att > 0)
+                    if sp.meta.get("src_id"):
+                        sources[str(sp.meta["src_id"])] = (by["item"]["store_key"], proto)
+                    kr = realized_kick_class(sp, proto, by["item"].get("info") or {}, cap)
+                    mclass = sp.mclass
+                    if kr is not None:
+                        st = kick_stats.setdefault(sp.family, {"items": 0, "clipped": 0, "relabelled": 0, "unknown": 0})
+                        st["items"] += 1
+                        st["clipped"] += int(bool(kr.get("clipped")))
+                        st["unknown"] += int(bool(kr.get("unknown")))
+                        if relabel_ok and kr["mclass"] != sp.mclass:
+                            mclass = kr["mclass"]
+                            st["relabelled"] += 1
+                    if sp.split == "test":
+                        q0 = P.validate(proto)
+                        onset = (min(P.event_start(e) for e in q0["events"]) if q0["events"] else PASSIVE_ONSETS[0] * float(q0["t_end"]))
+                        i0 = round(onset / float(q0["dt"]))
+                        if all(_constant_after(r[a], i0) for r in rs for a in ("x", "y")):
+                            key = f"{sp.role}|{sp.family}"
+                            constant_items[key] = constant_items.get(key, 0) + 1
+                    parent = rs[0]["key"]
+                    k_sub = int(sp.meta.get("subsample") or 1)
+                    for what, r in zip(whats, rs):
+                        meta = {k: v for k, v in sp.meta.items() if k not in PLAN_ONLY_META}
+                        meta.update({"role": sp.role, "mclass": mclass, "target_set": list(sp.target_set), "cell": sp.cell,
+                                     "state": sp.state, "store_key": r["store_key"]})
+                        if kr is not None and not public:
+                            meta["mclass_requested"] = sp.mclass
+                            meta["kick_realized"] = {k: v for k, v in kr.items() if k not in ("mclass", "requested_class")}
+                        if att > 0:
+                            meta["replaced"] = {"attempt": att}
+                        if what == "item" and sp.meta.get("components"):
+                            meta["component_families"] = sp.meta["components"].get("families")
+                        split, pw = sp.split, proto
+                        if what == "twin":
+                            split, meta["twin_of"] = "twin", parent
+                            pw = P.counterfactual(proto)
+                            meta.pop("model_events", None)
+                        elif what in ("a", "b"):
+                            split, meta["component_of"], meta["component"] = "component", parent, what
+                            pw = dict(proto, events=sp.meta["components"][what])
+                            meta.pop("model_events", None)
+                        q = P.validate(pw)
+                        if k_sub > 1:
+                            r = subsampled(r, k_sub)
+                            meta["sim_dt"] = float(q["dt"])
+                            q = told_protocol(q, k_sub)
+                        fam = _family_label(q, pub)
+                        if what == "item" and sp.family and fam != sp.family:
+                            meta["family_planned"] = sp.family
+                        tr = Trajectory(key=r["key"], system_id=pub["system_id"], split=split, family=fam, protocol=q, t=r["t"], x=r["x"],
+                                        u=r["u"], y=r["y"], meta=meta, provenance=provenance,
+                                        info=dataset_info(r.get("info") or {}, pub["kind"]))
+                        sink(tr, r.get("truth") or {})
+                        counters["ok"] += 1
+            pending = retry
+
+    stage([sp for sp in specs if _dependency(sp) is None])
+    resolved: list[Spec] = []
+    for sp in specs:
+        dep = _dependency(sp)
+        if dep is None:
+            continue
+        src = sources.get(str(dep["src"]))
+        if src is None:
+            counters["dropped"] += 1
+            errors.append({"role": sp.role, "family": sp.family, "what": "item", "attempt": 0,
+                           "error": f"restart source {dep['src']} unavailable (dropped)"})
+            continue
+        if sp.meta.get("restart_from"):
+            sp2 = resolve_restart(sp, src[0], src[1])
+        else:
+            if resolver is None:
+                raise RuntimeError("carrier-started trajectories need the builder's resolver")
+            sp2 = resolver(sp, src[0], src[1])
+        if policy_check is not None:
+            policy_check(sp2.protocol, {src[0]})
+            if sp2.twin:
+                policy_check(P.counterfactual(sp2.protocol), {src[0]})
+        resolved.append(sp2)
+    stage(resolved)
+    return {"ok": counters["ok"], "errors": errors, "failures_by_family": fails_by_family, "replaced": counters["replaced"],
+            "dropped": counters["dropped"], "kick_clipping": kick_stats, "constant_future_items": constant_items}
 
 
 def write_truth_one(root: Path, key: str, arrs: dict) -> None:
@@ -1302,19 +1574,21 @@ def pick_pool_states(src: list[dict], rng: np.random.Generator) -> list[dict]:
         for i in idx:
             out.append({"state_id": f"{r['key'][:16]}@{int(i)}", "key": r["key"], "store_key": r["store_key"], "index": int(i),
                         "t": float(r["t"][i]), "draw": str(r["draw"]), "params_seed": int(r["params_seed"]),
-                        "weight_noise": r.get("weight_noise"), "params_spread": r.get("params_spread")})
+                        "weight_noise": r.get("weight_noise"), "params_spread": r.get("params_spread"), "source": r.get("source")})
     return out
 
 
 def pool_future_protocol(pub: dict, st: dict, seq_events: list[dict], level: float, *, floor: bool = False) -> dict:
-    """The restart of one pool state under one sequence, with the nominal input level held constant."""
+    """The restart of one pool state under one sequence, with the nominal input level held constant. floor=True: the repeat run of
+    the numerical floor (a) (review H, B1): a no-op stimulus breakpoint ONE SAMPLE after the restart, so the integrator restarts
+    inside the primary horizon."""
     T = round(POOL_FUTURE_FRAC * float(pub["t_end_default"]), 9)
     dt = float(pub["dt"])
     n_u = int(pub.get("input_dim", 1))
     val = float(level) if n_u == 1 else [float(level)] * n_u
     stim = [[0.0, val]]
     if floor:
-        stim.append([P.snap(T / 2 + dt, dt), val])
+        stim.append([P.snap(dt, dt), val])
     p = {"system": pub["system_id"], "params_seed": int(st["params_seed"]), "weight_noise": st.get("weight_noise"),
          "r0": {"kind": "restart", "key": st["store_key"], "t": st["t"]}, "t_end": T, "dt": dt, "stimulus": stim,
          "events": json.loads(json.dumps(seq_events)), "obs_noise": None}
@@ -1368,22 +1642,195 @@ def assert_public_policy(q: dict, pub: dict, allowed_restart_keys=()) -> None:
 
 
 N_EQUIV_STATES, N_EQUIV_PER_STATE = 20, 2
+#: what the numerical-floor futures of a pool are (pool.json 'floors'; review H, B1): the evaluator computes both floors in its own units
+FLOOR_DOC = {
+    "floor": "(a) the no-intervention future repeated with a no-op stimulus breakpoint one sample after the restart (compare with 'none')",
+    "r32": "(b) the no-intervention future restarted from the float32-ROUNDED stored state (real systems: identical to 'none', whose "
+           "restart is from the float32 stored rates)",
+    "cont": "(b) the float64 CONTINUATION: the source trajectory's own readout over the future window (compare with 'r32'); floor "
+            "states come from 'init' sources (nominal input, no event after the stimulus onset), so source and future share the input",
+}
+
+
+def pool_seq_seed_of(tier: str, sid: str, dest: str, policy: str) -> int:
+    """The salted seed of the intervention sequences of a NON-public pool (review F, minor 8); needs the salt."""
+    return salted_stream_seed("pool-seq", tier, sid, dest, policy)
+
+
+def floor_state_indices(states: list[dict], n: int | None = None) -> list[int]:
+    """The floor states (POOL_FLOOR_STATES by default): states of 'init' pool sources (continuation-capable), taken round-robin over
+    the parameter draws."""
+    n = POOL_FLOOR_STATES if n is None else int(n)
+    by_draw: dict[str, list[int]] = {}
+    for si, st in enumerate(states):
+        if st.get("source") == "init":
+            by_draw.setdefault(str(st["draw"]), []).append(si)
+    out: list[int] = []
+    queues = [by_draw[d] for d in sorted(by_draw, key=lambda d: (len(d), d))]
+    j = 0
+    while len(out) < n and any(j < len(q) for q in queues):
+        out += [q[j] for q in queues if j < len(q)][: n - len(out)]
+        j += 1
+    return sorted(out)
+
+
+def continuation_future(ddir: Path, st: dict, n_future: int) -> np.ndarray | None:
+    """The float64 continuation of a pool state: its source trajectory's readout from the state's sample over n_future + 1 samples."""
+    p = ddir / "traj" / f"{st['key']}.npz"
+    if not p.exists():
+        return None
+    with np.load(p) as z:
+        y = np.asarray(z["y"], np.float32)
+    i = int(st["index"])
+    return y[i: i + n_future + 1].copy() if i + n_future < len(y) else None
+
+
+def assert_public_part(ddir: Path | str) -> dict:
+    """File-by-file check of one system's PUBLIC part against the whitelists (review F, B1 / minor 7): only manifest.json, index.jsonl,
+    traj/<key>.npz (arrays t, x, u, y), pools/futures.npz (keys s<i>_<none | kinds | floor | r32 | cont>_<y | x | u>), pools/pool.json
+    and lift_cases.json; whitelisted manifest, record, row, meta, info, pool and lift keys. Raises AssertionError; returns counts."""
+    d = Path(ddir)
+    allowed_top = {"manifest.json", "index.jsonl", "lift_cases.json"}
+    n_files = 0
+    for f in d.rglob("*"):
+        if not f.is_file():
+            continue
+        n_files += 1
+        rel = f.relative_to(d).as_posix()
+        if "/" not in rel:
+            if rel not in allowed_top:
+                raise AssertionError(f"unexpected file {rel} in a public part")
+        elif rel.startswith("traj/"):
+            if not rel.endswith(".npz") or rel.count("/") != 1:
+                raise AssertionError(f"unexpected file {rel} in a public part")
+            with np.load(f, allow_pickle=False) as z:
+                if set(z.files) - PUBLIC_TRAJ_ARRAYS:
+                    raise AssertionError(f"{rel} holds non-public arrays {sorted(set(z.files) - PUBLIC_TRAJ_ARRAYS)}")
+        elif rel not in ("pools/futures.npz", "pools/pool.json"):
+            raise AssertionError(f"unexpected file {rel} in a public part")
+    man = json.loads((d / "manifest.json").read_text(encoding="utf-8"))
+    if set(man) - PUBLIC_MANIFEST_KEYS:
+        raise AssertionError(f"public manifest carries {sorted(set(man) - PUBLIC_MANIFEST_KEYS)}")
+    for rec in man["systems"].values():
+        assert_public_record(rec)
+    n_rows = 0
+    for line in (d / "index.jsonl").read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            assert_public_row(json.loads(line))
+            n_rows += 1
+    n_fut = 0
+    if (d / "pools" / "futures.npz").exists():
+        with np.load(d / "pools" / "futures.npz", allow_pickle=False) as z:
+            bad = [k for k in z.files if not PUBLIC_FUTURE_KEY.match(k)]
+            n_fut = len(z.files)
+        if bad:
+            raise AssertionError(f"public futures.npz holds non-public arrays {bad[:5]}")
+        pool = json.loads((d / "pools" / "pool.json").read_text(encoding="utf-8"))
+        if set(pool) - PUBLIC_POOL_KEYS or pool.get("equivalents"):
+            raise AssertionError(f"public pool.json carries {sorted(set(pool) - PUBLIC_POOL_KEYS)} / equivalents")
+        for st in pool["states"]:
+            if set(st) - PUBLIC_POOL_STATE_KEYS:
+                raise AssertionError(f"public pool state carries {sorted(set(st) - PUBLIC_POOL_STATE_KEYS)}")
+    if (d / "lift_cases.json").exists():
+        for c in json.loads((d / "lift_cases.json").read_text(encoding="utf-8")):
+            if set(c) - PUBLIC_LIFT_KEYS:
+                raise AssertionError(f"public lift case carries {sorted(set(c) - PUBLIC_LIFT_KEYS)}")
+    return {"files": n_files, "rows": n_rows, "future_arrays": n_fut}
+
+
+def _unit_bounds(truth_system, n: int, cap: dict) -> tuple[np.ndarray, np.ndarray]:
+    """Per-unit admissible bounds of a synthetic system for displaced carrier states: the generator's own (orchestrator side) per-unit
+    range where it provides one, else the system-wide range of the record's capability."""
+    raw = None
+    if truth_system is not None:
+        try:
+            raw = (truth_system.capability() or {}).get("admissible_range")
+        except Exception:  # noqa: BLE001 - fall back to the record's range
+            raw = None
+    src = raw if raw is not None else cap.get("admissible_range")
+    if isinstance(src, dict):
+        lo, hi = src.get("lo"), src.get("hi")
+    elif isinstance(src, (list, tuple)) and len(src) == 2:
+        lo, hi = src
+    else:
+        lo, hi = -np.inf, np.inf
+    lo_a = np.full(n, float(lo)) if not isinstance(lo, (list, tuple)) else np.asarray(lo, dtype=np.float64)
+    hi_a = np.full(n, float(hi)) if not isinstance(hi, (list, tuple)) else np.asarray(hi, dtype=np.float64)
+    return lo_a, hi_a
+
+
+def resolve_carrier_start(sp: Spec, src_key: str, src_proto: dict, *, pub: dict, internal: dict, store_root: Path | str,
+                          truth_system=None) -> Spec:
+    """An OOD 'altered initial condition' item completed from its simulated nominal source (LOG P4-D36): the source's FULL microstate
+    at the sample time nearest t_frac x its duration, the planned displacements added on the listed observed units (synthetic: state
+    units, clipped to the unit's admissible range; real: rates in Hz, clipped to [0, the engine's maximum initial rate]), stored as a
+    state carrier (P4-D31); r0 = a restart from the carrier, with the source's parameter draw, weight noise and spread."""
+    from .store import TrajectoryStore
+    dep = sp.meta["carrier_from"]
+    store = TrajectoryStore(store_root)
+    rec = store.get(src_key)
+    if rec is None:
+        raise RuntimeError(f"carrier source {src_key[:12]} is not in the build store")
+    dt = float(src_proto["dt"])
+    t_c = min(P.snap(float(dep["t_frac"]) * float(src_proto["t_end"]), dt), P.snap(float(src_proto["t_end"]) - dt, dt))
+    disp = {int(u): float(v) for u, v in dep["displace"].items()}
+    sid = pub["system_id"]
+    if pub["kind"] == "synthetic":
+        i = restart_index(rec, t_c)
+        v = np.asarray(rec["state"][i], dtype=np.float64).copy()
+        lo, hi = _unit_bounds(truth_system, v.size, pub.get("capability") or {})
+        for u, d in disp.items():
+            v[u] = float(np.clip(v[u] + d, lo[u] if u < lo.size else -np.inf, hi[u] if u < hi.size else np.inf))
+        sys_hash = truth_system.content_hash() if truth_system is not None else str(internal["system_hash"])
+        r0, car = carrier_r0(sys_hash, t_c, v)
+        put_carrier(store_root, sid, sys_hash, car)
+    else:
+        from .realsim import MAX_INIT_RATE
+        ts = np.asarray(rec["t"], dtype=np.float64)
+        i = round(t_c / (ts[1] - ts[0])) if len(ts) > 1 else 0
+        state = {int(n): float(r) for n, r in zip(np.asarray(rec["neurons"]), np.asarray(rec["rates"][i], dtype=np.float64))}
+        for u, d in disp.items():
+            state[u] = float(np.clip(state.get(u, 0.0) + d, 0.0, MAX_INIT_RATE))
+        nz = sorted(n for n, r in state.items() if r != 0.0)
+        key = put_real_carrier(store_root, sid, str(internal["system_hash"]), t_c, nz, [state[n] for n in nz])
+        r0 = {"kind": "restart", "key": key, "t": float(t_c)}
+    q = json.loads(json.dumps(sp.protocol))
+    q["r0"] = r0
+    q["params_seed"] = int(src_proto["params_seed"])
+    q["weight_noise"] = src_proto.get("weight_noise")
+    if src_proto.get("params_spread") is not None:
+        q["params_spread"] = src_proto["params_spread"]
+    return Spec(**{**sp.__dict__, "protocol": q, "spares": []})
 
 
 def build_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str, run, dirs: dict[str, Path], dest: str = "eval",
                  sets=("tests", "pool_src"), policy: str = "full", with_truth: bool = True, truth_system=None,
-                 store_root: Path | str = STORE) -> dict:
-    """Plan, simulate and write one part of one system into dirs[dest]/<system>: records (D0 / D1 / validation and / or tests,
-    twins, components, pool sources), pools (futures NPZ + JSON; under policy 'full', synthetic systems also get truth-equivalent
-    states from the generator's `equivalent_states`) and lift cases. A PUBLIC part (dest 'public') or a public-policy part (policy
-    'public') is checked protocol by protocol against the public policy (`assert_public_policy`): a violation aborts the build.
-    `truth_system` = the generator's system object (synthetic only)."""
+                 store_root: Path | str = STORE, specs: list | None = None, pool_seq_seed: int | None = None) -> dict:
+    """Plan, simulate and write one part of one system into dirs[dest]/<system> (cleared first: no stale files, review H minor 9):
+    records (D0 / D1 / validation and / or tests, twins, components, pool sources), pools (futures NPZ + JSON; under policy 'full',
+    synthetic systems also get truth-equivalent states from the generator's `equivalent_states`) and lift cases. A PUBLIC part (dest
+    'public') or a public-policy part (policy 'public') is checked protocol by protocol against the public policy
+    (`assert_public_policy`): a violation aborts the build; a public part is also checked file by file against the whitelists
+    (`assert_public_part`).
+    TRUTH never enters the part: record truth goes to truth/<system>/traj/, the true latents of the pool futures to
+    truth/<system>/pools/<part>_futures_truth.npz (review F, B1).
+    POOL SEQUENCES: a public part draws them from the public stream; every other part from a SALTED stream (`pool_seq_seed`, computed
+    where the salt is: `pool_seq_seed_of`; review F, minor 8). POOL INPUT: the simulated u of each no-intervention future is stored
+    (`s<i>_none_u`; review H, minor 2). FLOORS (review H, B1): for POOL_FLOOR_STATES states of 'init' sources, futures 'floor',
+    'r32' and 'cont' (FLOOR_DOC).
+    `truth_system` = the generator's system object (synthetic only). `specs`: the part's plan made elsewhere (remote builds plan
+    LOCALLY, where the salt is, and pass the plan to the container: `plan_remote_job`); default: plan here."""
     sid = pub["system_id"]
     if dest == "public" and policy != "public" and set(sets) & {"tests", "pool_src"}:
         raise ValueError("a public part may only hold public-policy evaluation sets")
-    check = dest == "public" or policy == "public"
+    if truth_system is not None and internal.get("system_hash") and truth_system.content_hash() != internal["system_hash"]:
+        # the plan and the build computed the generator's system differently: they ran on different numerical platforms (P4-D32)
+        raise RuntimeError(f"{sid}: the planned system hash differs from the building process's; plan on the reference platform")
+    public_part = dest == "public"
+    check = public_part or policy == "public"
     pool_state_fn = getattr(truth_system, "pool_states", None) if truth_system is not None else None
-    specs = plan_system(pub, internal, tier=tier, seed=seed, level=level, sets=tuple(sets), pool_state_fn=pool_state_fn, policy=policy)
+    if specs is None:
+        specs = plan_system(pub, internal, tier=tier, seed=seed, level=level, sets=tuple(sets), pool_state_fn=pool_state_fn, policy=policy)
     if check:
         for sp in specs:
             assert_public_policy(sp.protocol, pub)
@@ -1391,35 +1838,66 @@ def build_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str,
                 assert_public_policy(P.counterfactual(sp.protocol), pub)
             if sp.meta.get("components"):
                 raise AssertionError("composition items are never public-policy items")
+    if "pool_src" in sets and not public_part and pool_seq_seed is None:
+        pool_seq_seed = pool_seq_seed_of(tier, sid, dest, policy)          # local builds (the salt is here)
     ddir, tdir = dirs[dest] / _safe(sid), dirs["truth"] / _safe(sid)
-    writer = SetWriter(ddir, sid, pub, f"{tier}:{sid}:{dest}")
+    if ddir.exists():
+        shutil.rmtree(ddir)
+    writer = SetWriter(ddir, sid, pub, f"{tier}:{sid}:{dest}", public=public_part)
     pool_src_meta: list[dict] = []
     lift_src: list[dict] = []
+    row_store_key: dict[str, str] = {}          # row key -> store key (restart keys naming a row of the part resolve through it)
+    restart_keys: list[str] = []                # every restart key the part's rows use (checked at the end, LOG P4-D50)
+    equivs: list[dict] = []                     # truth-equivalent states (their carrier restarts are checked at the end)
 
     def sink(tr, truth):
         writer.add(tr)
+        row_store_key[str(tr.key)] = str(tr.meta["store_key"])
+        r0 = tr.protocol.get("r0") or {}
+        if r0.get("kind") == "restart":
+            restart_keys.append(str(r0["key"]))
         if with_truth:
             write_truth_one(tdir, tr.key, truth)
         light = {"key": tr.key, "store_key": tr.meta["store_key"], "n": len(tr.t), "t": np.asarray(tr.t), "params_seed":
                  tr.protocol["params_seed"], "weight_noise": tr.protocol.get("weight_noise"), "stimulus": tr.protocol["stimulus"],
                  "params_spread": tr.protocol.get("params_spread")}
         if tr.split == "pool_src":
-            pool_src_meta.append({**light, "draw": tr.meta.get("draw")})
+            pool_src_meta.append({**light, "draw": tr.meta.get("draw"), "source": tr.meta.get("source")})
         elif tr.split == "test" and tr.meta.get("role") == "passive":
             lift_src.append(light)
 
-    res = run_specs(specs, pub, run, sink)
+    carriers = [sp.meta["carrier"] for sp in specs if sp.meta.get("carrier")]
+    if carriers or any(sp.meta.get("carrier_from") for sp in specs):
+        if public_part or policy == "public":
+            raise AssertionError("state carriers (full microstates) never enter a public or public-policy part")
+        for car in carriers:
+            put_carrier(store_root, sid, str(internal["system_hash"]), car)
+
+    def resolve_carrier(sp: Spec, src_key: str, src_proto: dict) -> Spec:
+        return resolve_carrier_start(sp, src_key, src_proto, pub=pub, internal=internal, store_root=store_root,
+                                     truth_system=truth_system)
+
+    def policy_check(q: dict, keys: set) -> None:
+        assert_public_policy(q, pub, allowed_restart_keys=keys)
+
+    res = run_specs(specs, pub, run, sink, public=public_part, resolver=resolve_carrier, policy_check=policy_check if check else None)
     errors = list(res["errors"])
-    out = {"counts": {"planned": len(specs), "records": res["ok"], "errors": len(errors)}, "errors": errors[:50]}
+    out = {"counts": {"planned": len(specs), "records": res["ok"], "errors": len(errors), "replaced": res["replaced"],
+                      "dropped": res["dropped"], "failures_by_family": res["failures_by_family"],
+                      "kick_clipping": res["kick_clipping"], "constant_future_items": res["constant_future_items"]},
+           "errors": errors[:50]}
     if "pool_src" in sets and pool_src_meta:
         rng = rng_of("pool-states", tier, seed, sid, policy)
         states = pick_pool_states(pool_src_meta, rng)
         targets = pub.get("targets_public") or internal.get("targetable") or []
         edges = [list(e) for e in (pub.get("edges_public") or [])] or ([] if policy == "public" else _graph_edges(pub))
         allowed = list(pub["split"]["families_train"]) if policy == "public" else None
-        seqs = pool_sequences(pub, rng_of("pool-seq", tier, seed, sid), targets, edges, families_allowed=allowed)
+        seq_rng = rng_of("pool-seq", tier, seed, sid) if public_part else np.random.default_rng(int(pool_seq_seed))
+        seqs = pool_sequences(pub, seq_rng, targets, edges, families_allowed=allowed)
         level_nom = FamilySampler(pub, rng, lambda: 0, targets=targets).level
         src_keys = {st["store_key"] for st in states}
+        floor_idx = floor_state_indices(states)
+        synthetic = pub["kind"] == "synthetic"
         jobs, owners = [], []
         for si, st in enumerate(states):
             for name, sq in [("none", {"events": []})] + list(seqs.items()):
@@ -1428,9 +1906,16 @@ def build_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str,
                     assert_public_policy(p, pub, allowed_restart_keys=src_keys)
                 jobs.append((sid, p, {"role": "pool_future", "split": "pool", "no_store": True}))
                 owners.append((si, name))
-            if si < POOL_FLOOR_STATES:
-                jobs.append((sid, pool_future_protocol(pub, st, [], level_nom, floor=True), {"role": "pool_floor", "split": "pool", "no_store": True}))
-                owners.append((si, "floor"))
+        for si in floor_idx:
+            p = pool_future_protocol(pub, states[si], [], level_nom, floor=True)
+            if check:
+                assert_public_policy(p, pub, allowed_restart_keys=src_keys)
+            jobs.append((sid, p, {"role": "pool_floor", "split": "pool", "no_store": True}))
+            owners.append((si, "floor"))
+            if synthetic:
+                jobs.append((sid, pool_future_protocol(pub, states[si], [], level_nom),
+                             {"role": "pool_floor32", "split": "pool", "no_store": True, "restart_round": "float32"}))
+                owners.append((si, "r32"))
         equivs: list[dict] = []
         eq_fn = getattr(truth_system, "equivalent_states", None) if (truth_system is not None and policy != "public") else None
         if eq_fn is not None:
@@ -1446,7 +1931,9 @@ def build_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str,
                     errors.append({"role": "equivalent_states", "what": st["state_id"], "error": f"{type(e).__name__}: {e}"})
                     continue
                 for j, vec in enumerate(eqs):
-                    equivs.append({"of": st["state_id"], "si": si, "j": j, "r0": state_r0(vec)})
+                    r0, car = carrier_r0(str(internal["system_hash"]), float(st["t"]), vec)
+                    put_carrier(store_root, sid, str(internal["system_hash"]), car)
+                    equivs.append({"of": st["state_id"], "si": si, "j": j, "r0": r0})
             for eq in equivs:
                 st = states[eq["si"]]
                 for name, sq in [("none", {"events": []})] + list(seqs.items()):
@@ -1455,7 +1942,9 @@ def build_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str,
                     jobs.append((sid, p, {"role": "pool_equiv", "split": "pool", "no_store": True}))
                     owners.append((f"e{eq['si']}_{eq['j']}", name))
         arrays: dict[str, np.ndarray] = {}
+        truth_arrays: dict[str, np.ndarray] = {}
         n_med = round(HORIZON_FRACTIONS["medium"] * float(pub["t_end_default"]) / float(pub["dt"]))
+        n_fut = round(POOL_FUTURE_FRAC * float(pub["t_end_default"]) / float(pub["dt"]))
         for c in range(0, len(jobs), CHUNK):
             for (si, name), r in zip(owners[c: c + CHUNK], run(jobs[c: c + CHUNK])):
                 if "error" in r:
@@ -1464,26 +1953,56 @@ def build_system(pub: dict, internal: dict, *, tier: str, seed: int, level: str,
                 tag = si if isinstance(si, str) else f"s{si}"
                 arrays[f"{tag}_{name}_y"] = np.asarray(r["y"], np.float32)
                 if name == "none":
-                    # P4-D14: the observed microstate only for the no-intervention future, over the primary horizon
+                    # P4-D14: the observed microstate only for the no-intervention future, over the primary horizon; the SIMULATED input
                     arrays[f"{tag}_none_x"] = np.asarray(r["x"], np.float32)[: n_med + 1]
-                    if isinstance(si, str):
-                        arrays[f"{tag}_none_u"] = np.asarray(r["u"], np.float32)[:1]
+                    arrays[f"{tag}_none_u"] = np.asarray(r["u"], np.float32)
                 if with_truth and r.get("truth", {}).get("z") is not None:
-                    arrays[f"{tag}_{name}_z"] = np.asarray(r["truth"]["z"], np.float32)
+                    truth_arrays[f"{tag}_{name}_z"] = np.asarray(r["truth"]["z"], np.float32)
+        for si in floor_idx:
+            if not synthetic and f"s{si}_none_y" in arrays:
+                arrays[f"s{si}_r32_y"] = arrays[f"s{si}_none_y"]
+            cont = continuation_future(ddir, states[si], n_fut)
+            if cont is not None:
+                arrays[f"s{si}_cont_y"] = cont
+        if public_part:
+            bad = [k for k in arrays if not PUBLIC_FUTURE_KEY.match(k)]
+            if bad:
+                raise AssertionError(f"non-public arrays {bad[:5]} in the public pool futures of {sid}")
         (ddir / "pools").mkdir(parents=True, exist_ok=True)
         np.savez_compressed(ddir / "pools" / "futures.npz", **arrays)
+        if truth_arrays:
+            (tdir / "pools").mkdir(parents=True, exist_ok=True)
+            np.savez_compressed(tdir / "pools" / f"{dest}_futures_truth.npz", **truth_arrays)
         (ddir / "pools" / "pool.json").write_text(json.dumps({"states": states, "sequences": seqs, "level": level_nom,
                                                               "future_s": POOL_FUTURE_FRAC * float(pub["t_end_default"]), "policy": policy,
-                                                              "equivalents": [{k: v for k, v in e.items() if k != "r0"} for e in equivs]},
+                                                              "equivalents": [{k: v for k, v in e.items() if k != "r0"} for e in equivs],
+                                                              "floor_states": [states[si]["state_id"] for si in floor_idx],
+                                                              "floors": FLOOR_DOC},
                                                              indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
         out["counts"]["pool_states"] = len(states)
         out["counts"]["pool_equivalents"] = len(equivs)
         out["counts"]["pool_sequences"] = sorted(seqs)
+        out["counts"]["pool_floor_states"] = len(floor_idx)
         out["counts"]["pool_bytes"] = int(sum((ddir / "pools" / f).stat().st_size for f in ("futures.npz", "pool.json")))
+    lift_cases: list[dict] = []
     if "tests" in sets:
-        (ddir / "lift_cases.json").write_text(json.dumps(pick_lift_cases(lift_src, rng_of("lift", tier, seed, sid, policy)), indent=1) + "\n",
-                                              encoding="utf-8", newline="\n")
+        lift_cases = pick_lift_cases(lift_src, rng_of("lift", tier, seed, sid, policy))
+        (ddir / "lift_cases.json").write_text(json.dumps(lift_cases, indent=1) + "\n", encoding="utf-8", newline="\n")
+    # every restart source of the part (rows' restarts, lift cases, pool states, truth-equivalent states) must be a stored record of THIS
+    # system with its full state: evaluations and the service restart from these records (LOG P4-D50: a validation system's lift
+    # cases were refused at evaluation time)
+    pool_keys: list[str] = []
+    if (ddir / "pools" / "pool.json").exists():
+        pj = json.loads((ddir / "pools" / "pool.json").read_text(encoding="utf-8"))
+        pool_keys = [s.get("store_key") for s in pj.get("states") or []]
+    eq_keys = [(e.get("r0") or {}).get("key") for e in equivs if (e.get("r0") or {}).get("kind") == "restart"]
+    keys = [row_store_key.get(k, k) for k in restart_keys] + [c["store_key"] for c in lift_cases] + pool_keys + eq_keys
+    bad = restart_source_problems(store_root, sid, str(internal.get("system_hash") or ""), keys, need_state=truth_system is not None)
+    if bad:
+        raise RuntimeError(f"{sid} ({dest}): {len(bad)} restart sources are not records of this system: {bad[:5]}")
     writer.close({"part": dest, "policy": policy, "tier": tier})
+    if public_part:
+        out["counts"]["public_check"] = assert_public_part(ddir)
     out["counts"]["errors"] = len(errors)
     out["errors"] = errors[:50]
     return out
@@ -1498,6 +2017,24 @@ def _truth_arrays(truth_dir: Path | None, key: str) -> dict:
         return {}
     with np.load(p) as z:
         return {k: z[k] for k in z.files}
+
+
+def own(a) -> np.ndarray | None:
+    """A read-only float64 COPY that owns its memory (review F, minor 2: a view of a stored trajectory would hand a model the whole
+    trajectory, future included, through `.base`)."""
+    if a is None:
+        return None
+    b = np.array(a, dtype=np.float64, copy=True)
+    b.setflags(write=False)
+    return b
+
+
+def identity_cell(family: str, target_set, edges, mclass: str) -> str:
+    """The IDENTITY CELL of a test item (review E, M2; PROTOCOL 5.1): family x target set (edge set for edge families) x magnitude
+    class; the resampling unit within a system (the family is recorded too, for two-stage resampling)."""
+    tg = sorted(int(u) for u in (target_set or ()))
+    ed = sorted([int(a), int(b)] for a, b in (edges or ())) if edges else None
+    return json.dumps([family, tg, ed, mclass], separators=(",", ":"))
 
 
 def eval_system_from_public(pub: dict, public_set) -> object:
@@ -1516,7 +2053,10 @@ def eval_system_from_public(pub: dict, public_set) -> object:
 def items_from_set(pub: dict, held, truth_dir: Path | None = None, *, horizon: str = "long", roles: tuple[str, ...] | None = None) -> list:
     """evalio.TestItem objects of one system (from a lazily loaded held-out set): intervention items with their twins (and
     composition components) and passive windows at the fixed onsets. Futures use the NOISE-FREE readout where the truth store has
-    it. `roles` restricts to some roles (e.g. ('in', 'passive'))."""
+    it. `roles` restricts to some roles (e.g. ('in', 'passive')). Every array is the item's own read-only copy (review F, minor 2).
+    GROUP (the resampling unit): intervention items = their IDENTITY CELL (`identity_cell`, review E M2; meta['identity_cell'] and
+    `family` for two-stage resampling), passive windows = their trajectory. Horizons use the item's own dt (the temporal-sampling
+    items are recorded at 2 dt)."""
     from .data import LazyExperimentSet
     from .evalio import TestItem
     if not isinstance(held, LazyExperimentSet):
@@ -1549,10 +2089,11 @@ def items_from_set(pub: dict, held, truth_dir: Path | None = None, *, horizon: s
                 h = min(H, len(r.t) - 1 - i0)
                 if h < 1:
                     continue
-                items.append(TestItem(item_id=f"{r.key[:20]}@p{j}", system_id=r.system_id, dt=dt, x_hist=r.x[: i0 + 1], u_hist=r.u[: i0 + 1],
-                                      u_future=r.u[i0: i0 + h + 1], events=[], y_future=y_true[i0: i0 + h + 1], y_twin=None, family=r.family,
-                                      shift="passive", onset=float(r.t[i0]), group=r.key, x_future=r.x[i0: i0 + h + 1],
-                                      z_true=(zt[i0] if zt is not None else None), z_obs=(zo[i0] if zo is not None else None),
+                items.append(TestItem(item_id=f"{r.key[:20]}@p{j}", system_id=r.system_id, dt=dt, x_hist=own(r.x[: i0 + 1]),
+                                      u_hist=own(r.u[: i0 + 1]), u_future=own(r.u[i0: i0 + h + 1]), events=[],
+                                      y_future=own(y_true[i0: i0 + h + 1]), y_twin=None, family=r.family, shift="passive",
+                                      onset=float(r.t[i0]), group=r.key, x_future=own(r.x[i0: i0 + h + 1]),
+                                      z_true=(own(zt[i0]) if zt is not None else None), z_obs=(own(zo[i0]) if zo is not None else None),
                                       meta={"key": r.key, "store_key": r.meta.get("store_key")}))
             continue
         trow = twins.get(r.key)
@@ -1575,43 +2116,71 @@ def items_from_set(pub: dict, held, truth_dir: Path | None = None, *, horizon: s
             for part, crow in comps[r.key].items():
                 cr = held.load(crow)
                 cy = np.asarray(_truth_arrays(truth_dir, cr.key).get("y_clean", cr.y), np.float64)
-                comp_d[part] = {"events": relative_events(P.validate(cr.protocol)["events"], t0), "y_future": cy[i0: i0 + h + 1]}
+                comp_d[part] = {"events": relative_events(P.validate(cr.protocol)["events"], t0), "y_future": own(cy[i0: i0 + h + 1])}
         # dz_true (the exact true latent effect of the first instantaneous event) is left to evaluate_truth.attach_truth, which
-        # computes it with the generator from meta["state"] (harness.attach_states)
+        # computes it with the generator from meta["state"] (harness.attach_states); dz_true_next (the true latent difference item -
+        # twin one sample after the onset: what a rollout difference and the lift miss measure; review H, N4) comes from the truth
+        # store's z series of the item and its twin
         dz = None
+        ztw = ttw.get("z")
+        dz_next = (own(np.asarray(zt[i0 + 1], np.float64) - np.asarray(ztw[i0 + 1], np.float64))
+                   if zt is not None and ztw is not None and len(zt) > i0 + 1 and len(ztw) > i0 + 1 else None)
         told_rel = relative_events(P.validate(dict(r.protocol, events=told))["events"], t0)
-        items.append(TestItem(item_id=r.key[:24], system_id=r.system_id, dt=dt, x_hist=r.x[: i0 + 1], u_hist=r.u[: i0 + 1],
-                              u_future=r.u[i0: i0 + h + 1], events=told_rel, y_future=y_true[i0: i0 + h + 1], y_twin=ytw[i0: i0 + h + 1],
-                              family=r.family, shift=role, magnitude_class=r.meta.get("mclass", "na"),
-                              target_set=tuple(int(u) for u in r.meta.get("target_set") or ()), onset=t0, group=r.key,
-                              x_future=r.x[i0: i0 + h + 1], x_twin_future=tw.x[i0: i0 + h + 1],
+        mclass = r.meta.get("mclass", "na")
+        cell = identity_cell(r.family, r.meta.get("target_set"), r.meta.get("edges") if r.family in ("edge.w", "edge.rm") else None, mclass)
+        items.append(TestItem(item_id=r.key[:24], system_id=r.system_id, dt=dt, x_hist=own(r.x[: i0 + 1]), u_hist=own(r.u[: i0 + 1]),
+                              u_future=own(r.u[i0: i0 + h + 1]), events=told_rel, y_future=own(y_true[i0: i0 + h + 1]),
+                              y_twin=own(ytw[i0: i0 + h + 1]), family=r.family, shift=role, magnitude_class=mclass,
+                              target_set=tuple(int(u) for u in r.meta.get("target_set") or ()), onset=t0, group=f"cell:{cell}",
+                              x_future=own(r.x[i0: i0 + h + 1]), x_twin_future=own(tw.x[i0: i0 + h + 1]),
                               true_events=(relative_events(r.protocol["events"], t0) if r.meta.get("model_events") else None),
-                              components=comp_d, z_true=(zt[i0] if zt is not None else None), z_obs=(zo[i0] if zo is not None else None),
-                              dz_true=dz, meta={"key": r.key, "twin": tw.key, "cell": r.meta.get("cell"), "proxy": bool(r.meta.get("proxy")),
-                                                "store_key": r.meta.get("store_key"), "twin_store_key": tw.meta.get("store_key"),
-                                                "params_seed": r.protocol["params_seed"]}))
+                              components=comp_d, z_true=(own(zt[i0]) if zt is not None else None),
+                              z_obs=(own(zo[i0]) if zo is not None else None),
+                              dz_true=dz, dz_true_next=dz_next,
+                              meta={"key": r.key, "twin": tw.key, "cell": r.meta.get("cell"), "identity_cell": cell,
+                                                "proxy": bool(r.meta.get("proxy")), "store_key": r.meta.get("store_key"),
+                                                "twin_store_key": tw.meta.get("store_key"), "params_seed": r.protocol["params_seed"]}))
     return items
 
 
-def pool_from_files(pub: dict, held, hdir: Path, truth_dir: Path | None = None):
-    """evalio.Pool of one system."""
+def pool_from_files(pub: dict, held, hdir: Path, truth_dir: Path | None = None, *, part: str | None = None):
+    """evalio.Pool of one system. The sequences' common future input is the SIMULATED input of the no-intervention futures (review
+    H, minor 2; identical for every state, checked). NUMERICAL FLOOR (review H, B1; PROTOCOL 5.5): each floor state carries
+    `PoolState.floor_futures` = {"noop": [the no-intervention future, its repeat with a no-op breakpoint one sample after the
+    restart], "f32": [the float64 continuation, the restart from the float32-rounded stored state]} (readout arrays (H+1, n_y), row 0
+    = the state's sample); the evaluator computes both floors in its own units. `floor_div` is not produced (None: the old raw-unit
+    RMS is retired). Truth-equivalent states read their true latent from truth/<system>/pools/<part>_futures_truth.npz (F-B1)."""
     from .evalio import Pool, PoolState
     jpath = hdir / "pools" / "pool.json"
     if not jpath.exists():
         return None
+    part = part or hdir.parent.name
     meta = json.loads(jpath.read_text(encoding="utf-8"))
     by_key = {r["key"]: r for r in held.rows}
     dt = float(pub["dt"])
     n_u = int(pub.get("input_dim", 1))
     fut_T = round(float(meta["future_s"]) / dt)
-    u_future = np.full((fut_T + 1, n_u), float(meta["level"]))
+    with np.load(hdir / "pools" / "futures.npz") as z:
+        arr = {k: z[k] for k in z.files}
+    ztruth: dict[str, np.ndarray] = {}
+    if truth_dir is not None and (truth_dir / "pools" / f"{part}_futures_truth.npz").exists():
+        with np.load(truth_dir / "pools" / f"{part}_futures_truth.npz") as z:
+            ztruth = {k: z[k] for k in z.files}
+    u_keys = [k for k in arr if k.startswith("s") and k.endswith("_none_u")]
+    if u_keys:
+        u_future = np.asarray(arr[u_keys[0]], np.float64).reshape(fut_T + 1, -1)
+        for k in u_keys[1:]:
+            if not np.array_equal(np.asarray(arr[k], np.float64).reshape(u_future.shape), u_future):
+                raise ValueError(f"pool of {pub['system_id']}: the no-intervention futures do not share their input ({k})")
+    else:                                                    # pools built before review H: the nominal level
+        u_future = np.full((fut_T + 1, n_u), float(meta["level"]))
+    u_future.setflags(write=False)
     seqs = {"none": {"events": [], "u_future": u_future, "family": "none", "kind": "none"}}
     for name, sq in meta["sequences"].items():
         seqs[name] = {"events": sq["events"], "u_future": u_future, "family": sq["family"], "kind": sq["kind"]}
-    with np.load(hdir / "pools" / "futures.npz") as z:
-        arr = {k: z[k] for k in z.files}
-    states, floors = [], []
+    states = []
     cache: dict[str, object] = {}
+    floor_ids = set(meta.get("floor_states") or [])
     for si, st in enumerate(meta["states"]):
         row = by_key.get(st["key"])
         if row is None or f"s{si}_none_y" not in arr:
@@ -1620,19 +2189,21 @@ def pool_from_files(pub: dict, held, hdir: Path, truth_dir: Path | None = None):
             cache[st["key"]] = held.load(row)
         r = cache[st["key"]]
         i = int(st["index"])
-        futures = {name: arr[f"s{si}_{name}_y"].astype(np.float64) for name in seqs if f"s{si}_{name}_y" in arr}
-        xfut = {name: arr[f"s{si}_{name}_x"].astype(np.float64) for name in seqs if f"s{si}_{name}_x" in arr}
-        fd = None
+        futures = {name: own(arr[f"s{si}_{name}_y"]) for name in seqs if f"s{si}_{name}_y" in arr}
+        xfut = {name: own(arr[f"s{si}_{name}_x"]) for name in seqs if f"s{si}_{name}_x" in arr}
+        smeta = {"store_key": st["store_key"], "t": st["t"], "params_seed": st["params_seed"]}
+        ff = {}
         if f"s{si}_floor_y" in arr:
-            fd = float(np.sqrt(np.mean((arr[f"s{si}_floor_y"].astype(np.float64) - futures["none"]) ** 2)))
-            floors.append(fd)
+            ff["noop"] = [futures["none"], own(arr[f"s{si}_floor_y"])]
+        if f"s{si}_cont_y" in arr and f"s{si}_r32_y" in arr:
+            ff["f32"] = [own(arr[f"s{si}_cont_y"]), own(arr[f"s{si}_r32_y"])]
         tr = _truth_arrays(truth_dir, r.key)
         has_eq = any(e["si"] == si for e in meta.get("equivalents") or [])
-        states.append(PoolState(state_id=st["state_id"], x_hist=r.x[: i + 1], u_hist=r.u[: i + 1], y_now=np.asarray(r.y[i], np.float64),
+        states.append(PoolState(state_id=st["state_id"], x_hist=own(r.x[: i + 1]), u_hist=own(r.u[: i + 1]), y_now=own(r.y[i]),
                                 traj=r.key, draw=str(st["draw"]), futures=futures, x_futures=xfut,
-                                z_true=(tr["z"][i] if "z" in tr else None), z_obs=(tr["z_obs"][i] if "z_obs" in tr else None),
-                                equiv_class=(st["state_id"] if has_eq else None), floor_div=fd,
-                                meta={"store_key": st["store_key"], "t": st["t"], "params_seed": st["params_seed"]}))
+                                z_true=(own(tr["z"][i]) if "z" in tr else None), z_obs=(own(tr["z_obs"][i]) if "z_obs" in tr else None),
+                                equiv_class=(st["state_id"] if has_eq else None), floor_div=None, floor_futures=(ff or None),
+                                meta=smeta))
     # truth-equivalent states (synthetic): same TRUE causal state as their source pool state; no history exists, so x_hist is the
     # single observed sample at the state and meta['truth_only'] marks them: never matched by a model's latent (reference only)
     for e in meta.get("equivalents") or []:
@@ -1640,21 +2211,23 @@ def pool_from_files(pub: dict, held, hdir: Path, truth_dir: Path | None = None):
         if f"{tag}_none_y" not in arr:
             continue
         src = meta["states"][e["si"]]
-        futures = {name: arr[f"{tag}_{name}_y"].astype(np.float64) for name in seqs if f"{tag}_{name}_y" in arr}
-        xfut = {name: arr[f"{tag}_{name}_x"].astype(np.float64) for name in seqs if f"{tag}_{name}_x" in arr}
-        x0 = arr[f"{tag}_none_x"][:1].astype(np.float64)
-        u0 = arr[f"{tag}_none_u"][:1].astype(np.float64) if f"{tag}_none_u" in arr else u_future[:1]
-        z0 = arr[f"{tag}_none_z"][0].astype(np.float64) if f"{tag}_none_z" in arr else None
+        futures = {name: own(arr[f"{tag}_{name}_y"]) for name in seqs if f"{tag}_{name}_y" in arr}
+        xfut = {name: own(arr[f"{tag}_{name}_x"]) for name in seqs if f"{tag}_{name}_x" in arr}
+        x0 = own(arr[f"{tag}_none_x"][:1])
+        u0 = own(arr[f"{tag}_none_u"][:1]) if f"{tag}_none_u" in arr else u_future[:1]
+        z0 = own(ztruth[f"{tag}_none_z"][0]) if f"{tag}_none_z" in ztruth else None
         states.append(PoolState(state_id=f"{src['state_id']}~eq{e['j']}", x_hist=x0, u_hist=u0, y_now=futures["none"][0], traj=f"equiv:{src['key']}",
                                 draw=str(src["draw"]), futures=futures, x_futures=xfut, z_true=z0, equiv_class=src["state_id"],
                                 meta={"truth_only": True, "equiv_of": src["state_id"]}))
-    return Pool(system_id=pub["system_id"], dt=dt, states=states, sequences=seqs, floor_div=(float(np.mean(floors)) if floors else None),
+    return Pool(system_id=pub["system_id"], dt=dt, states=states, sequences=seqs, floor_div=None,
                 meta={"future_s": float(meta["future_s"]), "n_truth_only": sum(1 for s in states if s.meta.get("truth_only")),
-                      "x_futures": "no-intervention future only, over the primary horizon (P4-D14)"})
+                      "x_futures": "no-intervention future only, over the primary horizon (P4-D14)",
+                      "floor_states": sorted(floor_ids), "floors": meta.get("floors") or {}})
 
 
 def truth_samples(pub: dict, held, truth_dir: Path | None) -> list:
-    """evalio.StateSample list (synthetic latent recovery): N_TRUTH_SAMPLES encoding points per passive test trajectory."""
+    """evalio.StateSample list (synthetic latent recovery): N_TRUTH_SAMPLES encoding points per passive test trajectory (own
+    read-only copies)."""
     from .evalio import StateSample
     if truth_dir is None:
         return []
@@ -1668,8 +2241,10 @@ def truth_samples(pub: dict, held, truth_dir: Path | None) -> list:
         r = held.load(row)
         n = len(r.t)
         for i in np.linspace(int(0.1 * (n - 1)), n - 2, N_TRUTH_SAMPLES).astype(int):
-            out.append(StateSample(sample_id=f"{r.key[:16]}@{int(i)}", x_hist=r.x[: i + 1], u_hist=r.u[: i + 1], dt=float(r.protocol["dt"]),
-                                   group=r.key, z_true=tr["z"][i], z_obs=(tr["z_obs"][i] if "z_obs" in tr else None)))
+            out.append(StateSample(sample_id=f"{r.key[:16]}@{int(i)}", x_hist=own(r.x[: i + 1]), u_hist=own(r.u[: i + 1]),
+                                   dt=float(r.protocol["dt"]), group=r.key, z_true=own(tr["z"][i]),
+                                   z_obs=(own(tr["z_obs"][i]) if "z_obs" in tr else None),
+                                   draw=(own(np.asarray(tr["draw"]).reshape(-1)) if "draw" in tr else None)))
     return out
 
 
@@ -1690,7 +2265,7 @@ def load_eval_inputs(sid: str, *, heldout_dirs: dict[str, Path], public_dirs: di
     truth_dir = td if td.exists() else None
     lc = hd / "lift_cases.json"
     return {"record": pub, "system": eval_system_from_public(pub, pub_set), "public": pub_set, "heldout": held,
-            "items": items_from_set(pub, held, truth_dir, roles=roles), "pool": pool_from_files(pub, held, hd, truth_dir),
+            "items": items_from_set(pub, held, truth_dir, roles=roles), "pool": pool_from_files(pub, held, hd, truth_dir, part=part),
             "samples": truth_samples(pub, held, truth_dir),
             "lift_cases": json.loads(lc.read_text(encoding="utf-8")) if lc.exists() else []}
 
@@ -1732,6 +2307,7 @@ TIER_PARTS = {
     "toyC": (("public", ("public",), "public"), ("eval", ("tests", "pool_src"), "full")),
     "val": (("public", ("public",), "public"), ("eval", ("tests", "pool_src"), "full")),
     "conf": (("public", ("public",), "public"), ("eval", ("tests", "pool_src"), "full")),
+    "trap": (("public", ("public",), "public"), ("eval", ("tests", "pool_src"), "full")),
 }
 REAL_PARTS = {
     "public": (("public", ("public", "tests", "pool_src"), "public"),),
@@ -1742,10 +2318,10 @@ REAL_PARTS = {
 
 def build_tier(tier: str, *, generator: tuple | None = None, workers: int = 4, systems: list[str] | None = None, root: Path = SUITES,
                store_root: Path = STORE, run=None, parts=None) -> dict:
-    """Build a synthetic tier: 'dev' / 'val' (before development), 'conf' (after the lock only); 'toy' / 'toyC' = the adapter's toy
-    systems (tests). Parts per tier: TIER_PARTS."""
-    if tier == "conf":
-        require_lock("the confirmation tier")
+    """Build a synthetic tier: 'dev' / 'val' (before development), 'conf' and 'trap' (after the lock only); 'toy' / 'toyC' = the
+    adapter's toy systems (tests). Parts per tier: TIER_PARTS."""
+    if tier in LOCKED_TIERS:
+        require_lock(f"the {tier} tier")
     seed = tier_seed(tier)
     pubs, ints, truths = synthetic_tier_records(tier, seed, generator)
     objs = _synthetic_systems(tier, seed, generator)
@@ -1776,20 +2352,22 @@ def build_tier(tier: str, *, generator: tuple | None = None, workers: int = 4, s
     return summary
 
 
-REAL_TIERS = {"public": "real_public", "B": "real_levelb", "C": "real_hidden"}
+REAL_TIERS = {"public": "real_public", "B": "real_levelb", "C": "real_levelc"}
 
 
 def build_real(level: str, *, workers: int = 4, systems: list[str] | None = None, root: Path = REAL_SETS, store_root: Path = STORE,
                run=None) -> dict:
     """Real systems: level 'public' (D0 / D1 / validation and the public evaluation subset: the public development data), 'B' (the
-    Level B validation sets, drawn under the PUBLIC policy with public seeds; orchestrator-held) or 'C' (the hidden test with every
-    shift, OOD and robustness set; after the lock only; hidden-range seeds from the salt)."""
+    Level B validation sets, drawn under the PUBLIC policy with public-range seeds from SALTED streams; orchestrator-held) or 'C'
+    (the hidden test with every shift, OOD and robustness set; after the lock only; hidden-range seeds from the salt). Stream seed:
+    `real_stream_seed` (0 for the public data, salted otherwise)."""
     from .systems import load_real_internal, public_view
     if level == "C":
         require_lock("the real hidden test")
     internals = load_real_internal()
     sids = sorted(internals) if not systems else [s for s in sorted(internals) if s in set(systems)]
     tier = REAL_TIERS[level]
+    seed = real_stream_seed(level)
     backend = LocalBackend(internals, tier=tier, seed=0, generator=None, store_root=store_root, workers=workers) if run is None else None
     runner = run or backend.run
     out = {"level": level, "tier": tier, "created_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "systems": {}}
@@ -1798,7 +2376,7 @@ def build_real(level: str, *, workers: int = 4, systems: list[str] | None = None
         for sid in sids:
             out["systems"][sid] = {}
             for dest, sets, policy in REAL_PARTS[level]:
-                built = build_system(public_view(internals[sid]), internals[sid], tier=tier, seed=0, level=("C" if level == "C" else "B"),
+                built = build_system(public_view(internals[sid]), internals[sid], tier=tier, seed=seed, level=("C" if level == "C" else "B"),
                                      run=runner, dirs=dirs, dest=dest, sets=sets, policy=policy, with_truth=True, store_root=store_root)
                 out["systems"][sid][dest] = built["counts"]
                 if built["errors"]:
@@ -1809,6 +2387,213 @@ def build_real(level: str, *, workers: int = 4, systems: list[str] | None = None
     dirs["base"].mkdir(parents=True, exist_ok=True)
     (dirs["base"] / "build_summary.json").write_text(json.dumps(out, indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     return out
+
+
+# ================================================================================================================ remote builds (Modal)
+#: container paths of the Phase 4 volumes (brainir_causal.p4modal.app): PUBLIC parts on the FIT volume; orchestrator-held parts,
+#: truth, onset states and every NON-public store record (synthetic records carry the true state; held-out real records) on the EVAL
+#: volume; the store records of the PUBLIC real data on the STORE volume (restart sources of the simulation service's remote path)
+REMOTE = {"fit": "/fitvol/data", "eval": "/evalvol/data", "eval_store": "/evalvol/store", "store": "/storevol/store"}
+GENERATOR_CONTAINER = "/repo/benchmarks/causal_state_v1/generator/src"
+GENERATOR_REL = "benchmarks/causal_state_v1/generator/src"
+
+
+def spec_to_dict(sp: Spec) -> dict:
+    d = asdict(sp)
+    d["target_set"] = [int(u) if isinstance(u, (int, np.integer)) else u for u in sp.target_set]
+    return json.loads(json.dumps(d, default=lambda o: o.item() if hasattr(o, "item") else str(o)))
+
+
+def spec_from_dict(d: dict) -> Spec:
+    return Spec(**{**d, "target_set": tuple(d.get("target_set") or ())})
+
+
+def remote_dirs(tier: str, *, kind: str) -> dict[str, str]:
+    """Container paths of a tier's parts: {"base", "public", "eval", "truth"} (POSIX strings). Real tiers live under <volume>/real,
+    synthetic tiers under <volume>/suites."""
+    sub = "real" if kind == "real" else "suites"
+    pub = PurePosixPath(REMOTE["fit"]) / sub / tier
+    ev = PurePosixPath(REMOTE["eval"]) / sub / tier
+    return {"base": str(ev), "public": str(pub / "public"), "eval": str(ev / "eval"), "truth": str(ev / "truth")}
+
+
+def write_onset_states(sid: str, dirs: dict[str, Path], store_root: Path | str) -> dict:
+    """truth/<system>/onset_states.npz: the full microstate at the onset of every intervention test item of the system's built parts
+    (synthetic truth: `harness.attach_states` reads it, so an evaluation never needs the store records). The onset is the one
+    `items_from_set` uses (earliest start of the true and the told events)."""
+    from .data import ExperimentSet
+    from .store import TrajectoryStore
+    store = TrajectoryStore(store_root)
+    out: dict[str, np.ndarray] = {}
+    missing = 0
+    for part in ("eval", "public"):
+        d = Path(dirs[part]) / _safe(sid)
+        if not (d / "index.jsonl").exists():
+            continue
+        held = ExperimentSet.load(d, lazy=True)
+        for row in held.rows:
+            q = row.get("protocol") or {}
+            if row.get("split") != "test" or not q.get("events"):
+                continue
+            meta = row.get("meta") or {}
+            rec = store.get(meta["store_key"]) if meta.get("store_key") else None
+            if rec is None or "state" not in rec:
+                missing += 1
+                continue
+            told = meta.get("model_events") or q["events"]
+            onset = min(min(P.event_start(e) for e in q["events"]), min(P.event_start(e) for e in P.validate(dict(q, events=told))["events"]))
+            t = np.asarray(rec["t"], float)
+            i = round((onset - t[0]) / (t[1] - t[0]))
+            if 0 <= i < len(rec["state"]):
+                out[row["key"]] = np.asarray(rec["state"][i], np.float64)
+    tdir = Path(dirs["truth"]) / _safe(sid)
+    tdir.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(tdir / "onset_states.npz", **out)
+    return {"n": len(out), "missing_records": missing}
+
+
+def _same_arrays(a: Path, b: Path) -> tuple[bool, bool]:
+    """(the two store records hold bit-identical arrays, the second one's info carries a host fingerprint)."""
+    with np.load(a, allow_pickle=False) as za, np.load(b, allow_pickle=False) as zb:
+        fa, fb = set(za.files) - {"info"}, set(zb.files) - {"info"}
+        same = fa == fb and all(za[k].dtype == zb[k].dtype and np.array_equal(za[k], zb[k]) for k in fa)
+        has_host = "info" in zb.files and "host" in json.loads(str(zb["info"]))
+    return same, has_host
+
+
+def publish_store(local_root: Path | str, dest_root: Path | str, *, source: str = "remote-build") -> dict:
+    """Copy the records of a local (container) store into a VOLUME store (same layout as brainir_causal.store and
+    p4modal.remote.VolumeStore): records not yet present are written atomically; the index lines go to ONE new shard file, so
+    concurrent publishers never write the same file. A record ALREADY present is compared array by array with the new one (a free
+    bit-identity check across builds and hosts): identical arrays keep the present file unless it lacks the host fingerprint (review
+    H, M5; then the new record replaces it: 'upgraded'); differing arrays are 'mismatch' (listed, never overwritten). The caller
+    commits the volume."""
+    local, dest = Path(local_root), Path(dest_root)
+    n_new = n_skip = n_upg = 0
+    mismatch: list[str] = []
+    shard_lines = []
+    idx = {}
+    if (local / "index.jsonl").exists():
+        for line in (local / "index.jsonl").read_text(encoding="utf-8").splitlines():
+            try:
+                r = json.loads(line)
+                idx[r["key"]] = r
+            except (json.JSONDecodeError, KeyError):
+                continue
+    for p in sorted((local / "rec").rglob("*.npz")):
+        key = p.stem
+        tgt = dest / "rec" / key[:2] / f"{key}.npz"
+        if tgt.exists():
+            same, has_host = _same_arrays(p, tgt)
+            if not same:
+                mismatch.append(key)
+                continue
+            if has_host:
+                n_skip += 1
+                continue
+            n_upg += 1
+        else:
+            n_new += 1
+        tgt.parent.mkdir(parents=True, exist_ok=True)
+        tmp = tgt.with_name(f"{key}.{uuid.uuid4().hex[:8]}.tmp")
+        shutil.copyfile(p, tmp)
+        os.replace(tmp, tgt)
+        shard_lines.append(json.dumps({**idx.get(key, {"key": key}), "published_by": source}, sort_keys=True))
+    if shard_lines:
+        shard = dest / "index_shards" / f"{source}_{uuid.uuid4().hex[:12]}.jsonl"
+        shard.parent.mkdir(parents=True, exist_ok=True)
+        shard.write_text("\n".join(shard_lines) + "\n", encoding="utf-8", newline="\n")
+    return {"new": n_new, "present": n_skip, "upgraded": n_upg, "mismatch": len(mismatch), "mismatch_keys": mismatch[:50]}
+
+
+def file_manifest(d: Path | str) -> dict:
+    """{relative path: [sha256, bytes]} of every file under d."""
+    d = Path(d)
+    out = {}
+    if not d.exists():
+        return out
+    for p in sorted(q for q in d.rglob("*") if q.is_file()):
+        h = hashlib.sha256()
+        with open(p, "rb") as fh:
+            for chunk in iter(lambda: fh.read(1 << 20), b""):
+                h.update(chunk)
+        out[p.relative_to(d).as_posix()] = [h.hexdigest(), p.stat().st_size]
+    return out
+
+
+def build_system_job(job: dict) -> dict:
+    """Build ONE system's parts inside a (Modal) container from a LOCALLY planned job (`plan_remote_job`): simulate in a process pool
+    of `workers` through a container-local store, write the sets into the job's directories (volume paths), write the synthetic onset
+    states, publish the store records to the job's volume store, and return counts, errors and a file manifest (sha256)."""
+    t0 = time.time()
+    sid, kind = job["sid"], job["kind"]
+    dirs = {k: Path(v) for k, v in job["dirs"].items()}
+    store_root = Path(job.get("store_root") or f"/tmp/p4build/{_safe(sid)}/store")
+    gen = tuple(job["generator"]) if job.get("generator") else None
+    internal, pub = job["internal"], job["pub"]
+    truth_obj = None
+    if kind == "synthetic":
+        truth_obj = _synthetic_systems(internal["tier"], int(internal["tier_seed"]), gen)[sid]
+    backend = LocalBackend({sid: internal}, tier=job["tier"], seed=int(job["seed"]), generator=gen, store_root=store_root,
+                           workers=int(job.get("workers", 4)))
+    parts_out = {}
+    try:
+        for part in job["parts"]:
+            built = build_system(pub, internal, tier=job["tier"], seed=int(job["seed"]), level=job["level"], run=backend.run, dirs=dirs,
+                                 dest=part["dest"], sets=tuple(part["sets"]), policy=part["policy"],
+                                 with_truth=bool(job.get("with_truth", True)), truth_system=truth_obj, store_root=store_root,
+                                 specs=[spec_from_dict(d) for d in part["specs"]], pool_seq_seed=part.get("pool_seq_seed"))
+            parts_out[part["dest"]] = built
+    finally:
+        backend.close()
+    onset = write_onset_states(sid, dirs, store_root) if kind == "synthetic" else None
+    published = publish_store(store_root, job["publish_store"], source=f"build_{job['tier']}_{_safe(sid)}") if job.get("publish_store") else None
+    manifest = {p["dest"]: file_manifest(dirs[p["dest"]] / _safe(sid)) for p in job["parts"]}
+    manifest["truth"] = file_manifest(dirs["truth"] / _safe(sid))
+    if job.get("cleanup_store", True):
+        shutil.rmtree(store_root, ignore_errors=True)
+    return {"sid": sid, "tier": job["tier"], "parts": parts_out, "onset_states": onset, "published": published, "manifest": manifest,
+            "wall_s": round(time.time() - t0, 1), "workers": int(job.get("workers", 4))}
+
+
+def plan_remote_job(kind: str, sid: str, *, level: str | None = None, tier: str | None = None, generator: tuple | None = None,
+                    workers: int = 16, container_generator: str | None = GENERATOR_CONTAINER) -> dict:
+    """The job of `build_system_job` for one system, planned HERE (where the salt is: hidden-range and salted seeds are derived
+    locally and only the resulting protocols, spare seeds and stream seeds travel; the job's `seed` of a salted tier is secret: never
+    record it). kind 'real' with level 'public' | 'B' | 'C' (C only after the method lock); kind 'synthetic' with
+    tier 'dev' | 'val' | 'conf' (conf only after the lock) | 'toy' | 'toyC' and the LOCAL generator (dir, package)."""
+    if kind == "real":
+        from .systems import load_real_internal, public_view
+        if level == "C":
+            require_lock("the real hidden test")
+        internal = load_real_internal()[sid]
+        pub = public_view(internal)
+        tier_name, seed, lev = REAL_TIERS[level], real_stream_seed(level), ("C" if level == "C" else "B")
+        parts_def = REAL_PARTS[level]
+        pool_fn = None
+        publish = REMOTE["store"] if level == "public" else REMOTE["eval_store"]
+        gen_c = None
+    else:
+        if tier in LOCKED_TIERS:
+            require_lock(f"the {tier} tier")
+        seed = tier_seed(tier)
+        pubs, ints, _ = synthetic_tier_records(tier, seed, generator)
+        pub, internal = pubs[sid], ints[sid]
+        tier_name, lev = tier, LEVEL_OF_TIER.get(tier, "B")
+        parts_def = TIER_PARTS[tier]
+        pool_fn = getattr(_synthetic_systems(tier, seed, generator)[sid], "pool_states", None)
+        publish = REMOTE["eval_store"]
+        gen_c = None if tier in ("toy", "toyC") else [container_generator, (generator or (None, "p4synth"))[1]]
+    parts = []
+    for dest, sets, policy in parts_def:
+        specs = plan_system(pub, internal, tier=tier_name, seed=seed, level=lev, sets=tuple(sets), pool_state_fn=pool_fn, policy=policy)
+        part = {"dest": dest, "sets": list(sets), "policy": policy, "specs": [spec_to_dict(s) for s in specs]}
+        if "pool_src" in sets and dest != "public":
+            part["pool_seq_seed"] = pool_seq_seed_of(tier_name, sid, dest, policy)       # salted here; the container has no salt
+        parts.append(part)
+    return {"sid": sid, "kind": kind, "tier": tier_name, "seed": int(seed), "level": lev, "pub": pub, "internal": internal, "parts": parts,
+            "dirs": remote_dirs(tier_name, kind=kind), "store_root": f"/tmp/p4build/{_safe(sid)}/store", "workers": int(workers),
+            "generator": gen_c, "publish_store": publish, "with_truth": True}
 
 
 def plan_counts(pub: dict, internal: dict, *, tier: str, seed: int, level: str, sets=("public", "tests", "pool_src"),
@@ -1836,7 +2621,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Build causal_state_v1 datasets (orchestrator side).")
     sub = ap.add_subparsers(dest="cmd", required=True)
     b = sub.add_parser("synthetic")
-    b.add_argument("--tier", required=True, choices=("dev", "val", "conf", "toy", "toyC"))
+    b.add_argument("--tier", required=True, choices=("dev", "val", "conf", "trap", "toy", "toyC"))
     b.add_argument("--generator-dir", default="")
     b.add_argument("--generator-package", default="p4synth")
     b.add_argument("--workers", type=int, default=4)
@@ -1858,3 +2643,52 @@ def main(argv=None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def host_summary(root: str) -> dict:
+    """The host fingerprints of the rows of one built system directory (index.jsonl; review H N6, M5): rows, rows with a fingerprint,
+    rows whose fingerprint is admissible (`p4modal.gate`: flagged admissible, AVX2 present, no AVX-512F) and the distinct
+    (vendor, model, machine, os) descriptions. Works on local copies and, through a Modal call, on volume directories."""
+    p = Path(root) / "index.jsonl"
+    if not p.exists():
+        return {"_missing": True}
+    rows = with_host = adm = 0
+    bad: list[str] = []
+    cpus: dict[str, int] = {}
+    for line in p.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        r = json.loads(line)
+        rows += 1
+        h = (r.get("info") or {}).get("host")
+        if not isinstance(h, dict):
+            bad.append(str(r.get("key")))
+            continue
+        with_host += 1
+        cpu = h.get("cpu") or {}
+        ok = h.get("admissible") is True and cpu.get("avx2") is True and cpu.get("avx512f") is False
+        adm += int(ok)
+        if not ok:
+            bad.append(str(r.get("key")))
+        k = f"{cpu.get('vendor')}|{cpu.get('model')}|{h.get('machine')}|{h.get('os')}"
+        cpus[k] = cpus.get(k, 0) + 1
+    return {"rows": rows, "with_host": with_host, "admissible": adm, "not_admissible_or_missing": bad[:10], "hosts": cpus}
+
+
+def hash_tree(root: str, *, max_files: int = 2_000_000) -> dict:
+    """{relative POSIX path: [sha256, bytes]} of every file under `root` (a volume directory inside a Modal container; the freeze's
+    dataset manifests). Text files are hashed as stored (datasets are written with LF)."""
+    base = Path(root)
+    out: dict[str, list] = {}
+    if not base.is_dir():
+        return {"_missing": True}
+    for p in sorted(base.rglob("*")):
+        if p.is_file() and not p.is_symlink():
+            h = hashlib.sha256()
+            with open(p, "rb") as fh:
+                for chunk in iter(lambda: fh.read(1 << 22), b""):
+                    h.update(chunk)
+            out[p.relative_to(base).as_posix()] = [h.hexdigest(), p.stat().st_size]
+            if len(out) > max_files:
+                raise RuntimeError("too many files")
+    return out

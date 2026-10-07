@@ -1,0 +1,81 @@
+{
+ "contract_problems": [
+  "frozen_brainir_state_v1 on syn-04c74abe0096: info()['ablation_switches'] is missing or not a mapping (got NoneType); the method must declare every switch of api.ABLATION_SWITCHES",
+  "frozen_brainir_state_v1 on syn-09a260ad2d4f: info()['ablation_switches'] is missing or not a mapping (got NoneType); the method must declare every switch of api.ABLATION_SWITCHES"
+ ],
+ "created_utc": "2026-09-27T07:15:11Z",
+ "declarations": {},
+ "devices": {
+  "frozen_brainir_state_v1": "cpu"
+ },
+ "discarded_speculative_fits": {
+  "n": 0,
+  "n_failed": 0,
+  "switches": []
+ },
+ "extra_methods": {},
+ "fit_failures": [],
+ "hidden": false,
+ "levelc_run": null,
+ "lock": {},
+ "max_containers": 4,
+ "method": "frozen_brainir_state_v1",
+ "method_hashes": {
+  "__init__.py": "bb76dd76bd4460cc91f65c14463fbaa45af2ce0db6f6ee3d61977c9269540dfc",
+  "p3stand/__init__.py": "4842d44ed6976d1c43f025114d2d16c9bee2ba638c85ea95407028b81d407b7c",
+  "p3stand/refstand.py": "60b57676609682b6cdc4f249d7c41d106312c4d110b3e8e841f57ce186fdc89d"
+ },
+ "methods_dir": "scripts\\p4\\standin_methods",
+ "modal": {
+  "cost": {
+   "app_id": "ap-Av0MsL2cWsBixqIXm3qnBs",
+   "calls": [
+    {
+     "calls": 1,
+     "class": "iso_pack_fit",
+     "container_s": 73.1,
+     "label": "describe",
+     "peak_container_mb_max": 626.7,
+     "usd_approx": 0.0514
+    },
+    {
+     "calls": 6,
+     "class": "iso_pack_fit",
+     "container_s": 2091.7,
+     "label": "fits:iso_pack_fit",
+     "peak_container_mb_max": 8419.0,
+     "usd_approx": 1.4712
+    }
+   ],
+   "hosts": {
+    "unknown": 7
+   },
+   "refusals": {
+    "iso_pack_fit": 5
+   },
+   "usd_approx_total": 1.5226
+  },
+  "fits_wall_s": 441.5
+ },
+ "n_fit_failures": 0,
+ "n_fit_failures_all": 0,
+ "n_fits": 6,
+ "real_level": null,
+ "run_id": "neg_frozen",
+ "seeds": [
+  0
+ ],
+ "status": "FAILED: ablation contract",
+ "study": "ablations",
+ "switch_plan": {},
+ "switches_requested": [
+  "interventional_training",
+  "closure_loss"
+ ],
+ "systems": [
+  "syn-04c74abe0096",
+  "syn-09a260ad2d4f"
+ ],
+ "tier": "dev",
+ "wall_s": 562.7
+}

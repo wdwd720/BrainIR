@@ -33,7 +33,26 @@ SCHEMA_VERSION = "brainir-causal-state-model-1"
 
 #: keys of CausalStateModel.info() the evaluator reads (all optional)
 INFO_KEYS = ("k", "k_range", "abstain", "history", "n_params", "train_cost", "sharing", "read_in", "lift", "uncertainty",
-             "validity_domain", "active_history", "failure_flags", "training_families")
+             "validity_domain", "active_history", "failure_flags", "training_families", "ablation_switches", "ablated")
+
+#: the ABLATION vocabulary (goal5 sections 87-89): a method declares in info()["ablation_switches"] every name it honours (a
+#: component it does not have is declared "not_applicable" with a reason) and applies config["ablate"]; the post-lock ablation study
+#: runs the locked method once per switch and fails loudly on a switch that is neither honoured nor declared not applicable
+ABLATION_SWITCHES = {
+    "interventional_training": "train on passive data only: every interventional record (and its twin) is dropped before fitting "
+                               "(THE critical ablation, goal5 section 88)",
+    "mediation_loss": "drop the state-mediation objective term(s)",
+    "closure_loss": "drop the interventional-closure objective term(s)",
+    "active_design": "the method's own designer is replaced by the benchmark's random designer",
+    "native_lift": "lift() is disabled (returns no lift)",
+    "multiple_lift_consistency": "drop the objective / selection that makes distinct lifts consistent",
+    "dimension_penalty": "drop the dimension penalty / rule (k from the unpenalised criterion, reported)",
+    "history_delay": "the encoder sees only the current sample (no history / delay embedding beyond it)",
+    "uncertainty_ensemble": "a single model instead of the ensemble / uncertainty machinery",
+    "shared_dynamics": "no shared transition across systems (independent fits)",
+    "state_bottleneck": "remove the compact state: predict from the full observed history with the same data (the second critical "
+                        "ablation, goal5 section 89)",
+}
 
 #: config keys every method must honour (a method that cannot honour one raises NotImplementedError)
 CONFIG_KEYS = {
@@ -43,6 +62,8 @@ CONFIG_KEYS = {
     "adapt_from": "a fitted CausalStateModel whose transition law f is FROZEN: fit encoders / read-ins / readouts only for the "
                   "systems in the data (new implementations); report the adaptation cost in info()['train_cost']",
     "budget": "int: intervention experiments the method may request through its designer during the loop (0 = none)",
+    "ablate": "list of ABLATION_SWITCHES names to switch off for this fit (default none); every name must be honoured or declared "
+              "'not_applicable' in info()['ablation_switches']; info()['ablated'] repeats the applied list",
 }
 
 

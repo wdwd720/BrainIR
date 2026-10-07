@@ -11,42 +11,74 @@ trusted code (the evaluator does not copy these models), trained on the benchmar
     PCA-k          ProjectionStateModel("pca", k): the top-k principal components of the public training x, same learner
     ID-SHORTCUT    IdShortcutModel: future readout = h(intervention identity, stimulus, readout history); NO state (goal5 section 22)
 
-THE GENERIC CONTROLLED LEARNER (one design for every state-based reference, so they differ only in the state s):
+THE GENERIC CONTROLLED LEARNER, version 2 (one design for every state-based reference, so they differ only in the state s;
+research/phase4/REFERENCE_LEARNER_V2.md gives the diagnosis that led to it):
 
-    state            s = [s_dyn, traces]: s_dyn = the reference's state (compact references: s_dyn = z, no traces; FULL-STATE:
-                     s_dyn = x_t and two causal exponential traces of x with time constants 1/4 and 1 x the short horizon (at least 2
-                     samples): the short delay embedding in Markov form, so rollouts update it without storing a history)
-    read-in matrix   K (d_dyn x N_obs): maps an observed-space perturbation to s_dyn. Compact references: K = P + dK, where P is the
-                     ridge probe x -> s_dyn fitted on training samples and dK a ridge correction (shrunk towards 0) fitted on the
-                     training KICKS against their counterfactual twins (the observed one-step effect s_int(i+1) - s_twin(i+1) - P dx);
-                     units never kicked in training keep the probe. FULL-STATE: K = identity (exact).
-    decoder          x_hat = D(s): ridge s_dyn -> x (compact); x_hat = s_dyn (full)
-    interventions    per step, a per-unit descriptor A (N_obs x 7): current I (current + current_seq), silence drive m * x_hat, silence
-                     mask m, edge drive sum over active scaled edges into the unit of (F - 1) * x_hat_pre (F = product of active factors;
-                     unobserved presynaptic units contribute 0), gain drive (G - 1) * x_hat, threshold offset D, time-constant drive
-                     (C - 1) * x_hat. The dynamics receive c = K A (d_dyn x 7, flattened): a target that is observed is representable
-                     even if it was never intervened in training; unobserved targets act only through their effect on observed units.
-                     An intervention KIND whose channels were never active in training is not supported (supports() False: the
-                     evaluator scores abstention) and the weights of never-active channel features are exactly zero.
-                     Kicks are instantaneous jumps s_dyn += K dx (clipped at 0 for non-negative data; the recorded sample at a kick's
-                     time is the pre-kick state, the jump acts before the step, as in the simulators)
-    dynamics         s_dyn(t+1) = s_dyn(t)^+ + MLP_f([s_norm, u_norm, c_norm]) * dsd  (MLP: depth 2, width 128 (compact) / 256 (full),
-                     GELU); trained one-step (all event rows + a seeded subsample of passive rows; half of every batch drawn from the
-                     RESPONSE rows: intervention windows and the short horizon after them, so passive rows do not dominate the
-                     intervention-effect fit), then an unrolled multi-step phase (windows of max(8, 1/4 short horizon) steps, half of
-                     them starting in response rows; intervention inputs teacher-forced) against rollout drift
+    state            s = the reference's state: z / z_obs (TRUE-STATE / OBS-SHORTCUT), a projection of x (PCA-k / RANDOM-k), or, for
+                     FULL-STATE, [x_t, two causal exponential traces of x] (time constants 1/4 and 1 x the short horizon, at least 2
+                     samples: the short delay embedding in Markov form, updated in rollouts). cfg.state_traces adds the same traces to
+                     the compact states (off by default: they destabilised long rollouts on the dev suite)
+    kick read-in     K (d_dyn x N_obs): LEARNED from the training kicks against their counterfactual twins (ridge on the observed
+                     one-step effect s_int(j+1) - s_twin(j+1), relative penalty cfg.kick_lambda) around a structural prior: identity for
+                     the observed microstate (FULL-STATE), ZERO for a compact state. A correlational probe x -> s is never used as a
+                     read-in: a unit that encodes the state without driving it (a follower) would get a large, false read-in
+    channels         per step, a per-unit descriptor A (N_obs x 7): current I (current + current_seq), silence drive m * x_hat, silence
+                     mask m, edge drive sum over active scaled edges into the unit of (F - 1) * x_hat_pre (F = product of active
+                     factors; unobserved presynaptic units contribute 0), gain drive (G - 1) * x_hat, threshold offset D, time-constant
+                     drive (C - 1) * x_hat (x_hat = the ridge decoding s -> x; the observed state itself for FULL-STATE). They act
+                     CONTROL-AFFINELY with a learned per-(unit, channel) read-in R (d_dyn x N_obs x 7; FULL-STATE: each unit on its own
+                     coordinate), initialised in closed form (ridge on the one-step residuals of every row with an active descriptor)
+                     after the one-step phase and refined jointly with the dynamics in the paired phase. Effects are linear in the
+                     descriptors, so magnitudes outside the training range extrapolate linearly
+    abstention       a KIND whose channels were never active in training is unsupported (supports() False); an EVENT on a unit never
+                     intervened in training with that kind (for a compact state: a kick on a unit never kicked) is not covered
+                     (covers() False) and intervention_effect abstains; the (unit, channel) read-ins never trained are exactly zero
+    dynamics         s_dyn(t+1) = s_dyn(t)^+ + [f0([s_norm, u_norm]) + R . (A / scale)] * dsd (f0: MLP depth 2, width 128 (compact) /
+                     256 (full), GELU, float64). ONE-STEP phase (cfg.one_step_mode 'auto'): a compact state trains f0 on the rows
+                     WITHOUT an active channel (passive rows, kick rows and the rows after interventions; half of every batch from the
+                     RESPONSE rows: the short horizon after an event), then fits R in closed form on the channel rows (so f0 cannot
+                     absorb the channel effects), then continues f0 on ALL rows with R fixed for half the steps (it learns the states
+                     of long channel windows); FULL-STATE trains f0 and R jointly on all rows, then fits R in closed form (its per-unit
+                     read-in cannot carry a channel's effect on the other units of a latent-driven system; REFERENCE_LEARNER_V2.md
+                     sections 11 and 13). Then a PAIRED multi-step
+                     phase: an intervention record and its twin are unrolled together from the same teacher-forced state at most one
+                     short horizon before the onset THROUGH max(cfg.window, cfg.window_frac x the short horizon) steps AFTER the onset
+                     (default: the whole primary horizon; clipped at the trajectory's end); loss = both
+                     trajectory errors (in state sd) + cfg.paired_weight x the error of the predicted EFFECT (intervention minus twin) in
+                     units of the typical training effect (the scored quantity, small next to the natural increments)
     readout          y = MLP_g([s_norm, u_norm]) (batches balanced with response rows like the dynamics)
-    lift             bounded least squares over kick vectors on up to three distinct subsets of the targetable observed units (all;
-                     the columns of K with the largest norms; a seeded random half): min ||K dx - dz||^2 + 1e-6 ||dx||^2 subject to the
-                     admissible range (dx >= -x_now for non-negative data, |dx| <= max_kick if given)
-    budget           LearnerConfig defaults: 2,000 one-step Adam steps (batch 1,024, lr 1e-3, cosine), 600 multi-step steps (lr 3e-4),
-                     1,500 readout steps; torch on CPU with 2 threads; deterministic given the seed
+    effect calibration  beta(tau) in [0, 1] per horizon: the least-squares factor of the predicted readout effect against the true one
+                     on up to cfg.shrink_pairs training pairs (predicted from the true state at the onset, over the long horizon;
+                     smoothed); intervention_effect multiplies the predicted effect by it. Every trajectory has its own parameter draw,
+                     so late parts of an effect (e.g. an oscillation's phase) are not predictable from the state alone; the calibration
+                     shrinks them towards 0 instead of predicting a coherent, wrongly timed effect
+    lift             bounded least squares over kick vectors on up to three distinct subsets of the observed units kicked in training
+                     (all; the columns of K with the largest norms; a seeded random half): min ||K dx - dz||^2 + 1e-6 ||dx||^2 subject to
+                     the admissible range (dx >= -x_now for non-negative observed data, |dx| <= max_kick if given)
+    budget           LearnerConfig defaults: 2,000 one-step Adam steps (batch 1,024, lr 1e-3, cosine), 300 paired steps (32 pairs, lr
+                     3e-4, windows of the PRIMARY horizon = 5 short horizons), 1,500 readout steps; torch on CPU; deterministic given
+                     the seed (dev suite, 4 threads: TRUE-STATE about 260 s, FULL-STATE about 480 s per system)
+    option           cfg.context_adapt (off): an in-context ridge correction of f0 fitted on the item's own history (it destabilised
+                     rollouts on the dev suite; kept for the record)
 
-Training data exclude finite blow-ups (max |x| or |y| above 100x the training median). TRUE-STATE / OBS-SHORTCUT need the truth of the
-training trajectories (`truth={"z": {key: (T, k)}}`); at evaluation the harness REGISTERS the truth of every history it will encode
-(`register_truth` / `register_records`): encode then returns the exact state for a registered history and falls back to a ridge probe
-from [x_t, x_{t-1}, x_{t-2}] otherwise (counted in info()["n_probe_encodes"]). The ID-SHORTCUT needs the readout history: the harness
-registers (x, u, y) of the evaluation records (`register_readout`), or calls `encode_with_readout`.
+Training data exclude finite blow-ups (max |x| or |y| above 100x the training median); every training record must share one output
+dt (the TRAINING dt). TRUE-STATE / OBS-SHORTCUT need the truth of the training trajectories (`truth={"z": {key: (T, k)}}`); at
+evaluation the harness REGISTERS the truth of every history it will encode (`register_truth` / `register_records`): encode then returns
+the exact state for a registered history and falls back to a ridge probe from [x(t), x(t - dt_train), x(t - 2 dt_train)] otherwise
+(interpolated in time; counted in info()["n_probe_encodes"]). The ID-SHORTCUT needs the readout history: the harness registers
+(x, u, y) of the evaluation records (`register_readout`), or calls `encode_with_readout`.
+
+TIME (review H, M2). Every reference is dt-aware. Its learned dynamics are a map per TRAINING dt; a rollout at output dt integrates
+them round(dt / dt_train) times per output row (sub-steps; the input held constant over each output interval, events placed on the
+internal grid), and REFUSES (raises ValueError, a failed prediction) a dt that is not a positive integer multiple of the training dt.
+The FULL-STATE traces have time constants in SECONDS: their per-sample factor is 1 - exp(-dt / tau) for the dt of the history being
+encoded (the zero-order-hold discretisation), and the internal factor at the training dt in rollouts. The ID-SHORTCUT reads its lag
+features at lag TIMES (linear interpolation between samples) and maps output rows to its training grid by time, with the same
+integer-ratio rule.
+
+POWER-TABLE CORRUPTIONS (PROTOCOL 7; calibration only): `TruthStateModel("z", drop=(j,))` = the TRUE-STATE reference with one true
+state coordinate removed (a missing state); `ReadinGainModel(true_state, family, sysrec, gain=0.5)` = the TRUE-STATE reference whose
+read-in of one trained family is scaled by 0.5 (a read-in error).
 """
 
 from __future__ import annotations
@@ -54,6 +86,7 @@ from __future__ import annotations
 import hashlib
 import itertools
 import time
+import dataclasses
 from dataclasses import dataclass, field
 
 import numpy as np
@@ -77,18 +110,46 @@ class LearnerConfig:
     hidden_full: int = 256
     depth: int = 2
     steps_one: int = 2000
-    steps_multi: int = 600
+    steps_multi: int = 300            # PAIRED multi-step phase (intervention record and twin unrolled together)
     window: int = 8
     batch: int = 1024
+    pair_batch: int = 32
     lr: float = 1e-3
     lr_multi: float = 3e-4
     readout_steps: int = 1500
     max_passive_rows: int = 200_000
     trace_fracs: tuple[float, ...] = (0.25, 1.0)
-    window_frac: float = 0.25
+    window_frac: float = 5.0          # paired windows of max(window, window_frac x the short horizon) steps = the PRIMARY horizon
+                                      # (candidate C3 of research/phase4/REFERENCE_LEARNER_V2.md, selected by its stated rule)
     resp_share: float = 0.5
     probe_lambda: float = 1e-4
-    kick_lambda: float = 1.0
+    kick_lambda: float = 1e-3         # relative ridge penalty of the kick read-in (towards its prior)
+    readin_lambda: float = 1e-6       # L2 penalty of the per-unit channel read-in R (normalised units)
+    readin_ls_lambda: float = 1e-4    # relative ridge penalty of the closed-form read-in fit (after the one-step phase)
+    paired_weight: float = 1.0        # weight of the EFFECT term of the paired loss
+    state_traces: bool = False        # traces for the compact references too (off: they destabilised long rollouts on the dev
+                                      # suite; FULL-STATE always has its traces)
+    one_step_mode: str = "two_stage"  # the rule stated BEFORE the whole-suite comparison, for every reference (LOG P4-D51);
+                                      # "joint": f0 and R fitted together on all rows, then the closed-form R (C3); "passive": f0 on
+                                      # the rows WITHOUT an active channel only, then the closed-form R; "two_stage": "passive", then
+                                      # f0 continued on ALL rows for steps_one // 2 steps with R (and the context gain) FIXED, so f0
+                                      # also learns the states of long channel windows without absorbing the channel effects;
+                                      # "auto": "joint" for the observed microstate (FULL-STATE), "two_stage" for a compact state
+                                      # (REFERENCE_LEARNER_V2.md sections 11 and 13)
+    context_linear: bool = False      # False: the static context is an INPUT of the passive field and the readout; True: it enters
+                                      # them linearly, f = F0([s, u]) + sum_j c_j F_j([s, u]) (first order in the context). With the
+                                      # passive-field rows (above) the input form was 3x more accurate on the draw toy
+                                      # (REFERENCE_LEARNER_V2.md section 10); the linear form is kept as the ablation
+    context_gain: bool = True         # a STATIC CONTEXT (TRUE-STATE / OBS-SHORTCUT: the trajectory's effective draw parameters)
+                                      # modulates the size of the channel effect per latent coordinate: max(0, 1 + W c_norm) *
+                                      # (R . A), W (d_dyn x d_context) fitted in closed form with R, refined in the paired phase
+    context_adapt: bool = False       # in-context identification: a ridge linear correction of the passive field fitted on the
+                                      # item's own observed history before each prediction (intervention_effect)
+    context_lambda: float = 1e-3      # its relative ridge penalty
+    context_max_rows: int = 2000      # the most recent history rows it uses
+    effect_shrinkage: bool = True     # per-horizon least-squares calibration of the predicted effect on training pairs
+    shrink_pairs: int = 48            # training intervention / twin pairs used for it
+    shrink_horizon_frac: float = 0.5  # its horizon as a fraction of the default duration (the long horizon)
     threads: int = 2
     seed: int = 0
 
@@ -168,7 +229,8 @@ class HistoryIndex:
             o = np.argsort(d, kind="stable")
             self._built = (d[o], a[o], ii[o])
 
-    def get(self, x_hist, u_hist):
+    def get(self, x_hist, u_hist, prefix: bool = False):
+        """The payload row at the history's last sample (prefix=True: the payload rows of the whole prefix)."""
         if not self._dig:
             return None
         self._build()
@@ -184,7 +246,7 @@ class HistoryIndex:
                 continue
             m = min(n, 4)
             if np.array_equal(arr[i + 1 - m: i + 1], R[n - m:]):
-                return pay[i]
+                return pay[: i + 1] if prefix else pay[i]
         return None
 
     def __len__(self) -> int:
@@ -285,6 +347,37 @@ def _ema(X: np.ndarray, alpha: float) -> np.ndarray:
     return y.reshape(X.shape)
 
 
+def _at_lag(X: np.ndarray, dt: float, lag_s: float) -> np.ndarray:
+    """The row of X (sampled every dt, the LAST row at time 0) at time -lag_s, linearly interpolated between samples and clamped to the
+    first row. On the sampling grid it returns the sample itself."""
+    X = np.asarray(X, float)
+    pos = (len(X) - 1) - float(lag_s) / float(dt)
+    if pos <= 0:
+        return X[0].copy()
+    r = round(pos)
+    if abs(pos - r) < 1e-6:
+        return X[int(r)].copy()
+    i = int(np.floor(pos))
+    w = pos - i
+    return (1.0 - w) * X[i] + w * X[min(i + 1, len(X) - 1)]
+
+
+def n_substeps(dt: float, dt_train: float) -> int:
+    """Internal steps of the training dt per output step of dt: a positive integer, else ValueError (review H, M2)."""
+    r = float(dt) / float(dt_train)
+    n = round(r)
+    if n < 1 or abs(r - n) > 1e-6 * max(1.0, r):
+        raise ValueError(f"the reference refuses dt = {float(dt):g} s: not a positive integer multiple of its training dt {float(dt_train):g} s")
+    return int(n)
+
+
+def _check_one_dt(recs: list) -> float:
+    dts = sorted({round(_rec_dt(r), 12) for r in recs})
+    if len(dts) != 1:
+        raise ValueError(f"training records must share one output dt; found {dts}")
+    return float(dts[0])
+
+
 def _ridge_fit(X: np.ndarray, Y: np.ndarray, lam: float) -> tuple:
     mu, sd = X.mean(0), X.std(0) + 1e-9
     A = (X - mu) / sd
@@ -349,13 +442,15 @@ class _TorchThreads:
 
 # ------------------------------------------------------------------------------------------------------------ the learner
 class _LearnedStateModel(CausalStateModel):
-    """Shared generic controlled learner (module docstring). Subclasses define the state: `_dyn_states(rec)` (T, d_dyn) for a training
-    record, `_encode_dyn(x_hist, u_hist)` for evaluation, the auxiliary trace blocks (`n_aux`, FULL-STATE only) and whether K is exact
-    (`_exact_readin`)."""
+    """Shared generic controlled learner, version 2 (module docstring; research/phase4/REFERENCE_LEARNER_V2.md). Subclasses define the
+    state: `_dyn_states(rec)` (T, d_dyn) for a training record, `_encode_dyn(x_hist, u_hist)` for evaluation, the auxiliary trace
+    blocks (`n_aux`, FULL-STATE only) and whether the state is the observed microstate itself (`_exact_readin`: per-unit channels act
+    on the unit's own coordinate; kick prior = identity)."""
 
     ref_name = "abstract"
     n_aux = 0
     _exact_readin = False
+    trace_mode = "evolve"      # "evolve": the traces are Markov state, updated in rollouts; "context": frozen at the encoding time
 
     def __init__(self, cfg: LearnerConfig = DEFAULT_CFG):
         self.cfg = cfg
@@ -364,9 +459,24 @@ class _LearnedStateModel(CausalStateModel):
         self.train_cost: dict = {}
         self.fit_notes: dict = {}
         self.alphas: list[float] = []
+        self.trace_taus_s: list[float] = []
+        self.n_aux = len(cfg.trace_fracs) if cfg.state_traces else 0
+        self.d_stat = 0                    # static context coordinates (appended after the dynamic state and the traces)
+        self.ctx_lin = False               # the context enters F and G linearly (cfg.context_linear)
+        self.stat_keep = None
+        self.stat_fill = None
+        self.Wg = None
 
     # ---------------------------------------------------------------- hooks
     def _dyn_states(self, rec) -> np.ndarray:
+        raise NotImplementedError
+
+    def _static_raw(self, rec) -> np.ndarray | None:
+        """The static context vector of a training record (constant along it), or None (no static context: the default)."""
+        return None
+
+    def _state_history(self, sid, x_hist, u_hist, dt) -> np.ndarray:
+        """The state over the whole history (T_h, d_dyn), for the traces at encoding time."""
         raise NotImplementedError
 
     def _prepare(self, records: list, sysrec: dict) -> None:
@@ -375,10 +485,20 @@ class _LearnedStateModel(CausalStateModel):
     def _encode_dyn(self, sid, x_hist, u_hist, dt) -> np.ndarray:
         raise NotImplementedError
 
-    def _set_traces(self, short_steps: float) -> None:
-        """Auxiliary trace blocks (FULL-STATE): exponential moving averages of the dynamic state with time constants
-        cfg.trace_fracs x the short horizon (at least 2 samples)."""
-        self.alphas = []
+    def _set_traces(self, short_s: float) -> None:
+        """Auxiliary trace blocks: exponential moving averages of the dynamic state with time constants (SECONDS) cfg.trace_fracs x
+        the short horizon, at least 2 training samples (the short causal delay embedding in Markov form; with per-trajectory
+        parameter draws it lets a generic learner infer the draw's dynamics from the recent course of the state)."""
+        if not self.n_aux:
+            self.trace_taus_s = []
+            return
+        self.trace_taus_s = [max(2.0 * self.dt, float(f) * float(short_s)) for f in self.cfg.trace_fracs[: self.n_aux]]
+        self.fit_notes["trace_taus_s"] = list(self.trace_taus_s)
+        self.fit_notes["trace_taus_steps"] = [t_ / self.dt for t_ in self.trace_taus_s]
+
+    def _alphas(self, dt: float) -> list[float]:
+        """Per-sample trace factors 1 - exp(-dt / tau) at sampling interval dt (seconds)."""
+        return [float(1.0 - np.exp(-float(dt) / t)) for t in self.trace_taus_s]
 
     # ---------------------------------------------------------------- traces
     def _aux_rows(self, S_dyn: np.ndarray) -> np.ndarray | None:
@@ -386,8 +506,60 @@ class _LearnedStateModel(CausalStateModel):
             return None
         return np.hstack([_ema(S_dyn, a) for a in self.alphas])
 
+    # ---------------------------------------------------------------- static context
+    def _setup_static(self, recs: list) -> None:
+        """STATIC CONTEXT (TRUE-STATE / OBS-SHORTCUT: the trajectory's effective draw parameters; LOG P4-D43, review E round 3,
+        N-new-1): one vector per training record (`_static_raw`), constant along the trajectory. Coordinates that are constant over
+        the training records carry nothing learnable and are dropped (recorded); the rest are appended to the state after the
+        dynamic part and the traces, with ZERO dynamics: rollouts carry them unchanged and no intervention moves them. Without a
+        vector for EVERY training record the context is off and the state is the dynamic part alone (fit_notes['static_context']
+        records why)."""
+        self.d_stat, self.stat_keep, self.stat_fill = 0, None, None
+        raw = [self._static_raw(r) for r in recs]
+        if all(v is None for v in raw):
+            return
+        n_miss = sum(v is None for v in raw)
+        if n_miss:
+            self.fit_notes["static_context"] = f"off: no static context for {n_miss} of {len(raw)} training records"
+            return
+        vecs = [np.asarray(v, np.float64).reshape(-1) for v in raw]
+        if len({v.size for v in vecs}) != 1:
+            self.fit_notes["static_context"] = "off: static context vectors of different lengths"
+            return
+        M = np.stack(vecs)
+        mu, sd = M.mean(0), M.std(0)
+        keep = np.isfinite(M).all(0) & (sd > 1e-9 * (1.0 + np.abs(mu)))
+        if not keep.any():
+            self.fit_notes["static_context"] = f"off: all {M.shape[1]} static coordinates constant over the training records"
+            return
+        self.stat_keep, self.d_stat = keep, int(keep.sum())
+        self.stat_fill = M[:, keep].mean(0)
+        self.fit_notes["static_context"] = {"dims": int(M.shape[1]), "kept": self.d_stat, "dropped_constant": int((~keep).sum())}
+
+    def _static_of(self, raw) -> np.ndarray:
+        """The kept static coordinates of a raw context vector; None -> the training mean (an unknown context)."""
+        if raw is None:
+            return self.stat_fill.copy()
+        v = np.asarray(raw, np.float64)
+        v = v[0] if v.ndim == 2 else v.reshape(-1)
+        return v[self.stat_keep]
+
+    def _i_stat(self) -> int:
+        """Index of the first static coordinate in the state vector [dynamic, traces, static]."""
+        return self.d_dyn * (1 + self.n_aux)
+
+    def _gain_np(self, stat: np.ndarray) -> np.ndarray | float:
+        """max(0, 1 + W c_norm) per latent coordinate for static rows stat (n, d_stat) or one row (d_stat,); 1 without a context
+        gain (never negative: a context cannot flip the sign of an intervention's effect)."""
+        if self.Wg is None:
+            return 1.0
+        i0 = self._i_stat()
+        cn = (np.asarray(stat, float) - self.s_mu[i0: i0 + self.d_stat]) / self.s_sd[i0: i0 + self.d_stat]
+        return np.maximum(1.0 + cn @ self.Wg.T, 0.0)
+
     # ---------------------------------------------------------------- fitting
     def fit(self, sid: str, records: list, sysrec: dict):
+        import scipy.sparse as sp
         import torch
         t_start, c_start = time.perf_counter(), time.process_time()
         cfg = self.cfg
@@ -400,74 +572,93 @@ class _LearnedStateModel(CausalStateModel):
         self.observed = [int(n) for n in sysrec["observed"]]
         self.col = {n: i for i, n in enumerate(self.observed)}
         self.N = len(self.observed)
-        self.dt = _rec_dt(recs[0])
+        self.dt = _check_one_dt(recs)                        # the TRAINING dt
         self.n_u = int(np.atleast_2d(_arr(recs[0], "u")).shape[1]) if _arr(recs[0], "u").ndim > 1 else 1
         self.n_y = int(_arr(recs[0], "y").shape[1])
         t_def = float(sysrec.get("t_end_default") or (len(_arr(recs[0], "t")) - 1) * self.dt)
-        short_steps = max(1.0, SHORT_FRAC * t_def / self.dt)
-        self._set_traces(short_steps)
+        short_s = SHORT_FRAC * t_def
+        short_steps = max(1.0, short_s / self.dt)
+        self._set_traces(short_s)
+        self.alphas = self._alphas(self.dt)                  # trace factors at the training dt (training rows and rollout sub-steps)
+        self.fit_notes["dt_train"] = self.dt
         allx = np.concatenate([_arr(r, "x") for r in recs]).astype(np.float64)
         self.nonneg = bool((allx >= -1e-9).all())
         del allx
+        self._setup_static(recs)
+        self.ctx_lin = bool(self.d_stat and cfg.context_linear)
         self._prepare(recs, sysrec)
         S = [np.asarray(self._dyn_states(r), np.float64) for r in recs]
         self.d_dyn = S[0].shape[1]
-        self.k[sid] = int(self.d_dyn * (1 + self.n_aux))
+        # k = the dimension of the encoding: dynamic state, traces and the static context (a method carrying draw coordinates
+        # counts them too; info() also reports the dynamic and the context part)
+        self.k[sid] = int(self.d_dyn * (1 + self.n_aux) + self.d_stat)
         U = [np.asarray(_arr(r, "u"), np.float64).reshape(len(_arr(r, "u")), -1) for r in recs]
         Y = [np.asarray(_arr(r, "y"), np.float64) for r in recs]
-        # probe, decoder and read-in matrix
+        # decoder (state -> observed microstate, for the state-dependent descriptors) and the KICK read-in (learned from training
+        # kicks against their twins; prior = identity for the observed microstate, 0 for a compact state: never a correlational probe)
         if self._exact_readin:
-            self.K = np.eye(self.d_dyn, self.N)
             self.dec = None
+            prior = np.eye(self.d_dyn, self.N)
         else:
             Xs = np.concatenate([np.asarray(_arr(r, "x"), np.float64) for r in recs])
             Ss = np.concatenate(S)
             sub = np.random.default_rng(cfg.seed).permutation(len(Xs))[:60_000]
-            self.probe = _ridge_fit(Xs[sub], Ss[sub], cfg.probe_lambda)
-            Pm = _ridge_linear(self.probe).T                       # d_dyn x N
             self.dec = _ridge_fit(Ss[sub], Xs[sub], cfg.probe_lambda)
-            self.K = Pm + self._kick_correction(recs, S, Pm)
             del Xs, Ss
-        # per-record timelines, jumps, teacher-forced channels and traces; one global table (rows of all records)
-        import scipy.sparse as sp
-        n_c = self.d_dyn * N_CH
+            prior = np.zeros((self.d_dyn, self.N))
+        self.K = prior + self._kick_correction(recs, S, prior)
+        # per-record timelines, kick jumps and teacher-forced per-unit descriptors; one global table (rows of all records)
         tls = [Timeline(_events(r), len(s), self.dt, self.col) for r, s in zip(recs, S)]
-        J, C, A = [], [], []
+        J, Dk, A, AUX = [], [], [], []
         for s, tl in zip(S, tls):
             Jr = np.zeros_like(s)
+            Dr = np.zeros((len(s), self.N))
             for j, kk in tl.kicks.items():
                 Jr[j] = self._jump(kk)
+                for c, v in kk.items():
+                    Dr[j, c] += v
             J.append(sp.csr_matrix(Jr))
-            C.append(self._channel_rows(self._post(s + Jr), tl))
+            Dk.append(sp.csr_matrix(Dr))
+            A.append(self._descriptor_rows(self._post(s + Jr), tl))
             if self.n_aux:
-                A.append(self._aux_rows(s).astype(np.float32))
+                AUX.append(self._aux_rows(s).astype(np.float32))
+        STAT_cat = (np.concatenate([np.repeat(self._static_of(self._static_raw(r))[None, :], len(s), 0) for r, s in zip(recs, S)])
+                    if self.d_stat else None)
         lens = np.array([len(s) for s in S])
         offs = np.concatenate([[0], np.cumsum(lens)])
         S_cat = np.concatenate(S)
-        del S
         U_cat = np.concatenate(U)
         Y_cat = np.concatenate(Y)
         del U, Y
         J_cat = sp.vstack(J).tocsr()
-        C_cat = sp.vstack(C).tocsr()
-        AUX = np.concatenate(A) if A else None
-        del J, C, A
+        Dk_cat = sp.vstack(Dk).tocsr()
+        A_cat = sp.vstack(A).tocsr()
+        AUX_cat = np.concatenate(AUX) if AUX else None
+        del J, Dk, A, AUX
         n_rows = len(S_cat)
         start = np.repeat(offs[:-1], lens)
         last = np.repeat(offs[1:] - 1, lens)
         # normalisation
         mu, sd = S_cat.mean(0), S_cat.std(0) + 1e-6
-        if AUX is not None:
-            mu = np.concatenate([mu, AUX.mean(0).astype(np.float64)])
-            sd = np.concatenate([sd, AUX.std(0).astype(np.float64) + 1e-6])
+        if AUX_cat is not None:
+            mu = np.concatenate([mu, AUX_cat.mean(0).astype(np.float64)])
+            sd = np.concatenate([sd, AUX_cat.std(0).astype(np.float64) + 1e-6])
+        if STAT_cat is not None:
+            mu = np.concatenate([mu, STAT_cat.mean(0)])
+            sd = np.concatenate([sd, STAT_cat.std(0) + 1e-6])
         self.s_mu, self.s_sd = mu, sd
         self.u_mu, self.u_sd = U_cat.mean(0), U_cat.std(0) + 1e-6
-        self.ch_scale = np.ones(n_c)
-        Cc = C_cat.tocsc()
-        for f_ in range(n_c):
-            v = Cc.data[Cc.indptr[f_]: Cc.indptr[f_ + 1]]
+        n_a = self.N * N_CH
+        self.ch_scale = np.ones(n_a)
+        Ac = A_cat.tocsc()
+        for f_ in range(n_a):
+            v = Ac.data[Ac.indptr[f_]: Ac.indptr[f_ + 1]]
             if v.size:
-                self.ch_scale[f_] = float(np.sqrt(np.mean(v ** 2))) + 1e-9
+                self.ch_scale[f_] = float(np.sqrt(np.mean(v ** 2))) + 1e-12
+        seen = np.zeros(n_a, bool)
+        seen[np.unique(A_cat.indices)] = True
+        self.seen_cols = seen                                # (unit, channel) pairs active in training: the rest is abstained on
+        self.kick_units = sorted({int(c) for c in np.unique(Dk_cat.indices)})
         valid = np.flatnonzero(np.arange(n_rows) < last)
         post_v = self._post(S_cat[valid] + J_cat[valid].toarray())
         Dall = S_cat[valid + 1] - post_v
@@ -476,7 +667,7 @@ class _LearnedStateModel(CausalStateModel):
         del post_v, Dall
         # rows: every event row + a seeded subsample of passive rows; RESPONSE rows = event rows and the short horizon after them
         rng = np.random.default_rng(cfg.seed)
-        ev = (np.asarray(C_cat.getnnz(axis=1)).ravel() > 0) | (np.asarray(J_cat.getnnz(axis=1)).ravel() > 0)
+        ev = (np.asarray(A_cat.getnnz(axis=1)).ravel() > 0) | (np.asarray(J_cat.getnnz(axis=1)).ravel() > 0)
         n_short = round(short_steps)
         cs = np.concatenate([[0], np.cumsum(ev)])
         lo = np.maximum(np.arange(n_rows) - n_short, start)
@@ -486,47 +677,209 @@ class _LearnedStateModel(CausalStateModel):
         frac = min(1.0, cfg.max_passive_rows / max(1, n_pass))
         sel = valid[ev_v | (rng.random(len(valid)) < frac)]
         resp_rows = valid[resp[valid]]
+        pairs = self._twin_pairs(recs, offs, lens)
         self.fit_notes.update(one_step_rows=len(sel), event_rows=int(ev_v.sum()), response_rows=len(resp_rows),
-                              short_steps=float(short_steps), trace_alphas=list(self.alphas))
-        tab = {"S": S_cat, "U": U_cat, "Y": Y_cat, "J": J_cat, "C": C_cat, "A": AUX, "start": start, "last": last, "resp": resp}
-        active = np.zeros(n_c, bool)
-        active[np.unique(C_cat.indices)] = True
-        ch_seen = {int(c) for c in np.flatnonzero(active) % N_CH}
-        self.kinds_seen = sorted({k for k, chs in KIND_CHANNELS.items() if chs & ch_seen} | {"kick"})
+                              short_steps=float(short_steps), trace_alphas=list(self.alphas), twin_pairs=len(pairs),
+                              n_seen_unit_channels=int(seen.sum()), n_kick_units=len(self.kick_units))
+        tab = {"S": S_cat, "U": U_cat, "Y": Y_cat, "J": J_cat, "A": A_cat, "AUX": AUX_cat, "STAT": STAT_cat, "start": start,
+               "last": last, "resp": resp}
+        ch_seen = {int(c) for c in np.flatnonzero(seen) % N_CH}
+        # kicks: a compact state needs a LEARNED kick read-in (some unit kicked in training); the observed microstate has the
+        # structural identity prior (a kick moves the unit's own coordinate)
+        self.kinds_seen = sorted({k for k, chs in KIND_CHANNELS.items() if chs & ch_seen}
+                                 | ({"kick"} if (self.kick_units or self._exact_readin) else set()))
         self.fit_notes["kinds_seen"] = list(self.kinds_seen)
         with _TorchThreads(cfg.threads):
             torch.manual_seed(int(cfg.seed))
-            n_state = self.d_dyn * (1 + self.n_aux) + self.n_u
-            n_in = n_state + n_c
+            n_in = self.d_dyn * (1 + self.n_aux) + (0 if self.ctx_lin else self.d_stat) + self.n_u
+            n_mult = 1 + self.d_stat if self.ctx_lin else 1          # outputs per coordinate: F0 and one F_j per context coordinate
             hid = cfg.hidden_full if self._exact_readin else cfg.hidden
-            net = _make_mlp(n_in, self.d_dyn, hid, cfg.depth)
-            with torch.no_grad():
-                net[0].weight[:, n_state:][:, torch.tensor(~active)] = 0.0
-            self._train_one_step(net, sel, resp_rows, tab, torch)
+            net = _make_mlp(n_in, self.d_dyn * n_mult, hid, cfg.depth).double()
+            R = torch.nn.Parameter(torch.zeros((self.d_dyn, self.N, N_CH) if not self._exact_readin else (self.N, N_CH), dtype=torch.float64))
+            Wg = (torch.nn.Parameter(torch.zeros((self.d_dyn, self.d_stat), dtype=torch.float64))
+                  if (self.d_stat and cfg.context_gain and not self._exact_readin) else None)
+            mode = cfg.one_step_mode
+            if mode == "auto":
+                mode = "joint" if self._exact_readin else "two_stage"
+            if mode not in ("joint", "passive", "two_stage"):
+                raise ValueError(f"unknown one_step_mode {mode!r}")
+            self.fit_notes["one_step_mode"] = mode
+            if mode == "joint":
+                self._train_one_step(net, R, sel, resp_rows, tab, torch)
+                self._fit_readin_ls(net, R, tab, torch, Wg=Wg)
+            else:
+                chan_row = np.asarray(A_cat.getnnz(axis=1)).ravel() > 0
+                sel_f, resp_f = sel[~chan_row[sel]], resp_rows[~chan_row[resp_rows]]
+                self.fit_notes["one_step_rows_passive_field"] = len(sel_f)
+                self._train_one_step(net, R, sel_f, resp_f, tab, torch, readin="none")
+                self._fit_readin_ls(net, R, tab, torch, Wg=Wg)
+                if mode == "two_stage":
+                    self._train_one_step(net, R, sel, resp_rows, tab, torch, readin="fixed", Wg=Wg, steps=max(1, cfg.steps_one // 2),
+                                         seed_offset=17, note="one_step_loss_stage2")
             m = max(int(cfg.window), round(cfg.window_frac * short_steps))
             self.fit_notes["window"] = m
-            if cfg.steps_multi > 0 and m > 1:
-                self._train_multi(net, tab, m, torch)
-            with torch.no_grad():
-                # a channel feature never active in training has an untrained weight: exactly zero (no represented effect)
-                net[0].weight[:, n_state:][:, torch.tensor(~active)] = 0.0
+            if cfg.steps_multi > 0 and m > 1 and len(pairs):
+                self._train_paired(net, R, tab, pairs, m, short_steps, torch, Wg=Wg)
             self.f = _NumpyMLP(net.eval())
-            ro = _make_mlp(self.d_dyn * (1 + self.n_aux) + self.n_u, self.n_y, hid, cfg.depth)
+            Rn = R.detach().numpy().copy()
+            Rn[..., ~seen.reshape(self.N, N_CH)] = 0.0              # never-active (unit, channel) pairs: exactly zero
+            self.R = Rn
+            self.Wg = Wg.detach().numpy().copy() if Wg is not None else None
+            ro = _make_mlp(n_in, self.n_y * n_mult, hid, cfg.depth).double()
             self._train_readout(ro, tab, torch)
             self.g = _NumpyMLP(ro.eval())
+        self.beta = self._fit_effect_shrinkage(recs, tab, pairs, t_def) if cfg.effect_shrinkage else None
         self.train_cost = {"cpu_s": float(time.process_time() - c_start), "wall_s": float(time.perf_counter() - t_start),
                            "gpu_s": 0.0, "sim_calls": 0, "experiments": int(sum(1 for r in recs if _events(r)))}
         return self
 
-    def _kick_correction(self, recs, S, Pm) -> np.ndarray:
-        """dK from training kicks against their twins (ridge, shrunk towards 0; relative penalty cfg.kick_lambda)."""
+    def _fit_effect_shrinkage(self, recs, tab: dict, pairs: list, t_def: float) -> np.ndarray | None:
+        """EFFECT CALIBRATION per horizon: on up to cfg.shrink_pairs training intervention / twin pairs (seeded choice), the model
+        predicts the readout effect from the TRUE state at the onset (rollouts with and without the events) and beta(l) = clip(sum
+        <e_hat, e> / sum <e_hat, e_hat>, 0, 1) per lag l on the training grid (a running mean over +-2 % of the horizon smooths it).
+        The predicted effect of intervention_effect is multiplied by beta: the least-squares factor that shrinks late, poorly
+        predictable parts of an effect (e.g. the phase of an oscillation under a trajectory's own parameter draw) towards 0."""
+        if not pairs:
+            return None
+        rng = np.random.default_rng(self.cfg.seed + 41)
+        pick = sorted(rng.permutation(len(pairs))[: self.cfg.shrink_pairs].tolist())
+        H = max(1, round(self.cfg.shrink_horizon_frac * t_def / self.dt))
+        num, den = np.zeros(H + 1), np.zeros(H + 1)
+        U, Y = tab["U"], tab["Y"]
+        starts = np.concatenate([[0], np.cumsum([len(_arr(r, "t")) for r in recs])])
+        start_to_rec = {int(s_): recs[i] for i, s_ in enumerate(starts[:-1])}
+        jobs = []
+        for pi in pick:
+            gi, gt, j0, n = pairs[pi]
+            h = min(H, n - 1 - j0)
+            rec = start_to_rec.get(int(gi))
+            if h < 2 or rec is None:
+                continue
+            t0 = j0 * self.dt
+            evs = []
+            for e in _events(rec):
+                e2 = dict(e)
+                if "t" in e2:
+                    e2["t"] = float(e2["t"]) - t0
+                else:
+                    e2["t0"] = float(e2["t0"]) - t0
+                    if e2.get("t1") is not None:
+                        e2["t1"] = float(e2["t1"]) - t0
+                evs.append(e2)
+            z0 = self._z0_row(tab, gi + j0)
+            jobs.append((z0, U[gi + j0: gi + j0 + h + 1], evs, Y[gi + j0: gi + j0 + h + 1] - Y[gt + j0: gt + j0 + h + 1]))
+        if not jobs:
+            return None
+        Yi = self._rollout_batch([j[0] for j in jobs], [j[1] for j in jobs], [j[2] for j in jobs])
+        Yb = self._rollout_batch([j[0] for j in jobs], [j[1] for j in jobs], [[] for _ in jobs])
+        for (z0, uf, evs, et), yi, yb in zip(jobs, Yi, Yb):
+            eh = yi - yb
+            h = len(et) - 1
+            num[: h + 1] += np.sum(eh * et, axis=1)
+            den[: h + 1] += np.sum(eh * eh, axis=1)
+        ok = den > 0
+        if not ok.any():
+            return None
+        beta = np.ones(H + 1)
+        beta[ok] = np.clip(num[ok] / den[ok], 0.0, 1.0)
+        w = max(1, round(0.02 * H))
+        ker = np.ones(2 * w + 1) / (2 * w + 1)
+        pad = np.concatenate([np.full(w, beta[0]), beta, np.full(w, beta[-1])])
+        beta = np.convolve(pad, ker, mode="valid")[: H + 1]
+        beta[0] = 1.0
+        self.fit_notes["effect_beta_at"] = {f"{f}": float(beta[min(H, round(f * H))]) for f in (0.05, 0.25, 0.5, 1.0)}
+        return beta
+
+    def _z0_row(self, tab: dict, g: int) -> np.ndarray:
+        """The full state vector [dynamic, traces, static] of global training row g."""
+        parts = [tab["S"][g]]
+        if tab["AUX"] is not None:
+            parts.append(tab["AUX"][g].astype(np.float64))
+        if tab.get("STAT") is not None:
+            parts.append(tab["STAT"][g])
+        return np.hstack(parts)
+
+    def _rollout_batch(self, z0s: list, Us: list, events_list: list) -> list[np.ndarray]:
+        """Readout rollouts of several (z0, input, events) at the TRAINING dt, the batch stepped together (the same numerics as
+        `rollout`; used by the effect calibration)."""
+        B = len(z0s)
+        dd = self.d_dyn
+        Hs = [len(u) - 1 for u in Us]
+        Hm = max(Hs)
+        s = np.stack([np.asarray(z, float)[:dd] for z in z0s])
+        aux = [np.stack([np.asarray(z, float)[dd * (j + 1): dd * (j + 2)] for z in z0s]) for j in range(self.n_aux)]
+        i0 = self._i_stat()
+        stat = [np.stack([np.asarray(z, float)[i0: i0 + self.d_stat] for z in z0s])] if self.d_stat else []
+        gain = self._gain_np(stat[0]) if stat else 1.0
+        tls = [Timeline([e for e in ev if e["kind"] in P.EVENT_KINDS], max(h, 1), self.dt, self.col) for ev, h in zip(events_list, Hs)]
+        Upad = np.stack([np.vstack([np.asarray(u, float).reshape(len(u), -1), np.repeat(np.asarray(u, float).reshape(len(u), -1)[-1:], Hm + 1 - len(u), 0)])
+                         for u in Us])
+        Z = [np.hstack([s] + aux + stat)]
+        for j in range(Hm):
+            for b, tl in enumerate(tls):
+                if j in tl.kicks:
+                    s[b] = self._post(s[b] + self._jump(tl.kicks[j]))
+            full = np.hstack([s] + aux + stat)
+            X, C = self._net_in(full, Upad[:, j])
+            ds = self._ctx_out(self.f(X), C, dd)
+            for b, tl in enumerate(tls):
+                st = tl.static_at(j)
+                if st is None:
+                    continue
+                units, A = self._seg_channels(st, self._decode(s[b])[None, :])
+                if units:
+                    a = np.zeros(self.N * N_CH)
+                    cols = (np.asarray(units)[:, None] * N_CH + np.arange(N_CH)[None, :]).reshape(-1)
+                    a[cols] = A.reshape(-1)
+                    g_b = gain[b] if isinstance(gain, np.ndarray) else gain
+                    ds[b] = ds[b] + g_b * self._chan_np(a[None, :])[0]
+            s = self._post(s + ds * self.d_sd)
+            if self.trace_mode == "evolve":
+                aux = [a_ + al * (s - a_) for a_, al in zip(aux, self.alphas)]
+            Z.append(np.hstack([s] + aux + stat))
+        Zs = np.stack(Z, axis=1)                                    # (B, Hm + 1, k)
+        out = []
+        for b in range(B):
+            zb = Zs[b, : Hs[b] + 1]
+            out.append(self.readout(self.sid, zb, Upad[b, : Hs[b] + 1]))
+        return out
+
+    def _beta_rows(self, n_rows: int, dt: float) -> np.ndarray:
+        """beta at the rows of a prediction at output dt (row r = lag r x dt; beyond the fitted horizon: its last value)."""
+        b = getattr(self, "beta", None)
+        if b is None:
+            return np.ones(n_rows)
+        idx = np.minimum(np.round(np.arange(n_rows) * float(dt) / self.dt).astype(int), len(b) - 1)
+        return b[idx]
+
+    def _twin_pairs(self, recs, offs, lens) -> list[tuple[int, int, int, int]]:
+        """(global start of the intervention record, global start of its twin, onset step, length) for every training intervention
+        record whose twin is in the training data (the twin is bit-identical before the first event)."""
+        by_key = {str(_get(r, "key")): i for i, r in enumerate(recs)}
+        out = []
+        for i, r in enumerate(recs):
+            tw = (_get(r, "meta") or {}).get("twin_of")
+            if not tw or tw not in by_key:
+                continue
+            ii = by_key[tw]                                  # r is the TWIN of recs[ii]
+            ev = _events(recs[ii])
+            if not ev:
+                continue
+            j0 = round(min(P.event_start(e) for e in ev) / self.dt)
+            n = int(min(lens[i], lens[ii]))
+            if 0 <= j0 < n - 1:
+                out.append((int(offs[ii]), int(offs[i]), int(j0), n))
+        return out
+
+    def _kick_correction(self, recs, S, prior) -> np.ndarray:
+        """The kick read-in's correction to `prior` from training kicks against their twins: ridge on the observed one-step effect
+        s_int(j+1) - s_twin(j+1) - prior dx, shrunk towards 0 (relative penalty cfg.kick_lambda). Units never kicked keep the prior."""
         by_key = {str(_get(r, "key")): i for i, r in enumerate(recs)}
         Xk, Rk = [], []
         for i, r in enumerate(recs):
             tw = (_get(r, "meta") or {}).get("twin_of")
             if not tw or tw not in by_key:
                 continue
-            # r is the TWIN of by_key[tw]: the intervention record is recs[by_key[tw]]
             ii = by_key[tw]
             rint = recs[ii]
             for e in _events(rint):
@@ -542,13 +895,14 @@ class _LearnedStateModel(CausalStateModel):
                 if not dx.any():
                     continue
                 Xk.append(dx)
-                Rk.append(S[ii][j + 1] - S[i][j + 1] - Pm @ dx)
+                Rk.append(S[ii][j + 1] - S[i][j + 1] - prior @ dx)
         self.fit_notes["kick_pairs"] = len(Xk)
         if not Xk:
-            return np.zeros_like(Pm)
+            return np.zeros_like(prior)
         Xk, Rk = np.stack(Xk), np.stack(Rk)
         G = Xk.T @ Xk
-        lam = self.cfg.kick_lambda * max(float(np.mean(np.diag(G))), 1e-12)
+        used = np.diag(G) > 0
+        lam = self.cfg.kick_lambda * max(float(np.mean(np.diag(G)[used])) if used.any() else 1.0, 1e-12)
         return np.linalg.solve(G + lam * np.eye(self.N), Xk.T @ Rk).T
 
     # ---------------------------------------------------------------- state helpers
@@ -594,22 +948,11 @@ class _LearnedStateModel(CausalStateModel):
             A[:, ui[c], 6] += (g - 1.0) * xhat[:, c]
         return units, A
 
-    def _seg_c(self, units: list[int], A: np.ndarray) -> np.ndarray:
-        """Channel rows (n, d_dyn * 7) = (K A) flattened row-major (latent coordinate major, channel minor)."""
-        n = A.shape[0]
-        if not units:
-            return np.zeros((n, self.d_dyn * N_CH))
-        if self._exact_readin:
-            c = np.zeros((n, self.d_dyn, N_CH))
-            c[:, units, :] = A
-            return c.reshape(n, -1)
-        return np.einsum("kn,snc->skc", self.K[:, units], A).reshape(n, -1)
-
-    def _channel_rows(self, s_post: np.ndarray, tl: Timeline):
-        """Teacher-forced channel rows of one record as a CSR matrix (T, d_dyn * 7) (all-zero rows outside intervention windows)."""
+    def _descriptor_rows(self, s_post: np.ndarray, tl: Timeline):
+        """Teacher-forced per-unit descriptors of one record as a CSR matrix (T, N * 7) (column = unit * 7 + channel; all-zero rows
+        outside intervention windows)."""
         import scipy.sparse as sp
         T = len(s_post)
-        n_c = self.d_dyn * N_CH
         R_, C_, V_ = [], [], []
         for a, b, st in tl.segments:
             b = min(b, T)
@@ -618,34 +961,74 @@ class _LearnedStateModel(CausalStateModel):
             units, A = self._seg_channels(st, self._decode_rows(s_post[a:b]))
             if not units:
                 continue
-            if self._exact_readin:
-                rr = np.repeat(np.arange(a, b), len(units) * N_CH)
-                cc = np.tile((np.asarray(units)[:, None] * N_CH + np.arange(N_CH)[None, :]).reshape(-1), b - a)
-                vv = A.reshape(-1)
-            else:
-                cm = self._seg_c(units, A)
-                rr = np.repeat(np.arange(a, b), n_c)
-                cc = np.tile(np.arange(n_c), b - a)
-                vv = cm.reshape(-1)
+            cols = (np.asarray(units)[:, None] * N_CH + np.arange(N_CH)[None, :]).reshape(-1)
+            rr = np.repeat(np.arange(a, b), len(cols))
+            cc = np.tile(cols, b - a)
+            vv = A.reshape(-1)
             m = vv != 0
             R_.append(rr[m])
             C_.append(cc[m])
             V_.append(vv[m])
         if not R_:
-            return sp.csr_matrix((T, n_c))
-        return sp.csr_matrix((np.concatenate(V_), (np.concatenate(R_), np.concatenate(C_))), shape=(T, n_c))
+            return sp.csr_matrix((T, self.N * N_CH))
+        return sp.csr_matrix((np.concatenate(V_), (np.concatenate(R_), np.concatenate(C_))), shape=(T, self.N * N_CH))
 
-    def _inputs(self, s_full: np.ndarray, u: np.ndarray, c: np.ndarray) -> np.ndarray:
-        return np.hstack([(s_full - self.s_mu) / self.s_sd, (u - self.u_mu) / self.u_sd, c / self.ch_scale])
+    def _chan_np(self, a: np.ndarray) -> np.ndarray:
+        """The control-affine channel term (normalised increment units, (n, d_dyn)) of descriptor rows a (n, N * 7)."""
+        an = (np.atleast_2d(a) / self.ch_scale).reshape(-1, self.N, N_CH)
+        if self._exact_readin:
+            return np.einsum("snc,nc->sn", an, self.R)
+        return np.einsum("snc,knc->sk", an, self.R)
+
+    def _chan_torch(self, R, a_norm, torch):
+        """The same in torch for normalised descriptor rows a_norm (n, N, 7)."""
+        if self._exact_readin:
+            return torch.einsum("snc,nc->sn", a_norm, R)
+        return torch.einsum("snc,knc->sk", a_norm, R)
+
+    def _net_in(self, s_full: np.ndarray, u: np.ndarray) -> tuple[np.ndarray, np.ndarray | None]:
+        """(MLP input, context) of state rows s_full (n, k) or one row (k,) and inputs u: the normalised state and input; with a
+        linear context (`ctx_lin`) the normalised static context is split off (it multiplies the extra MLP outputs, `_ctx_out`),
+        otherwise it stays in the input."""
+        Z = (np.atleast_2d(np.asarray(s_full, float)) - self.s_mu) / self.s_sd
+        Un = (np.atleast_2d(np.asarray(u, float)) - self.u_mu) / self.u_sd
+        if self.ctx_lin:
+            i0 = self._i_stat()
+            return np.hstack([Z[:, :i0], Un]), Z[:, i0: i0 + self.d_stat]
+        return np.hstack([Z, Un]), None
+
+    def _ctx_out(self, out: np.ndarray, C: np.ndarray | None, d: int) -> np.ndarray:
+        """An MLP output (n, d x (1 + d_context)) combined with the context C: F0 + sum_j c_j F_j (first order in the context);
+        unchanged without a linear context."""
+        if C is None:
+            return out
+        o = out.reshape(len(out), d, 1 + self.d_stat)
+        return o[..., 0] + np.einsum("nkj,nj->nk", o[..., 1:], C)
+
+    def _net_in_t(self, full, u, smu, ssd, umu, usd, torch):
+        """`_net_in` in torch (training)."""
+        Z = (full - smu) / ssd
+        Un = (u - umu) / usd
+        if self.ctx_lin:
+            i0 = self._i_stat()
+            return torch.cat([Z[:, :i0], Un], dim=1), Z[:, i0: i0 + self.d_stat]
+        return torch.cat([Z, Un], dim=1), None
+
+    def _ctx_out_t(self, out, C, d: int, torch):
+        """`_ctx_out` in torch (training)."""
+        if C is None:
+            return out
+        o = out.reshape(out.shape[0], d, 1 + self.d_stat)
+        return o[..., 0] + torch.einsum("nkj,nj->nk", o[..., 1:], C)
 
     # ---------------------------------------------------------------- training loops (vectorised gathers on the global table)
     def _full(self, post: np.ndarray, tab: dict, idx: np.ndarray) -> np.ndarray:
-        return np.hstack([post, tab["A"][idx]]) if tab["A"] is not None else post
-
-    def _gather(self, tab: dict, idx: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        """Network inputs and post-jump dynamic states for global rows idx (teacher-forced)."""
-        post = self._post(tab["S"][idx] + tab["J"][idx].toarray())
-        return self._inputs(self._full(post, tab, idx), tab["U"][idx], tab["C"][idx].toarray()), post
+        parts = [post]
+        if tab["AUX"] is not None:
+            parts.append(tab["AUX"][idx])
+        if tab.get("STAT") is not None:
+            parts.append(tab["STAT"][idx])
+        return np.hstack(parts) if len(parts) > 1 else post
 
     def _batch_rows(self, rng, sel: np.ndarray, resp_rows: np.ndarray, bs: int) -> np.ndarray:
         """A batch with cfg.resp_share of its rows from the RESPONSE rows (interventions and the short horizon after them)."""
@@ -655,76 +1038,238 @@ class _LearnedStateModel(CausalStateModel):
             parts.append(resp_rows[rng.integers(0, len(resp_rows), nb)])
         return np.concatenate(parts)
 
-    def _train_one_step(self, net, sel: np.ndarray, resp_rows: np.ndarray, tab: dict, torch) -> None:
+    def _a_norm(self, tab: dict, idx: np.ndarray, torch):
+        a = tab["A"][idx].toarray() / self.ch_scale
+        return torch.tensor(a.reshape(len(idx), self.N, N_CH), dtype=torch.float64)
+
+    def _readin_penalty(self, R, torch):
+        return self.cfg.readin_lambda * torch.sum(R ** 2)
+
+    def _train_one_step(self, net, R, sel: np.ndarray, resp_rows: np.ndarray, tab: dict, torch, readin: str = "train", Wg=None,
+                        steps: int | None = None, seed_offset: int = 11, note: str = "one_step_loss") -> None:
+        """One-step fit of the passive field f0: (s(t+1) - s(t)^+) / d_sd = f0([s, u]) + channel term, where the channel term is
+        R a(t) trained jointly (readin 'train'), absent (readin 'none': the rows must carry no active channel) or FIXED (readin
+        'fixed': R and the context gain as fitted, not updated; f0 learns only what the read-in leaves)."""
         cfg = self.cfg
-        opt = torch.optim.Adam(net.parameters(), lr=cfg.lr)
-        sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, max(1, cfg.steps_one))
-        rng = np.random.default_rng(cfg.seed + 11)
+        n_steps = int(steps if steps is not None else cfg.steps_one)
+        opt = torch.optim.Adam(list(net.parameters()) + ([R] if readin == "train" else []), lr=cfg.lr)
+        sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt, max(1, n_steps))
+        rng = np.random.default_rng(cfg.seed + seed_offset)
         bs = min(cfg.batch, len(sel))
         losses = []
-        for step in range(cfg.steps_one):
+        STAT = tab.get("STAT")
+        i0 = self._i_stat()
+        for step in range(n_steps):
             idx = self._batch_rows(rng, sel, resp_rows, bs)
-            Xb, post = self._gather(tab, idx)
-            Yb = (tab["S"][idx + 1] - post) / self.d_sd
-            loss = torch.mean((net(torch.tensor(Xb, dtype=torch.float32)) - torch.tensor(Yb, dtype=torch.float32)) ** 2)
+            post = self._post(tab["S"][idx] + tab["J"][idx].toarray())
+            X, C = self._net_in(self._full(post, tab, idx), tab["U"][idx])
+            Xb = torch.tensor(X, dtype=torch.float64)
+            Cb = torch.tensor(C, dtype=torch.float64) if C is not None else None
+            Yb = torch.tensor((tab["S"][idx + 1] - post) / self.d_sd, dtype=torch.float64)
+            pred = self._ctx_out_t(net(Xb), Cb, self.d_dyn, torch)
+            if readin == "train":
+                pred = pred + self._chan_torch(R, self._a_norm(tab, idx, torch), torch)
+            elif readin == "fixed":
+                with torch.no_grad():
+                    chan = self._chan_torch(R, self._a_norm(tab, idx, torch), torch)
+                    if Wg is not None and STAT is not None:
+                        cn = torch.tensor((STAT[idx] - self.s_mu[i0: i0 + self.d_stat]) / self.s_sd[i0: i0 + self.d_stat], dtype=torch.float64)
+                        chan = torch.clamp(1.0 + cn @ Wg.T, min=0.0) * chan
+                pred = pred + chan
+            loss = torch.mean((pred - Yb) ** 2) + (self._readin_penalty(R, torch) if readin == "train" else 0.0)
             opt.zero_grad()
             loss.backward()
             opt.step()
             sched.step()
-            if step % 200 == 0 or step == cfg.steps_one - 1:
+            if step % 200 == 0 or step == n_steps - 1:
                 losses.append(float(loss.detach()))
-        self.fit_notes["one_step_loss"] = losses
+        self.fit_notes[note] = losses
 
-    def _train_multi(self, net, tab: dict, m: int, torch) -> None:
-        """Unrolled windows of m steps from teacher-forced starts (half of them in response rows); intervention inputs teacher-
-        forced, dynamic states and traces predicted."""
-        cfg = self.cfg
-        n = len(tab["S"])
-        ok = np.arange(n) + m <= tab["last"]
-        starts = np.flatnonzero(ok)
-        if not len(starts):
+    def _fit_readin_ls(self, net, R, tab: dict, torch, Wg=None) -> None:
+        """Closed-form per-unit read-in given the passive field f0: on every row with an active descriptor, the one-step residual
+        (s(t+1) - s(t)^+) / d_sd - f0([s, u]) is regressed (ridge, relative penalty cfg.readin_ls_lambda) on the normalised
+        descriptors of the (unit, channel) pairs active in training. Each unit's read-in is otherwise fitted from its few rows by
+        stochastic gradients only (a unit is active in about 1 % of the rows), which leaves it under-fitted."""
+        A = tab["A"]
+        rows = np.flatnonzero((np.asarray(A.getnnz(axis=1)).ravel() > 0) & (np.arange(A.shape[0]) < tab["last"]))
+        if not len(rows):
             return
-        starts_r = np.flatnonzero(ok & tab["resp"])
-        opt = torch.optim.Adam(net.parameters(), lr=cfg.lr_multi)
-        rng = np.random.default_rng(cfg.seed + 13)
-        bs = min(max(64, cfg.batch // m), len(starts))
+        post = self._post(tab["S"][rows] + tab["J"][rows].toarray())
+        X, C = self._net_in(self._full(post, tab, rows), tab["U"][rows])
+        with torch.no_grad():
+            f0 = self._ctx_out(net(torch.tensor(X, dtype=torch.float64)).numpy(), C, self.d_dyn)
+        r = (tab["S"][rows + 1] - post) / self.d_sd - f0
+        An = (A[rows].multiply(1.0 / self.ch_scale)).tocsc()
+        cols = np.flatnonzero(self.seen_cols)
+        if self._exact_readin:
+            Rn = np.zeros((self.N, N_CH))
+            Acsr = An.tocsr()
+            for unit in sorted({int(c) // N_CH for c in cols}):
+                cc = [c for c in range(unit * N_CH, unit * N_CH + N_CH) if self.seen_cols[c]]
+                sub_rows = np.flatnonzero(np.asarray(Acsr[:, cc].getnnz(axis=1)).ravel() > 0)
+                if not len(sub_rows):
+                    continue
+                F = Acsr[sub_rows][:, cc].toarray()
+                y = r[sub_rows, unit]
+                G = F.T @ F
+                lam = self.cfg.readin_ls_lambda * max(float(np.mean(np.diag(G))), 1e-12)
+                Rn[unit, [c - unit * N_CH for c in cc]] = np.linalg.solve(G + lam * np.eye(len(cc)), F.T @ y)
+            with torch.no_grad():
+                R.copy_(torch.tensor(Rn, dtype=torch.float64))
+        else:
+            F = An[:, cols]
+            G = (F.T @ F).toarray()
+            lam = self.cfg.readin_ls_lambda * max(float(np.mean(np.diag(G))), 1e-12)
+            W = np.linalg.solve(G + lam * np.eye(len(cols)), np.asarray(F.T @ r))        # (n_cols, d_dyn)
+            if Wg is not None and tab.get("STAT") is not None:
+                W, Wgn = self._fit_context_gain_ls(F, r, W, tab["STAT"][rows], lam)
+                with torch.no_grad():
+                    Wg.copy_(torch.tensor(Wgn, dtype=torch.float64))
+            Rn = np.zeros((self.d_dyn, self.N * N_CH))
+            Rn[:, cols] = W.T
+            with torch.no_grad():
+                R.copy_(torch.tensor(Rn.reshape(self.d_dyn, self.N, N_CH), dtype=torch.float64))
+        self.fit_notes["readin_ls_rows"] = len(rows)
+
+    def _fit_context_gain_ls(self, F, r: np.ndarray, W: np.ndarray, stat_rows: np.ndarray, lam: float, n_iter: int = 3):
+        """CONTEXT GAIN in closed form, alternating with the read-in (compact states with a static context): the channel term is
+        max(0, 1 + W_g c_norm) * (R . a) per latent coordinate. Given R, each coordinate's gain regression is linear in W_g
+        (features c_norm * (R . a)_k, target the one-step residual minus (R . a)_k; ridge, relative penalty 1e-3); given the gains,
+        R is refitted per coordinate on the gain-scaled descriptors (the same ridge as the gain-free fit). n_iter alternations;
+        the paired phase refines both. Returns (W (n_cols, d_dyn), W_g (d_dyn, d_stat))."""
+        import scipy.sparse as sp
+        i0 = self._i_stat()
+        cn = (np.asarray(stat_rows, float) - self.s_mu[i0: i0 + self.d_stat]) / self.s_sd[i0: i0 + self.d_stat]
+        Fr = F.tocsr()
+        W = np.array(W, dtype=float, copy=True)
+        Wg = np.zeros((self.d_dyn, self.d_stat))
+        for _ in range(int(n_iter)):
+            chan = np.asarray(Fr @ W)
+            for k in range(self.d_dyn):
+                Phi = cn * chan[:, k:k + 1]
+                A_ = Phi.T @ Phi
+                lg = 1e-3 * max(float(np.mean(np.diag(A_))), 1e-12)
+                Wg[k] = np.linalg.solve(A_ + lg * np.eye(self.d_stat), Phi.T @ (r[:, k] - chan[:, k]))
+            for k in range(self.d_dyn):
+                g = np.maximum(1.0 + cn @ Wg[k], 0.0)
+                Fk = sp.diags(g) @ Fr
+                Gk = (Fk.T @ Fk).toarray()
+                W[:, k] = np.linalg.solve(Gk + lam * np.eye(W.shape[0]), np.asarray(Fk.T @ r[:, k]).ravel())
+        gains = np.maximum(1.0 + cn @ Wg.T, 0.0)
+        self.fit_notes["context_gain_ls"] = {"iterations": int(n_iter), "gain_p5": [float(v) for v in np.percentile(gains, 5, axis=0)],
+                                             "gain_p95": [float(v) for v in np.percentile(gains, 95, axis=0)]}
+        return W, Wg
+
+    @staticmethod
+    def _paired_lengths(j0: np.ndarray, st: np.ndarray, nn: np.ndarray, m: int) -> np.ndarray:
+        """Steps unrolled per pair: from the start st (at most one short horizon before the onset j0) through m steps AFTER the onset,
+        clipped at the trajectory's end (reviewer H round 3, NEW-2: the window covers the whole scored horizon after the onset)."""
+        return np.maximum(1, np.minimum(int(m) + (np.asarray(j0) - np.asarray(st)), np.asarray(nn) - 1 - np.asarray(st)))
+
+    def _train_paired(self, net, R, tab: dict, pairs: list, m: int, short_steps: float, torch, Wg=None) -> None:
+        """PAIRED multi-step phase: from a teacher-forced start at most one short horizon before the onset, the intervention record
+        (its kicks and teacher-forced descriptors) and its twin are unrolled from the same state through m steps AFTER the onset
+        (`_paired_lengths`; clipped at the trajectory's end; a pair whose window is over is frozen and masked while the rest of the
+        batch continues); loss = the two trajectory errors (in units of the state sd) + cfg.paired_weight x the error of the
+        predicted EFFECT (intervention minus twin) in units of the typical training effect (per coordinate), averaged over the
+        unrolled (pair, step) cells: the effect is the scored quantity and is small next to the natural increments, so it gets its
+        own scale. With a static context, both unrolls carry their record's context unchanged and `Wg` (the context gain of the
+        channel term, initialised in closed form by `_fit_readin_ls`) is refined here."""
+        cfg = self.cfg
         dd = self.d_dyn
-        sd_t = torch.tensor(self.d_sd, dtype=torch.float32)
-        smu, ssd = torch.tensor(self.s_mu, dtype=torch.float32), torch.tensor(self.s_sd, dtype=torch.float32)
-        umu, usd = torch.tensor(self.u_mu, dtype=torch.float32), torch.tensor(self.u_sd, dtype=torch.float32)
-        csc = torch.tensor(self.ch_scale, dtype=torch.float32)
-        dsc = torch.tensor(self.s_sd[:dd], dtype=torch.float32)
+        S = tab["S"]
+        eff = []
+        for gi, gt, j0, n in pairs:
+            b = min(n, j0 + m + 1)
+            eff.append(S[gi + j0: gi + b, :dd] - S[gt + j0: gt + b, :dd])
+        e_all = np.concatenate(eff) if eff else np.zeros((1, dd))
+        sig_s = self.s_sd[:dd]
+        sig_e = np.maximum(np.sqrt(np.mean(e_all ** 2, axis=0)), 1e-3 * sig_s)
+        self.fit_notes["effect_scale_over_state_sd"] = [float(v) for v in sig_e / sig_s]
+        params = list(net.parameters()) + [R] + ([Wg] if Wg is not None else [])
+        opt = torch.optim.Adam(params, lr=cfg.lr_multi)
+        rng = np.random.default_rng(cfg.seed + 13)
+        bs = min(cfg.pair_batch, len(pairs))
+        STAT = tab.get("STAT")
+        i0 = self._i_stat()
+        cmu = torch.tensor(self.s_mu[i0: i0 + self.d_stat], dtype=torch.float64)
+        csd = torch.tensor(self.s_sd[i0: i0 + self.d_stat], dtype=torch.float64)
+        sd_t = torch.tensor(self.d_sd, dtype=torch.float64)
+        smu, ssd = torch.tensor(self.s_mu, dtype=torch.float64), torch.tensor(self.s_sd, dtype=torch.float64)
+        umu, usd = torch.tensor(self.u_mu, dtype=torch.float64), torch.tensor(self.u_sd, dtype=torch.float64)
+        sig_s_t, sig_e_t = torch.tensor(sig_s, dtype=torch.float64), torch.tensor(sig_e, dtype=torch.float64)
         alphas = [float(a) for a in self.alphas]
         clip = self._exact_readin and self.nonneg
+        pre = max(1, round(short_steps))
         losses = []
+        cov_min, n_short = None, 0
         for step in range(cfg.steps_multi):
-            idx = self._batch_rows(rng, starts, starts_r, bs)
-            s = torch.tensor(tab["S"][idx], dtype=torch.float32)
-            aux = ([torch.tensor(tab["A"][idx][:, j * dd:(j + 1) * dd], dtype=torch.float32) for j in range(self.n_aux)]
-                   if tab["A"] is not None else [])
-            loss = 0.0
-            for q in range(m):
-                rows = idx + q
-                post = s + torch.tensor(tab["J"][rows].toarray(), dtype=torch.float32)
+            pick = rng.integers(0, len(pairs), bs)
+            gi = np.array([pairs[p][0] for p in pick])
+            gt = np.array([pairs[p][1] for p in pick])
+            j0 = np.array([pairs[p][2] for p in pick])
+            nn = np.array([pairs[p][3] for p in pick])
+            st = np.maximum(0, j0 - rng.integers(0, pre + 1, bs))
+            Li = self._paired_lengths(j0, st, nn, m)
+            L = int(Li.max())
+            long_ = (nn - 1 - j0) >= m                      # trajectories long enough for m steps after the onset
+            if long_.any():
+                c = int((Li - (j0 - st))[long_].min())
+                cov_min = c if cov_min is None else min(cov_min, c)
+            n_short += int((~long_).sum())
+            ri, rt = gi + st, gt + st
+            s_i = torch.tensor(S[ri], dtype=torch.float64)
+            s_t = torch.tensor(S[rt], dtype=torch.float64)
+            aux_i = ([torch.tensor(tab["AUX"][ri][:, j * dd:(j + 1) * dd], dtype=torch.float64) for j in range(self.n_aux)]
+                     if tab["AUX"] is not None else [])
+            aux_t = [a.clone() for a in aux_i]
+            stat_i = [torch.tensor(STAT[ri], dtype=torch.float64)] if STAT is not None else []
+            stat_t = [torch.tensor(STAT[rt], dtype=torch.float64)] if STAT is not None else []
+            gain_i = torch.clamp(1.0 + ((stat_i[0] - cmu) / csd) @ Wg.T, min=0.0) if (Wg is not None and stat_i) else 1.0
+            num, cnt = 0.0, 0.0
+            for q in range(L):
+                qi = np.minimum(q, Li - 1)                  # a pair past its window repeats its last row, frozen and masked
+                act = torch.tensor(q < Li)
+                w_q = act.to(torch.float64)
+                rows_i, rows_t = ri + qi, rt + qi
+                post_i = s_i + torch.tensor(tab["J"][rows_i].toarray(), dtype=torch.float64)
+                post_t = s_t
                 if clip:
-                    post = torch.clamp(post, min=0.0)
-                full = torch.cat([post] + aux, dim=1) if aux else post
-                u = torch.tensor(tab["U"][rows], dtype=torch.float32)
-                c = torch.tensor(tab["C"][rows].toarray(), dtype=torch.float32)
-                nxt = post + net(torch.cat([(full - smu) / ssd, (u - umu) / usd, c / csc], dim=1)) * sd_t
+                    post_i = torch.clamp(post_i, min=0.0)
+                full_i = torch.cat([post_i] + aux_i + stat_i, dim=1) if (aux_i or stat_i) else post_i
+                full_t = torch.cat([post_t] + aux_t + stat_t, dim=1) if (aux_t or stat_t) else post_t
+                u = torch.tensor(tab["U"][rows_i], dtype=torch.float64)
+                X_i, C_i = self._net_in_t(full_i, u, smu, ssd, umu, usd, torch)
+                X_t, C_t = self._net_in_t(full_t, u, smu, ssd, umu, usd, torch)
+                f_i = self._ctx_out_t(net(X_i), C_i, dd, torch)
+                f_t = self._ctx_out_t(net(X_t), C_t, dd, torch)
+                nxt_i = post_i + (f_i + gain_i * self._chan_torch(R, self._a_norm(tab, rows_i, torch), torch)) * sd_t
+                nxt_t = post_t + f_t * sd_t
                 if clip:
-                    nxt = torch.clamp(nxt, min=0.0)
-                tgt = torch.tensor(tab["S"][rows + 1], dtype=torch.float32)
-                loss = loss + torch.mean(((nxt - tgt) / dsc) ** 2)
-                aux = [a_ + al * (nxt - a_) for a_, al in zip(aux, alphas)]
-                s = nxt
-            loss = loss / m
+                    nxt_i, nxt_t = torch.clamp(nxt_i, min=0.0), torch.clamp(nxt_t, min=0.0)
+                tg_i = torch.tensor(S[rows_i + 1], dtype=torch.float64)
+                tg_t = torch.tensor(S[rows_t + 1], dtype=torch.float64)
+                cell = (torch.mean(((nxt_i - tg_i) / sig_s_t) ** 2, dim=1) + torch.mean(((nxt_t - tg_t) / sig_s_t) ** 2, dim=1)
+                        + cfg.paired_weight * torch.mean((((nxt_i - nxt_t) - (tg_i - tg_t)) / sig_e_t) ** 2, dim=1))
+                num = num + torch.sum(w_q * cell)
+                cnt += float(w_q.sum())
+                keep = act[:, None]
+                if self.trace_mode == "evolve":
+                    aux_i = [torch.where(keep, a_ + al * (nxt_i - a_), a_) for a_, al in zip(aux_i, alphas)]
+                    aux_t = [torch.where(keep, a_ + al * (nxt_t - a_), a_) for a_, al in zip(aux_t, alphas)]
+                s_i, s_t = torch.where(keep, nxt_i, s_i), torch.where(keep, nxt_t, s_t)
+            loss = num / max(cnt, 1.0) + self._readin_penalty(R, torch) + (cfg.readin_lambda * torch.sum(Wg ** 2) if Wg is not None
+                                                                            else 0.0)
             opt.zero_grad()
             loss.backward()
+            torch.nn.utils.clip_grad_norm_(params, 10.0)
             opt.step()
-            if step % 100 == 0 or step == cfg.steps_multi - 1:
+            if step % 50 == 0 or step == cfg.steps_multi - 1:
                 losses.append(float(loss.detach()))
-        self.fit_notes["multi_step_loss"] = losses
+        self.fit_notes["paired_loss"] = losses
+        # the post-onset steps every sampled window of a long-enough trajectory covered (= m by construction), and how many sampled
+        # pairs ended before m steps after their onset (clipped windows)
+        self.fit_notes["paired_post_onset"] = {"window": int(m), "min_steps_long_pairs": cov_min, "n_clipped_short_pairs": n_short}
 
     def _train_readout(self, ro, tab: dict, torch) -> None:
         """Readout MLP; batches balanced like the dynamics (cfg.resp_share of the rows from response rows), so the map is fitted
@@ -739,10 +1284,11 @@ class _LearnedStateModel(CausalStateModel):
         resp_rows = np.flatnonzero(tab["resp"])
         for _ in range(cfg.readout_steps):
             idx = self._batch_rows(rng, all_rows, resp_rows, bs)
-            full = self._full(tab["S"][idx], tab, idx)
-            Xb = np.hstack([(full - self.s_mu) / self.s_sd, (tab["U"][idx] - self.u_mu) / self.u_sd])
+            X, C = self._net_in(self._full(tab["S"][idx], tab, idx), tab["U"][idx])
             Yb = (tab["Y"][idx] - self.y_mu) / self.y_sd
-            loss = torch.mean((ro(torch.tensor(Xb, dtype=torch.float32)) - torch.tensor(Yb, dtype=torch.float32)) ** 2)
+            pred = self._ctx_out_t(ro(torch.tensor(X, dtype=torch.float64)), torch.tensor(C, dtype=torch.float64) if C is not None else None,
+                                   self.n_y, torch)
+            loss = torch.mean((pred - torch.tensor(Yb, dtype=torch.float64)) ** 2)
             opt.zero_grad()
             loss.backward()
             opt.step()
@@ -750,48 +1296,150 @@ class _LearnedStateModel(CausalStateModel):
 
     # ---------------------------------------------------------------- API
     def encode(self, sid, x_hist, u_hist, dt):
-        dyn = np.asarray(self._encode_dyn(sid, x_hist, u_hist, dt), float)
         if not self.n_aux:
-            return dyn
-        X = np.asarray(x_hist, float)
-        return np.hstack([dyn] + [_ema(X, a)[-1] for a in self.alphas])
+            z = np.asarray(self._encode_dyn(sid, x_hist, u_hist, dt), float)
+        else:
+            Sh = np.asarray(self._state_history(sid, x_hist, u_hist, dt), float)
+            # traces in time units: the factor of the history's own sampling interval (review H, M2)
+            z = np.hstack([Sh[-1]] + [_ema(Sh, a)[-1] for a in self._alphas(float(dt) if dt else self.dt)])
+        # a static context the model cannot read from an observed history: the training mean (TruthStateModel overrides encode)
+        return np.hstack([z, self.stat_fill]) if self.d_stat else z
 
     def supports(self, sid, kind):
-        """Kicks always (they act through the read-in matrix K); other kinds only when their channels were active in training (a
-        kind never seen has no represented effect: the evaluator scores abstention, never a silent 'no effect')."""
+        """A kind is supported when some unit received it in training (kicks: some unit was kicked); a kind never seen has no
+        represented effect: the evaluator scores abstention, never a silent 'no effect'. Per event, `covers` also requires every
+        targeted (unit, channel) to have been intervened in training."""
         if kind == "current_seq":
             kind = "current"
         return kind in getattr(self, "kinds_seen", P.EVENT_KINDS)
 
+    def covers(self, sid, events) -> bool:
+        """Every event's targeted (unit, channel) pairs were active in training (kicks: the unit was kicked); an event on a unit that
+        is not observed, or was never intervened with that kind, has no learned read-in: the model abstains (it never guesses a
+        read-in from correlations)."""
+        seen = getattr(self, "seen_cols", None)
+        if seen is None:
+            return True
+        kicked = set(getattr(self, "kick_units", []))
+
+        def ok(unit, chs) -> bool:
+            c = self.col.get(int(unit))
+            return c is not None and all(seen[c * N_CH + ch] for ch in chs)
+        for e in events:
+            k = e.get("kind")
+            if k not in P.EVENT_KINDS:
+                continue
+            if k == "kick":
+                if not all(int(n) in self.col and (self._exact_readin or self.col[int(n)] in kicked) for n in e["delta"]):
+                    return False
+            elif k in ("current", "current_seq"):
+                if not all(ok(n, (0,)) for n in e["targets"]):
+                    return False
+            elif k == "silence":
+                if not all(ok(n, (1, 2)) for n in e["targets"]):
+                    return False
+            elif k == "edge_scale":
+                if not all(ok(p, (3,)) and int(q) in self.col for p, q in e["edges"]):
+                    return False
+            elif k == "param":
+                for n, d in e["targets"].items():
+                    chs = tuple(ch for fld, ch in (("gain", 4), ("threshold", 5), ("tau", 6)) if fld in d)
+                    if not ok(n, chs):
+                        return False
+        return True
+
+    def _context_fit(self, sid, x_hist, u_hist, dt) -> np.ndarray | None:
+        """IN-CONTEXT IDENTIFICATION: every trajectory has its own parameter draw, and the state is closed only given the draw. On the
+        item's own history (the most recent cfg.context_max_rows rows, at the training dt only) the residual of the learned passive
+        field, (s(t+1) - s(t)) / d_sd - f0([s(t), u(t)]), is regressed by ridge on [s_norm, u_norm, 1]; the correction W (n_in + 1,
+        d_dyn) is added to f0 in this prediction's rollouts. None when the history is too short or not on the training grid."""
+        if not self.cfg.context_adapt or abs(float(dt) - self.dt) > 1e-9 * max(1.0, self.dt):
+            return None
+        try:
+            Sh = np.asarray(self._state_history(sid, x_hist, u_hist, dt), float)
+        except NotImplementedError:
+            return None
+        Uh = np.asarray(u_hist, float).reshape(len(u_hist), -1)
+        n = min(len(Sh), len(Uh))
+        if n < 8:
+            return None
+        Sh, Uh = Sh[n - min(n, self.cfg.context_max_rows + 1):n], Uh[n - min(n, self.cfg.context_max_rows + 1):n]
+        dd = self.d_dyn
+        full = Sh
+        if self.n_aux:
+            full = np.hstack([Sh[:, :dd]] + [_ema(Sh[:, :dd], a) for a in self._alphas(dt)]) if Sh.shape[1] == dd else Sh
+        if self.d_stat:
+            stat = np.asarray(self.encode(sid, x_hist, u_hist, dt), float)[-self.d_stat:]
+            full = np.hstack([full, np.repeat(stat[None, :], len(full), 0)])
+        X, C = self._net_in(full[:-1], Uh[:-1])
+        r = (Sh[1:, :dd] - Sh[:-1, :dd]) / self.d_sd - self._ctx_out(self.f(X), C, dd)
+        A = np.hstack([X, np.ones((len(X), 1))])
+        ok = np.isfinite(A).all(1) & np.isfinite(r).all(1)
+        if ok.sum() < 8:
+            return None
+        A, r = A[ok], r[ok]
+        lam = self.cfg.context_lambda * len(A)
+        return np.linalg.solve(A.T @ A + lam * np.eye(A.shape[1]), A.T @ r)
+
+    def intervention_effect(self, system_id, x_hist, u_hist, u_future, events, dt):
+        self._ctx_W = self._context_fit(system_id, x_hist, u_hist, dt)
+        try:
+            out = super().intervention_effect(system_id, x_hist, u_hist, u_future, events, dt)
+        finally:
+            self._ctx_W = None
+        if getattr(self, "beta", None) is not None:
+            b = self._beta_rows(len(out["y_int"]), float(dt) if dt else self.dt)[:, None]
+            out["y_int"] = out["y_base"] + b * (out["y_int"] - out["y_base"])
+            out["effect"] = out["y_int"] - out["y_base"]
+        if not self.covers(system_id, events):
+            out["abstain"] = True
+        return out
+
     def rollout(self, sid, z0, u_future, events, dt):
+        """Rows at the output dt; the learned map is applied n = dt / dt_train times per row (sub-steps on the training grid, the
+        input of the row held over its interval, events placed on the internal grid); a non-integer ratio is refused."""
         dt = float(dt) if dt else self.dt
+        n_sub = n_substeps(dt, self.dt)
         U = np.asarray(u_future, float).reshape(len(u_future), -1)
         H = len(U) - 1
         dd = self.d_dyn
         z0 = np.asarray(z0, float)
         s = z0[:dd].copy()
         aux = [z0[dd * (j + 1): dd * (j + 2)].copy() for j in range(self.n_aux)]
-        tl = Timeline([e for e in events if e["kind"] in P.EVENT_KINDS], max(H, 1), dt, self.col)
+        i0 = self._i_stat()
+        stat = [z0[i0: i0 + self.d_stat].copy()] if self.d_stat else []     # static context: zero dynamics
+        gain = self._gain_np(stat[0]) if stat else 1.0
+        tl = Timeline([e for e in events if e["kind"] in P.EVENT_KINDS], max(H * n_sub, 1), self.dt, self.col)
         out = [z0.copy()]
-        zero_c = np.zeros(dd * N_CH)
-        for j in range(H):
+        for j in range(H * n_sub):
             if j in tl.kicks:
                 s = self._post(s + self._jump(tl.kicks[j]))
             st = tl.static_at(j)
-            c = zero_c if st is None else self._seg_c(*self._seg_channels(st, self._decode(s)[None, :]))[0]
-            full = np.hstack([s] + aux) if aux else s
-            ds = self.f(self._inputs(full, U[j], c)[None, :])[0] * self.d_sd
-            s = self._post(s + ds)
-            aux = [a_ + al * (s - a_) for a_, al in zip(aux, self.alphas)]
-            out.append(np.hstack([s] + aux) if aux else s.copy())
+            full = np.hstack([s] + aux + stat)
+            X, C = self._net_in(full, U[j // n_sub])
+            ds = self._ctx_out(self.f(X), C, dd)[0]
+            if getattr(self, "_ctx_W", None) is not None:
+                ds = ds + np.hstack([X[0], 1.0]) @ self._ctx_W
+            if st is not None:
+                units, A = self._seg_channels(st, self._decode(s)[None, :])
+                if units:
+                    a = np.zeros(self.N * N_CH)
+                    cols = (np.asarray(units)[:, None] * N_CH + np.arange(N_CH)[None, :]).reshape(-1)
+                    a[cols] = A.reshape(-1)
+                    ds = ds + gain * self._chan_np(a[None, :])[0]
+            s = self._post(s + ds * self.d_sd)
+            if self.trace_mode == "evolve":
+                aux = [a_ + al * (s - a_) for a_, al in zip(aux, self.alphas)]
+            if (j + 1) % n_sub == 0:
+                out.append(np.hstack([s] + aux + stat))
         Z = np.stack(out)
         return {"z": Z, "y": self.readout(sid, Z, U[: len(Z)])}
 
     def readout(self, sid, z, u):
         z = np.atleast_2d(np.asarray(z, float))
         u = np.asarray(u, float).reshape(len(z), -1) if np.size(u) else np.zeros((len(z), self.n_u))
-        inp = np.hstack([(z - self.s_mu) / self.s_sd, (u - self.u_mu) / self.u_sd])
-        return self.g(inp) * self.y_sd + self.y_mu
+        X, C = self._net_in(z, u)
+        return self._ctx_out(self.g(X), C, self.n_y) * self.y_sd + self.y_mu
 
     def read_in(self, sid, z, event):
         if event["kind"] == "kick":
@@ -800,20 +1448,25 @@ class _LearnedStateModel(CausalStateModel):
                 if int(n) in self.col:
                     dx[self.col[int(n)]] += float(v)
             dz = self.K @ dx
-            return {"dz": np.hstack([dz, np.zeros(self.d_dyn * self.n_aux)])}
+            return {"dz": np.hstack([dz, np.zeros(self.d_dyn * self.n_aux + self.d_stat)])}
         if event["kind"] in P.EVENT_KINDS:
-            return {"operator": {"type": "mlp_channels", "kind": event["kind"], "channels": list(CH_NAMES),
-                                 "read_in_matrix": "K (d_dyn x N_obs)", "note": "per-unit descriptors projected by K enter the dynamics MLP"}}
+            return {"operator": {"type": "control_affine_per_unit", "kind": event["kind"], "channels": list(CH_NAMES),
+                                 "read_in": "R (d_dyn x N_obs x 7), learned per (unit, channel) from training interventions",
+                                 "context_gain": self.Wg is not None,
+                                 "note": "ds / d_sd = f0(s, u) + (1 + W c_norm) * R . (descriptors / scale); untrained (unit, "
+                                         "channel) pairs abstain"}}
         return {}
 
     def lift(self, sid, x_hist, u_hist, delta_z, n_candidates=3, constraints=None):
-        """Kick lifts of the dynamic part of delta_z (trace coordinates cannot be set by an instantaneous intervention; their
-        requested part is part of the miss)."""
+        """Kick lifts of the dynamic part of delta_z over units KICKED in training (their read-in is learned; trace and static context
+        coordinates cannot be set by an instantaneous intervention; their requested part is part of the miss)."""
         from scipy.optimize import lsq_linear
         cons = constraints or {}
         dz = np.asarray(delta_z, float)[: self.d_dyn]
         allowed = cons.get("targets")
-        cols = [self.col[int(n)] for n in (allowed if allowed is not None else self.observed) if int(n) in self.col]
+        kicked = set(range(self.N)) if self._exact_readin else set(getattr(self, "kick_units", range(self.N)))
+        cols = [self.col[int(n)] for n in (allowed if allowed is not None else self.observed) if int(n) in self.col
+                and self.col[int(n)] in kicked]
         if not cols or not np.any(dz):
             return []
         x_now = np.asarray(x_hist, float)[-1]
@@ -829,7 +1482,7 @@ class _LearnedStateModel(CausalStateModel):
             Ks = self.K[:, S_]
             lo = np.full(len(S_), -max_kick)
             hi = np.full(len(S_), max_kick)
-            if self.nonneg:
+            if self.nonneg and self._exact_readin:
                 lo = np.maximum(lo, -x_now[S_])
             lam = 1e-6 * max(float(np.sum(Ks ** 2)), 1e-12)
             A = np.vstack([Ks, np.sqrt(lam) * np.eye(len(S_))])
@@ -845,9 +1498,9 @@ class _LearnedStateModel(CausalStateModel):
                 continue
             seen.append(full_dx)
             delta = {str(self.observed[c]): float(full_dx[c]) for c in np.flatnonzero(full_dx)}
-            pdz = np.hstack([self.K @ full_dx, np.zeros(self.d_dyn * self.n_aux)])
+            pdz = np.hstack([self.K @ full_dx, np.zeros(self.d_dyn * self.n_aux + self.d_stat)])
             out.append({"events": [{"kind": "kick", "t": 0.0, "delta": delta}], "predicted_dz": pdz,
-                        "cost": float(np.abs(full_dx).sum() * self.dt)})
+                        "cost": float(np.abs(full_dx).sum())})              # kick magnitude (PROTOCOL 5.7: not scaled by dt)
             if len(out) >= n_candidates:
                 break
         return out
@@ -855,11 +1508,16 @@ class _LearnedStateModel(CausalStateModel):
     def info(self):
         npar_f = self.f.n_params() if hasattr(self, "f") else 0
         npar_g = self.g.n_params() if hasattr(self, "g") else 0
-        enc = 0 if self._exact_readin else int(self.K.size)
-        hist = 1 if not self.alphas else int(np.ceil(3.0 / min(self.alphas)))
+        n_rin = int(self.K.size + (np.count_nonzero(self.R) if hasattr(self, "R") else 0)) if hasattr(self, "K") else 0
+        n_rin += int(self.Wg.size) if self.Wg is not None else 0
+        enc = 0 if self._exact_readin else int(self.d_dyn * self.N)
+        hist = 1 if not self.trace_taus_s else int(np.ceil(3.0 * max(self.trace_taus_s) / self.dt))
+        k_dyn = int(self.d_dyn * (1 + self.n_aux)) if hasattr(self, "d_dyn") else None
         return {"k": dict(self.k), "k_range": {s: [v, v] for s, v in self.k.items()}, "method": f"ref:{self.ref_name}",
-                "method_version": "2", "history": {s: hist for s in self.k},
-                "n_params": {"encoder": {s: enc for s in self.k}, "transition": npar_f, "read_in": {s: int(self.K.size) for s in self.k},
+                "method_version": "5", "history": {s: hist for s in self.k}, "dt_train": getattr(self, "dt", None),
+                "k_dynamic": {s: k_dyn for s in self.k}, "k_context": {s: int(self.d_stat) for s in self.k},
+                "context_gain": self.Wg is not None, "context_linear": bool(self.ctx_lin), "trace_taus_s": list(self.trace_taus_s),
+                "n_params": {"encoder": {s: enc for s in self.k}, "transition": npar_f, "read_in": {s: n_rin for s in self.k},
                              "readout": {s: npar_g for s in self.k}},
                 "train_cost": dict(self.train_cost), "fit_notes": dict(self.fit_notes)}
 
@@ -867,7 +1525,7 @@ class _LearnedStateModel(CausalStateModel):
 # ------------------------------------------------------------------------------------------------------------ concrete references
 class FullStateModel(_LearnedStateModel):
     """FULL-STATE: s = [x_t, EMA_tau1(x)_t, EMA_tau2(x)_t] (causal exponential traces of the observed microstate, tau = cfg.trace_fracs x
-    the short horizon, at least 2 samples; the 'short delay embedding' in Markov form), K = identity."""
+    the short horizon in SECONDS, at least 2 training samples; the 'short delay embedding' in Markov form), K = identity."""
     ref_name = "full_state"
     _exact_readin = True
 
@@ -875,16 +1533,14 @@ class FullStateModel(_LearnedStateModel):
         super().__init__(cfg)
         self.n_aux = len(cfg.trace_fracs)
 
-    def _set_traces(self, short_steps: float) -> None:
-        taus = [max(2.0, float(f) * short_steps) for f in self.cfg.trace_fracs]
-        self.alphas = [float(1.0 - np.exp(-1.0 / t)) for t in taus]
-        self.fit_notes["trace_taus_steps"] = taus
-
     def _dyn_states(self, rec):
         return np.asarray(_arr(rec, "x"), np.float64)
 
     def _encode_dyn(self, sid, x_hist, u_hist, dt):
         return np.asarray(x_hist, float)[-1]
+
+    def _state_history(self, sid, x_hist, u_hist, dt):
+        return np.asarray(x_hist, float)
 
 
 class ProjectionStateModel(_LearnedStateModel):
@@ -913,26 +1569,68 @@ class ProjectionStateModel(_LearnedStateModel):
     def _encode_dyn(self, sid, x_hist, u_hist, dt):
         return (np.asarray(x_hist, float)[-1] - self.mu) @ self.V
 
+    def _state_history(self, sid, x_hist, u_hist, dt):
+        return (np.asarray(x_hist, float) - self.mu) @ self.V
+
 
 class TruthStateModel(_LearnedStateModel):
-    """TRUE-STATE ("z") / OBS-SHORTCUT ("z_obs"): the state is a truth array per training record; evaluation histories must be
-    registered (`register_truth`, `register_records`); unregistered histories fall back to a ridge probe from [x_t, x_{t-1}, x_{t-2}]."""
+    """TRUE-STATE ("z") / OBS-SHORTCUT ("z_obs"): the state is a truth array per training record, followed by the trajectory's
+    EFFECTIVE DRAW PARAMETERS as static context coordinates (review E round 3, N-new-1; LOG P4-D43): every trajectory has its own
+    parameter draw and z is closed only given it, so the complete reference state is [z, draw] (zero dynamics for the draw; no
+    intervention moves it). Without draw information for every training record the state is z alone and
+    fit_notes['static_context'] says why; `use_draw=False` gives the descriptive z-only reference. Evaluation histories must be
+    registered (`register_truth(x, u, z, dt, draw)`, `register_records`); unregistered histories fall back to a ridge probe from
+    [x(t), x(t - dt_train), x(t - 2 dt_train)] (interpolated in time) with the training-mean draw. `drop`: true coordinates REMOVED
+    from z (the missing-state corruption of the calibration's power table), in training and in every registered history; the draw
+    stays."""
 
-    def __init__(self, which: str = "z", cfg: LearnerConfig = DEFAULT_CFG):
+    trace_mode = "context"     # the state is closed given the trajectory's parameter draw; the traces only identify the draw
+
+    def __init__(self, which: str = "z", cfg: LearnerConfig = DEFAULT_CFG, drop: tuple[int, ...] = (), use_draw: bool = True):
         super().__init__(cfg)
         assert which in ("z", "z_obs")
         self.which = which
-        self.ref_name = "true_state" if which == "z" else "obs_shortcut"
+        self.drop = tuple(sorted({int(j) for j in drop}))
+        self.use_draw = bool(use_draw)
+        self.ref_name = (("true_state" if which == "z" else "obs_shortcut") + ("" if self.use_draw else "_zonly")
+                         + (f"_minus{'_'.join(map(str, self.drop))}" if self.drop else ""))
         self.index = HistoryIndex()
         self.n_probe_encodes = 0
+        self.n_registered_without_draw = 0
         self.truth_train: dict[str, np.ndarray] = {}
+        self.draw_train: dict[str, np.ndarray] = {}
 
-    def fit_truth(self, sid: str, records: list, sysrec: dict, truth_by_key: dict[str, np.ndarray]):
+    def _cut(self, z) -> np.ndarray:
+        z = np.asarray(z, np.float64)
+        if not self.drop:
+            return z
+        z = np.delete(np.atleast_2d(z) if z.ndim == 1 else z, list(self.drop), axis=-1)
+        if z.shape[-1] == 0:
+            raise ValueError("no true coordinate left after the removal")
+        return z
+
+    def fit_truth(self, sid: str, records: list, sysrec: dict, truth_by_key: dict[str, np.ndarray],
+                  draw_by_key: dict[str, np.ndarray] | None = None):
+        """Fit on training records with their true state (truth_by_key) and, when given, their effective draw parameters
+        (draw_by_key: {key: (d_draw,)} from the truth store's 'draw'; the context is used only if EVERY record has one)."""
         missing = [str(_get(r, "key")) for r in records if str(_get(r, "key")) not in truth_by_key]
         if missing:
             raise ValueError(f"truth missing for {len(missing)} training records (e.g. {missing[0]})")
-        self.truth_train = {str(_get(r, "key")): np.asarray(truth_by_key[str(_get(r, "key"))], np.float64) for r in records}
+        self.truth_train = {str(_get(r, "key")): self._cut(truth_by_key[str(_get(r, "key"))]) for r in records}
+        self.draw_train = {}
+        if self.use_draw and draw_by_key:
+            self.draw_train = {str(_get(r, "key")): np.asarray(draw_by_key[str(_get(r, "key"))], np.float64)
+                               for r in records if draw_by_key.get(str(_get(r, "key"))) is not None}
+        elif self.use_draw:
+            self.fit_notes["static_context"] = "off: no draw information for this system (the state is z alone)"
+        else:
+            self.fit_notes["static_context"] = "off: z-only reference (use_draw=False)"
         return self.fit(sid, records, sysrec)
+
+    def _static_raw(self, rec) -> np.ndarray | None:
+        if not self.use_draw or not self.draw_train:
+            return None
+        return self.draw_train.get(str(_get(rec, "key")))
 
     def _prepare(self, recs, sysrec):
         # the delay probe (fallback encoder)
@@ -944,7 +1642,7 @@ class TruthStateModel(_LearnedStateModel):
             lag2 = np.vstack([x[:1], x[:1], x[:-2]])[: len(x)]
             Xl.append(np.hstack([x, lag1, lag2]))
             Zl.append(z)
-            self.index.add(x, _arr(r, "u"), z)
+            self.index.add(x, _arr(r, "u"), self._payload(z, self.dt, self._static_raw(r)))
         Xl, Zl = np.concatenate(Xl), np.concatenate(Zl)
         sub = np.random.default_rng(self.cfg.seed + 31).permutation(len(Xl))[:60_000]
         self.delay_probe = _ridge_fit(Xl[sub], Zl[sub], 1e-3)
@@ -952,33 +1650,73 @@ class TruthStateModel(_LearnedStateModel):
     def _dyn_states(self, rec):
         return self.truth_train[str(_get(rec, "key"))]
 
-    def register_truth(self, x, u, z) -> None:
-        """Evaluator-side: the exact state of every prefix of this (x, u) history."""
-        self.index.add(x, u, np.asarray(z, np.float64))
+    def _payload(self, z, dt: float, draw=None) -> np.ndarray:
+        """Rows [z, traces of z, draw] of a (cut) true-state trajectory sampled every dt (traces initialised at its first row, like
+        the training rows; the draw, when the model uses one, repeated on every row; draw None -> the training-mean draw)."""
+        Z = np.asarray(z, np.float64)
+        parts = [Z] + ([_ema(Z, a) for a in self._alphas(dt)] if self.n_aux else [])
+        if self.d_stat:
+            parts.append(np.repeat(self._static_of(draw)[None, :], len(Z), 0))
+        return np.hstack(parts) if len(parts) > 1 else Z
 
-    def register_records(self, records: list, truth_by_key: dict[str, np.ndarray]) -> int:
+    def register_truth(self, x, u, z, dt: float | None = None, draw=None) -> None:
+        """Evaluator-side: the exact state (its traces, and the trajectory's draw when the model uses one) at every prefix of this
+        (x, u) history, sampled every dt (default: the training dt); the removed coordinates are dropped here too. Call after fit
+        (the trace time constants and the kept draw coordinates are set there). A model with a draw context registered without a
+        draw uses the training-mean draw (counted: info()['n_registered_without_draw'])."""
+        if self.d_stat and draw is None:
+            self.n_registered_without_draw += 1
+        self.index.add(x, u, self._payload(self._cut(z), float(dt) if dt else self.dt, draw))
+
+    def register_records(self, records: list, truth_by_key: dict[str, np.ndarray],
+                         draw_by_key: dict[str, np.ndarray] | None = None) -> int:
         n = 0
         for r in records:
             z = truth_by_key.get(str(_get(r, "key")))
             if z is not None:
-                self.register_truth(_arr(r, "x"), _arr(r, "u"), z)
+                self.register_truth(_arr(r, "x"), _arr(r, "u"), z, _rec_dt(r), (draw_by_key or {}).get(str(_get(r, "key"))))
                 n += 1
         return n
 
-    def _encode_dyn(self, sid, x_hist, u_hist, dt):
+    def _probe_rows(self, x: np.ndarray, dth: float) -> np.ndarray:
+        """The delay probe's state estimate at every row of an observed history (lags in TIME: the training grid's 1 and 2
+        samples)."""
+        rows = []
+        for i in range(len(x)):
+            xi = x[: i + 1]
+            rows.append(np.hstack([xi[-1], _at_lag(xi, dth, self.dt), _at_lag(xi, dth, 2.0 * self.dt)]))
+        return _ridge_apply(self.delay_probe, np.asarray(rows))
+
+    def encode(self, sid, x_hist, u_hist, dt):
         z = self.index.get(x_hist, u_hist)
         if z is not None:
             return np.asarray(z, float).copy()
         self.n_probe_encodes += 1
         x = np.asarray(x_hist, float)
-        l1 = x[-2] if len(x) > 1 else x[-1]
-        l2 = x[-3] if len(x) > 2 else l1
-        return _ridge_apply(self.delay_probe, np.hstack([x[-1], l1, l2])[None, :])[0]
+        dth = float(dt) if dt else self.dt
+        if not self.n_aux:
+            zp = _ridge_apply(self.delay_probe, np.hstack([x[-1], _at_lag(x, dth, self.dt), _at_lag(x, dth, 2.0 * self.dt)])[None, :])[0]
+            return np.hstack([zp, self.stat_fill]) if self.d_stat else zp
+        return self._payload(self._probe_rows(x, dth), dth)[-1]
+
+    def _encode_dyn(self, sid, x_hist, u_hist, dt):
+        return np.asarray(self.encode(sid, x_hist, u_hist, dt), float)[: self.d_dyn]
+
+    def _state_history(self, sid, x_hist, u_hist, dt):
+        """The (registered) state over the whole history: the payload prefix (z and, with traces, its traces); unregistered: the
+        delay probe's estimate at every row."""
+        z = self.index.get(x_hist, u_hist, prefix=True)
+        if z is not None:
+            return np.asarray(z, float)[:, : self.d_dyn]
+        return self._probe_rows(np.asarray(x_hist, float), float(dt) if dt else self.dt)
 
     def info(self):
         d = super().info()
         d["n_probe_encodes"] = int(self.n_probe_encodes)
         d["n_registered_samples"] = len(self.index)
+        d["dropped_true_coordinates"] = list(self.drop)
+        d["draw_context"] = bool(self.d_stat)
+        d["n_registered_without_draw"] = int(self.n_registered_without_draw)
         return d
 
 
@@ -1003,13 +1741,99 @@ class NoEffectModel(CausalStateModel):
     def supports(self, sid, kind):
         return kind in P.EVENT_KINDS
 
-    def register_truth(self, x, u, z) -> None:
+    def register_truth(self, x, u, z, dt: float | None = None, draw=None) -> None:
         if hasattr(self.base, "register_truth"):
-            self.base.register_truth(x, u, z)
+            self.base.register_truth(x, u, z, dt, draw)
 
     def info(self):
         d = dict(self.base.info() or {})
         d["method"] = "ref:no_effect"
+        return d
+
+
+class ReadinGainModel(CausalStateModel):
+    """CALIBRATION POWER TABLE (PROTOCOL 7): the TRUE-STATE reference with a READ-IN ERROR. Every event list whose family
+    (`families.family_of` under the system record, from the events alone) is `family` reaches the base model with its amplitudes
+    scaled by `gain`: kick deltas, currents, sequence values, the edge-scale depth 1 - f, parameter changes (g - 1, c - 1, threshold);
+    everything else is delegated unchanged. Trusted (module refs), so it shares the base's registered truth."""
+    ref_name = "true_state_readin"
+
+    def __init__(self, base: CausalStateModel, family: str, sysrec: dict, gain: float = 0.5):
+        self.base, self.family, self.sysrec, self.gain = base, str(family), sysrec, float(gain)
+        self.k = dict(getattr(base, "k", {}) or {})
+        self.n_scaled = 0
+
+    def _family(self, sid: str, events: list[dict], t_hint: float, dt: float) -> str | None:
+        evs = [e for e in events if e.get("kind") in P.EVENT_KINDS]
+        if not evs:
+            return None
+        ends = []
+        for e in evs:
+            if "t" in e:
+                ends.append(float(e["t"]))
+            elif e["kind"] == "current_seq":
+                ends.append(float(e["t0"]) + float(e["seg"]) * len(next(iter(e["targets"].values()))))
+            else:
+                ends.append(float(e["t0"] if e.get("t1") is None else e["t1"]))
+        t_end = max(float(t_hint), max(ends) + dt, 10 * dt)
+        try:
+            return F.family_of({"system": sid, "params_seed": 0, "t_end": t_end, "dt": dt, "events": evs}, self.sysrec)
+        except Exception:  # noqa: BLE001 - unclassifiable: not the corrupted family
+            return None
+
+    def _scale(self, e: dict) -> dict:
+        g = self.gain
+        e2 = dict(e)
+        k = e["kind"]
+        if k == "kick":
+            e2["delta"] = {n: g * float(v) for n, v in e["delta"].items()}
+        elif k == "current":
+            e2["targets"] = {n: g * float(v) for n, v in e["targets"].items()}
+        elif k == "current_seq":
+            e2["targets"] = {n: [g * float(v) for v in lst] for n, lst in e["targets"].items()}
+        elif k == "edge_scale":
+            e2["factor"] = 1.0 + g * (float(e["factor"]) - 1.0)
+        elif k == "param":
+            e2["targets"] = {n: {f: (1.0 + g * (float(v) - 1.0) if f in ("gain", "tau") else g * float(v)) for f, v in d.items()}
+                             for n, d in e["targets"].items()}
+        return e2
+
+    def _events(self, sid: str, events: list[dict], n_rows: int, dt: float) -> list[dict]:
+        if self._family(sid, events, (n_rows - 1) * dt, dt) != self.family:
+            return list(events)
+        self.n_scaled += 1
+        return [self._scale(e) for e in events]
+
+    def encode(self, sid, x_hist, u_hist, dt):
+        return self.base.encode(sid, x_hist, u_hist, dt)
+
+    def rollout(self, sid, z0, u_future, events, dt):
+        return self.base.rollout(sid, z0, u_future, self._events(sid, events, len(u_future), float(dt)), dt)
+
+    def intervention_effect(self, sid, x_hist, u_hist, u_future, events, dt):
+        """The base's own counterfactual prediction (its effect calibration and abstention included) for the scaled events."""
+        return self.base.intervention_effect(sid, x_hist, u_hist, u_future, self._events(sid, events, len(u_future), float(dt)), dt)
+
+    def readout(self, sid, z, u):
+        return self.base.readout(sid, z, u)
+
+    def supports(self, sid, kind):
+        return self.base.supports(sid, kind)
+
+    def covers(self, sid, events) -> bool:
+        return self.base.covers(sid, events) if hasattr(self.base, "covers") else True
+
+    def read_in(self, sid, z, event):
+        dt = getattr(self.base, "dt", 0.01)
+        return self.base.read_in(sid, z, self._events(sid, [event], 11, dt)[0])
+
+    def register_truth(self, x, u, z, dt: float | None = None, draw=None) -> None:
+        if hasattr(self.base, "register_truth"):
+            self.base.register_truth(x, u, z, dt, draw)
+
+    def info(self):
+        d = dict(self.base.info() or {})
+        d.update(method="ref:true_state_readin", corrupted_family=self.family, readin_gain=self.gain, n_scaled_calls=self.n_scaled)
         return d
 
 
@@ -1024,7 +1848,8 @@ class IdShortcutModel(CausalStateModel):
     "unseen identity" flag. NO neural state:
     z = the history features. Training samples: every intervention record at its first event, its twin at the same step (identity
     none), and 4 onsets per passive record. The readout history comes from `register_readout` (the harness registers the evaluation
-    records) or `encode_with_readout`."""
+    records) or `encode_with_readout`. dt-aware: lag features at lag TIMES (interpolated), output rows mapped to the training grid by
+    time (integer ratio dt / dt_train, else refused), future-stimulus features read at their times."""
     ref_name = "id_shortcut"
     uses_readout = True
     LAGS_S = (0.0, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2)
@@ -1042,8 +1867,9 @@ class IdShortcutModel(CausalStateModel):
         keep = ~blowup_mask(records)
         recs = [r for r, k_ in zip(records, keep) if k_]
         self.sid, self.sysrec = sid, sysrec
-        self.dt = _rec_dt(recs[0])
+        self.dt = _check_one_dt(recs)
         self.lags = sorted({round(L / self.dt) for L in self.LAGS_S})
+        self.lag_s = [L * self.dt for L in self.lags]                 # lag TIMES on the training grid
         T_def = float(sysrec.get("t_end_default") or (len(_arr(recs[0], "t")) * self.dt))
         self.H = max(1, round(self.horizon_frac * T_def / self.dt))
         self.n_y = int(_arr(recs[0], "y").shape[1])
@@ -1077,7 +1903,8 @@ class IdShortcutModel(CausalStateModel):
             if i0 < self.lags[-1] or i0 + self.H >= T:
                 continue
             y, u = np.asarray(_arr(r, "y"), float), np.asarray(_arr(r, "u"), float).reshape(T, -1)
-            f = np.hstack([self._hist_feat(y[: i0 + 1], u[: i0 + 1]), self._future_feat(u[i0: i0 + self.H + 1]), self._id_feat(rel)])
+            f = np.hstack([self._hist_feat(y[: i0 + 1], u[: i0 + 1], self.dt), self._future_feat(u[i0: i0 + self.H + 1], self.dt),
+                           self._id_feat(rel)])
             Fm.append(f)
             Ym.append((y[i0 + 1: i0 + self.H + 1] - y[i0]).reshape(-1))
             grp.append(str(_get(r, "key")) if not (_get(r, "meta") or {}).get("twin_of") else (_get(r, "meta") or {})["twin_of"])
@@ -1102,7 +1929,7 @@ class IdShortcutModel(CausalStateModel):
                 best, best_err = lam, err
         self.lam = best
         self.W = _ridge_fit(Fm, Ym, best)
-        self.k[sid] = len(self._hist_feat(np.zeros((self.lags[-1] + 1, self.n_y)), np.zeros((self.lags[-1] + 1, 1))))
+        self.k[sid] = len(self._hist_feat(np.zeros((self.lags[-1] + 1, self.n_y)), np.zeros((self.lags[-1] + 1, 1)), self.dt))
         self.train_cost = {"cpu_s": float(time.process_time() - c0), "wall_s": float(time.perf_counter() - t0c), "gpu_s": 0.0,
                            "sim_calls": 0, "experiments": sum(1 for r in recs if _events(r)), "n_samples": len(Fm)}
         return self
@@ -1137,18 +1964,23 @@ class IdShortcutModel(CausalStateModel):
         targets = sorted(P.intervened_units(self._proto(rel)))
         return f"{fam}|{','.join(str(t) for t in targets)}"
 
-    def _hist_feat(self, y_hist, u_hist):
+    def _hist_feat(self, y_hist, u_hist, dt: float):
+        """Readout and input at the lag TIMES (interpolated; on the training grid the samples themselves) and the time since the
+        input's onset (seconds, capped at 1)."""
         y_hist = np.asarray(y_hist, float)
         u_hist = np.asarray(u_hist, float).reshape(len(u_hist), -1)
         i = len(y_hist) - 1
-        f = [y_hist[max(0, i - L)] for L in self.lags] + [u_hist[max(0, i - L)] for L in self.lags]
+        f = [_at_lag(y_hist, dt, L) for L in self.lag_s] + [_at_lag(u_hist, dt, L) for L in self.lag_s]
         on = np.flatnonzero(np.abs(u_hist[: i + 1]).sum(axis=1) > 1e-9)
-        f.append(np.array([0.0 if len(on) == 0 else min(1.0, (i - on[0]) * self.dt)]))
+        f.append(np.array([0.0 if len(on) == 0 else min(1.0, (i - on[0]) * float(dt))]))
         return np.concatenate(f)
 
-    def _future_feat(self, u_future):
+    def _future_feat(self, u_future, dt: float):
+        """The input at N_FUT times spread over the training horizon (H training steps), read from rows at interval dt (the last row
+        repeated when the given future is shorter)."""
         u = np.asarray(u_future, float).reshape(len(u_future), -1)
-        idx = np.linspace(0, len(u) - 1, self.N_FUT).round().astype(int)
+        times = np.linspace(0, self.H, self.N_FUT).round() * self.dt
+        idx = np.minimum(np.round(times / float(dt)).astype(int), len(u) - 1)
         return u[idx].reshape(-1)
 
     def _signed_mag(self, rel) -> dict[str, float]:
@@ -1217,11 +2049,12 @@ class IdShortcutModel(CausalStateModel):
         return len(records)
 
     def encode_with_readout(self, sid, x_hist, u_hist, y_hist, dt):
-        return np.hstack([self._hist_feat(y_hist, u_hist), np.asarray(y_hist, float)[-1]])
+        return np.hstack([self._hist_feat(y_hist, u_hist, float(dt) if dt else self.dt), np.asarray(y_hist, float)[-1]])
 
     def encode(self, sid, x_hist, u_hist, dt):
         x_hist = np.asarray(x_hist)
-        need = min(len(x_hist), self.lags[-1] + 1)
+        dth = float(dt) if dt else self.dt
+        need = min(len(x_hist), int(np.ceil(self.lag_s[-1] / dth - 1e-9)) + 2)
         ys = []
         for i in range(len(x_hist) - need, len(x_hist)):
             y = self.index.get(x_hist[: i + 1], np.asarray(u_hist)[: i + 1])
@@ -1235,17 +2068,20 @@ class IdShortcutModel(CausalStateModel):
         return kind in P.EVENT_KINDS
 
     def rollout(self, sid, z0, u_future, events, dt):
+        """Output row h (time h dt) = y0 + the predicted change at training step min(h n, H), n = dt / dt_train (integer, else
+        refused)."""
+        dth = float(dt) if dt else self.dt
+        n_sub = n_substeps(dth, self.dt)
         U = np.asarray(u_future, float).reshape(len(u_future), -1)
         H = len(U) - 1
         z0 = np.asarray(z0, float)
         y0 = z0[-self.n_y:]
         hist = z0[: -self.n_y]
-        Up = U if len(U) >= self.H + 1 else np.vstack([U, np.repeat(U[-1:], self.H + 1 - len(U), 0)])
-        f = np.hstack([hist, self._future_feat(Up[: self.H + 1]), self._id_feat([e for e in events if e["kind"] in P.EVENT_KINDS])])
+        f = np.hstack([hist, self._future_feat(U, dth), self._id_feat([e for e in events if e["kind"] in P.EVENT_KINDS])])
         dy = _ridge_apply(self.W, f[None, :])[0].reshape(self.H, self.n_y)
         rows = [y0]
         for h in range(1, H + 1):
-            rows.append(y0 + dy[min(h, self.H) - 1])
+            rows.append(y0 + dy[min(h * n_sub, self.H) - 1])
         return {"z": np.tile(z0, (H + 1, 1)), "y": np.stack(rows)}
 
     def readout(self, sid, z, u):
@@ -1253,7 +2089,8 @@ class IdShortcutModel(CausalStateModel):
         return z[:, -self.n_y:]
 
     def info(self):
-        return {"k": dict(self.k), "method": "ref:id_shortcut", "method_version": "1", "history": {s: self.lags[-1] + 1 for s in self.k},
+        return {"k": dict(self.k), "method": "ref:id_shortcut", "method_version": "2", "history": {s: self.lags[-1] + 1 for s in self.k},
+                "dt_train": getattr(self, "dt", None),
                 "n_params": {"encoder": {s: 0 for s in self.k}, "transition": int(self.W[2].size), "read_in": {s: 0 for s in self.k},
                              "readout": {s: 0 for s in self.k}},
                 "train_cost": dict(self.train_cost), "ridge_lambda": self.lam, "n_ids": len(self.ids)}
@@ -1261,6 +2098,10 @@ class IdShortcutModel(CausalStateModel):
 
 # ------------------------------------------------------------------------------------------------------------ entry point
 REF_NAMES = ("no_effect", "true_state", "full_state", "obs_shortcut", "random_k", "pca_k", "id_shortcut")
+#: extra CANDIDATES for the Level B full-state bound only (never a calibration reference): FULL-STATE with the joint one-step fit. The
+#: bound is one choice per system kind by the pre-registered rule (lowest median EE; PROTOCOL section 8), so an extra candidate can only
+#: make the comparator stronger (LOG P4-D51)
+BOUND_EXTRA_REFS = ("full_state_joint",)
 
 
 @dataclass
@@ -1270,17 +2111,26 @@ class FittedRefs:
 
 
 def fit_reference(name: str, sid: str, records: list, sysrec: dict, *, k: int | None = None, truth: dict | None = None,
-                  base: CausalStateModel | None = None, cfg: LearnerConfig = DEFAULT_CFG) -> CausalStateModel:
-    """Fit one reference on the training records of one system. truth: {"z": {key: (T, k)}, "z_obs": {...}} (synthetic only);
-    k: the dimension of RANDOM-k / PCA-k; base: the passive model of NO-EFFECT (default: a FULL-STATE reference fitted here)."""
+                  base: CausalStateModel | None = None, cfg: LearnerConfig = DEFAULT_CFG, drop: tuple[int, ...] = ()) -> CausalStateModel:
+    """Fit one reference on the training records of one system. truth: {"z": {key: (T, k)}, "z_obs": {...}, "draw": {key: (d,)}}
+    (synthetic only; "draw" = the effective draw parameters: TRUE-STATE / OBS-SHORTCUT encode [z, draw], LOG P4-D43);
+    'true_state_zonly' / 'obs_shortcut_zonly' = the descriptive references on z / z_obs alone; k: the dimension of RANDOM-k / PCA-k;
+    base: the passive model of NO-EFFECT (default: a FULL-STATE reference fitted here); drop: true coordinates removed from
+    TRUE-STATE (the missing-state corruption)."""
     if name == "full_state":
         return FullStateModel(cfg).fit(sid, records, sysrec)
-    if name in ("true_state", "obs_shortcut"):
-        which = "z" if name == "true_state" else "z_obs"
+    if name == "full_state_joint":
+        m = FullStateModel(dataclasses.replace(cfg, one_step_mode="joint"))
+        m.ref_name = "full_state_joint"
+        return m.fit(sid, records, sysrec)
+    if name in ("true_state", "obs_shortcut", "true_state_zonly", "obs_shortcut_zonly"):
+        which = "z" if name.startswith("true_state") else "z_obs"
         tb = (truth or {}).get(which)
         if not tb:
             raise ValueError(f"{name} needs truth['{which}']")
-        return TruthStateModel(which, cfg).fit_truth(sid, records, sysrec, tb)
+        use_draw = not name.endswith("_zonly")
+        return TruthStateModel(which, cfg, drop=drop if which == "z" else (), use_draw=use_draw).fit_truth(
+            sid, records, sysrec, tb, (truth or {}).get("draw") if use_draw else None)
     if name in ("pca_k", "random_k"):
         if not k:
             raise ValueError(f"{name} needs k")
@@ -1299,7 +2149,8 @@ def fit_references(sid: str, records: list, sysrec: dict, *, names=REF_NAMES, k:
     for name in names:
         if name == "no_effect":
             continue
-        if name in ("true_state", "obs_shortcut") and not (truth or {}).get("z" if name == "true_state" else "z_obs"):
+        if name in ("true_state", "obs_shortcut", "true_state_zonly", "obs_shortcut_zonly") and not (truth or {}).get(
+                "z" if name.startswith("true_state") else "z_obs"):
             continue
         if name in ("pca_k", "random_k") and not k:
             continue

@@ -1,0 +1,20 @@
+
+NOTES FOR REVIEWER T:
+- The generator is in extra/generator/ (package extra/generator/src/p4synth, its tests in extra/generator/tests, its own docs
+  SYNTHETIC_BENCHMARK.md and calibration_report.json, reference copies of the benchmark modules it vendors in extra/generator/ref/).
+  Its tests expect to run from extra/generator with src/ first on PYTHONPATH, e.g.
+  `sbx bash -c "cd extra/generator && PYTHONPATH=src python -m pytest -q tests"` (about 5 minutes on 2 CPUs).
+- The benchmark's own use of the generator (planning, public policy, datasets, pools, lift cases) is in extra/brainir_causal/suites.py
+  and extra/brainir_causal/synthadapter.py; data/synthetic_dev holds the PUBLIC part of 10 of the 50 development systems it built (no
+  truth). To obtain truth, build systems yourself with the generator (it is deterministic given the tier name and seed; the
+  development tier's seed is public: suites.DEV_SEED).
+- Specific question: the generator declares that development protocols may set the initial value of EVERY unit (r0 kind "state";
+  internal variables stay at rest), whereas the real systems allow observed units only. Decide, per type, whether this public
+  capability weakens the type's observational-shortcut trap or any truth claim (e.g. whether preparing hidden units directly makes the
+  causal state trivially identifiable), and whether the benchmark should restrict it to observed units. Evidence by simulation.
+- Scratch under .tmp/T/ only; your review file is reviews/T/T_review.md.
+- Observation to examine: on one development system (type 24) the generator's truth-equivalent states differ from their originals in
+  40 coordinates (by up to about 50 units) with equal true z, and their readout futures are BIT-IDENTICAL under the no-event future
+  and all six pool sequences. Check for every type whether equivalence is non-trivial (equivalent microstates differ in coordinates
+  that influence the observed microstate and the dynamics, not only in decoupled variables) and whether exact equality of futures is
+  expected for that type.

@@ -1,0 +1,162 @@
+{
+ "Q19": {
+  "n_found": 0,
+  "n_systems": 0,
+  "note": "systems with fewer evaluated candidates than the budget (build / evaluation failures) are listed: their search was weaker than specified, which favours the model",
+  "rule": "a counterexample found on at most 50% of the compressible confirmation systems within 20 evaluations per system",
+  "share_found": null,
+  "status": "NOT TESTABLE",
+  "systems_with_fewer_evaluations": []
+ },
+ "budget": 20,
+ "dry_run": true,
+ "dry_run_on_val": false,
+ "method": "p3stand.refstand:p3stand_ref",
+ "per_system": {
+  "real:A:full": {
+   "best": {
+    "abstain": true,
+    "counterexample": false,
+    "ee_i": 1.0,
+    "es": 2.465030108463458,
+    "family": "edge.w",
+    "genome": {
+     "cid": "r1c1",
+     "edges": [
+      [
+       1351,
+       1416
+      ],
+      [
+       1955,
+       1416
+      ]
+     ],
+     "family": "edge.w",
+     "level_frac": 0.6961059581422772,
+     "mult": 0.7597660983968199,
+     "onset_frac": 0.3083508517489916,
+     "params_seed": 944710700,
+     "parent": null,
+     "targets": null
+    },
+    "in_domain": false
+   },
+   "families_of_counterexamples": [],
+   "first_found_at": null,
+   "found": false,
+   "found_by_round": {
+    "1": false,
+    "2": false,
+    "3": false
+   },
+   "kind": "real",
+   "n_counterexamples": 0,
+   "n_eligible": 0,
+   "n_evaluated": 20,
+   "n_planned": 20,
+   "noncompressible": false
+  },
+  "real:A:m1": {
+   "best": {
+    "abstain": false,
+    "counterexample": true,
+    "ee_i": 1.0090108471662684,
+    "es": 2.4161075613829377,
+    "family": "pulse.1",
+    "genome": {
+     "cid": "r3c5",
+     "edges": null,
+     "family": "pulse.1",
+     "level_frac": 0.577471119930638,
+     "mult": 1.9490743710727303,
+     "onset_frac": 0.1,
+     "params_seed": 483696501,
+     "parent": "r2c1",
+     "targets": [
+      3959
+     ]
+    },
+    "in_domain": true
+   },
+   "families_of_counterexamples": [
+    "pulse.1"
+   ],
+   "first_found_at": 2,
+   "found": true,
+   "found_by_round": {
+    "1": true,
+    "2": true,
+    "3": true
+   },
+   "kind": "real",
+   "n_counterexamples": 7,
+   "n_eligible": 14,
+   "n_evaluated": 20,
+   "n_planned": 20,
+   "noncompressible": false
+  },
+  "real:B:m1": {
+   "best": {
+    "abstain": false,
+    "counterexample": true,
+    "ee_i": 1.1023314679518357,
+    "es": 39.626771607591046,
+    "family": "kick.2",
+    "genome": {
+     "cid": "r2c5",
+     "edges": null,
+     "family": "kick.2",
+     "level_frac": 0.6669802982012799,
+     "mult": 3.0,
+     "onset_frac": 0.6,
+     "params_seed": 84097357,
+     "parent": "r1c1",
+     "targets": [
+      1220,
+      2973
+     ]
+    },
+    "in_domain": true
+   },
+   "families_of_counterexamples": [
+    "kick.2"
+   ],
+   "first_found_at": 2,
+   "found": true,
+   "found_by_round": {
+    "1": true,
+    "2": true,
+    "3": true
+   },
+   "kind": "real",
+   "n_counterexamples": 4,
+   "n_eligible": 13,
+   "n_evaluated": 20,
+   "n_planned": 20,
+   "noncompressible": false
+  }
+ },
+ "real_level": "public",
+ "real_systems": {
+  "real:A:full": {
+   "found": false,
+   "n_counterexamples": 0
+  },
+  "real:A:m1": {
+   "found": true,
+   "n_counterexamples": 7
+  },
+  "real:B:m1": {
+   "found": true,
+   "n_counterexamples": 4
+  }
+ },
+ "rounds": [
+  8,
+  6,
+  6
+ ],
+ "run_id": "realpub1",
+ "tier": null
+}

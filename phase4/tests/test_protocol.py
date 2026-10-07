@@ -131,3 +131,16 @@ def test_params_spread_and_process_noise_fields():
     assert P.protocol_hash(base(process_noise={"sd": 0.1, "seed": 1})) != h
     assert P.microstate_protocol(base(params_spread=1.5))["params_spread"] == 1.5
     assert P.microstate_protocol(base(process_noise={"sd": 0.1, "seed": 1}))["process_noise"] == {"sd": 0.1, "seed": 1}
+
+
+def test_events_starting_at_the_last_step_are_refused():
+    """An event starting at t_end (or within the last step) never acts on the recorded trajectory (early numerics review, minor 4)."""
+    import pytest
+
+    from brainir_causal import protocol as P
+    base = {"system": "s", "params_seed": 1, "t_end": 1.0, "dt": 0.01, "stimulus": [[0, 1.0]]}
+    P.validate({**base, "events": [{"kind": "kick", "t": 0.99, "delta": {"1": 1.0}}]})
+    for ev in ({"kind": "kick", "t": 1.0, "delta": {"1": 1.0}}, {"kind": "current", "t0": 1.0, "t1": None, "targets": {"1": 1.0}},
+               {"kind": "silence", "t0": 1.0, "t1": None, "targets": [1]}):
+        with pytest.raises(P.ProtocolError):
+            P.validate({**base, "events": [ev]})

@@ -28,7 +28,8 @@ moderate magnitude m_s; the development maximum is the strong class 3 m_s; `*.hi
                  params_spread 1.0 only in development (other spreads are OOD test conditions)
     noise        weight noise sd <= 0.1; observation noise sd <= 0.5 x obs_scale in development; process noise NOT supported (the
                  frozen integrator is deterministic; the engine refuses it)
-    timing       dt in {1, 2, 5} ms, t_end <= 4 s in development
+    timing       dt = 1 ms only (the nominal dt: coarser sampling is a Level C OOD condition, review H M3), t_end <= 4 s in
+                 development
 obs_scale: pooled standard deviation of the observed values (x resp. y) over the system's public nominal training trajectories of
 the previous benchmark's public real data (the same engine produces bit-identical trajectories for those protocols).
 """
@@ -51,7 +52,14 @@ BENCH = ROOT / "benchmarks" / "causal_state_v1"
 PUBLIC_REAL = BENCH / "public" / "systems_real_public.json"
 INTERNAL_REAL = BENCH / "hidden" / "real_systems_internal.json"
 NAME_MAP = BENCH / "hidden" / "real_name_map.json"
-BUNDLE = ROOT / "benchmarks" / "dng100" / "public_blind"
+def _public_bundle() -> Path:
+    """The previous benchmark's public tier-A bundle: the unique benchmarks/*/public_blind with a manifest (found, not named: this
+    file enters the review room; early review F, F-M1)."""
+    found = sorted(p for p in (ROOT / "benchmarks").glob("*/public_blind") if (p / "manifest.json").is_file())
+    return found[0] if len(found) == 1 else ROOT / "benchmarks" / "_public_bundle_not_unique_" / "public_blind"
+
+
+BUNDLE = _public_bundle()
 P3_INTERNAL = ROOT / "benchmarks" / "state_discovery_v1" / "hidden" / "systems_internal.json"
 P3_PUBLIC_DATA = ROOT / "data" / "phase3" / "real_public"
 
@@ -68,13 +76,13 @@ REAL_CAPABILITY = {
     "silence": {"supported": True},
     "edge_scale": {"supported": True, "moderate": 0.3, "factor_range": [0.0, 2.0]},
     "param": {"supported": True, "fields": ["gain", "threshold", "tau"], "moderate": {"gain": 0.3, "threshold": 1.0, "tau": 0.3}},
-    "init": {"state": True, "restart": True, "units": "observed", "max_value": 200.0},
+    "init": {"state": False, "restart": True, "units": "observed", "max_value": 200.0},     # r0 'state' = a kick at t = 0 (LOG P4-D36)
     "stimulus": {"channels": 1, "nominal_level": 1.0, "max_onset": 0.15, "range": [0.55, 1.45], "allow_zero": True},
     "params": {"public_seed_max": PUBLIC_SEED_MAX, "nominal_seed": None, "dev_spread": 1.0, "spread_range": [0.0, 3.0]},
     "process_noise": {"supported": False},
     "weight_noise": {"max_sd": 0.1},
     "obs_noise": {"max_sd": 0.5},
-    "timing": {"dt_allowed": [0.001, 0.002, 0.005], "t_end_max": 4.0},
+    "timing": {"dt_allowed": [0.001], "t_end_max": 4.0},
     "latent": {"supported": False},
 }
 
@@ -164,6 +172,8 @@ def build_real_systems(write: bool = False, create_map: bool = False) -> tuple[d
                "targets_public": sorted(int(x) for x in d["targets_public"]), "edges_public": [],
                "obs_scale": _obs_scale(m[sid]), "capability": json.loads(json.dumps(REAL_CAPABILITY)), "split": split,
                "cost_units": COST_UNITS[d["mode"]], "public_graph": public_graph(engines[net], s)}
+        from .suites import assert_public_record
+        assert_public_record(rec)                    # whitelisted keys, no per-unit capability field (review T, M1)
         public[sid] = rec
         internal[sid] = {**rec, "network": net, "keep": list(d["keep"]), "targets_heldout": sorted(int(x) for x in d["targets_heldout"]),
                          "system_hash": s.content_hash(bundle_sha), "engine": ENGINE_VERSION,

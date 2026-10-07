@@ -1,0 +1,1004 @@
+{
+ "Q20": {
+  "consequence_if_fail": "Phase 4's core hypothesis fails (goal5 section 88)",
+  "real_full_networks": {},
+  "rule": "removing interventional training worsens the verdict EE significantly (paired suite difference EE_ablated - EE_full, unstratified system bootstrap, one-sided p <= 0.05)",
+  "status": "FAIL",
+  "suite": {
+   "ci95": [
+    -0.12084903865765018,
+    -0.12084903865765018
+   ],
+   "direction": "lower",
+   "lower95": -0.12084903865765018,
+   "n": 1,
+   "n_charged_a": 0,
+   "n_charged_b": 0,
+   "p_a_better": 0.0004997501249375312,
+   "p_a_worse": 1.0,
+   "per_system": {
+    "syn-04c74abe0096": -0.12084903865765018
+   },
+   "point": -0.12084903865765018,
+   "upper95": -0.12084903865765018
+  }
+ },
+ "Q21": {
+  "direct_variant": {
+   "EE_M_minus_direct_suite": {
+    "ci95": [
+     -0.24487477110128797,
+     -0.24487477110128797
+    ],
+    "direction": "lower",
+    "lower95": -0.24487477110128797,
+    "n": 1,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 0.0004997501249375312,
+    "p_a_worse": 1.0,
+    "per_system": {
+     "syn-04c74abe0096": -0.24487477110128797
+    },
+    "point": -0.24487477110128797,
+    "upper95": -0.24487477110128797
+   },
+   "EE_M_suite": {
+    "ci95": [
+     1.108244453204043,
+     1.108244453204043
+    ],
+    "lower95": 1.108244453204043,
+    "n": 1,
+    "n_charged": 0,
+    "point": 1.108244453204043,
+    "upper95": 1.108244453204043
+   },
+   "EE_direct_suite": {
+    "ci95": [
+     1.353119224305331,
+     1.353119224305331
+    ],
+    "lower95": 1.353119224305331,
+    "n": 1,
+    "n_charged": 0,
+    "point": 1.353119224305331,
+    "upper95": 1.353119224305331
+   },
+   "compact_predicts_near_direct": false,
+   "direct_predicts": false,
+   "real_full_networks": {},
+   "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)"
+  },
+  "levelb_fullstate_baseline": {
+   "EE_M_minus_direct_suite": {
+    "ci95": [
+     -0.24487477110128797,
+     -0.24487477110128797
+    ],
+    "direction": "lower",
+    "lower95": -0.24487477110128797,
+    "n": 1,
+    "n_charged_a": 0,
+    "n_charged_b": 0,
+    "p_a_better": 0.0004997501249375312,
+    "p_a_worse": 1.0,
+    "per_system": {
+     "syn-04c74abe0096": -0.24487477110128797
+    },
+    "point": -0.24487477110128797,
+    "upper95": -0.24487477110128797
+   },
+   "EE_M_suite": {
+    "ci95": [
+     1.108244453204043,
+     1.108244453204043
+    ],
+    "lower95": 1.108244453204043,
+    "n": 1,
+    "n_charged": 0,
+    "point": 1.108244453204043,
+    "upper95": 1.108244453204043
+   },
+   "EE_direct_suite": {
+    "ci95": [
+     1.353119224305331,
+     1.353119224305331
+    ],
+    "lower95": 1.353119224305331,
+    "n": 1,
+    "n_charged": 0,
+    "point": 1.353119224305331,
+    "upper95": 1.353119224305331
+   },
+   "compact_predicts_near_direct": false,
+   "direct_predicts": false,
+   "method": "p3stand.refstand:p3stand_fullstate",
+   "real_full_networks": {},
+   "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)"
+  },
+  "report": "outcomes not predictable even without the bottleneck (attributed to excitation / data; goal5 section 94 B)",
+  "thresholds": {
+   "near": "one-sided 95 % upper bound of mean(EE_M - EE_direct) < delta_C_suite = 0.05",
+   "predicts": "one-sided 95 % upper bound of the suite mean EE < 1 - delta_A = 0.9"
+  }
+ },
+ "compressible": [
+  "syn-04c74abe0096"
+ ],
+ "descriptive_note": "per-switch tests are descriptive (Holm across switches per metric reported); Q20 / Q21 are the pre-registered critical tests",
+ "full_networks": [],
+ "margins": {
+  "calibrated": false,
+  "source": "C:\\Dev\\BrainIR\\benchmarks\\causal_state_v1\\public\\tolerances.json",
+  "suite": {
+   "delta_C_suite": 0.05,
+   "tau_SMS_suite": 0.1
+  },
+  "suite_fallback_per_system": [
+   "delta_C_suite",
+   "tau_SMS_suite"
+  ],
+  "tolerances": {
+   "delta_A": 0.1,
+   "delta_C": 0.05,
+   "delta_H": 0.1,
+   "tau_FC": 0.2,
+   "tau_ICG": 0.1,
+   "tau_MEV": 0.3,
+   "tau_SMS": 0.1
+  }
+ },
+ "method": "p3stand.refstand:p3stand_ref",
+ "n_systems": 1,
+ "not_applicable": {},
+ "phase3_regime": {
+  "note": "not run"
+ },
+ "real_level": null,
+ "run_id": "smoke1",
+ "seed": 0,
+ "switches": {
+  "interventional_training": {
+   "honoured_on": [
+    "syn-04c74abe0096"
+   ],
+   "metrics": {
+    "EE": {
+     "description": "class-balanced EE on the verdict items (PROTOCOL 5.1 / 9 A)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.12084903865765018,
+       -0.12084903865765018
+      ],
+      "direction": "lower",
+      "lower95": -0.12084903865765018,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.12084903865765018
+      },
+      "point": -0.12084903865765018,
+      "upper95": -0.12084903865765018
+     }
+    },
+    "EE_heldout": {
+     "description": "class-balanced EE on held-out families (near / far / hidden; 9 H)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.11154096276573588,
+       -0.11154096276573588
+      ],
+      "direction": "lower",
+      "lower95": -0.11154096276573588,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.11154096276573588
+      },
+      "point": -0.11154096276573588,
+      "upper95": -0.11154096276573588
+     }
+    },
+    "EE_target": {
+     "description": "class-balanced EE on target-shift items",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "ICG_y": {
+     "description": "interventional closure gap, linear (5.4)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       6.505627255764381e-05,
+       6.505627255764381e-05
+      ],
+      "direction": "lower",
+      "lower95": 6.505627255764381e-05,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 6.505627255764381e-05
+      },
+      "point": 6.505627255764381e-05,
+      "upper95": 6.505627255764381e-05
+     }
+    },
+    "MEV": {
+     "description": "microstate equivalence ratio (5.5; untestable = missing)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -4.4693480598027955e-07,
+       -4.4693480598027955e-07
+      ],
+      "direction": "lower",
+      "lower95": -4.4693480598027955e-07,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -4.4693480598027955e-07
+      },
+      "point": -4.4693480598027955e-07,
+      "upper95": -4.4693480598027955e-07
+     }
+    },
+    "SMS": {
+     "description": "state mediation score (5.3)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.018285104757156407,
+       -0.018285104757156407
+      ],
+      "direction": "lower",
+      "lower95": -0.018285104757156407,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.018285104757156407
+      },
+      "point": -0.018285104757156407,
+      "upper95": -0.018285104757156407
+     }
+    },
+    "coverage": {
+     "description": "share of intervention items not abstained (descriptive)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.54,
+       -0.54
+      ],
+      "direction": "higher",
+      "lower95": -0.54,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": -0.54
+      },
+      "point": -0.54,
+      "upper95": -0.54
+     }
+    },
+    "false_confidence": {
+     "description": "false-confidence rate on the verdict items (5.9 / 9 G)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.4035087719298246,
+       0.4035087719298246
+      ],
+      "direction": "lower",
+      "lower95": 0.4035087719298246,
+      "n": 1,
+      "n_charged_a": 1,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 0.4035087719298246
+      },
+      "point": 0.4035087719298246,
+      "upper95": 0.4035087719298246
+     }
+    },
+    "k": {
+     "ablated": {
+      "syn-04c74abe0096": 8.0
+     },
+     "full": {
+      "syn-04c74abe0096": 8.0
+     }
+    },
+    "lift_consistency": {
+     "description": "multiple-lift consistency, adjusted (5.7; untestable = missing)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 1,
+      "n_charged_b": 1,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "lift_success": {
+     "description": "native lift success rate over all requests (5.7)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "higher",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "obs_nmse": {
+     "description": "passive rollout NMSE at the primary horizon (5.2)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       1.6943965487634052,
+       1.6943965487634052
+      ],
+      "direction": "lower",
+      "lower95": 1.6943965487634052,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 1.6943965487634052
+      },
+      "point": 1.6943965487634052,
+      "upper95": 1.6943965487634052
+     }
+    },
+    "post_nmse": {
+     "description": "post-intervention trajectory NMSE at the primary horizon",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       1.6067873771746055,
+       1.6067873771746055
+      ],
+      "direction": "lower",
+      "lower95": 1.6067873771746055,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 1.6067873771746055
+      },
+      "point": 1.6067873771746055,
+      "upper95": 1.6067873771746055
+     }
+    }
+   },
+   "networks": {}
+  },
+  "native_lift": {
+   "honoured_on": [
+    "syn-04c74abe0096"
+   ],
+   "metrics": {
+    "EE": {
+     "description": "class-balanced EE on the verdict items (PROTOCOL 5.1 / 9 A)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "EE_heldout": {
+     "description": "class-balanced EE on held-out families (near / far / hidden; 9 H)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "EE_target": {
+     "description": "class-balanced EE on target-shift items",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "ICG_y": {
+     "description": "interventional closure gap, linear (5.4)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "MEV": {
+     "description": "microstate equivalence ratio (5.5; untestable = missing)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "SMS": {
+     "description": "state mediation score (5.3)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "coverage": {
+     "description": "share of intervention items not abstained (descriptive)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "higher",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "false_confidence": {
+     "description": "false-confidence rate on the verdict items (5.9 / 9 G)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "k": {
+     "ablated": {
+      "syn-04c74abe0096": 8.0
+     },
+     "full": {
+      "syn-04c74abe0096": 8.0
+     }
+    },
+    "lift_consistency": {
+     "description": "multiple-lift consistency, adjusted (5.7; untestable = missing)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 1,
+      "n_charged_b": 1,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "lift_success": {
+     "description": "native lift success rate over all requests (5.7)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "higher",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "obs_nmse": {
+     "description": "passive rollout NMSE at the primary horizon (5.2)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "post_nmse": {
+     "description": "post-intervention trajectory NMSE at the primary horizon",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    }
+   },
+   "networks": {}
+  },
+  "state_bottleneck": {
+   "honoured_on": [
+    "syn-04c74abe0096"
+   ],
+   "metrics": {
+    "EE": {
+     "description": "class-balanced EE on the verdict items (PROTOCOL 5.1 / 9 A)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.24487477110128797,
+       0.24487477110128797
+      ],
+      "direction": "lower",
+      "lower95": 0.24487477110128797,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 0.24487477110128797
+      },
+      "point": 0.24487477110128797,
+      "upper95": 0.24487477110128797
+     }
+    },
+    "EE_heldout": {
+     "description": "class-balanced EE on held-out families (near / far / hidden; 9 H)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.26840295797178926,
+       0.26840295797178926
+      ],
+      "direction": "lower",
+      "lower95": 0.26840295797178926,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 0.26840295797178926
+      },
+      "point": 0.26840295797178926,
+      "upper95": 0.26840295797178926
+     }
+    },
+    "EE_target": {
+     "description": "class-balanced EE on target-shift items",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "ICG_y": {
+     "description": "interventional closure gap, linear (5.4)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -2.493252020391355e-05,
+       -2.493252020391355e-05
+      ],
+      "direction": "lower",
+      "lower95": -2.493252020391355e-05,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -2.493252020391355e-05
+      },
+      "point": -2.493252020391355e-05,
+      "upper95": -2.493252020391355e-05
+     }
+    },
+    "MEV": {
+     "description": "microstate equivalence ratio (5.5; untestable = missing)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       7.181039904303197e-05,
+       7.181039904303197e-05
+      ],
+      "direction": "lower",
+      "lower95": 7.181039904303197e-05,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 0.0004997501249375312,
+      "p_holm_across_switches": 0.0014992503748125937,
+      "per_system": {
+       "syn-04c74abe0096": 7.181039904303197e-05
+      },
+      "point": 7.181039904303197e-05,
+      "upper95": 7.181039904303197e-05
+     }
+    },
+    "SMS": {
+     "description": "state mediation score (5.3)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.0025096995259441413,
+       -0.0025096995259441413
+      ],
+      "direction": "lower",
+      "lower95": -0.0025096995259441413,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.0025096995259441413
+      },
+      "point": -0.0025096995259441413,
+      "upper95": -0.0025096995259441413
+     }
+    },
+    "coverage": {
+     "description": "share of intervention items not abstained (descriptive)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.14,
+       0.14
+      ],
+      "direction": "higher",
+      "lower95": 0.14,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.14
+      },
+      "point": 0.14,
+      "upper95": 0.14
+     }
+    },
+    "false_confidence": {
+     "description": "false-confidence rate on the verdict items (5.9 / 9 G)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.055950687529634835,
+       -0.055950687529634835
+      ],
+      "direction": "lower",
+      "lower95": -0.055950687529634835,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.055950687529634835
+      },
+      "point": -0.055950687529634835,
+      "upper95": -0.055950687529634835
+     }
+    },
+    "k": {
+     "ablated": {
+      "syn-04c74abe0096": 165.0
+     },
+     "full": {
+      "syn-04c74abe0096": 8.0
+     }
+    },
+    "lift_consistency": {
+     "description": "multiple-lift consistency, adjusted (5.7; untestable = missing)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "lower",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 1,
+      "n_charged_b": 1,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "lift_success": {
+     "description": "native lift success rate over all requests (5.7)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       0.0,
+       0.0
+      ],
+      "direction": "higher",
+      "lower95": 0.0,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 1.0,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": 0.0
+      },
+      "point": 0.0,
+      "upper95": 0.0
+     }
+    },
+    "obs_nmse": {
+     "description": "passive rollout NMSE at the primary horizon (5.2)",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.19975860040299542,
+       -0.19975860040299542
+      ],
+      "direction": "lower",
+      "lower95": -0.19975860040299542,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.19975860040299542
+      },
+      "point": -0.19975860040299542,
+      "upper95": -0.19975860040299542
+     }
+    },
+    "post_nmse": {
+     "description": "post-intervention trajectory NMSE at the primary horizon",
+     "suite_paired_ablated_minus_full": {
+      "ci95": [
+       -0.06060814859045072,
+       -0.06060814859045072
+      ],
+      "direction": "lower",
+      "lower95": -0.06060814859045072,
+      "n": 1,
+      "n_charged_a": 0,
+      "n_charged_b": 0,
+      "p_a_better": 0.0004997501249375312,
+      "p_a_worse": 1.0,
+      "p_holm_across_switches": 1.0,
+      "per_system": {
+       "syn-04c74abe0096": -0.06060814859045072
+      },
+      "point": -0.06060814859045072,
+      "upper95": -0.06060814859045072
+     }
+    }
+   },
+   "networks": {}
+  }
+ },
+ "tier": "dev"
+}

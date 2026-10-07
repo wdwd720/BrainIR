@@ -1,0 +1,34 @@
+{
+ "what": "DRY RUN configuration of scripts/p4/self_audit_p4.py on the val tier (the dev evaluation part was lost on the eval volume and is being rebuilt; orchestrator instruction 2026-09-27) with stand-in models (fork P3). The post-lock configuration names the Level C run instead (levelc_run + roles; see research/phase4/POSTLOCK_DRIVERS.md).",
+ "tier": "val",
+ "real_level": null,
+ "seed": 0,
+ "method": "p3stand.refstand:p3stand_ref",
+ "designer": "none",
+ "methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+ "dirs": {
+  "method": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/full",
+  "full_state_bound": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/fullstate_baseline",
+  "strongest_baseline": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/fullstate_baseline",
+  "linear_controlled": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/fullstate_baseline",
+  "phase3": "C:/Dev/BrainIR_p4run/postlock_dryrun/ablations/val1/phase3",
+  "id_baseline": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/id_baseline",
+  "readout_history": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/id_baseline",
+  "input_only": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/input_only"
+ },
+ "role_methods": {
+  "id_baseline": "p3stand.refstand:p3stand_idshortcut",
+  "input_only": "p3stand.refstand:p3stand_noeffect"
+ },
+ "prep_run_dir": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1",
+ "prep_methods_dir": "C:/Dev/BrainIR/scripts/p4/standin_methods",
+ "studies": {
+  "ablations": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/ablations/val1",
+  "counterexamples": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/counterexamples/val1"
+ },
+ "calibration_check": "C:/Dev/BrainIR/research/phase4/CALIBRATION_CHECK_dev.json",
+ "probes_dir": "C:/Dev/BrainIR_p4run/postlock_dryrun/self_audit/val1/probes",
+ "out_dir": "C:/Dev/BrainIR/research/phase4/postlock_dryrun/self_audit/val1",
+ "stand_in_notes": "readout_history and linear_controlled are stand-ins (the ID-shortcut and full-state stand-ins); the stand-in method has no designer (Q10 not applicable) and declares shared dynamics not applicable (Q18). Q16 reads the dev tier calibration compare as a stand-in (no val compare exists).",
+ "dry_run_on_val": true
+}

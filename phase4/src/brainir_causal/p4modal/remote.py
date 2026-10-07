@@ -35,7 +35,16 @@ from pathlib import Path
 WORK = Path("/tmp/p4m")
 MOUNTS = {"fit": Path("/fitvol"), "eval": Path("/evalvol"), "store": Path("/storevol")}
 VOLUME_NAMES = {"fit": "brainir-p4-fit", "eval": "brainir-p4-eval", "store": "brainir-p4-store"}
-BUNDLE = Path("/repo/benchmarks/dng100/public_blind")
+def _find_bundle() -> Path:
+    """The public tier-A bundle baked into the image (images.bundle_rel): found, not named (early review F, F-M1)."""
+    try:
+        found = sorted(p for p in Path("/repo/benchmarks").glob("*/public_blind") if (p / "manifest.json").is_file())
+    except OSError:
+        found = []
+    return found[0] if len(found) == 1 else Path("/repo/benchmarks/_public_bundle_not_unique_/public_blind")
+
+
+BUNDLE = _find_bundle()
 SITE = "/repo/p4modal_site"
 BASE_PYTHONPATH = os.pathsep.join(["/repo/phase4/src", "/repo/phase3/src", "/repo/src"])
 SIGNAL_RETRIES = 1
@@ -98,12 +107,19 @@ def with_mem(fn):
     return wrapped
 
 
+#: LOCAL execution (p4modal.local.LocalBackend; LOCAL_EXECUTION_PLAN.md): the volumes are local directories at the same mount paths,
+#: so reload and commit have nothing to do, and a crashing job never ends the (shared) process
+LOCAL_VOLUMES = os.environ.get("P4_LOCAL_VOLUMES") == "1"
+
+
 def _volume(name: str):
     import modal
     return modal.Volume.from_name(VOLUME_NAMES[name])
 
 
 def _reload(name: str) -> None:
+    if LOCAL_VOLUMES:
+        return
     try:
         _volume(name).reload()
     except Exception:  # noqa: BLE001 - not mounted in this function, or nothing to reload
@@ -111,6 +127,8 @@ def _reload(name: str) -> None:
 
 
 def _commit(name: str) -> None:
+    if LOCAL_VOLUMES:
+        return
     _volume(name).commit()
 
 
@@ -164,6 +182,8 @@ class VolumeStore:
         return p.read_bytes() if p.exists() else None
 
     def put(self, key: str, rec: dict, meta: dict) -> None:
+        from brainir_causal.store import check_record
+        check_record(rec)                                   # failed / non-finite records are never stored (review H, M4)
         p = self.path(key)
         p.parent.mkdir(parents=True, exist_ok=True)
         tmp = p.with_name(f"{key}.{CONTAINER_ID}.{os.getpid()}.tmp")
@@ -220,19 +240,21 @@ def real_key(sysdef: dict, protocol: dict) -> str:
 
 
 def sim_record(sysdef: dict, protocol: dict, vstore: VolumeStore | None, *, provided: dict | None = None, local_root: str | None = None,
-               meta: dict | None = None) -> tuple[str, dict, bool]:
+               meta: dict | None = None, fresh: bool = False) -> tuple[str, dict, bool]:
     """(key, full engine record, computed?) of one real protocol: from the volume store when present, else simulated here and written
-    to the volume store (not committed here)."""
+    to the volume store (not committed here). fresh=True (an agent's job in the developers' service, CACHE ISOLATION of
+    brainir_causal.simservice): always simulated, and the volume store is neither read nor written for the record itself, so the
+    job's cost does not depend on what other agents asked (restart sources are still read from the payload or the volume store)."""
     from brainir_causal import protocol as P
     from brainir_causal.realsim import RealSystem
     q = P.validate(protocol)
     key = real_key(sysdef, q)
-    if vstore is not None:
+    if vstore is not None and not fresh:
         rec = vstore.get(key)
         if rec is not None:
             return key, rec, False
     rec = _engine(sysdef["network"]).run(RealSystem.from_record(sysdef), q, store=_RestartSources(provided, local_root, vstore))
-    if vstore is not None:
+    if vstore is not None and not fresh:
         vstore.put(key, rec, {"system_id": sysdef["system_id"], "system_hash": sysdef["system_hash"], "protocol": P.microstate_protocol(q),
                               "source": (meta or {}).get("source", "p4modal"), **{k: v for k, v in (meta or {}).items() if k != "source"}})
     return key, rec, True
@@ -253,7 +275,7 @@ def _sim_item(args: tuple) -> dict:
     t0 = time.time()
     try:
         key, rec, computed = sim_record(item["sysdef"], item["protocol"], vstore, provided=item.get("restart_src"),
-                                        meta=item.get("meta"))
+                                        meta=item.get("meta"), fresh=bool(item.get("fresh")))
     except Exception as e:  # noqa: BLE001
         import traceback
         return {"error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()[-3000:]}
@@ -327,9 +349,14 @@ def methods_dir(key: str) -> Path:
 
 
 def _leave_host(crashes: list, what: str) -> None:
-    """Crashes follow the host: end this container, so that Modal's retry policy re-runs the input in a fresh one."""
+    """Crashes follow the host: end this container, so that Modal's retry policy re-runs the input in a fresh one. LOCALLY (one shared
+    process runs every payload) the crash is an infrastructure fault of THIS payload: the local backend runs it again (a job stopped by
+    its memory guard ends here too)."""
     print(f"[p4modal] {what} killed by a signal {len(crashes)} times in this container; leaving the host: "
           + json.dumps(crashes)[-3000:], file=sys.stderr, flush=True)
+    if LOCAL_VOLUMES:
+        from brainir_causal.isolation import InfraFault
+        raise InfraFault(f"{what} killed by a signal {len(crashes)} times (local)")
     os._exit(75)
 
 
@@ -384,17 +411,69 @@ def _collect(jd: Path, patterns: list[str], cap: int = 1024 * 1024 * 1024) -> di
     return out
 
 
+#: a container that runs several inputs at once (modal.concurrent, packed classes) must RELOAD each mounted volume only ONCE, before any
+#: input works: a per-input reload remounts the volume (resetting its mode and briefly hiding files) while other inputs read it (P2's
+#: report, 2026-09-26). This barrier reloads each volume once per container; packed inputs never commit (they return their results).
+_PACK_RELOAD = {"lock": threading.Lock(), "done": set(), "gen": 0, "active": 0}
+_PACK_RELOAD["cond"] = threading.Condition(_PACK_RELOAD["lock"])
+
+
+def _reload_once(vols, gen: int = 0) -> None:
+    """Reload each volume once per container, and again for a NEWER wave generation (Backend.run_packed stamps it) after DRAINING the
+    container's other trusted inputs (a reload can hide files from an input that is reading them). Call `_packed_done` when the input
+    ends."""
+    with _PACK_RELOAD["cond"]:
+        if int(gen) > int(_PACK_RELOAD["gen"]):
+            while _PACK_RELOAD["active"]:
+                _PACK_RELOAD["cond"].wait(timeout=5.0)
+            if int(gen) > int(_PACK_RELOAD["gen"]):
+                _PACK_RELOAD["done"] = set()          # a newer generation: every volume is reloaded once more
+                _PACK_RELOAD["gen"] = int(gen)
+        for v in vols or ():
+            if v not in _PACK_RELOAD["done"]:
+                _reload(v)
+                _PACK_RELOAD["done"].add(v)
+        _PACK_RELOAD["active"] += 1
+
+
+def _packed_done() -> None:
+    with _PACK_RELOAD["cond"]:
+        _PACK_RELOAD["active"] = max(0, _PACK_RELOAD["active"] - 1)
+        _PACK_RELOAD["cond"].notify_all()
+
+
 @with_mem
 def run_call(p: dict) -> dict:
     """payload: {"target": "module:function", "args", "kwargs", "threads", "timeout_s", "inputs": {rel: bytes}, "outputs": [globs],
-    "links": {container path: container path}, "reload": [volume names], "commit": [volume names]}. No guard (orchestrator code only)."""
+    "links": {container path: container path}, "reload": [volume names], "commit": [volume names]}. No guard (orchestrator code only).
+    In a PACKED class (payload "__slots") several inputs run at once: reload each volume ONCE per wave generation via the barrier (a
+    newer generation drains the container's other inputs first), and NEVER commit -- a commit request fails loudly rather than silently
+    losing the write (packed trusted jobs return their results)."""
+    if p.get("__slots"):
+        if p.get("commit"):
+            raise ValueError("a packed trusted job must not commit a volume; persist from an unpacked class, or return the results")
+        _reload_once(p.get("reload") or [], int(p.get("__gen") or 0))
+        try:
+            return _run_call_body(p)
+        finally:
+            _packed_done()
     for v in p.get("reload") or []:
         _reload(v)
+    res = _run_call_body(p)
+    for v in p.get("commit") or []:
+        _commit(v)
+    return res
+
+
+def _run_call_body(p: dict) -> dict:
     for dst, src in (p.get("links") or {}).items():
         d = Path(dst)
         d.parent.mkdir(parents=True, exist_ok=True)
         if not d.exists() and not d.is_symlink():
-            d.symlink_to(src)
+            try:
+                d.symlink_to(src)
+            except FileExistsError:           # a concurrent input of a packed container made it first
+                pass
     jd = WORK / "jobs" / (p.get("job_id") or uuid.uuid4().hex)
     shutil.rmtree(jd, ignore_errors=True)
     (jd / "tmp").mkdir(parents=True)
@@ -406,8 +485,6 @@ def run_call(p: dict) -> dict:
            "threads": int(p.get("threads", 2))}
     res = _subprocess(job, jd, _base_env(int(p.get("threads", 2)), jd / "tmp", BASE_PYTHONPATH), float(p.get("timeout_s", 7200)))
     res["files"] = _collect(jd, p.get("outputs") or [])
-    for v in p.get("commit") or []:
-        _commit(v)
     shutil.rmtree(jd, ignore_errors=True)
     return res
 
@@ -476,7 +553,9 @@ class _JobSim:
 
 @with_mem
 def run_method(p: dict) -> dict:
-    """A guarded subprocess job. payload:
+    """LEGACY (review F, F-B2 / F-B3): method code in ONE guarded subprocess whose result file is unpickled here. Tournaments, fits,
+    loops and evaluations use job kind "iso" (`run_iso`: model workers, safe codec) instead; this kind remains only for E4's
+    infrastructure smoke (scripts/p4/modal_p4.py smoke-method) and must never run a candidate method. A guarded subprocess job. payload:
       target "module:function" (orchestrator code that imports and runs the method), args / kwargs (strings may use $JOB, $METHODS,
       $SIMQ), guard "fit" | "eval", methods_key (snapshot tar on the fit volume; its directory is put on the PYTHONPATH and, in eval
       mode, is the method code the guard watches), allowed [container paths the job may read / write besides its own directory and the
@@ -498,7 +577,10 @@ def run_method(p: dict) -> dict:
         d = Path(dst)
         d.parent.mkdir(parents=True, exist_ok=True)
         if not d.exists() and not d.is_symlink():
-            d.symlink_to(src)
+            try:
+                d.symlink_to(src)
+            except FileExistsError:           # a concurrent input of a packed container made it first
+                pass
     for v in p.get("reload") or ["fit"]:
         _reload(v)
     mdir = methods_dir(p["methods_key"]) if p.get("methods_key") else None
@@ -572,6 +654,42 @@ def run_hashes(p: dict) -> dict:
     return {"hashes": out}
 
 
+def run_tar_dir(p: dict) -> dict:
+    """Pack /<volume>/<dir> into ONE uncompressed tar /<volume>/_outgoing/<name>.tar (deterministic: sorted names, zero mtimes) and
+    commit, so the orchestrator can download a whole dataset directory as one file (`Backend.download_dir`)."""
+    t0 = time.time()
+    vol = p["volume"]
+    _reload(vol)
+    base = MOUNTS[vol] / p["dir"]
+    if not base.exists():
+        return {"error": f"no directory {base}"}
+    out = MOUNTS[vol] / "_outgoing" / f"{p['name']}.tar"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_suffix(".tar.tmp")
+    h = hashlib.sha256()
+    n = 0
+    files = sorted(q for q in base.rglob("*") if q.is_file())
+    with open(tmp, "wb") as raw:
+        class _Hashing:
+            def write(self, b):
+                h.update(b)
+                return raw.write(b)
+
+            def tell(self):
+                return raw.tell()
+        with tarfile.open(fileobj=_Hashing(), mode="w|") as tf:
+            for q in files:
+                ti = tarfile.TarInfo(q.relative_to(base).as_posix())
+                ti.size, ti.mtime, ti.mode = q.stat().st_size, 0, 0o644
+                with open(q, "rb") as fh:
+                    tf.addfile(ti, fh)
+                n += 1
+    os.replace(tmp, out)
+    _commit(vol)
+    return {"path": f"_outgoing/{p['name']}.tar", "bytes": out.stat().st_size, "sha256": h.hexdigest(), "n_files": n,
+            "container_wall_s": round(time.time() - t0, 1)}
+
+
 def run_fetch(p: dict) -> dict:
     """Record bytes of the given store keys from a store volume (keys that are absent map to None)."""
     _reload(p.get("volume", "store"))
@@ -579,9 +697,45 @@ def run_fetch(p: dict) -> dict:
     return {"records": {k: vs.get_bytes(k) for k in p["keys"]}}
 
 
+@with_mem
+def run_iso(p: dict) -> dict:
+    """An ISOLATED job (research/phase4/EVAL_ARCHITECTURE.md): the trusted DRIVER (this process, root) locks the container down and
+    runs the method code in unprivileged-uid MODEL WORKERS. `brainir_causal.isolation.run_iso_payload` returns plain data (model
+    bytes, side records, evaluation results, loop files) decoded through the SAFE codec; nothing a worker produced is unpickled here.
+    In a PACKED class (payload "__slots", set by the container callable) several inputs run AT ONCE in this container. A per-input
+    reload or commit would remount /fitvol (etc.) to 0755 while another slot's lockdown or work is in flight (the lockdown then fails
+    closed; files briefly vanish -> FileNotFoundError; P2's report, 2026-09-26). So a packed job does NOT reload or commit here:
+    `run_iso_packed` reloads the volumes ONCE, before the container lockdown, via `_reload_once` (passed in), and never again while any
+    slot is busy; packed jobs return their results to the driver and do not write volumes. An unpacked job reloads before and commits
+    after, as before."""
+    if p.get("__slots"):
+        if p.get("commit"):
+            raise ValueError("a packed iso job must not commit a volume (it would remount the mount under the other slots); persist "
+                             "from an unpacked class, or return the results to the driver")
+        from brainir_causal.isolation import run_iso_packed
+        out = run_iso_packed(p, int(p["__slots"]), reload_once=_reload)
+        for v in _staged_vols(out):
+            _commit(v)                  # persist the content-addressed staged artefacts (commit does not remount; P1 probe)
+        return out
+    for v in p.get("reload") or ["fit"]:
+        _reload(v)
+    from brainir_causal.isolation import run_iso_payload
+    out = run_iso_payload(p)
+    for v in list(p.get("commit") or []) + [v for v in _staged_vols(out) if v not in (p.get("commit") or [])]:
+        _commit(v)
+    return out
+
+
+def _staged_vols(out) -> list[str]:
+    """The volumes an iso job staged large artefacts to (isolation.run_iso_payload's "staged"), limited to the staging volumes."""
+    s = out.get("staged") if isinstance(out, dict) else None
+    return [v for v in (s or []) if v in ("store", "eval")] if isinstance(s, list) else []
+
+
 def dispatch(p: dict) -> dict:
     kind = p.get("kind")
-    fn = {"sim": run_sim, "call": run_call, "method": run_method, "extract": run_extract, "hashes": run_hashes, "fetch": run_fetch}.get(kind)
+    fn = {"sim": run_sim, "call": run_call, "method": run_method, "extract": run_extract, "hashes": run_hashes, "fetch": run_fetch,
+          "tar_dir": run_tar_dir, "iso": run_iso}.get(kind)
     if fn is None:
         raise ValueError(f"unknown job kind {kind!r}")
     return fn(p)

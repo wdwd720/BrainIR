@@ -36,7 +36,7 @@ explain them, but only when the evidence supports it.
   `designers.py`, `stats.py`) and `simclient.py` (simulation service client).
 - `baselines/brainir_state_v1/`: an earlier, locked state-discovery method (observational / predictive training), provided as a
   FROZEN BASELINE only: you may run and study it; never modify it.
-- `data/synthetic_dev/`: development systems of many kinds with a causal state known to the benchmark (not to you), including traps
+- `data/synthetic_dev/`: 50 development systems of many kinds with a causal state known to the benchmark (not to you), including traps
   where a passively sufficient latent fails under interventions, systems with no compact causal state, and implementation groups.
   Splits and families: see the manifest. The tournament uses NEW systems of the same kinds, and every system holds out some
   intervention families (its split record says which) that you can neither download nor simulate.
@@ -44,11 +44,15 @@ explain them, but only when the evidence supports it.
   `data/systems_public.json`: populations, public targets, capability and split records, public connectivity summaries.
 - `docs/PROTOCOL.md` (the frozen evaluation), `docs/PROTOCOL_V2.md` (protocol format and families), `docs/API.md`,
   `docs/METHODS_REVIEW.md` (a methods-only literature review), `data/tolerances.json` (calibrated tolerances).
-- The simulation service (`SimClient().run([protocol, ...])`): new experiments within each system's public policy (its
-  families_train, public targets, development ranges) and your budget (`budget()`). Active experiment design and
-  counterexample search on development systems are encouraged.
-- Compute: `./sbx <cmd>` runs code in a Docker sandbox (no network, this room only, 2 CPUs, 4 GB; keep local runs under ~10 minutes);
-  heavier CPU or GPU jobs go through the remote runner (`runs/_remote/`, see its README).
+- The simulation service (`SimClient().run([protocol, ...])`; it finds your own queue by itself): new experiments within each
+  system's public policy (its families_train, public targets, development ranges) and your budget (`budget()`), computed on the
+  benchmark's reference platform (the same numbers the benchmark's own builds produce; your sandbox has the same pinned stack).
+  You may restart from any trajectory you were served or any public trajectory (r0 = {"kind": "restart", "key": <its key>, "t": <a
+  sample time>}). Active experiment design and counterexample search on development systems are encouraged.
+- Compute: `sbx <cmd>` runs code in a Docker sandbox (no network, this room only, 2 CPUs, 3 GB). The machine runs ONE sandbox at a
+  time for all developers: `sbx` waits for the shared slot (about 9 minutes at most, then exit code 75; retry; a run stops after 30 min by default, 1 h at most), so
+  keep local runs to quick checks of a few minutes. Every fit, sweep or evaluation goes through the remote runner (your own queue
+  `runs/<prefix>/_remote/`, see `docs/REMOTE_RUNNER.md`; CPU and GPU classes, many jobs in parallel).
 
 ## 3. Rules
 
@@ -65,25 +69,38 @@ explain them, but only when the evidence supports it.
    simulator calls in `info()`. Prefer the simplest model that meets the requirements (goal: intervention prediction, mediation and
    closure first; then compression, observational prediction, experiment efficiency, simplicity, compute).
 6. Counterexample-guided refinement: only with development systems and public data.
-7. Work only inside this room; run code only through `./sbx` or the remote runner.
+7. Work only inside this room; run code only through `sbx` or the remote runner.
+8. The shared work areas are owned per developer: every developer READS all of `src/brainir_causal/methods/`, `tests/methods/`,
+   `runs/` and `notes/`, but WRITES only its own `<prefix>/` subdirectory of each (`<prefix>` is given in your first message; it is
+   also your sandbox scratch name). The sandbox binds only your own subdirectories read-write and the room guard refuses writes
+   anywhere else; other developers' subdirectories are read-only for you.
 
 ## 4. Deliverables
 
-- `src/brainir_causal/methods/<prefix>_*.py`: CausalStateMethod subclasses registered with `api.register`, whose
+- `src/brainir_causal/methods/<prefix>/`: your package (with an `__init__.py`; import your own modules relatively, e.g.
+  `from .core import X`). The tournament imports every module of every developer's package, so registration happens on import; a
+  method is named by its registered name (`<prefix>_...`) or as `<prefix>.<module>:<name>`. Its modules hold CausalStateMethod
+  subclasses registered with `api.register`, whose
   `fit(data, systems=..., config=..., seed=...)` returns a CausalStateModel implementing encode, rollout (with events; optional
   y_sd), readout, supports, step, read_in, lift (native), intervention_effect (or the default), uncertainty, validity and info;
   optionally a Designer (`designer()`) for active experiment design. Requirements the tournament relies on:
   - `data` holds the system's passive and interventional training records (with twins); `systems` the public records. At fit time
     nothing else is available (no files, processes or network: the tournament's sandbox refuses them);
-  - honour `api.CONFIG_KEYS` (`k`, `sharing`, `adapt_from`, `budget`); declare `supported_sharing` / `supports_adaptation`;
+  - honour `api.CONFIG_KEYS` (`k`, `sharing`, `adapt_from`, `budget`, `ablate`); declare `supported_sharing` / `supports_adaptation`;
+  - ABLATION SWITCHES: declare in `info()["ablation_switches"]` every name of `api.ABLATION_SWITCHES` (honoured, or
+    "not_applicable" with a reason when your method has no such component) and apply `config["ablate"]` exactly as defined there
+    (e.g. `interventional_training` = fit on the passive records only; `state_bottleneck` = predict without the compact state);
+    report the applied list in `info()["ablated"]`. The locked method is ablated switch by switch after the lock;
   - a fit is DETERMINISTIC given its seed (on CPU; a GPU method must pass the CPU / GPU equivalence check of `equiv.py`), finishes
     within 15 minutes on 4 CPU threads for one synthetic system (30 minutes for a real full network or a shared fit), or within 10
     minutes on one GPU if the method declares `device = "cuda"` (tournament GPU fits run on the RTX-PRO-6000 class), and the model
     is picklable. Tournament fits run on Linux containers; initialise parameters in float64 (float32 initialisers round differently
     across platforms);
   - `info()` reports k, k_range, abstain (per system), history, n_params, train_cost.
-- `tests/methods/test_<prefix>_*.py`: fast tests on toy data generated in the test.
-- `notes/<prefix>_*.md`: algorithm, mathematics, assumptions, identifiability conditions (goal: say under what assumptions the
+- `tests/methods/<prefix>/test_<prefix>_*.py`: fast tests on toy data generated in the test (`sbx pytest -q tests/methods/<prefix>`;
+  keep the `<prefix>` in the file names: test modules of different developers must not share a basename).
+- Experiments, their scripts and outputs: `runs/<prefix>/`.
+- `notes/<prefix>/*.md`: algorithm, mathematics, assumptions, identifiability conditions (goal: say under what assumptions the
   state and read-in are identifiable and whether the benchmark's systems satisfy them), objective and ablations, dimension and
   abstention rules, hyper-parameters and how they were chosen (development data only), results on public data against the
   benchmark references (every metric family you can compute), failure modes, compute used, and what did not work.

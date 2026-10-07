@@ -23,6 +23,9 @@ New in version 2:
   oscillatory systems amplify: about 0.2 % of the trajectory's scale after 0.3 s on the largest mechanism, tested);
 - observation noise is NOT part of the simulated record: `observe()` adds it to the returned observed arrays only (seeded, sd
   relative to the system's public observation scale), so the stored microstate never depends on it.
+Host (review H, M5): `run` refuses hosts outside the gate (`p4modal.gate.require_admissible`: no AVX-512, AVX2 present) on every
+path, local or Modal, and every record's info carries the host fingerprint (`p4modal.gate.host_fingerprint`). `info.success` is
+False when a piece failed or produced non-finite samples; the store refuses such records (`store.TrajectoryStore.put`).
 """
 
 from __future__ import annotations
@@ -40,6 +43,7 @@ from brainir.discovery.problem import DiscoveryProblem
 from brainir.sim.model import MODEL_ID, Intervention, Stimulus, apply_intervention, sample_neuron_params, simulate
 
 from . import protocol as P
+from .p4modal.gate import host_fingerprint, require_admissible
 
 ENGINE_VERSION = "p4-realsim-1"
 ACTIVE_HZ = 0.01
@@ -148,6 +152,7 @@ class RealEngine:
         q = P.validate(proto)
         if q["system"] != system.system_id:
             raise P.ProtocolError(f"protocol is for {q['system']!r}, not {system.system_id!r}")
+        require_admissible("real-system simulation")         # review H, M5: gated hosts only, on every path (local and Modal)
         n, dt, t_end = self.problem.n, q["dt"], q["t_end"]
         cfg0 = dataclasses.replace(self.problem.model_cfg, dt_out=dt)
         if q["process_noise"] is not None:
@@ -265,7 +270,7 @@ class RealEngine:
             u[-1, :] = u[-2, :] if len(u) > 1 else u[-1, :]
         nonzero = np.flatnonzero(np.abs(R).max(axis=0) > 0)
         info = {"engine": ENGINE_VERSION, "simulator": MODEL_ID, "n_calls": n_calls, "n_pieces": n_pieces, "success": bool(ok), "n": int(n),
-                "bundle_sha256": self.bundle_sha, "network": self.problem.name, "system_id": system.system_id}
+                "bundle_sha256": self.bundle_sha, "network": self.problem.name, "system_id": system.system_id, "host": host_fingerprint()}
         if kicks_applied:
             info["kicks_applied"] = kicks_applied
         return {"t": grid, "neurons": nonzero.astype(np.int32), "rates": R[:, nonzero].astype(np.float32), "u": u.astype(np.float32),

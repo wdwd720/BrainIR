@@ -90,9 +90,11 @@ def test_remote_backend_adapter_with_a_local_stand_in(tmp_path, monkeypatch):
     from brainir_causal import protocol as P
     from brainir_causal.p4modal import app as A
     from brainir_causal.simservice import run_job
+    from brainir_causal.p4modal import gate as G
     from brainir_causal.systems import BUNDLE
     monkeypatch.setattr(remote, "BUNDLE", BUNDLE)
     monkeypatch.setattr(remote, "_ENGINES", {})
+    monkeypatch.setattr(G, "reference_platform_problems", lambda fp=None: [])   # the adapter's contract here; the gate: its own test
     d = _mech_sysdef()
     q = P.validate(_proto(d))
     be = A.Backend.__new__(A.Backend)

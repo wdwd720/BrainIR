@@ -29,6 +29,7 @@ DT, T_END, SID = 0.01, 2.0, "toy"
 H = 100                     # long horizon = 50 % of 2 s = 100 steps
 I0 = 50                     # onset sample of every item
 NB = 200                    # bootstrap resamples in tests (the protocol default is 2,000)
+NS = 4                      # cross-fitting seeds in tests (the protocol default is 20)
 
 _r = np.random.default_rng(12345)
 _Q, _ = np.linalg.qr(_r.standard_normal((6, 6)))
@@ -139,6 +140,20 @@ class WrongReadInModel(ExactModel):
         return super().rollout(sid, z0, u_future, keep, dt)
 
 
+class DetailModel(ExactModel):
+    """The exact causal state PLUS the off-manifold detail of the current microstate (visible in x, causally inert here): its latent
+    separates truth-equivalent states although its predicted futures (from the causal part) agree."""
+
+    def encode(self, sid, x_hist, u_hist, dt):
+        z = super().encode(sid, x_hist, u_hist, dt)
+        return np.concatenate([z, PERP @ np.asarray(x_hist, float)[-1]])
+
+    def rollout(self, sid, z0, u_future, events, dt):
+        z0 = np.asarray(z0, float)
+        r = super().rollout(sid, z0[:3], u_future, events, dt)
+        return {"z": np.hstack([r["z"], np.repeat(z0[None, 3:], len(r["z"]), 0)]), "y": r["y"]}
+
+
 class AbstainModel(ExactModel):
     def supports(self, sid, kind):
         return False
@@ -189,11 +204,12 @@ def make_data(n_traj=60, seed=0, tiny=False, comp=False):
             twin = simulate(hist[-1], u[I0:], [], H)
             s = C.T @ hist[-1]
             dz = C.T @ _kick_vec(ev, 0) if kind == "kick" else None
+            dz_next = C.T @ (fut[1] - twin[1]) if kind == "kick" else None       # one sample after the onset (review H, N4)
             items.append(TestItem(item_id=f"t{tr}_{k}", system_id=SID, dt=DT, x_hist=hist, u_hist=u[: I0 + 1, None],
                                   u_future=u[I0: I0 + H + 1, None], events=ev, y_future=readout(fut), y_twin=readout(twin),
                                   family="kick.1" if kind == "kick" else "pulse.1", shift=shifts[tr % 4],
                                   magnitude_class=["weak", "moderate", "strong"][tr % 3], target_set=(j,), onset=I0 * DT,
-                                  group=f"t{tr}", x_future=fut, x_twin_future=twin, z_true=s, dz_true=dz))
+                                  group=f"t{tr}", x_future=fut, x_twin_future=twin, z_true=s, dz_true=dz, dz_true_next=dz_next))
         if comp:
             ea, ja = _event(rng, "kick")
             eb, jb = _event(rng, "current")
@@ -348,8 +364,8 @@ def test_determinism(data):
 # ------------------------------------------------------------------------------------------------------------ 5.3 / 5.4
 def test_mediation_exact_vs_missing(data):
     sysc, items = data
-    ex = eval_mediation(sysc, items, predict_items(ExactModel(), sysc, items), n_boot=NB)
-    mi = eval_mediation(sysc, items, predict_items(MissingModel(), sysc, items), n_boot=NB)
+    ex = eval_mediation(sysc, items, predict_items(ExactModel(), sysc, items), n_boot=NB, n_seeds=NS)
+    mi = eval_mediation(sysc, items, predict_items(MissingModel(), sysc, items), n_boot=NB, n_seeds=NS)
     assert abs(ex["SMS"]["point"]) < 0.05
     assert mi["SMS"]["point"] > 0.3
     assert mi["SMS"]["ci95"][0] > ex["SMS"]["ci95"][1]
@@ -361,10 +377,10 @@ def test_mediation_separates_readin_error_from_missing_state(data):
     and the evaluator-fitted closure finds the state complete."""
     sysc, items = data
     preds = predict_items(WrongReadInModel(), sysc, items)
-    med = eval_mediation(sysc, items, preds, n_boot=NB)
+    med = eval_mediation(sysc, items, preds, n_boot=NB, n_seeds=NS)
     assert med["SMS_id"]["point"] > 0.3 and med["SMS_id"]["ci95"][0] > 0.1
     assert abs(med["SMS_x_res"]["point"]) < 0.05
-    clo = eval_closure(WrongReadInModel(), sysc, items, preds, n_boot=NB)
+    clo = eval_closure(WrongReadInModel(), sysc, items, preds, n_boot=NB, n_seeds=NS)
     assert abs(clo["ICG_y"]["point"]) < 0.05
 
 
@@ -372,18 +388,18 @@ def test_mediation_is_stable_across_seeds(data):
     sysc, items = data
     preds = predict_items(ExactModel(), sysc, items)
     for seed in (1, 2):
-        assert abs(eval_mediation(sysc, items, preds, n_boot=50, seed=seed, repeats=2)["SMS"]["point"]) < 0.02
-        assert abs(eval_closure(ExactModel(), sysc, items, preds, n_boot=50, seed=seed, repeats=2)["ICG_y"]["point"]) < 0.05
+        assert abs(eval_mediation(sysc, items, preds, n_boot=50, seed=seed, n_seeds=2)["SMS"]["point"]) < 0.02
+        assert abs(eval_closure(ExactModel(), sysc, items, preds, n_boot=50, seed=seed, n_seeds=2)["ICG_y"]["point"]) < 0.05
 
 
 def test_closure_exact_vs_missing(data):
     sysc, items = data
-    ex = eval_closure(ExactModel(), sysc, items, predict_items(ExactModel(), sysc, items), n_boot=NB)
-    mi = eval_closure(MissingModel(), sysc, items, predict_items(MissingModel(), sysc, items), n_boot=NB)
+    ex = eval_closure(ExactModel(), sysc, items, predict_items(ExactModel(), sysc, items), n_boot=NB, n_seeds=NS)
+    mi = eval_closure(MissingModel(), sysc, items, predict_items(MissingModel(), sysc, items), n_boot=NB, n_seeds=NS)
     assert ex["ICG_y"]["point"] < 0.05
     assert mi["ICG_y"]["point"] > 0.2
     assert ex["own_closure_gap"]["ratio"] < 1e-8
-    ig = eval_closure(IgnoreModel(), sysc, items, predict_items(IgnoreModel(), sysc, items), n_boot=NB)
+    ig = eval_closure(IgnoreModel(), sysc, items, predict_items(IgnoreModel(), sysc, items), n_boot=NB, n_seeds=NS)
     assert ig["own_closure_gap"]["ratio"] == pytest.approx(1.0, rel=1e-6)
 
 
@@ -439,7 +455,15 @@ def test_truth_metrics(data):
     assert ex["recovery"] > 0.95
     assert mi["r2_true_from_z"] < 0.9
     ri = eval_readin_truth(ExactModel(), SID, items, predict_items(ExactModel(), sysc, items), samples)
-    assert ri["r2"] > 0.999 and ri["source"]["read_in"] > 0
+    # both definitions (review H, N4): the rollout one sample after the onset vs the true difference one sample after, and the read-in
+    # dz vs the exact jump; in this toy the two truths differ (one step of dynamics), and each model quantity matches its own
+    assert ri["definition"] == "next_sample" and ri["r2"] > 0.999 and ri["n"] > 0
+    assert ri["exact"]["r2"] > 0.999 and ri["exact"]["n"] > 0
+    kicks = [it for it in items if it.dz_true is not None]
+    assert max(float(np.abs(it.dz_true_next - it.dz_true).max()) for it in kicks) > 1e-3
+    wr = eval_readin_truth(WrongReadInModel(), SID, items, predict_items(WrongReadInModel(), sysc, items), samples)
+    # its rollout ignores kicks on units 0-1 while its read_in method is exact: the headline sees the error, "exact" does not
+    assert wr["r2"] < 0.99 and wr["exact"]["r2"] > 0.999
     d = eval_dimension_truth(3, (3, 3), {"k": 3}, False)
     assert d["k_correct"] and d["k_true_in_range"]
     d = eval_dimension_truth(None, None, {"k": "none"}, True)
@@ -483,8 +507,19 @@ def test_truth_only_states_do_not_enter_the_pairing(data, pool):
     a = eval_microstate(ExactModel(), sysc, pool, n_boot=NB)
     b = eval_microstate(ExactModel(), sysc, p2, n_boot=NB)
     assert a["MEV"] == b["MEV"] and b["n_truth_only_states"] == 20
-    assert b["comparisons"]["truth_equivalent"]["n_pairs"] == 20
-    assert b["comparisons"]["truth_equivalent"]["mean"] < 1e-10
+    te = b["comparisons"]["truth_equivalent"]
+    assert te["n_pairs"] == 20 and te["n_pairs_encoded"] == 20 and te["n_encode_failed"] == 0
+    assert te["construction_check"]["true_future_ratio"] < 1e-10         # the builder's check: equal true futures by construction
+    # the MODEL: the exact causal state maps equivalent states to the same latent and the same predicted futures
+    assert te["latent_distance_ratio"] < 1e-8 and te["latent_distance_ratio_mean"] < 1e-8
+    pdv = te["predicted_divergence"]
+    assert pdv["mean_over_detection_floor"] < 1e-8 and pdv["mean_relative_to_random"] < 1e-8 and pdv["n_random_pairs"] == 40
+    # a latent that also carries the off-manifold detail (visible in x, causally inert) separates equivalent states: the latent
+    # distance flags it, while its predicted futures (a function of the causal part only) still agree
+    d = eval_microstate(DetailModel(), sysc, p2, n_boot=NB)["comparisons"]["truth_equivalent"]
+    assert d["latent_distance_ratio"] > 0.1 and d["predicted_divergence"]["mean_over_detection_floor"] < 1e-8
+    other = {k: v for k, v in b.items() if k not in ("comparisons", "n_truth_only_states", "n_states")}
+    assert other.keys() == {k for k in a if k not in ("comparisons", "n_truth_only_states", "n_states")}
     assert eval_bisimulation(ExactModel(), sysc, p2, n_bins=5, max_pairs=500)["n_pairs"] == \
         eval_bisimulation(ExactModel(), sysc, pool, n_bins=5, max_pairs=500)["n_pairs"]
 
@@ -512,3 +547,24 @@ def test_mev_fixed_count_rule_on_600_state_pool(data):
     assert sens["MEV"]["point"] > ex["MEV"]["point"]
     mi = eval_microstate(MissingModel(), sysc, big, whiten_z=latent_whitener(MissingModel(), SID, hists), n_boot=NB)
     assert mi["testable"] and mi["MEV"]["point"] > 3 * ex["MEV"]["point"] and mi["MEV"]["ci95"][0] > ex["MEV"]["point"]
+
+
+def test_readin_truth_map_is_fitted_on_spanning_states_and_reports_unidentifiable(data):
+    """Review H round 3b, NEW-5: the map z_true -> model coordinates is fitted on the held-out samples AND every item's onset state; with
+    too few samples to span the true state the items complete it (an exact model scores R^2 ~ 1), and when no fitting state spans a
+    true-state direction the score is reported as unidentifiable instead of a meaningless number."""
+    sysc, items = data
+    preds = predict_items(ExactModel(), sysc, items)
+    few = [StateSample(sample_id=it.item_id, x_hist=it.x_hist, u_hist=it.u_hist, dt=it.dt, group=it.group, z_true=it.z_true)
+           for it in items[:8] if it.z_true is not None]
+    ri = eval_readin_truth(ExactModel(), SID, items, preds, few)
+    assert ri["r2"] > 0.999 and ri["map"]["rank"] == ri["map"]["dim"] == 3
+    # the same items with their true states squashed onto a plane: no fitting state spans the third coordinate
+    flat = []
+    for it in items:
+        c = TestItem(**{**it.__dict__, "z_true": None if it.z_true is None else np.asarray(it.z_true, float) * np.array([1.0, 1.0, 0.0])})
+        flat.append(c)
+    flat_samples = [StateSample(sample_id=s.sample_id, x_hist=s.x_hist, u_hist=s.u_hist, dt=s.dt, group=s.group,
+                                z_true=np.asarray(s.z_true, float) * np.array([1.0, 1.0, 0.0])) for s in few]
+    un = eval_readin_truth(ExactModel(), SID, flat, preds, flat_samples)
+    assert un["note"].startswith("unidentifiable") and un["rank"] == 2 and un["dim"] == 3

@@ -2,8 +2,10 @@
 
     uv run --no-sync --project phase4 python scripts/p4agent/audit_transcripts.py [--audit C:\\Dev\\BrainIR_p4audit]
                                                      [--out research/phase4/transcript_audit.json]
-    uv run --no-sync --project phase4 python scripts/p4agent/audit_transcripts.py --replay-p3 C:\\Dev\\BrainIR_p3audit
+    uv run --no-sync --project phase4 python scripts/p4agent/audit_transcripts.py --replay-p3 <the earlier phase's audit directory>
                                                      [--out research/phase4/guard_replay_p3.json]
+
+Every name, path and artefact class it looks for comes from the orchestrator's names config (scripts/p4config/names.py; F-M1).
 
 For each agent stream (<audit>/agents/*.jsonl) it reports: tool calls by kind; tool inputs naming a path outside the agent's room or a
 forbidden location; tool inputs / OUTPUTS containing a forbidden name; the CLASSES of Phase 2-3 answer-bearing artefact names found in
@@ -27,47 +29,73 @@ from collections import Counter
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-NAMES = re.compile(r"(?i)(dng100|\bbdn2\b|pugliese|walking\s*cpg|malecns|male[-\s]?cns|\bmanc\b|neuprint|flywire|drosophila|"
-                   r"phase[0-3]_report|hidden_eval|blind_eval|oracle\.json|tier_a_ids|dng100_walking_cpg|goal[1-5]\.md)")
-PATHS = re.compile(r"(?i)(dev[\\/]+brainir(?!_p4)|brainir_p[23]\w*|\.claude[\\/]+projects[\\/]+c--dev-brainir[\\/]|\.credentials|"
-                   r"\.modal\.toml)")
-# Phase 2-3 answer-bearing artefact CLASSES (reported as class -> count, never the matched text)
-ANSWER_CLASSES = {
-    "PHASE2_REPORT": r"phase2_report", "PHASE3_REPORT": r"phase3_report", "HIDDEN_EVAL_LOG": r"hidden_eval_log",
-    "HIDDEN_EVALUATIONS": r"hidden_evaluations", "SALT_REVEAL": r"salt_reveal", "level_c": r"level_c", "real_hidden": r"real_hidden",
-    "brainir-p3-eval": r"brainir-p3-eval", "POSTLOCK_": r"postlock_", "REPORT_WORKING": r"report_working",
-    "state_discovery_v1/hidden": r"state_discovery_v1[\\/]+hidden",
-}
+HERE = Path(__file__).resolve().parent
+
+
+def _names():
+    """The orchestrator's names config (never in a room): every name, path and class this audit looks for."""
+    spec = importlib.util.spec_from_file_location("p4config_names_audit", HERE.parent / "p4config" / "names.py")
+    mod = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(mod)
+    return mod
+
+
+_N = _names()
+NAMES = re.compile("(?i)(" + "|".join(_N.AUDIT_NAMES) + ")")
+PATHS = re.compile("(?i)(" + "|".join(_N.AUDIT_PATHS) + ")")
+# earlier answer-bearing artefact CLASSES (reported as class -> count, never the matched text)
+ANSWER_CLASSES = dict(_N.ANSWER_CLASSES)
 ANSWER_RE = {k: re.compile(v, re.IGNORECASE) for k, v in ANSWER_CLASSES.items()}
 
 
 def answer_tokens() -> set[str]:
-    """Published types, core body ids and the core's tier-A tokens (strings) of the Phase 1 answer (orchestrator side only)."""
-    o = json.loads((ROOT / "benchmarks" / "dng100" / "oracle" / "oracle.json").read_text(encoding="utf-8"))
+    """Published types, core body ids and the core's tier-A tokens (strings) of the earlier answer (orchestrator side only)."""
+    o = json.loads((ROOT / _N.PATHS["phase1_oracle_json"]).read_text(encoding="utf-8"))
     toks = {v["type"] for v in o["labels"].values()}
     import pandas as pd
     for net, n in o["networks"].items():
-        members = {**n["core"], **(n.get("core_contralateral_copies") or {})}
+        members = {**n["core"], **(n.get(_N.ORACLE_KEYS["core_extra"]) or {})}
         toks |= {str(b) for b in members.values()}
-        with open(ROOT / "benchmarks" / "dng100" / "oracle" / "tier_a_ids" / f"ids_{net}.csv", encoding="utf-8") as fh:
+        with open(ROOT / _N.PATHS["phase1_tier_a_ids"] / f"ids_{net}.csv", encoding="utf-8") as fh:
             pos_of = {int(r["source_id"]): int(r["position"]) for r in csv.DictReader(fh)}
         p = {pos_of[int(b)] for b in members.values() if int(b) in pos_of}
-        nd = pd.read_parquet(ROOT / "benchmarks" / "dng100" / "public_blind" / "networks" / net / "neurons.parquet", columns=["position", "cell_type"])
+        nd = pd.read_parquet(ROOT / _N.PATHS["public_bundle"] / "networks" / net / "neurons.parquet", columns=["position", "cell_type"])
         tok = dict(zip(nd["position"].astype(int), nd["cell_type"]))
         toks |= {str(tok[x]) for x in p if tok.get(x) is not None}
     return toks
 
 
-def guard_for(room: str, allow_web: bool = False, audit_dir: str | None = None):
-    """The CURRENT Phase 4 guard's decision function configured for one room."""
+_BASE_PATH = os.environ.get("PATH", "")
+
+
+def guard_for(room: str, allow_web: bool = False, audit_dir: str | None = None, *, name: str = "audit_replay",
+              scratch: str | None = None, bindir: str | None = None):
+    """The CURRENT Phase 4 guard's decision function configured for one room AS THE LAUNCHER CONFIGURED IT for the agent
+    (scripts/p4agent/launch.py): its name and private scratch area (P4_AGENT_SCRATCH, TEMP under <room>/.tmp/<scratch>) and the
+    room's sbx wrapper directory first on PATH. It reads the REAL audit directory (the room's protection record protected_<room>.json,
+    the outside sbx copy) and writes nothing: its decision log is switched off."""
     os.environ["P4_CLEAN_ROOT"] = room
     os.environ["P4_ALLOW_WEB"] = "1" if allow_web else "0"
-    os.environ["P4_AUDIT_DIR"] = audit_dir or str(Path(__file__).resolve().parent / ".audit_replay_sink")
-    os.environ["P4_AGENT_NAME"] = "audit_replay"
-    spec = importlib.util.spec_from_file_location(f"p4guard_replay_{abs(hash((room, allow_web)))}", Path(__file__).resolve().parent / "guard_hook.py")
+    os.environ["P4_AUDIT_DIR"] = audit_dir or r"C:\Dev\BrainIR_p4audit"
+    os.environ["P4_AGENT_NAME"] = name
+    if scratch:
+        os.environ["P4_AGENT_SCRATCH"] = scratch
+        for k in ("TEMP", "TMP", "TMPDIR"):
+            os.environ[k] = str(Path(room) / ".tmp" / scratch)
+    else:
+        os.environ.pop("P4_AGENT_SCRATCH", None)
+    os.environ["PATH"] = (str(bindir) + os.pathsep + _BASE_PATH) if bindir else _BASE_PATH
+    key = abs(hash((room, allow_web, name, scratch, bindir)))
+    spec = importlib.util.spec_from_file_location(f"p4guard_replay_{key}", Path(__file__).resolve().parent / "guard_hook.py")
     g = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(g)
+    g._log = lambda *a, **k: None               # a replay never writes to any guard log
+    global _GUARD_INTERPRETERS
+    _GUARD_INTERPRETERS = g.INTERPRETERS
     return g
+
+
+_GUARD_INTERPRETERS = re.compile(r"(?!)")
 
 
 def _tool_uses(stream: Path):
@@ -76,7 +104,7 @@ def _tool_uses(stream: Path):
             ev = json.loads(line)
         except json.JSONDecodeError:
             continue
-        msg = ev.get("message") or {}
+        msg = ev.get("message") if isinstance(ev, dict) and isinstance(ev.get("message"), dict) else {}
         content = msg.get("content") if isinstance(msg.get("content"), list) else []
         yield ev, content
 
@@ -97,7 +125,8 @@ def audit(audit_dir: Path, with_answer_tokens: bool = True) -> dict:
         meta = stream.with_name(stream.name.replace(".jsonl", ".meta.json"))
         mj = json.loads(meta.read_text(encoding="utf-8")) if meta.exists() else {}
         room = mj.get("room") or mj.get("clean")
-        g = guard_for(room, bool(mj.get("allow_web"))) if room else None
+        g = guard_for(room, bool(mj.get("allow_web")), str(audit_dir), name=mj.get("name") or name, scratch=mj.get("scratch"),
+                      bindir=(mj.get("sbx") or {}).get("bindir")) if room else None
         for _ev, content in _tool_uses(stream):
             r["events"] += 1
             for c in content:
@@ -157,14 +186,13 @@ def audit(audit_dir: Path, with_answer_tokens: bool = True) -> dict:
 
 
 def _reason_class(why: str) -> str:
-    w = why.lower()
-    if "may not run on the host" in w:
-        m = re.search(r"'([^']+)' may not run", why)
-        return f"host interpreter / tool refused ({m.group(1) if m else '?'})"
-    if "not an allowed host command" in w:
-        m = re.search(r"'([^']+)' is not an allowed", why)
-        return f"host command not allowlisted ({m.group(1) if m else '?'})"
-    return re.sub(r"[:(].*$", "", why)[:80]
+    """'<class>: <detail>' of the version-3 guard -> a count key without command text."""
+    cls, _, detail = why.partition(": ")
+    m = re.match(r"host command '([^']+)'", detail)
+    if cls == "host" and m:
+        kind = "host interpreter / tool refused" if _GUARD_INTERPRETERS.match(m.group(1)) else "host command not allowlisted"
+        return f"{kind} ({m.group(1)})"
+    return f"{cls}: " + re.sub(r"[:('\"].*$", "", detail)[:60].strip()
 
 
 def replay_p3(p3_audit: Path) -> dict:
@@ -199,7 +227,7 @@ def replay_p3(p3_audit: Path) -> dict:
                 else:
                     out["denied"] += 1
                     pr["denied"] += 1
-                    if "may not run on the host" in why:
+                    if _reason_class(why).startswith("host interpreter"):
                         pr["denied_host_interpreter"] += 1
                     out["denied_by_tool"][tool] += 1
                     out["denied_by_reason"][_reason_class(why)] += 1

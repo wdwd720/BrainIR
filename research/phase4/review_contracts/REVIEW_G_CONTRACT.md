@@ -32,6 +32,6 @@ P no compact causal state.
    or abstain), limitations.
 
 ## Rules
-- Work only inside this workspace; run code only through ./sbx. No web access.
+- Work only inside this workspace; run code only through the bare command sbx. No web access.
 - Do not modify the existing systems, the package's core or its tests (add only); keep every existing test green.
 - The traps must be generic: do not model any specific biological circuit or published result.

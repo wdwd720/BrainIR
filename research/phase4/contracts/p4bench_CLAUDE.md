@@ -8,7 +8,7 @@ generic statistics to match; ref/ holds reference code (protocol validation, fam
 
 Rules:
 1. Work only inside this directory. Tools that touch anything outside it are blocked by a guard; do not try to get around it.
-2. Run code ONLY through the Docker sandbox wrapper: `./sbx python ...`, `./sbx python -m pytest -q tests`. Host interpreters are
+2. Run code ONLY through the Docker sandbox wrapper: `sbx python ...`, `sbx python -m pytest -q tests`. Host interpreters are
    blocked. The sandbox has numpy, scipy, pandas, pyarrow, pydantic, scikit-learn, torch (CPU) and pytest; no network; 2 CPUs.
 3. The benchmark is generic: do not model any specific biological circuit, dataset or published result. You have no web access.
 4. Keep ground truth separate from anything a method developer would receive (contract sections 1, 4).

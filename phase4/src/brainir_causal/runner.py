@@ -1,23 +1,28 @@
-"""Tournament / evaluation runner (ORCHESTRATOR SIDE): fit a method, or run its experiment loop, in a sandboxed subprocess.
+"""Tournament / evaluation runner (ORCHESTRATOR SIDE): fit a method, or run its experiment loop, with the method's code in a MODEL
+WORKER (research/phase4/EVAL_ARCHITECTURE.md; review F, F-B2 / F-B3).
 
     python -m brainir_causal.runner fit  --method-dir D --method NAME --data DIR [--data DIR2 ...] --systems S1,S2 --out model.pkl
-                                         [--config JSON] [--seed N] [--splits train] [--adapt-from MODEL]
-    python -m brainir_causal.runner loop --method-dir D --method NAME --designer NAME|own --data DIR --system S --budget B
-                                         --sim-queue Q --out DIR [--checkpoints 10,25,50,100,200] [--batch 5] [--seed N] [--config JSON]
+                                         [--config JSON] [--seed N] [--splits train] [--adapt-from MODEL] [--bootstrap B]
+                                         [--transport docker|local-unsafe]
+    python -m brainir_causal.runner loop --method-dir D --method NAME --designer NAME|own|random_matched --data DIR --system S
+                                         --budget B --out DIR --internal PATH --store-root DIR [--profile-dir DIR] [--generator DIR PKG]
+                                         [--checkpoints 10,25,50,100,200] [--batch 5] [--seed N] [--config JSON]
 
-The method's code is a copy of the clean room's `src/brainir_causal/methods/` directory (never the orchestrator's tree), mounted as the
-package `brainir_causal.methods`. The process pre-imports the scientific stack and the third-party modules the method package
-imports (`runguard.preimport`: they load shared objects through ctypes, which the guard refuses), then installs the FIT guard
-(`brainir_causal.runguard`) before importing any method code: it can touch only the method copy, the listed public data, the output
-directory, the simulation queue and a private temp directory (plus the Python environment and the evaluation libraries), and it
-cannot start processes, open network connections or load libraries through ctypes. The side record carries the platform (CPU model,
-GPU device, Modal task) so that one evaluation's fits can be checked to come from one platform.
+This process is the trusted DRIVER: it reads the public training records, starts a worker in the Docker sandbox image
+(`isolation.DockerTransport`: no network, read-only root, every capability dropped, an unprivileged uid; only the public modules and
+the method snapshot are mounted) and sends it the records over a pipe. The fitted model comes back as BYTES and is written to --out
+unchanged; it is NEVER loaded here (F-B3). A JSON side record (--out with .json) carries the method's info(), the fit wall / CPU time,
+the harness-measured compute (`capacity.ComputeMeter`, measured in the worker), the worker's platform and the isolation record.
 
 `fit` gives the method the records of the given splits (default 'train' = D0 + D1 of PROTOCOL 4) and the twins of their intervention
-trajectories; the fitted model is pickled (model.save) and a JSON side file records info(), the fit wall / CPU time, the peak memory
-and the harness-measured compute (`capacity.ComputeMeter`). `loop` runs `brainir_causal.loop.run_loop` from the system's PASSIVE
-training set D0 with the method's learner and the named designer ('own' = the method's `designer()`; else a reference designer of
-`brainir_causal.designers`); every simulation goes through the service queue, whose server enforces the public policy and budget.
+trajectories; `--bootstrap B` fits the B-th bootstrap resample of the training interventions (PROTOCOL 5.10, the Level C dimension
+refits). `loop` runs `brainir_causal.loop.run_loop` from the system's passive training set D0: the learner (and, for '--designer own',
+the method's designer) live in the loop worker, while the driver validates every proposal against the public policy, simulates it and
+does the budget accounting (reference designers run trusted in the driver). `--transport local-unsafe` runs a plain child process with
+no OS sandbox and is for TRUSTED code only (tests, the equivalence harness); the default is the Docker sandbox.
+
+`load_records` / `import_method` / `mount_methods` remain here for the driver's own use (loading public records; the worker imports the
+method itself). This module never unpickles a fitted method model.
 """
 
 from __future__ import annotations
@@ -27,7 +32,6 @@ import importlib
 import json
 import os
 import sys
-import time
 import types
 from pathlib import Path
 
@@ -50,9 +54,10 @@ def mount_methods(method_dir: str | Path) -> None:
 
 
 def import_method(method_dir: str | Path, name: str):
-    """The registered method `name` ("module:name" or a plain name). A plain name is looked up in the module of the same name; if
-    there is none, every module of the methods package is imported (sorted; a module that fails to import is skipped) so that methods
-    registered in a module with another name are found."""
+    """The registered method `name` ("module:name" or a plain name). Used by the DRIVER only to read a method's declared attributes
+    (device, designer) in a context where importing it is safe (never to fit or evaluate: that happens in a worker). A plain name is
+    looked up in the module of the same name; if there is none, every module of the package is imported (a module that fails is
+    skipped)."""
     mount_methods(method_dir)
     from .api import get_method, registered
     if ":" in name:
@@ -62,23 +67,18 @@ def import_method(method_dir: str | Path, name: str):
     try:
         importlib.import_module(f"{METHODS_PKG}.{name}")
     except ModuleNotFoundError as e:
-        if e.name != f"{METHODS_PKG}.{name}":
+        if e.name != f"{METHODS_PKG}.{name}" and not str(e.name or "").startswith(f"{METHODS_PKG}.{name}."):
             raise
     if name not in registered():
-        for p in sorted(Path(method_dir).glob("*.py")):
-            if p.stem == "__init__" or name in registered():
-                continue
+        from .worker import method_modules                   # developers' packages methods/<prefix>/ included (review F r2, N-M2)
+        for mod in method_modules(method_dir):
+            if name in registered():
+                break
             try:
-                importlib.import_module(f"{METHODS_PKG}.{p.stem}")
+                importlib.import_module(f"{METHODS_PKG}.{mod}")
             except Exception:  # noqa: BLE001, S112 - another developer's broken module must not hide a registered method
                 continue
     return get_method(name)
-
-
-def load_model(method_dir: str | Path, path: str | Path):
-    mount_methods(method_dir)
-    from .api import load_model as _load
-    return _load(path)
 
 
 def load_records(data_dirs: list[str], systems: list[str], splits: set[str]) -> tuple[list, dict]:
@@ -108,36 +108,8 @@ def load_records(data_dirs: list[str], systems: list[str], splits: set[str]) -> 
     return recs, sysinfo
 
 
-def _peak_mb() -> float | None:
-    try:
-        import resource
-        return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss / 1024.0
-    except Exception:  # noqa: BLE001 - Windows: not available
-        return None
-
-
-def _threads() -> None:
-    n = os.environ.get("P4_FIT_THREADS", "3")
-    os.environ.setdefault("OMP_NUM_THREADS", n)
-    os.environ.setdefault("MKL_NUM_THREADS", n)
-    try:
-        import threadpoolctl
-        threadpoolctl.threadpool_limits(int(n))
-    except Exception:  # noqa: BLE001, S110
-        pass
-    try:
-        import torch
-        torch.set_num_threads(int(n))
-    except Exception:  # noqa: BLE001, S110
-        pass
-
-
-_PLATFORM: dict = {}
-
-
 def platform_record() -> dict:
-    """Where a fit ran (goal5 section 63: all official fits of one evaluation run on one platform and, for GPU methods, one GPU
-    class): Python, OS, machine, CPU model, core count, the CUDA device when available, the Modal task / class if any."""
+    """Where the DRIVER runs (the worker reports its own platform; a fit's platform is the worker's)."""
     import platform
     rec = {"python": sys.version.split()[0], "platform": platform.platform(), "machine": platform.machine(), "n_cpu": os.cpu_count(),
            "modal_task": os.environ.get("MODAL_TASK_ID"), "modal_class": os.environ.get("P4M_CLASS")}
@@ -149,97 +121,48 @@ def platform_record() -> dict:
             rec["cpu"] = os.environ.get("PROCESSOR_IDENTIFIER")
     except OSError:
         rec["cpu"] = None
-    try:
-        import torch
-        rec["torch"] = torch.__version__
-        rec["cuda_available"] = bool(torch.cuda.is_available())
-        if torch.cuda.is_available():
-            rec["gpu"] = torch.cuda.get_device_name(0)
-    except Exception:  # noqa: BLE001 - torch is optional
-        rec["torch"] = None
     return rec
 
 
-def _guard(args, extra: list[str]) -> Path:
-    from .runguard import install_fit_guard, preimport
-    _PLATFORM.update(platform_record())
-    _PLATFORM["preimport"] = preimport(args.method_dir)
-    out = Path(args.out).resolve()
-    base = out if args.cmd == "loop" else out.parent
-    base.mkdir(parents=True, exist_ok=True)
-    tmp = base / f".tmp_{out.stem}"
-    tmp.mkdir(parents=True, exist_ok=True)
-    os.environ["TEMP"] = os.environ["TMP"] = os.environ["TMPDIR"] = str(tmp)
-    allowed = [str(Path(args.method_dir).resolve()), str(base), str(tmp)] + [str(Path(d).resolve()) for d in args.data] + extra
-    install_fit_guard(allowed)
-    return out
-
-
-def fit_job(method_dir: str, method_name: str, data: list[str], systems: list[str], out: str, *, config: dict | None = None, seed: int = 0,
-            splits: str = "train", adapt_from: str = "") -> dict:
-    """Fit one method (NO guard here: the caller installs it; the CLI below and the Modal job site do). Writes out (model pickle)
-    and out.json (side record); returns the side record."""
-    from .capacity import ComputeMeter
-    out_p = Path(out)
-    method = import_method(method_dir, method_name)
-    recs, sysinfo = load_records(data, systems, set(splits.split(",")))
-    config = dict(config or {})
-    if adapt_from:
-        config["adapt_from"] = load_model(method_dir, adapt_from)
-    t0 = time.time()
-    with ComputeMeter() as meter:
-        model = method.fit(recs, systems=sysinfo, config=config, seed=seed)
-    model.save(out_p)
-    try:
-        info = model.info() or {}
-    except Exception as e:  # noqa: BLE001
-        info = {"info_error": repr(e)}
-    side = {"method": method_name, "method_version": getattr(method, "version", "?"), "systems": systems, "seed": seed,
-            "config": {k: v for k, v in config.items() if k != "adapt_from"}, "adapted": bool(adapt_from), "n_train": len(recs),
-            "splits": splits, "fit_wall_s": round(time.time() - t0, 2), "compute": meter.as_dict(), "peak_mb": _peak_mb(), "info": info,
-            "platform": dict(_PLATFORM) if _PLATFORM else platform_record()}
-    out_p.with_suffix(".json").write_text(json.dumps(side, indent=1, default=str) + "\n", encoding="utf-8")
-    return side
+def _transport(args):
+    from .isolation import local_transport
+    tr, _pub = local_transport(args.method_dir, kind=args.transport, cpus=float(args.cpus), mem_gb=float(args.mem_gb))
+    return tr
 
 
 def _fit(args) -> int:
-    out = _guard(args, [])
-    fit_job(args.method_dir, args.method, args.data, [s for s in args.systems.split(",") if s], str(out),
-            config=json.loads(args.config) if args.config else {}, seed=args.seed, splits=args.splits, adapt_from=args.adapt_from)
+    from .isolation import fit_job
+    out = Path(args.out).resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
+    job = {"method": args.method, "systems": [s for s in args.systems.split(",") if s], "data": [str(Path(d).resolve()) for d in args.data],
+           "seed": args.seed, "config": json.loads(args.config) if args.config else {}, "splits": args.splits}
+    if args.bootstrap is not None:
+        job["bootstrap"] = int(args.bootstrap)
+    if args.adapt_from:
+        job["adapt_from"] = Path(args.adapt_from).read_bytes()
+    res = fit_job(job, _transport(args))
+    out.write_bytes(res["model"])
+    out.with_suffix(".json").write_text(json.dumps(res["side"], indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
     return 0
 
 
-def loop_job(method_dir: str, method_name: str, designer_name: str, data: list[str], system: str, budget: int, sim_queue: str, out: str,
-             *, checkpoints: str = "10,25,50,100,200", batch: int = 5, seed: int = 0, config: dict | None = None) -> dict:
-    """One experiment loop (NO guard here; see fit_job): the method's learner with the named designer ('own' or a reference
-    designer) from the system's passive training set D0; simulations through the service queue `sim_queue`."""
-    from . import designers as _designers  # noqa: F401 - registers the reference designers
-    from .api import get_designer
-    from .loop import run_loop
-    from .simclient import SimClient
-    method = import_method(method_dir, method_name)
-    if designer_name == "own":
-        designer = method.designer()
-        if designer is None:
-            raise SystemExit(f"{method_name} has no designer of its own")
-        dname = f"own:{getattr(designer, 'name', type(designer).__name__)}"
-    else:
-        designer = get_designer(designer_name)
-        dname = designer_name
-    recs, sysinfo = load_records(data, [system], {"train"})
-    d0 = [r for r in recs if not r.protocol.get("events") and (r.meta or {}).get("role", "d0") == "d0" and r.split == "train"]
-    sim = SimClient(queue=sim_queue, agent=f"loop:{method_name}:{dname}:{system}:{seed}")
-    cps = tuple(int(c) for c in str(checkpoints).split(",") if c)
-    rec = run_loop(method, designer, system, sysinfo[system], d0, sim, budget=int(budget), checkpoints=cps, batch=int(batch), seed=int(seed),
-                   out_dir=out, config=dict(config or {}), designer_name=dname)
-    return {k: rec[k] for k in ("system_id", "designer", "seed", "spent", "refused", "stopped_early")}
-
-
 def _loop(args) -> int:
-    out = _guard(args, [str(Path(args.sim_queue).resolve())])
-    summary = loop_job(args.method_dir, args.method, args.designer, args.data, args.system, args.budget, args.sim_queue, str(out),
-                       checkpoints=args.checkpoints, batch=args.batch, seed=args.seed, config=json.loads(args.config) if args.config else {})
-    print(json.dumps(summary), flush=True)
+    from .isolation import loop_job
+    out = Path(args.out).resolve()
+    out.mkdir(parents=True, exist_ok=True)
+    job = {"method": args.method, "designer": args.designer, "sid": args.system, "data": [str(Path(d).resolve()) for d in args.data],
+           "budget": int(args.budget), "batch": int(args.batch), "seed": int(args.seed),
+           "config": json.loads(args.config) if args.config else {}, "store_root": args.store_root,
+           "internal_path": args.internal, "heldout_root": args.heldout_root or str(Path(args.data[0]).resolve().parents[2]),
+           "heldout_tier": args.heldout_tier, "public_root": args.public_root or (args.heldout_root or ""), "public_tier": args.public_tier}
+    if args.checkpoints:
+        job["checkpoints"] = [int(c) for c in args.checkpoints.split(",") if c]
+    if args.profile_dir:
+        job["profile_dir"] = args.profile_dir
+    if args.generator:
+        job["generator"] = list(args.generator)
+    rec = loop_job(job, _transport(args), out_dir=out)
+    print(json.dumps({k: rec.get(k) for k in ("system_id", "designer", "seed", "spent", "refused", "stopped_early")}), flush=True)
     return 0
 
 
@@ -256,6 +179,7 @@ def main(argv=None) -> int:
     f.add_argument("--seed", type=int, default=0)
     f.add_argument("--splits", default="train")
     f.add_argument("--adapt-from", default="")
+    f.add_argument("--bootstrap", type=int, default=None)
     lp = sub.add_parser("loop")
     lp.add_argument("--method-dir", required=True)
     lp.add_argument("--method", required=True)
@@ -265,15 +189,23 @@ def main(argv=None) -> int:
     lp.add_argument("--budget", type=int, required=True)
     lp.add_argument("--checkpoints", default="10,25,50,100,200")
     lp.add_argument("--batch", type=int, default=5)
-    lp.add_argument("--sim-queue", required=True)
     lp.add_argument("--out", required=True)
+    lp.add_argument("--internal", default=None)
+    lp.add_argument("--store-root", dest="store_root", default="")
+    lp.add_argument("--heldout-root", dest="heldout_root", default="")
+    lp.add_argument("--heldout-tier", dest="heldout_tier", default="")
+    lp.add_argument("--public-root", dest="public_root", default="")
+    lp.add_argument("--public-tier", dest="public_tier", default="")
+    lp.add_argument("--profile-dir", dest="profile_dir", default="")
+    lp.add_argument("--generator", nargs=2, default=None)
     lp.add_argument("--seed", type=int, default=0)
     lp.add_argument("--config", default="")
+    for p in (f, lp):
+        p.add_argument("--transport", choices=("docker", "local-unsafe"), default="docker")
+        p.add_argument("--cpus", default="2")
+        p.add_argument("--mem-gb", dest="mem_gb", default="6")
     args = ap.parse_args(argv)
-    _threads()
-    if args.cmd == "fit":
-        return _fit(args)
-    return _loop(args)
+    return _fit(args) if args.cmd == "fit" else _loop(args)
 
 
 if __name__ == "__main__":

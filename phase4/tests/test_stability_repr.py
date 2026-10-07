@@ -68,6 +68,14 @@ def test_dimension_stability_rules():
     assert dimension_stability([3] * 5, None, n_obs=10)["compact"] is False
     assert dimension_stability([2] * 5, None, n_obs=10)["compact"] is True
     assert dimension_stability([2] * 5, None, n_obs=10, mode="mech")["compact"] is None
+    # Level B: the 3 fit seeds must agree, or all lie within the reported range
+    assert dimension_stability([2, 2, 2], None, level="B")["stable"]
+    assert not dimension_stability([2, 2, 3], None, level="B")["stable"]
+    assert dimension_stability([2, 3, 3], [2, 3], level="B")["stable"]
+    assert not dimension_stability([2, 3, 4], [2, 3], level="B")["stable"]
+    assert not dimension_stability([2, None, 2], [2, 3], level="B")["stable"]
+    # the same three values at Level C (modal 2 of 3 < 80 %) are unresolved
+    assert not dimension_stability([2, 3, 3], [2, 3], level="C")["stable"]
 
 
 def test_representation_stability_is_invariant_to_affine_reparametrisation():
@@ -91,3 +99,27 @@ def test_representation_stability_detects_a_different_latent():
                                    horizon_s=0.25, floor=0.01)
     p = res["pairs"][0]
     assert p["disagreement"] > 0.05 and p["r2_min"] < 0.999
+
+
+class FlakyEncoder(ExactModel):
+    """The exact toy model whose encoder fails on histories of 41 samples (a model crash on some states; deterministic in the input,
+    since the evaluator calls fresh copies)."""
+
+    def encode(self, sid, x_hist, u_hist, dt):
+        if len(x_hist) == 41:
+            raise RuntimeError("encoder failure")
+        return super().encode(sid, x_hist, u_hist, dt)
+
+
+def test_latent_flows_keep_the_latent_width_when_some_encodings_fail():
+    """A failed re-encoding gives a NaN row of the latent width (k > 1), never a crash of the whole metric (Level C smoke, P2)."""
+    from brainir_causal.evaluate_stability import latent_flows
+    s = ToyLinear()
+    recs, _ = make_records(s, n_passive=6, n_kick=0, n_pulse=0, seed=13, full=False)
+    where = [(ri, 40 + 10 * j) for ri in range(len(recs)) for j in range(2)]
+    fl = latent_flows(FlakyEncoder(s), "toy", recs, where, horizon_s=0.1)       # states at sample 40 fail, at 50 succeed
+    k = np.size(ExactModel(s).encode("toy", np.asarray(recs[0]["x"] if isinstance(recs[0], dict) else recs[0].x)[:41],
+                                     np.asarray(recs[0]["u"] if isinstance(recs[0], dict) else recs[0].u)[:41], DT))
+    assert k > 1 and fl.shape == (len(where), k)
+    bad = ~np.all(np.isfinite(fl), 1)
+    assert 0 < bad.sum() < len(where) and np.all(np.isnan(fl[bad]))

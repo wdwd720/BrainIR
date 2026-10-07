@@ -32,6 +32,7 @@ V1_SOURCES = {
     "brainir_state/__init__.py": "8908e218744633289b1d0baff5effefb22291facce29b822f779edbbad32f2ff",
     "brainir_state/api.py": "cb68f9fedd1ab50deb13a669d2d0b744848b96d67f40847611885d1f0108a815",
     "brainir_state/data.py": "bf10de9d7de763f51e9de570f6b561c2b7915b812ab760df1d41ba16279453d0",
+    "brainir_state/evaluate.py": "c41ae275ba7745e69a792a97f0fbcc9217c8a8febbcc4ea9e230670712aa99b6",
     "brainir_state/methods/__init__.py": "be4feb6c4a55f414a8c3e6d7ca4f6cc477fb5dd6ad8d95bd200d393e1544e258",
     "brainir_state/methods/brainir_state_v1.py": "d99368194959936a63f72d8d79a262abcec0d0d59ab6af87ad202d8dc5ba18c6",
     "brainir_state/methods/ks_core.py": "9c93e4a37795a384b3f7b09ffecb77c025413935a9cfee19ba9259902e4f55c2",
@@ -102,7 +103,7 @@ def map_events(events: list[dict], dt: float) -> list[dict] | None:
     return out
 
 
-class P3V1Model(CausalStateModel):
+class FrozenV1Model(CausalStateModel):
     """The earlier model behind the causal-state API."""
 
     def __init__(self, inner, dropped: dict):
@@ -152,7 +153,7 @@ class P3V1Model(CausalStateModel):
 
     def info(self):
         inf = dict(self.inner.info() or {})
-        inf["method"] = "p3_brainir_state_v1"
+        inf["method"] = "frozen_brainir_state_v1"
         inf["method_version"] = "1 (frozen)"
         inf["frozen_baseline"] = {"dropped_training_records": self._dropped,
                                   "untranslatable_kinds": ["param", "edge_scale with factor != 0"], "native_lift": False}
@@ -160,9 +161,9 @@ class P3V1Model(CausalStateModel):
 
 
 @register
-class P3V1Baseline(CausalStateMethod):
+class FrozenV1Baseline(CausalStateMethod):
     """The earlier locked method as a frozen baseline (never tuned)."""
-    name = "p3_brainir_state_v1"
+    name = "frozen_brainir_state_v1"
     version = "1-frozen"
     default_config: dict = {}
     supported_sharing = ("auto", "independent", "shared")
@@ -186,4 +187,4 @@ class P3V1Baseline(CausalStateMethod):
         sysdefs = {sid: {**rec, "observed": list(rec["observed"]), "input_dim": int(rec["input_dim"])} for sid, rec in systems.items()}
         method = v1.BrainIRStateV1()
         inner = method.fit(train, systems=sysdefs, config=cfg, sim=None, seed=seed)
-        return P3V1Model(inner, dropped)
+        return FrozenV1Model(inner, dropped)

@@ -1,0 +1,5602 @@
+{
+ "meta": {
+  "app_id": "ap-f2IhSRPCJQPwPsu2UVOmse",
+  "utc": "2026-09-27T22:54:12Z",
+  "wall_s": 29.4,
+  "shapes": {
+   "full4": {
+    "image": "full",
+    "cpu": 4.0,
+    "memory_mib": 8192,
+    "inputs": 32
+   },
+   "iso4": {
+    "image": "iso",
+    "cpu": 4.0,
+    "memory_mib": 8192,
+    "inputs": 32
+   },
+   "full32": {
+    "image": "full",
+    "cpu": 32.0,
+    "memory_mib": 32768,
+    "inputs": 16
+   }
+  }
+ },
+ "n_containers": 80,
+ "n_admissible": 69,
+ "admissible_with_errors": [],
+ "n_groups_admissible": 1,
+ "exceptions": [],
+ "hosts": [
+  {
+   "class": "AuthenticAMD/fam143/model49/avx2",
+   "admissible": true,
+   "containers": 1
+  },
+  {
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "containers": 68
+  },
+  {
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "admissible": false,
+   "containers": 3
+  },
+  {
+   "class": "GenuineIntel/fam6/model106/avx512",
+   "admissible": false,
+   "containers": 1
+  },
+  {
+   "class": "GenuineIntel/fam6/model143/avx512",
+   "admissible": false,
+   "containers": 1
+  },
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "containers": 6
+  }
+ ],
+ "non_admissible": [
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model143/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model106/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "items_equal": 5,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "items_equal": 5,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "items_equal": 1,
+   "items": 15,
+   "errors": {}
+  },
+  {
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "items_equal": 5,
+   "items": 15,
+   "errors": {}
+  }
+ ],
+ "timing": {
+  "full32": {
+   "battery_wall_s_median": 4.43,
+   "battery_wall_s_max": 4.865,
+   "containers": 16
+  },
+  "full4": {
+   "battery_wall_s_median": 4.554,
+   "battery_wall_s_max": 5.877,
+   "containers": 32
+  },
+  "iso4": {
+   "battery_wall_s_median": 4.488,
+   "battery_wall_s_max": 6.787,
+   "containers": 32
+  }
+ },
+ "rows": [
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BGA5QMCAEGR1ACYNSWR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.088,
+   "wall_s": 4.28,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BHKFBHB00T0SCQE8QFR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.177,
+   "wall_s": 4.627,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BJXRHFKYVJZBGDXDCNR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.879,
+   "wall_s": 4.135,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BKPKR1Q6SJWXXQTWN1R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.873,
+   "wall_s": 4.211,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BHXAA986A45ZASW3QAR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.51,
+   "wall_s": 4.979,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7CSRCVG7QSB7M9QVN7KR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.902,
+   "wall_s": 4.058,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7D70BD5AN0XGXQW32ZQR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.702,
+   "wall_s": 3.868,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BGTR705BEBS6EX0YXGR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.351,
+   "wall_s": 4.698,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BJXSJAXWWG4MNNMFC3R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.624,
+   "wall_s": 5.171,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BHXWN6GK68HGT5WZBJR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.538,
+   "wall_s": 4.779,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7B3JG4ZZ6D1VK9PSEKBR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.586,
+   "wall_s": 5.082,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7CV8JQ712K94QVT29CVR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.952,
+   "wall_s": 4.147,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7DEATD9CN8RNP8WMVP6R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.689,
+   "wall_s": 3.863,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7EC0HJFP6W06PFH0TABR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.623,
+   "wall_s": 3.782,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7CVGB1T1WSQK1WPF43TR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.397,
+   "wall_s": 4.587,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7D5RY6CAGFDY7YENWZQR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.163,
+   "wall_s": 4.332,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BJ5VCRSZDH0P396T6KR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.346,
+   "wall_s": 4.56,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BZW8SSHMGAVMKGPV1ER",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.265,
+   "wall_s": 4.47,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7ESRPM2JJASB8P6YTE2R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.594,
+   "wall_s": 3.745,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7ES25B8T8QVHH9VE1CVR",
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.922,
+   "wall_s": 4.076,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7DEMHHN6SD70RF33SW5R",
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.386,
+   "wall_s": 4.556,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7D3RNRC1BC8REZX441FR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 5.274,
+   "wall_s": 5.877,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7ERQZ5X9DATE14HR55PR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.818,
+   "wall_s": 4.143,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7DKVBYAAYC23QF4S8PKR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.356,
+   "wall_s": 4.554,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7F7A89KT94XYQN13M0JR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.172,
+   "wall_s": 4.346,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7EFR11BF4FWTPZFW8JER",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.654,
+   "wall_s": 5.027,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7EE6PBE36HD5VN29QC6R",
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.846,
+   "wall_s": 5.04,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7EPTQJTH72TCVZR7PV2R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.433,
+   "wall_s": 4.819,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7BHKFBHB00T0SCQE8QFR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.504,
+   "wall_s": 3.682,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7ES27QA7MWWE043KYGSR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.759,
+   "wall_s": 5.257,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7FBB3Y40C5XAK6Y989NR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.967,
+   "wall_s": 4.121,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full4",
+   "task": "ta-01M3JH7DKD8GRHN4MNESEC0KQR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.387,
+   "wall_s": 4.657,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BCGV9SPDPEHS3GBM5KR",
+   "class": "GenuineIntel/fam6/model143/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.255,
+   "wall_s": 3.386,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BF8KBM1QEKH4MPY781R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.121,
+   "wall_s": 4.289,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BCR1JX8M39PEB0ARAER",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.136,
+   "wall_s": 4.488,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BEHKCGVB19HJ6HF54DR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.013,
+   "wall_s": 4.356,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BEHSNX8G6WJHR13HECR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.603,
+   "wall_s": 4.938,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CFCVD5SWTZ4760GWB1R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.172,
+   "wall_s": 4.335,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CB6HXPD5434HH767MRR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.221,
+   "wall_s": 4.37,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CKH3CR4533P3SF065DR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.737,
+   "wall_s": 3.886,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CGK1S8S8Y57SY3XQARR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.952,
+   "wall_s": 4.108,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BD3CBDGP07NF5C0VFGR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.508,
+   "wall_s": 4.842,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7BG2XASZZ4FWPKJGBBHR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.458,
+   "wall_s": 5.04,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CES4K59R1VJMM6AGQSR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.353,
+   "wall_s": 4.579,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CJMHEGNDG52AG38M26R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.232,
+   "wall_s": 4.407,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7DZTVTRM3TRVB78990SR",
+   "class": "GenuineIntel/fam6/model106/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.242,
+   "wall_s": 3.359,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CEGAN46F7KGYE0F765R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.294,
+   "wall_s": 4.815,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CF3WYHBG8ZQ0YH0DNKR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.25,
+   "wall_s": 4.859,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7E27QHMMKF817DHH51RR",
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.579,
+   "wall_s": 3.709,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CJBNTT99SPTCY6TZPRR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.102,
+   "wall_s": 4.443,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CJYAQMJDW1XWP14XJFR",
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 2.863,
+   "wall_s": 2.992,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7F929B7RB77JRF8KY8JR",
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.022,
+   "wall_s": 3.22,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7E150TJ7FQTMJ7WPFK7R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.267,
+   "wall_s": 4.627,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7E0359WTDTSF83KBKBWR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.174,
+   "wall_s": 4.454,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CJM3RNDQYPMRC3W1A1R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 5.144,
+   "wall_s": 5.704,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7E0BAQAXQJT5TWJ1124R",
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.77,
+   "wall_s": 4.907,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CK7VVJNMXZV5FCVR3XR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 5.225,
+   "wall_s": 5.663,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CH3EYM0H0Z30MZ18H4R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.228,
+   "wall_s": 4.466,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7FAQGF1GBC4M9JSCJFAR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.44,
+   "wall_s": 4.678,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7E158W24YA3Q5804X5NR",
+   "class": "GenuineIntel/fam6/model85/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "85ec81c03f26b2fdd951089ad458d67ad777a59481662296e2cb0591d216760c",
+    "torch/t2": "bda131b90ab90c315d587b8c8c8cd12484c2602d1c50c5db1a7f6b0bb7d9b4fc",
+    "torch/t3": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "torch/t4": "4ce479de5d66dd1708d943b46ce38b1d755ef2e93f40e954f5191d4229229838",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.224,
+   "wall_s": 4.393,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "GenuineIntel",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7CJ2TFY96845RKKV21YR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.364,
+   "wall_s": 4.732,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7EZDBZ1753SWQX81V9WR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.589,
+   "wall_s": 5.051,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7DYZBAKAX0FAEDW0DGFR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 6.349,
+   "wall_s": 6.787,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "iso4",
+   "task": "ta-01M3JH7F2GD3Z3HSDQHKEJ0HZR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 5.26,
+   "wall_s": 5.606,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "4"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 4
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B7YRXH0ZPKMRPZXSJAR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.145,
+   "wall_s": 4.32,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B8TN8PRRP14GEVJVM7R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.068,
+   "wall_s": 4.287,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B943MRM8JJ1Z0KNGMDR",
+   "class": "AuthenticAMD/fam175/model17/avx512",
+   "admissible": false,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "f2bcda39dc3ca0336f37260441f939d7fc5218337972e8caf20a8ce94e977036",
+    "scipy/t1": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "numpy/blas/t2": "4131325b24e4c00e54e7b37db34483a06a8372717956201e42964aadb05baf32",
+    "scipy/t2": "bab04cdf9776a874bcbd8da30b388e679ca57d2eacedc612ed573b8724d9af65",
+    "numpy/blas/t3": "935321e8a53877d2488af7ec9582a15c9a99006850ec5a7dbd2de2da756df8e9",
+    "scipy/t3": "375ae9d409e8bcf939da6556d4c38798b84697568da80184f8dc6e5355983a86",
+    "numpy/blas/t4": "424f33f138c81c5c15c644921dca50f13cd2adf427a6b7cebd1be3cc1831ae8e",
+    "scipy/t4": "b71aa1d94e911c958bc923e582bc46420d9800da8cd748b8af4b4a7150c1cec2",
+    "generator": "e519b8341fc90be5a1f01eb41af399e587d33455877c636a62a3784c83163d73",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "6ff546987e59d3728700294747b73df33a07681e465cbebac1cf3a76407f90ed"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.168,
+   "wall_s": 3.441,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": true,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": false,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "AVX512F",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "SkylakeX",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B8TVAYPGS79X0MTE6QR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.246,
+   "wall_s": 4.537,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B9CAMVQBC6A7V73YA3R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.205,
+   "wall_s": 4.455,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B87SXP4MHTAT13CGW0R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.35,
+   "wall_s": 4.712,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B8H9ZJKQADG4T1YQZ6R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 3.987,
+   "wall_s": 4.194,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B87RQCPS82KBYA5XE4R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.109,
+   "wall_s": 4.337,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7C6RDS2XNPXEZRWCEQGR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.065,
+   "wall_s": 4.243,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7C6RCVXKF2YH9XV9KDFR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.166,
+   "wall_s": 4.43,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B8H8Q6VNS2A4FA7ZHBR",
+   "class": "AuthenticAMD/fam143/model49/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.539,
+   "wall_s": 4.842,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7B9P8GY0738JQK55A1BR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.313,
+   "wall_s": 4.487,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7BD3A2FSW1VWFPS27HCR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.463,
+   "wall_s": 4.865,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7D0SVS0760R6R2QPHC4R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.128,
+   "wall_s": 4.361,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7E6H1ZS6YEHBPKZJKYBR",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.256,
+   "wall_s": 4.577,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  },
+  {
+   "shape": "full32",
+   "task": "ta-01M3JH7ET3ET04JGHFCKNPX33R",
+   "class": "AuthenticAMD/fam175/model1/avx2",
+   "admissible": true,
+   "items": {
+    "numpy/simd": "0a1b3e81e7146b2a995b6d9d58725814c2274a9242af1aa445e49f7cf22d897a",
+    "numpy/blas/t1": "9c4e1ddb5fcb3d326b84b45d4650f44df7fd160696a6ba53b87869cad08f9286",
+    "scipy/t1": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "numpy/blas/t2": "d84fd9d73b0d7058e61d280ab5c5f3f5da5d7324c2a1517c3b4614ccbf8eb136",
+    "scipy/t2": "23b5fc81f7e0eb6e2f30ce342c097f01ab8500fc687e4e4a8126223901ed0a91",
+    "numpy/blas/t3": "25fd39b057a409d6dffe585954847b03b0d1354e6b98059841cb3086f5c600e8",
+    "scipy/t3": "5f20c00118819567120f7fd82c945d260e3e394a05520f23b181881c70fbc59a",
+    "numpy/blas/t4": "18bf303efceeb489077762302a9cafe88cbf9766e9c8b8c4e57281d439b00c90",
+    "scipy/t4": "72424d7f40103450877bb3c958e308cf27e1d1b48170e05e7b557e82ccc92c29",
+    "generator": "351a1b4a667aedef5104af65f101e6306900942483d523e3139a1aed5039a2fa",
+    "torch/t1": "9118db580c0444e6a4a2ee2408ded81a287e9004fb99380ba2febf4755ff7027",
+    "torch/t2": "f15cf990df5cff8c7f27519207fa1f182ccc54629fd56cc946564dc7b8724082",
+    "torch/t3": "a738f7af39f639c75d16fe5b661e1fcf95c362f68d3d5f2603da5fb9f991e01c",
+    "torch/t4": "2e3ee9ddab0d06091c350b251a72f1e2208b947cceb3166e3fbdbc858ecc6847",
+    "engine": "9527928e6ba62d59460b2217214d4e71588acbf72b0bbd8265a2ddaa64643d2d"
+   },
+   "errors": {},
+   "absent": [],
+   "versions": {
+    "python": "3.12.10",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "torch": "2.14.0+cpu"
+   },
+   "battery_id": "0677fa4422a1cd06",
+   "s": 4.086,
+   "wall_s": 4.3,
+   "fingerprint": {
+    "cpu": {
+     "model": "unknown",
+     "vendor": "AuthenticAMD",
+     "avx512f": false,
+     "avx2": true,
+     "fma": true
+    },
+    "admissible": true,
+    "os": "Linux",
+    "machine": "x86_64",
+    "python": "3.12.10",
+    "pins": {
+     "NPY_DISABLE_CPU_FEATURES": "X86_V4 AVX512_ICL AVX512_SPR",
+     "ATEN_CPU_CAPABILITY": "avx2",
+     "OMP_NUM_THREADS": "32"
+    },
+    "numpy": "2.5.3",
+    "numpy_simd": [
+     "AVX2",
+     "FMA3"
+    ],
+    "scipy": "1.18.1",
+    "blas": [
+     {
+      "internal_api": "openblas",
+      "version": "0.3.34.106.0",
+      "architecture": "Haswell",
+      "threading_layer": "pthreads",
+      "num_threads": 32
+     }
+    ],
+    "torch": "2.14.0+cpu"
+   }
+  }
+ ]
+}

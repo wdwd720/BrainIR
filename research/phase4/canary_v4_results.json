@@ -1,0 +1,246 @@
+{
+ "room": "BrainIR_p4canary4",
+ "date": "2026-09-26T18:47:12",
+ "token_table_queues": [
+  "lin",
+  "nn"
+ ],
+ "nn_setup": {
+  "rc": 0,
+  "out": "nn setup ok",
+  "err": ""
+ },
+ "lin_probe": {
+  "rc": 0,
+  "result": {
+   "own write runs/lin/probe_out.txt": "ok",
+   "own write notes/lin/n.md": "ok",
+   "own write src/brainir_causal/methods/lin/__init__.py": "ok",
+   "own write tests/methods/lin/test_lin_probe.py": "ok",
+   "other append runs/nn/data.txt": "EROFS",
+   "other read runs/nn/data.txt": "ok",
+   "other append notes/nn/n.md": "EROFS",
+   "other read notes/nn/n.md": "ok",
+   "other append src/brainir_causal/methods/nn/__init__.py": "EROFS",
+   "other read src/brainir_causal/methods/nn/__init__.py": "ok",
+   "other append tests/methods/nn/test_nn_probe.py": "EROFS",
+   "other read tests/methods/nn/test_nn_probe.py": "ok",
+   "other rename runs/nn/data.txt": "EROFS",
+   "other delete notes/nn/n.md": "EROFS",
+   "other new file runs/nn/planted.py": "EROFS",
+   "area root new file runs": "EROFS",
+   "area root new file notes": "EROFS",
+   "area root new file src/brainir_causal/methods": "EROFS",
+   "area root new file tests/methods": "EROFS",
+   "third-agent dir runs/zz": "EROFS",
+   "docs write": "EACCES",
+   "listing /room/.tmp": [
+    "lin"
+   ],
+   "listing /room/simq": [
+    "lin"
+   ],
+   "listing /room/runs": [
+    "lin",
+    "nn"
+   ],
+   "token_sha12": "f36dce8115de",
+   "agent_scratch": "lin"
+  },
+  "err": ""
+ },
+ "token_forwarded_matches_lin_file": true,
+ "token_is_not_nn": true,
+ "nn_and_protected_files_unchanged": true,
+ "hook": [
+  {
+   "call": "echo x > runs/lin/a.txt",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  },
+  {
+   "call": "echo x > runs/nn/a.txt",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "cp notes/nn/n.md notes/lin/copy.md",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  },
+  {
+   "call": "cp notes/lin/copy.md notes/nn/n.md",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "sed -i 's/a/b/' notes/nn/n.md",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "sed --in-pl 's/a/b/' notes/nn/n.md",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "sort --outp=runs/nn/s.txt notes/lin/copy.md",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "sort --outp=runs/lin/s.txt notes/lin/copy.md",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  },
+  {
+   "call": "echo x > runs/rootfile.txt",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "mkdir runs/zz",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "rm tests/methods/nn/test_nn_probe.py",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "mv src/brainir_causal/methods/nn/__init__.py runs/lin/",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "printenv",
+   "allowed": false,
+   "class": "7",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "env",
+   "allowed": false,
+   "class": "7",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "printenv <TOKEN VAR>",
+   "allowed": false,
+   "class": "1",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "echo $<TOKEN VAR>",
+   "allowed": false,
+   "class": "1",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "printenv P4_AGENT_SCRATCH",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  },
+  {
+   "call": "P4_AGENT_SCRATCH=nn sbx python -c 1",
+   "allowed": false,
+   "class": "7",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "cat $AUDIT/simservice/BrainIR_p4canary4/agent_tokens/nn.token",
+   "allowed": false,
+   "class": "1",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "sbx python -c 1",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  },
+  {
+   "call": "Write notes/nn/n.md",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "Write notes/lin/w.md",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  },
+  {
+   "call": "Edit src/brainir_causal/methods/nn/__init__.py",
+   "allowed": false,
+   "class": "4",
+   "expected": false,
+   "pass": true
+  },
+  {
+   "call": "Read src/brainir_causal/methods/nn/__init__.py",
+   "allowed": true,
+   "class": null,
+   "expected": true,
+   "pass": true
+  }
+ ],
+ "service": {
+  "lin": {
+   "ok": true,
+   "error": null,
+   "y_sha12": "1bbaa16e541c"
+  },
+  "nn": {
+   "ok": true,
+   "error": null,
+   "y_sha12": "1bbaa16e541c"
+  },
+  "lin_token_in_nn_queue": {
+   "status": "error",
+   "error": "missing or unknown simulation token (set by the launcher in P4_SIM_TOKEN)"
+  }
+ },
+ "service_namespaces": {
+  "lin": 1,
+  "nn": 1
+ },
+ "service_shared_store_records": 0
+}

@@ -49,5 +49,56 @@
   "n_output_files": 1,
   "wall_s": 5.5,
   "time_utc": "2026-09-26T17:59:14Z"
+ },
+ "small:runs/smoke/probe_job.py": {
+  "exit_code": 0,
+  "stdout_tail": "{\"uid\": 65534, \"gid\": 65534, \"modal_env\": [], \"dns_in_job\": \"refused: PermissionError: remote runner: network access is not allowed (socket.getaddrinfo)\", \"proc1_environ\": \"refused: PermissionError: [Errno 13] Permission denied: '/proc/1/environ'\", \"proc_self_parent_environ\": \"refused: PermissionError: [Errno 13] Permission denied: '/proc/5/environ'\", \"devdata_write\": \"refused: PermissionError: [Errno 13] Permission denied: '/devdata/_probe_write.txt'\", \"devdata_list\": \"ALLOWED: 0\", \"room_src_write\": \"refused: PermissionError: [Errno 13] Permission denied: '/room/src/probe_pkg/evil.py'\", \"start_sh\": \"refused: PermissionError: remote runner: only the Python interpreter may be started (subprocess.Popen: /bin/sh)\", \"child_without_hook\": \"{\\\"dns\\\": \\\"refused: gaierror\\\", \\\"tcp_ip\\\": \\\"refused: OSError\\\", \\\"modal_importable\\\": false}\", \"modal_client_without_hook\": \"{\\\"pkg_listing\\\": null, \\\"modal_import\\\": \\\"failed: ModuleNotFoundError: No module named 'modal'\\\"}\", \"exists_pkg\": \"ALLOWED: False\", \"exists_root\": \"ALLOWED: True\", \"exists_usr_local_lib_python3.12_site-packages_modal\": \"ALLOWED: False\", \"cuda\": false}\n",
+  "stderr_tail": "",
+  "changed": [
+   "runs/smoke/out/probe_result.json"
+  ],
+  "dropped_for_size": [],
+  "peak_rss_mb": 557.1,
+  "container_wall_s": 1.5,
+  "class": "small",
+  "gpu": null,
+  "job_id": "20260926T130652_smoke",
+  "n_output_files": 1,
+  "wall_s": 8.3,
+  "time_utc": "2026-09-26T20:07:00Z"
+ },
+ "gpu-t4:runs/smoke/probe_job.py": {
+  "exit_code": 0,
+  "stdout_tail": "{\"uid\": 65534, \"gid\": 65534, \"modal_env\": [], \"dns_in_job\": \"refused: PermissionError: remote runner: network access is not allowed (socket.getaddrinfo)\", \"proc1_environ\": \"refused: PermissionError: [Errno 13] Permission denied: '/proc/1/environ'\", \"proc_self_parent_environ\": \"refused: PermissionError: [Errno 13] Permission denied: '/proc/5/environ'\", \"devdata_write\": \"refused: PermissionError: [Errno 13] Permission denied: '/devdata/_probe_write.txt'\", \"devdata_list\": \"ALLOWED: 0\", \"room_src_write\": \"refused: PermissionError: [Errno 13] Permission denied: '/room/src/probe_pkg/evil.py'\", \"start_sh\": \"refused: PermissionError: remote runner: only the Python interpreter may be started (subprocess.Popen: /bin/sh)\", \"child_without_hook\": \"{\\\"dns\\\": \\\"refused: gaierror\\\", \\\"tcp_ip\\\": \\\"refused: OSError\\\", \\\"modal_importable\\\": false}\", \"modal_client_without_hook\": \"{\\\"pkg_listing\\\": null, \\\"modal_import\\\": \\\"failed: ModuleNotFoundError: No module named 'modal'\\\"}\", \"exists_pkg\": \"ALLOWED: False\", \"exists_root\": \"ALLOWED: True\", \"exists_usr_local_lib_python3.12_site-packages_modal\": \"ALLOWED: False\", \"cuda\": \"Tesla T4\"}\n",
+  "stderr_tail": "",
+  "changed": [
+   "runs/smoke/out/probe_result.json"
+  ],
+  "dropped_for_size": [],
+  "peak_rss_mb": 3177.0,
+  "container_wall_s": 5.7,
+  "class": "gpu-t4",
+  "gpu": "T4",
+  "job_id": "20260926T130651_smoke",
+  "n_output_files": 1,
+  "wall_s": 13.2,
+  "time_utc": "2026-09-26T20:07:05Z"
+ },
+ "small:runs/big/big_job.py": {
+  "exit_code": 0,
+  "stdout_tail": "inputs ['8c580378eec17a46', 'b9b5aed20cd61889'] wrote 30 MB\n",
+  "stderr_tail": "",
+  "changed": [
+   "runs/big/out/result.bin"
+  ],
+  "dropped_for_size": [],
+  "peak_rss_mb": 72.0,
+  "container_wall_s": 0.3,
+  "class": "small",
+  "gpu": null,
+  "job_id": "20260926T130651_smoke",
+  "n_output_files": 1,
+  "wall_s": 88.1,
+  "time_utc": "2026-09-26T20:08:20Z"
  }
 }

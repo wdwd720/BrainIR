@@ -37,8 +37,17 @@ class _Mean(CausalStateModel):
         return {"k": {"syn:toy:0": 1}, "n_params": {"encoder": {"syn:toy:0": 1}, "transition": 0, "readout": {"syn:toy:0": 1}}}
 
 
+@pytest.fixture(scope="module", autouse=True)
+def _test_salt(tmp_path_factory):
+    """A hermetic test salt for every test of this module (phase4/tests/_hermetic.py): the real salt never leaves the orchestrator host,
+    and the salted code paths run unchanged with another salt."""
+    from _hermetic import hermetic_salt
+    with hermetic_salt(tmp_path_factory.mktemp("salt")) as salt:
+        yield salt
+
+
 @pytest.fixture(scope="module")
-def tiny_tier(tmp_path_factory):
+def tiny_tier(tmp_path_factory, _test_salt):
     root = tmp_path_factory.mktemp("tiny")
     saved = {k: getattr(S, k) for k in ("B_MAIN", "D0_DESIGN", "POOL_DRAWS", "POOL_TRAJ", "POOL_STATES", "POOL_FLOOR_STATES", "N_PASSIVE_TEST",
                                         "CELLS_PER_FAMILY", "STATES_PER_CELL", "ITEMS_PER_CATEGORY", "N_EQUIV_STATES", "N_LIFT_CASES")}
@@ -72,8 +81,19 @@ def test_public_part_passes_the_public_policy(tiny_tier):
     rows = [json.loads(line) for line in (d / "index.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
     assert {r["split"] for r in rows} <= {"train", "val", "twin", "test", "pool_src"}
     assert {(r.get("meta") or {}).get("role") for r in rows} <= {"d0", "d1", "in", "passive", "pool_src"}
+    public_keys = {r["meta"]["store_key"] for r in rows}
     for r in rows:
-        assert check_public(P.validate(r["protocol"]), pub, allowed_restart_keys=set()) is None, r["family"]
+        assert check_public(P.validate(r["protocol"]), pub, allowed_restart_keys=public_keys) is None, r["family"]
+    # obs.init = a restart from a nominal passive trajectory of the same part (LOG P4-D36); explicit initial states never appear
+    by_store = {r["meta"]["store_key"]: r for r in rows}
+    inits = [r for r in rows if r["family"] == "obs.init"]
+    assert inits and all(r["protocol"]["r0"]["kind"] == "restart" for r in inits)
+    for r in inits:
+        src = by_store[r["protocol"]["r0"]["key"]]
+        assert src["family"] in ("obs.nominal", "obs.param") and src["protocol"]["r0"]["kind"] == "rest"
+        assert src["protocol"]["params_seed"] == r["protocol"]["params_seed"]
+    assert not any(r["protocol"]["r0"]["kind"] == "state" for r in rows)
+    assert pub["capability"]["init"]["state"] is False
     pool = json.loads((d / "pools" / "pool.json").read_text(encoding="utf-8"))
     train = set(pub["split"]["families_train"])
     assert pool["policy"] == "public" and not pool["equivalents"]
