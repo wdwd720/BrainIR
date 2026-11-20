@@ -29,15 +29,22 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
   B3/B6 not locked (L16).
 
 ## In progress
-- Independent review of Stage 0 (subagent) -> fix -> lock_prereg -> tag `ledger-prereg-v1` -> push -> OTS.
-- Driver-line map extraction (subagent; anatomy only) -> kit v1.1 before Stage 2 if it arrives after the tag.
+- Review round 2 (verification of round-1 fixes) -> if clean: `lock.py prereg` -> commit -> tag `ledger-prereg-v1` ->
+  `git push origin ledger/v1 ledger-prereg-v1` -> OTS stamp of LOCK_prereg_v1.json and PREREG.md -> commit .ots.
 
 ## Next (Stage 1, after the tag)
-1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `controls`; `b5`; `b4`; `b2`.
-2. Gates G1, G2 (B1 vs A1), G4 (determinism re-runs), G5 (baseline checks), independent review of the arms.
-3. Lock predictions (LOCK_predictions_v1.json, tag, OTS; push the predictions tag only after the label passes, LOG).
-4. Stage 2: pilot labeler on one family, then pass 1 (8 families), pass 2, search x2, adjudication, finalize, freeze labels.
+1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `g2`; `controls`; `b5`;
+   `b4`; `b2`; `g4 --only <campaign>` for each locked simulated arm.
+2. Gates G1, G2, G4, G5 (baseline checks again), independent review of the arms -> fix -> `lock_predictions` (arms list)
+   -> tag `ledger-predictions-v1` (NOT pushed until labels freeze, PREREG 13) -> OTS.
+3. Stage 2: pilot one family -> pass 1 (8 families, waves of 4) -> collect/validate/repair -> labels_prepare pass2 ->
+   pass 2 Phase A -> Phase B -> search x2 -> labels_prepare adjudication -> adjudication (general, dedicated) -> audit ->
+   finalize -> lock labels -> tag -> push branch + all three tags -> OTS -> HANDOFF_1.md.
+
+## Rules to remember
+- Orchestrator never opens per-type labels (only validation summaries and aggregate counts) and never joins labels with
+  predictions. B3/B6 are not locked (G3 failed, L16/L18).
 
 ## Open problems
 - `tests/test_sim_model.py::test_single_and_segment_integration_agree_and_rk4_converges` fails on this Mac at baseline (platform numerics).
-- MaleCNS (arm B2): decide from free disk and RAM after the MANC ingest.
+- MaleCNS: bulk data not downloaded (L9); B2 uses the authors' pinned MaleCNS network + MaleCNS annotations.
