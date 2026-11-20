@@ -37,9 +37,10 @@ PASS1_EXTRA = ["sources_seed.csv"]
 MODEL = "opus"
 FALLBACK = "sonnet"  # used only when the main model is busy or unavailable; the model actually used is recorded per session
 TOOLS = "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch"
-DENY = ["WebFetch(domain:github.com)", "WebFetch(domain:api.github.com)", "WebFetch(domain:gist.github.com)",
-        "WebFetch(domain:codeload.github.com)", "WebFetch(domain:raw.githubusercontent.com)", "WebFetch(domain:githubusercontent.com)",
-        "WebFetch(domain:objects.githubusercontent.com)", "WebFetch(domain:github.io)", "WebFetch(domain:zenodo.org)"]
+BANNED_DOMAINS = ("github.com", "githubusercontent.com", "github.io", "zenodo.org", "jsdelivr.net", "nbviewer.org", "githack.com",
+                  "statically.io", "gitee.com")
+# exact domain + every subdomain (a plain domain rule does not cover subdomains: verified in a canary room)
+DENY = [f"WebFetch(domain:{d})" for d in BANNED_DOMAINS] + [f"WebFetch(domain:*.{d})" for d in BANNED_DOMAINS]
 FLAGS = ["--restricted", "--strict-mcp-config", "--tools", TOOLS, "--allowedTools", TOOLS, "--disallowedTools", *DENY,
          "--permission-mode", "acceptEdits", "--permission-prompts", "none", "--disable-slash-commands", "--no-chrome",
          "--model", MODEL, "--fallback-model", FALLBACK, "--output-format", "stream-json", "--verbose"]
@@ -178,7 +179,7 @@ def main() -> None:
     la.add_argument("pass_id", choices=["pass1", "pass2", "search", "adjudication"])
     la.add_argument("--family")
     la.add_argument("--all", action="store_true")
-    la.add_argument("--name")
+    la.add_argument("--name", help="search session name, or adjudication group (general / dedicated)")
     pb = sub.add_parser("phaseb")
     pb.add_argument("--session", required=True)
     rp = sub.add_parser("repair")
@@ -192,13 +193,37 @@ def main() -> None:
         (ROOMS / "_status.json").write_text(json.dumps(rows, indent=1) + "\n", encoding="utf-8")
         return
     if a.cmd == "phaseb":
+        man = json.loads((MANIFESTS / f"{a.session}.json").read_text(encoding="utf-8"))
+        if any(_alive(r["pid"]) for r in man["runs"]):
+            raise SystemExit(f"{a.session} is still running; Phase B starts only after Phase A has finished")
+        if any(r["tag"] == "phaseb" for r in man["runs"]):
+            raise SystemExit(f"{a.session}: Phase B already started")
+        # freeze Phase A: copy and hash its outputs before the pass-1 quotes enter the room
+        room = Path(man["room"])
+        snap = RAW / "pass2" / a.session / "phaseA_snapshot"
+        snap.mkdir(parents=True, exist_ok=True)
+        hashes = {}
+        for name in ("records.jsonl", "not_found.csv", "notes.md"):
+            src = room / "out" / name
+            if src.exists():
+                shutil.copyfile(src, snap / name)
+                hashes[name] = _sha(src.read_bytes())
+        (snap / "phaseA_hashes.json").write_text(json.dumps({"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "sha256": hashes},
+                                                            indent=1) + "\n", encoding="utf-8")
         fam = a.session.removeprefix("pass2-")
         q = WORK / "pass2_inputs" / fam / "quotes_to_verify.csv"
         resume(a.session, "phaseb", (KIT / "PROMPT_PASS2_PHASEB.md").read_text(encoding="utf-8"), {"quotes_to_verify.csv": q})
-        print("phase B started for", a.session)
+        print("phase B started for", a.session, "; Phase A snapshot", hashes)
         return
     if a.cmd == "repair":
         pass_id = a.session.split("-", 1)[0]
+        man = json.loads((MANIFESTS / f"{a.session}.json").read_text(encoding="utf-8"))
+        if any(_alive(r["pid"]) for r in man["runs"]):
+            raise SystemExit(f"{a.session} is still running")
+        if any(r["tag"] == "repair" for r in man["runs"]):
+            raise SystemExit(f"{a.session}: the one repair round was already used")
+        if pass_id == "pass2" and any(r["tag"] == "phaseb" for r in man["runs"]):
+            raise SystemExit(f"{a.session}: a pass-2 repair is allowed only before Phase B")
         v = json.loads((RAW / pass_id / a.session / "validation.json").read_text(encoding="utf-8"))
         errs = "\n".join(f"- line {x['line']}: " + "; ".join(x["errors"]) for x in v["invalid"])
         prompt = (KIT / "PROMPT_REPAIR.md").read_text(encoding="utf-8").replace("{ERRORS}", errs)
@@ -223,6 +248,8 @@ def main() -> None:
             m = launch("search", f"search-{n}", None, search_name=n)
             print("launched", m["session"], m["runs"][0]["pid"])
     else:
+        if a.name not in ("general", "dedicated"):
+            raise SystemExit("adjudication needs --name general or --name dedicated")
         d = WORK / "adjudication_inputs" / a.name
         m = launch("adjudication", f"adjudication-{a.name}", DEDICATED if a.name == "dedicated" else None,
                    {"disagreements.csv": d / "disagreements.csv"})

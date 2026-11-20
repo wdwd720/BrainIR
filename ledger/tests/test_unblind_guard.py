@@ -99,3 +99,59 @@ def test_one_failing_analysis_does_not_stop_the_others(synthetic_world):
     res = score_tables(w["pred"], w["labels"], w["research"], w["research"] / "out", n_boot=100, n_perm=100)
     assert res["analyses"]["B3_pairs"]["status"] == "not_locked"
     assert res["primary"]["auroc"] is not None
+
+
+def _relock_predictions(w):
+    import hashlib
+    plock = json.loads((w["research"] / "LOCK_predictions_v1.json").read_text())
+    for arm, files in plock["arms_locked"].items():
+        for k in files:
+            files[k] = hashlib.sha256((w["pred"] / arm / "types.csv").read_bytes()).hexdigest()
+    (w["research"] / "LOCK_predictions_v1.json").write_text(json.dumps(plock))
+    flag = dict(w["flag"], predictions_lock_sha256=hashlib.sha256((w["research"] / "LOCK_predictions_v1.json").read_bytes()).hexdigest())
+    write_flag(w["research"], flag)
+
+
+def test_missing_column_is_an_error_not_not_locked(synthetic_world):
+    w = synthetic_world
+    p = w["pred"] / "B4" / "types.csv"
+    pd.read_csv(p).drop(columns=["call_128"]).to_csv(p, index=False)
+    _relock_predictions(w)
+    res = score_tables(w["pred"], w["labels"], w["research"], w["research"] / "out", n_boot=100, n_perm=100)
+    assert res["analyses"]["B4_stop"]["status"] == "error"
+
+
+def test_baseline_failure_keeps_the_primary_auroc(synthetic_world):
+    w = synthetic_world
+    p = w["pred"] / "S" / "types.csv"
+    df = pd.read_csv(p)
+    df.loc[3, "S2_twohop_signed"] = float("nan")
+    df.to_csv(p, index=False)
+    _relock_predictions(w)
+    res = score_tables(w["pred"], w["labels"], w["research"], w["research"] / "out", n_boot=100, n_perm=100)
+    prim = res["primary"]
+    assert prim["auroc"] == pytest.approx(w["expected_auroc"])
+    assert prim["baseline_comparison_status"].startswith("error")
+    assert prim["decision"]["adds_value_beyond_wiring"] is False
+
+
+def test_b4_non_calls_are_excluded(synthetic_world):
+    w = synthetic_world
+    p = w["pred"] / "B4" / "types.csv"
+    df = pd.read_csv(p)
+    df["call_128"] = "background_not_rhythmic"
+    df.to_csv(p, index=False)
+    _relock_predictions(w)
+    res = score_tables(w["pred"], w["labels"], w["research"], w["research"] / "out", n_boot=100, n_perm=100)
+    st = res["analyses"]["B4_stop"]["result"]
+    assert st["n"] == 0 and st["n_excluded_non_calls"] > 0
+
+
+def test_type_labels_must_match_the_kit_exposed_list(synthetic_world):
+    w = synthetic_world
+    kit = w["research"] / "kit"
+    kit.mkdir()
+    pd.DataFrame({"name_as_given": ["X"], "manc_types": [w["types"][1]], "resolved": [True]}).to_csv(kit / "exposed_types.csv", index=False)
+    write_flag(w["research"], w["flag"])
+    with pytest.raises(BlindError):
+        score_tables(w["pred"], w["labels"], w["research"], w["research"] / "out", n_boot=100, n_perm=100)

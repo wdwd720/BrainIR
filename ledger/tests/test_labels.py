@@ -145,3 +145,11 @@ def test_dedupe_pass1_keeps_the_earliest_family(record):
     kept, dropped = AGG.dedupe_pass1([a, b, c])
     assert {r["exp_id"] for r in kept} == {"pass1-atlas:y7", "pass1-atlas:y8"}
     assert dropped == [{"exp_id": "pass1-grooming:x1", "duplicate_of": "pass1-atlas:y7"}]
+
+
+def test_kit_schema_file_equals_code():
+    import json
+
+    from brainir_ledger import KIT
+
+    assert json.loads((KIT / "record_schema.json").read_text(encoding="utf-8")) == SC.json_schema()

@@ -56,9 +56,9 @@ controls or the pre-stimulus period. Fill `front_leg_rhythm`, `middle_leg_rhythm
 | `quote` | a verbatim quote of at most 25 words that supports the record (from the text, a legend or a table cell) |
 | `source_type` | `systematic_screen` (every tested line reported) or `targeted_study` |
 | `access` | `full_text`, `abstract_only`, `supplement_only`, `figure_or_movie` |
-| `name_in_paper` | the neuron or line name exactly as the paper uses it |
+| `name_in_paper` | the paper's name for this DN type, exactly as written (e.g. `DNa02`, `MDN`, `web`); only if the paper names no neuron for the line, the line name (the line ID always goes in `driver_lines`) |
 | `manc_type` | the MANC type from `type_list.csv` / `synonyms.csv` / `driver_lines.csv`, or `UNMAPPED` |
-| `mapping_confidence` | `high` (paper names the MANC/Namiki type, or an unambiguous listed synonym), `medium` (via a listed driver line, a strong anatomical description, or a name that maps to more than one MANC type in the kit), `low` (guess) |
+| `mapping_confidence` | `high` (the paper's name is a MANC/Namiki type name or listed synonym that the kit maps to exactly one MANC type), `medium` (via a listed driver line, a strong anatomical description, or a name the kit maps to more than one MANC type: `synonyms.csv` column `ambiguous`, `driver_lines.csv` value `AMBIGUOUS` with `candidate_types`), `low` (guess) |
 | `mapping_basis` | one sentence: how you mapped the name |
 | `driver_lines` | list of line IDs (e.g. `["SS01540"]`); `[]` if none named |
 | `effector`, `effector_kind` | e.g. `CsChrimson`, `optogenetic` / `thermogenetic` |
@@ -99,8 +99,8 @@ candidates) gets `mapping_confidence` at most `medium`, the type the paper's ana
   supporting sentence, do not write the record.
 - Name mapping: use `type_list.csv` (alphabetical MANC types with other names), `synonyms.csv` and `driver_lines.csv`.
   If you find a mapping that is not listed, use it, set `mapping_confidence` honestly and add a row to
-  `out/proposed_synonyms.csv` (`manc_type,name,kind,source_doi,locator`) or `out/proposed_driver_lines.csv`
-  (`line_id,manc_type,other_cells,source_doi,locator`).
+  `out/proposed_synonyms.csv` (header `manc_type,name,kind,source_doi,locator`) or `out/proposed_driver_lines.csv`
+  (header `line_id,manc_type,other_cells,source_doi,locator`); quote fields that contain commas.
 
 ## 6. Things you must not do
 
@@ -117,5 +117,6 @@ candidates) gets `mapping_confidence` at most `medium`, the type the paper's ana
 
 ## 7. When you finish
 
-Write `out/sources.csv` (`doi,title,year,source_type,access,n_records,notes`), `out/notes.md` (what you searched, what you
+Write `out/sources.csv` (a CSV file whose first line is the header `doi,title,year,source_type,access,n_records,notes`;
+quote any field that contains a comma), `out/notes.md` (what you searched, what you
 could not access, anything uncertain) and make sure `out/records.jsonl` has one valid JSON object per line.

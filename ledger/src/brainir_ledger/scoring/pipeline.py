@@ -32,6 +32,11 @@ UNINFORMED_BASELINES = ["S1_direct_mn", "S2_twohop_signed", "S3_twohop_abs", "S4
 INFORMED_BASELINE = "S8_informed"
 SEEDS = {"boot": 20261120, "perm": 20261121, "paired": 20261122}
 NOT_LOCKED_IN_RUN1 = {"B3": "G3 failed (PREREG 9)", "B6": "depends on B3"}
+B4_NON_CALLS = ("background_not_rhythmic", "no_effect_low_n")
+
+
+class NotLocked(Exception):
+    """The analysis needs an arm that the predictions lock does not contain."""
 
 
 def _sha(p: Path) -> str:
@@ -45,6 +50,8 @@ def verify_inputs(flag: dict, research: Path, pred_dir: Path, labels_dir: Path) 
     n = 0
     arms = sorted((plock.get("arms_locked") or {}).keys())
     for arm, files in (plock.get("arms_locked") or {}).items():
+        if not any(Path(rel).name == "types.csv" for rel in files):
+            raise BlindError(f"predictions lock lists arm {arm} without its types.csv")
         for rel, sha in files.items():
             p = pred_dir / arm / Path(rel).name
             if not p.exists() or _sha(p) != sha:
@@ -63,13 +70,26 @@ def verify_inputs(flag: dict, research: Path, pred_dir: Path, labels_dir: Path) 
     return {"arms_locked": arms, "verified_files": n}
 
 
-def check_type_labels(labels_dir: Path) -> pd.DataFrame:
+def kit_exposed(research: Path) -> set[str] | None:
+    p = research / "kit" / "exposed_types.csv"
+    if not p.exists():
+        return None
+    ex = pd.read_csv(p)
+    return {t for s in ex["manc_types"].dropna() for t in str(s).split(";") if t}
+
+
+def check_type_labels(labels_dir: Path, exposed_expected: set[str] | None = None) -> pd.DataFrame:
     tl = pd.read_csv(labels_dir / "type_labels.csv")
     recs = AGG.read_records(labels_dir / "records.jsonl")
-    re_tl = AGG.type_labels(recs, exposed=set(tl.loc[tl["exposed"].astype(bool), "manc_type"]), type_list=list(tl["manc_type"]))
-    cols = ["manc_type", "front", "middle", "hind", "stop_call", "walking_effect", "n_records", "exposed"]
-    a = tl[cols].sort_values("manc_type").reset_index(drop=True).astype(str)
-    b = re_tl[cols].sort_values("manc_type").reset_index(drop=True).astype(str)
+    exposed = exposed_expected if exposed_expected is not None else set(tl.loc[tl["exposed"].astype(bool), "manc_type"])
+    re_tl = AGG.type_labels(recs, exposed=exposed, type_list=list(tl["manc_type"]))
+    cols = ["manc_type", "front", "middle", "hind", "stop_call", "walking_effect", "n_records", "exposed", "freq_hz"]
+    def canon(df):
+        d = df[cols].sort_values("manc_type").reset_index(drop=True).copy()
+        d["freq_hz"] = pd.to_numeric(d["freq_hz"], errors="coerce").round(6)
+        d["exposed"] = d["exposed"].astype(str).str.lower()
+        return d.astype(str)
+    a, b = canon(tl), canon(re_tl)
     if not a.equals(b):
         raise BlindError("type_labels.csv differs from the labels recomputed from records.jsonl")
     return tl
@@ -77,7 +97,7 @@ def check_type_labels(labels_dir: Path) -> pd.DataFrame:
 
 def load_arm(pred_dir: Path, arm: str, locked: list[str]) -> pd.DataFrame:
     if arm in NOT_LOCKED_IN_RUN1 or arm not in locked:
-        raise LookupError("not_locked")
+        raise NotLocked(arm)
     p = pred_dir / arm / "types.csv"
     if not p.exists():
         raise FileNotFoundError("input_missing")
@@ -100,7 +120,7 @@ def evaluate(scores: pd.Series, y: pd.Series, *, n_boot: int = 10_000, n_perm: i
     common = [t for t, k in zip(common, keep) if k]
     s = vals[keep]
     yy = y.reindex(common).to_numpy()
-    out = {"n": len(common), "n_pos": int(yy.sum()), "n_neg": int(len(yy) - yy.sum()), "n_dropped_nonfinite": n_drop}
+    out = {"n": len(common), "n_pos": int(yy.sum()), "n_neg": int(len(yy) - yy.sum()), "n_dropped_nonfinite": n_drop, "_set": common}
     if out["n_pos"] == 0 or out["n_neg"] == 0:
         out["auroc"] = None
         return out
@@ -110,12 +130,18 @@ def evaluate(scores: pd.Series, y: pd.Series, *, n_boot: int = 10_000, n_perm: i
     return out
 
 
+def _clean(x):
+    if isinstance(x, dict):
+        return {k: _clean(v) for k, v in x.items() if k != "_set"}
+    return x
+
+
 def _run(name: str, fn, results: dict) -> None:
     try:
-        results[name] = {"status": "ok", "result": fn()}
-    except LookupError:
-        key = name.split("_")[0]
-        results[name] = {"status": "not_locked", "reason": NOT_LOCKED_IN_RUN1.get(key, "arm not in the predictions lock")}
+        results[name] = {"status": "ok", "result": _clean(fn())}
+    except NotLocked as e:
+        arm = str(e)
+        results[name] = {"status": "not_locked", "arm": arm, "reason": NOT_LOCKED_IN_RUN1.get(arm, "arm not in the predictions lock")}
     except FileNotFoundError:
         results[name] = {"status": "input_missing"}
     except Exception as e:  # noqa: BLE001 - one analysis never stops the others
@@ -127,26 +153,32 @@ def primary(pred_dir: Path, tl: pd.DataFrame, locked: list[str], *, n_boot: int,
     y = labeled_set(tl)
     y = y[y.index.isin(a1.index)]
     prim = evaluate(a1["primary_score"], y, n_boot=n_boot, n_perm=n_perm)
-    prim["set_definition"] = "front-leg consensus yes/no, among A1's 321 types, exposed excluded"
-    try:
-        base = load_arm(pred_dir, "S", locked)
-    except (LookupError, FileNotFoundError):
-        base = None
-    if base is not None and prim.get("auroc") is not None:
-        yy = y.to_numpy()
-        aucs = {b: ST.auroc(base[b].reindex(y.index).astype(float).to_numpy(), yy) for b in UNINFORMED_BASELINES if b in base}
-        top = max(aucs.values()) if aucs else None
-        best = next((b for b in UNINFORMED_BASELINES if b in aucs and aucs[b] == top), None)  # tie -> first in S1..S7 order
-        prim["baselines_auroc"] = aucs
-        prim["best_baseline"] = best
-        a1s = a1["primary_score"].reindex(y.index).to_numpy(dtype=float)
-        if best is not None:
-            prim["vs_best_baseline"] = ST.paired_bootstrap_diff(a1s, base[best].reindex(y.index).astype(float).to_numpy(), yy,
-                                                                n_boot=n_boot, seed=SEEDS["paired"])
-        if INFORMED_BASELINE in base:
-            prim["informed_auroc"] = ST.auroc(base[INFORMED_BASELINE].reindex(y.index).astype(float).to_numpy(), yy)
-            prim["vs_informed"] = ST.paired_bootstrap_diff(a1s, base[INFORMED_BASELINE].reindex(y.index).astype(float).to_numpy(), yy,
-                                                           n_boot=n_boot, seed=SEEDS["paired"])
+    prim["set_definition"] = "front-leg consensus yes/no, among A1's 321 types, exposed excluded, finite A1 score"
+    common = prim.pop("_set")
+    base_status = "not_run"
+    if prim.get("auroc") is not None:
+        try:
+            base = load_arm(pred_dir, "S", locked)
+            yy = y.reindex(common).to_numpy()
+            a1s = a1["primary_score"].reindex(common).to_numpy(dtype=float)
+            bvals = {b: base[b].reindex(common).astype(float).to_numpy() for b in UNINFORMED_BASELINES + [INFORMED_BASELINE] if b in base}
+            bad = [b for b, v in bvals.items() if not np.all(np.isfinite(v))]
+            if bad:
+                raise ValueError(f"baselines {bad} have missing or non-finite values on the analysis set")
+            aucs = {b: ST.auroc(bvals[b], yy) for b in UNINFORMED_BASELINES if b in bvals}
+            top = max(aucs.values())
+            best = next(b for b in UNINFORMED_BASELINES if b in aucs and aucs[b] == top)  # tie -> first in S1..S7 order
+            prim.update(baselines_auroc=aucs, best_baseline=best,
+                        vs_best_baseline=ST.paired_bootstrap_diff(a1s, bvals[best], yy, n_boot=n_boot, seed=SEEDS["paired"]))
+            if INFORMED_BASELINE in bvals:
+                prim["informed_auroc"] = ST.auroc(bvals[INFORMED_BASELINE], yy)
+                prim["vs_informed"] = ST.paired_bootstrap_diff(a1s, bvals[INFORMED_BASELINE], yy, n_boot=n_boot, seed=SEEDS["paired"])
+            base_status = "ok"
+        except NotLocked:
+            base_status = "not_locked: S is not in the predictions lock, so 'adds value beyond wiring' cannot be tested"
+        except Exception as e:  # noqa: BLE001 - the AUROC and the first decision survive a baseline failure
+            base_status = f"error: {type(e).__name__}: {e}"
+    prim["baseline_comparison_status"] = base_status
     lo = prim["boot"]["lo"] if prim.get("auroc") is not None else float("nan")
     prim["decision"] = ST.primary_decision(prim["n"], prim["n_pos"], prim["n_neg"], lo, prim.get("vs_best_baseline", {}).get("lo"))
     return prim
@@ -188,7 +220,7 @@ def secondary(pred_dir: Path, labels_dir: Path, tl: pd.DataFrame, locked: list[s
     def controls():
         names = sorted(a for a in locked if a.startswith("B1-ctl-"))
         if not names:
-            raise LookupError("not_locked")
+            raise NotLocked("B1-controls")
         aucs = {c: evaluate(load_arm(pred_dir, c, locked)["primary_score"], y, n_boot=200, n_perm=200).get("auroc") for c in names}
         v = [a for a in aucs.values() if a is not None]
         return {"per_control": aucs, "mean": float(np.mean(v)) if v else None, "min": min(v) if v else None, "max": max(v) if v else None}
@@ -211,10 +243,13 @@ def secondary(pred_dir: Path, labels_dir: Path, tl: pd.DataFrame, locked: list[s
             return evaluate(df["primary_score"], ys[ys.index.isin(df.index)], n_boot=n_boot, n_perm=n_perm)
         _run(name, sub, R)
 
-    def not_locked():
-        raise LookupError("not_locked")
-    _run("B3_pairs", not_locked, R)
-    _run("B6_legs_that_move", not_locked, R)
+    def not_locked_b3():
+        raise NotLocked("B3")
+
+    def not_locked_b6():
+        raise NotLocked("B6")
+    _run("B3_pairs", not_locked_b3, R)
+    _run("B6_legs_that_move", not_locked_b6, R)
 
     def b2_band():
         b1, b2 = load_arm(pred_dir, "B1", locked), load_arm(pred_dir, "B2", locked)
@@ -236,10 +271,12 @@ def secondary(pred_dir: Path, labels_dir: Path, tl: pd.DataFrame, locked: list[s
     def b4_stop():
         b4 = load_arm(pred_dir, "B4", locked)
         t = tl.set_index("manc_type")
-        common = [k for k in b4.index if k in t.index and t.loc[k, "stop_call"] in ("stops", "no_stop") and k not in exposed]
+        cand = [k for k in b4.index if k in t.index and t.loc[k, "stop_call"] in ("stops", "no_stop") and k not in exposed]
+        common = [k for k in cand if b4.loc[k, "call_128"] not in B4_NON_CALLS]
         pred = ["stops" if b4.loc[k, "call_128"] == "halts" else "no_stop" for k in common]
         true = [t.loc[k, "stop_call"] for k in common]
-        return {"n": len(common), "raw_agreement": float(np.mean([p == q for p, q in zip(pred, true)])) if common else None,
+        return {"n": len(common), "n_excluded_non_calls": len(cand) - len(common),
+                "raw_agreement": float(np.mean([p == q for p, q in zip(pred, true)])) if common else None,
                 "kappa": ST.cohen_kappa(pred, true) if common else None,
                 "confusion": pd.crosstab(pd.Series(pred, name="pred"), pd.Series(true, name="label")).to_dict() if common else {}}
     _run("B4_stop", b4_stop, R)
@@ -247,12 +284,15 @@ def secondary(pred_dir: Path, labels_dir: Path, tl: pd.DataFrame, locked: list[s
     def b4_mod():
         b4 = load_arm(pred_dir, "B4", locked)
         t = tl.set_index("manc_type")
-        cmap = {"halts": "stops", "speeds_up": "speeds", "slows_down": "slows", "no_effect": "none", "no_effect_low_n": "none"}
-        common = [k for k in b4.index if k in t.index and t.loc[k, "walking_effect"] in ("stops", "slows", "speeds", "none")
-                  and k not in exposed]
-        pred = [cmap.get(b4.loc[k, "call_128"], "none") for k in common]
+        cmap = {"halts": "stops", "speeds_up": "speeds", "slows_down": "slows", "no_effect": "none"}
+        labelled = [k for k in b4.index if k in t.index and k not in exposed]
+        n_turns = sum(1 for k in labelled if t.loc[k, "walking_effect"] == "turns")
+        cand = [k for k in labelled if t.loc[k, "walking_effect"] in ("stops", "slows", "speeds", "none")]
+        common = [k for k in cand if b4.loc[k, "call_128"] in cmap]
+        pred = [cmap[b4.loc[k, "call_128"]] for k in common]
         true = [t.loc[k, "walking_effect"] for k in common]
-        return {"n": len(common), "raw_agreement": float(np.mean([p == q for p, q in zip(pred, true)])) if common else None,
+        return {"n": len(common), "n_excluded_non_calls": len(cand) - len(common), "n_label_turns_excluded": n_turns,
+                "raw_agreement": float(np.mean([p == q for p, q in zip(pred, true)])) if common else None,
                 "kappa": ST.cohen_kappa(pred, true) if common else None}
     _run("B4_modulation", b4_mod, R)
 
@@ -273,7 +313,7 @@ PREREGISTERED_SECONDARY = ["exposed_included", "exposed_only", "never_usable_exc
 def score_tables(pred_dir: Path, labels_dir: Path, research: Path, out: Path, *, n_boot: int = 10_000, n_perm: int = 10_000) -> dict:
     flag = require_unblind(research / "UNBLIND.json", research)
     ver = verify_inputs(flag, research, pred_dir, labels_dir)
-    tl = check_type_labels(labels_dir)
+    tl = check_type_labels(labels_dir, kit_exposed(research))
     out.mkdir(parents=True, exist_ok=True)
     res: dict = {"prereg": "research/ledger/PREREG.md v1", "unblind_flag": flag, "inputs": ver}
     try:

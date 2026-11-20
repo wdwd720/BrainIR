@@ -30,7 +30,8 @@ def rel(p: Path) -> str:
 
 
 def hashes(paths) -> dict[str, str]:
-    return {rel(p): sha(p) for p in sorted(paths) if p.is_file()}
+    """SHA-256 of regular files; dot-files (e.g. .DS_Store, never committed) are skipped."""
+    return {rel(p): sha(p) for p in sorted(paths) if p.is_file() and not p.name.startswith(".")}
 
 
 def code_hashes() -> dict[str, str]:
@@ -92,7 +93,9 @@ def lock_labels() -> Path:
 
     rec = base_record("labels")
     rec["labels"] = hashes(LABELS.glob("*"))
-    rec["raw"] = hashes(LABELS.glob("raw/*/*/*"))
+    rec["raw"] = hashes(list(LABELS.glob("raw/*/*/*")) + list(LABELS.glob("raw/*/*/*/*")))
+    rec["sessions"] = hashes(LABELS.glob("sessions/*"))
+    rec["work_inputs"] = hashes(LABELS.glob("work/**/*"))
     rec["kit"] = hashes((RESEARCH / "kit").glob("*"))
     rec["prereg_lock_sha256"] = sha(RESEARCH / "LOCK_prereg_v1.json")
     out = RESEARCH / "LOCK_labels_v1.json"

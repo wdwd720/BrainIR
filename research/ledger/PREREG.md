@@ -32,9 +32,11 @@ SHA-256 of both lock files (`brainir_ledger.scoring.require_unblind`); run 1 nev
 - `LOCK_predictions_v<k>.json` lists every locked arm's files with SHA-256 (`arms_locked`), the arms not locked and why,
   the gates and reviews; `LOCK_labels_v<k>.json` lists every label table (`labels`, at least `records.jsonl` and
   `type_labels.csv`) and the raw session outputs with SHA-256. Both are written by `ledger/scripts/lock.py`.
-- Before computing anything the scoring verifies every file it reads against these locks, recomputes the type labels from
-  `records.jsonl` and requires them to equal `type_labels.csv`, writes the primary result first, and reports every
-  secondary analysis with a status (ok / not_locked / input_missing / error).
+- Before computing anything the scoring verifies every file it reads against these locks (every locked arm must list its
+  `types.csv`), recomputes the type labels from `records.jsonl` (with the exposed list of `kit/exposed_types.csv`) and
+  requires them to equal `type_labels.csv` (leg labels, stop call, walking effect, counts, exposure, reported frequency),
+  writes the primary result first, and reports every secondary analysis with a status (ok / not_locked / input_missing /
+  error). A baseline failure cannot remove the primary AUROC; it is recorded and "adds value" is then not established.
 
 ---
 
@@ -155,8 +157,10 @@ so B3 is not run as a locked arm in run 1. Its definition is kept here unchanged
   pinned by SHA-256 in `reproduce_manc_connectivity.EXTERNAL`): their signed matrix, their `size` column, signs from
   `consensusNt` (the paper's rule). Read-out: MaleCNS front-leg MNs (`superclass` motor class and `subclass` "fl"; if that
   selection is empty, rows with a `motor module`).
-- Groups: for each MANC type t, the network's MaleCNS DNs whose curated `mancType` (MaleCNS v1.0 body annotations,
-  LOG L9) equals t and whose `consensusNt` is acetylcholine.
+- Groups: for each MANC type t, the network's MaleCNS DNs whose MANC type is t and whose `consensusNt` is acetylcholine.
+  The MANC type of a MaleCNS body is taken from the curated body match (`mancBodyid` in the MaleCNS v1.0 body
+  annotations, LOG L9 -> that MANC body's type in the authors' MANC front-leg table, else in their full-cord table), and
+  only when no matched body exists from the curated `mancType` string.
 - Procedure: exactly the kept B1 procedure (bounds unchanged: 4,310 vs 4,604 neurons). Seeds 0..15.
 - Disagreements recorded per type: present in MANC but no MaleCNS member, different member count, different transmitter.
 
@@ -252,7 +256,11 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 - "Rhythmic leg movement" = repeated cyclic movement of a leg, three or more cycles, that starts or clearly increases with
   stimulation relative to controls or the pre-stimulus period.
 - **Identity.** Every pass-1 record gets a unique `exp_id` = "<session>:<record_id>" at collection; pass 2 and the
-  adjudicator copy it from their input files; nothing is matched by content. The same experiment written by two pass-1
+  adjudicator copy it from their input files; nothing is matched by content. `name_in_paper` is the paper's name for the DN
+  type (the line ID goes in `driver_lines`). Pass-1 records of one line that labels several DN types and whose identifiers
+  are otherwise identical are given to pass 2 as sibling rows (`sibling_index` k of `n_siblings`, ordered by the pass-1
+  MANC type alphabetically); pass 2 determines the line's MANC types itself and assigns them to the siblings in
+  alphabetical order; the adjudicator sees the same sibling columns. The same experiment written by two pass-1
   sessions (identical DOI, locator, driver lines, name used, preparation, MANC type, effector and stimulation) is kept once,
   from the session earliest in the order atlas, catalogue, grooming, walking_stopping, steering, escape_landing,
   recent_broad, pugliese_dedicated (logged).
@@ -264,7 +272,9 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   fields, `effect_on_walking`, `line_specificity`. Two independent search sessions look for experiments without any list
   (capture-recapture). A third blind session adjudicates every compared field on which passes 1 and 2 disagree
   (readings in seeded random order, seed 20261125); the experiments of the dedicated family (Pugliese 2026, Sapkal 2026)
-  have their own pass-2 and adjudication sessions, the only ones allowed to open those two sources.
+  have their own pass-2 and adjudication sessions, the only ones allowed to open those two sources. Phase B starts only
+  after the Phase A run has ended; the Phase A records and not-found list are copied and hashed before the quotes enter the
+  room, and those snapshots (not later versions) are what the merge uses; a later change is flagged.
 - **Final record** = the pass-1 record (quote found by pass 2, not in `not_found.csv`) with each disputed field group
   replaced by the adjudicator's reading (groups: MANC type with mapping confidence and basis; line specificity with other
   cell types; each leg field; effect on walking); `labeler_confidence` = the lowest of the readers who contributed;
@@ -272,12 +282,17 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   adjudicated record -> dropped. All drops are logged in `labels/merge_log.json`.
 - **Search-only records** (found by the search sessions but not by pass 1, matched on normalised DOI and MANC type) are
   reported separately (`search_only_records.jsonl`) and never enter the consensus. Completeness: Chapman capture-recapture
-  estimate at the (normalised DOI, MANC type) level between the de-duplicated pass-1 set and the search set; preprint and
-  journal versions with different DOIs inflate the "missed" count (stated as a limitation).
+  estimate at the (normalised DOI, MANC type) level between the de-duplicated pass-1 set (dedicated family excluded: the
+  search sessions may not open its sources) and the search set; preprint and journal versions with different DOIs inflate
+  the "missed" count (stated as a limitation).
 - **Operating rules fixed now:** one repair round per session for schema-invalid records (the same session fixes only the
-  listed lines; the error list never repeats label values); a session whose transcript audit shows a file access outside
-  its room, a fetch of a banned host, or (outside the dedicated sessions) a fetch of the two dedicated sources is excluded
-  (its pass-1 records, or the experiments it read as pass 2 / adjudicator); the model each session actually used (the
+  listed lines; the error list never repeats label values; enforced by the launcher; no pass-2 repair after Phase B); a
+  **breach** is a SUCCESSFUL file access outside the session's room, a SUCCESSFUL fetch of a banned host (GitHub and its
+  content hosts and mirrors, Zenodo) or, outside the dedicated sessions, of the two dedicated sources, or a session
+  without a transcript (unauditable); attempts denied by the tool permissions are reported, not breaches; a breaching
+  session is excluded (its pass-1 records, or the experiments it read as pass 2 / adjudicator); the transcript audit
+  must cover every session and be newer than every session log before pass-2 inputs are built and before the final
+  aggregation; the model each session actually used (the
   launcher allows a fallback when the main model is busy) is recorded; the orchestrator looks only at validation summaries
   and aggregate counts of labels until unblinding (never at a per-type label).
 - **Known weakness:** the labelers are language models that may have read the Pugliese preprint or reviews of it during
@@ -299,7 +314,7 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   (`walking_effect`): the same with the record's `effect_on_walking` (not_assessed records give nothing). **Reported
   frequency** (`freq_hz`): median of the numeric `frequency_hz` of eligible records with front-leg rhythm yes. These are
   reported, never used in the primary analysis.
-- Duplicate records of one experiment (same experiment key) found by two pass-1 sessions count once.
+- Duplicate records of one experiment found by two pass-1 sessions count once (identity and de-duplication rule above).
 - **Primary truth** = front-leg consensus label in {yes, no}. Unclear, conflicting, not assessed: excluded.
 
 ---
@@ -330,7 +345,8 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 ## 8. Secondary analyses (all descriptive; no decision rule)
 
 1. Headless only and intact only (consensus recomputed from records of that preparation).
-2. Clean lines only (specificity clean or minor_offtarget) and non-specific only.
+2. Clean lines only (specificity clean or minor_offtarget) and non-specific or unknown-specificity lines only
+   (multi_dn or unknown).
 3. Systematic-screen sources only.
 4. Exposed types included (the full labeled set).
 5. Single-neuron screens summarised per type: A0 max, A0 mean, B0 max, B0 mean.
@@ -345,7 +361,8 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 11. Rewired controls: AUROC of each of the ten control sets (expected near 0.5).
 12. Stop and modulation: B4's middle-strength call (`call_128`) against `stop_call` (halts vs stops; raw agreement,
     kappa, confusion table) and against `walking_effect` (halts->stops, speeds_up->speeds, slows_down->slows,
-    no_effect->none; raw agreement, kappa).
+    no_effect->none; raw agreement, kappa). Non-calls (`background_not_rhythmic`, `no_effect_low_n`) are excluded and
+    counted; types labelled `turns` are excluded from the modulation comparison (B4 makes no turning call) and counted.
 13. Fixed-strength grid B5: AUROC at each strength (`score_I32` ... `score_I512`) and of the maximum over strengths
     (`primary_score`).
 14. Every anatomical baseline's AUROC with interval (and S8 informed).
