@@ -44,6 +44,10 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
 - **Stage 2 cutoffs (L35):** pass 1 + searches end 13:30; pass 2 (A+B) 16:45; adjudication 18:30; labels lock/tag/OTS/push 19:15;
   then G5 + HANDOFF. Labelers are detached: after every launch keep a tracked background waiter (exits when a labeler PID dies
   or after ~20 min) so the orchestrator is woken; check the wall clock on every wake.
+- (09:15 PST) L37: pass1-atlas, pass1-walking_stopping, search-search_names BREACHED (read their own saved fetch images) ->
+  excluded as frozen, stopped. Tool-results guard (scratchpad `toolresults_guard.sh`) MUST stay running for every later session;
+  restart it after any interruption. Running clean: steering(ended), catalogue, pugliese_dedicated, grooming, escape_landing,
+  recent_broad, search_behaviour.
 - (09:04 PST) Stage 2 running (L36): pass1 steering/atlas/catalogue/pugliese_dedicated/walking_stopping + both searches alive;
   to launch as slots free: grooming, escape_landing, recent_broad. Quota probe: scratchpad `quota.sh` (stream events) and a
   one-turn haiku probe in scratchpad/qprobe; stop launching at 85 %, stop labelers at 93 %.
