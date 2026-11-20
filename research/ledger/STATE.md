@@ -31,10 +31,24 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
 ## In progress
 - Stage 0 DONE (`ledger-prereg-v1`, pushed, OTS). **Do not push the branch again until labels are frozen** (predictions
   are now in the working tree; PREREG 13).
-- Stage 1: A1/A1-lo10/A0/B0/S/B1/B1-alt written; G1 PASS, G2 investigated (L26). Running: controls (10 campaigns,
-  ~5 h), then B5 -> B4 -> B2 (parallel chain); G4 on B1-lo10/B1-lo5; independent arms review (subagent).
-- After the campaigns: G4 for each locked simulated arm, G5 baseline checks, fix review findings, pre-mortem, lock
-  predictions (`lock.py predictions <arms> B3=... B6=...`, `git add -f` parquet files), tag (not pushed), OTS.
+- Stage 1: A1/A1-lo10/A0/B0/S/B1/B1-alt/B1-lo5/B1-lo10/B5/B2 written; G1 PASS; G2 investigated (L26); arms review done
+  (verdict LOCK with conditions; fixes in 35ba697, L27); batched execution (L28). G4 PASS: B1-lo10, B1-lo5.
+- Running (00:10 PST): controls (batched, sequential 10 networks), B4 (batched); G4 for B5/B2 (bgyu6l5ah); a watcher runs
+  `g4 --only` for B4 and each control as soon as its `types.csv` appears (log `data/cache/ledger_logs/g4_watch.log`);
+  G5 pre-lock checks (log `data/cache/ledger_logs/g5_prelock.log`).
+- Lock checklist (pre-mortem L29 = check these, then write the results into the LOG):
+  1. every campaign: non-error results == jobs (controls 5,136 each, B4 22,816, B2 5,248, B5 25,680), unique keys, no
+     solver failures; replicates rows == jobs; B4 `n_base_rhythmic_128` >= 8; DNg100 sane in B4/B2.
+  2. controls really used their own matrix: `shared_payload_key` in each `backend_stats.jsonl` differs between controls
+     and from B1-lo10; control scores differ from B1.
+  3. G4 json for every simulated campaign (B1-lo5, B1-lo10, 10 controls, B5, B4, B2) passes.
+  4. `environment_report.py` re-run after the last campaign (gates/ENVIRONMENT.json).
+  5. status-only dry run of the frozen scoring functions on the real tables with synthetic labels in the scratchpad
+     (never create UNBLIND.json anywhere).
+  6. commit everything (`git add -f research/ledger/predictions` incl. parquet), then
+     `lock.py predictions A1 A1-lo10 A0 B0 S B1 B1-alt B1-lo5 B1-lo10 B5 B4 B2 B1-ctl-... "B3=G3 failed (PREREG 9, L16)" "B6=depends on B3 (L18)"`,
+     commit the lock, annotated tag `ledger-predictions-v1` (NOT pushed), `ledger/scripts/lock_verify.py` (must pass),
+     `ots stamp` the lock file, commit the .ots + verify json. Then Stage 2.
 
 ## Next (Stage 1, after the tag)
 1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `g2`; `controls`; `b5`;
