@@ -2,7 +2,7 @@
 
 Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 - Spec: `research/ledger/RUN1_PROMPT.md`.
-- Decisions: `research/ledger/LOG.md` (L1-L44).
+- Decisions: `research/ledger/LOG.md` (L1-L45).
 
 ## 1. This machine
 
@@ -26,8 +26,8 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 | `ledger-predictions-v1` | e8bc214 | `LOCK_predictions_v1.json` | bfca7e8a8e2a220d3b6f89f5351aca23f1475a3af3eec830e511956b8643cb11 |
 | `ledger-labels-v1` | 4a015bd | `LOCK_labels_v1.json` | a7b5363fa315b15096612b2790fe2bea22b660c8b6df9e3fc08d7771e286ffb1 |
 
-- `PREREG.md` has SHA-256 b3561723f2c238fde6a7f3de0cd41231fb96fac06e479d4fee4d013833b15f6e.
-- The predictions lock covers 22 arms and 182 files, and it was verified on the tag.
+- `PREREG.md` SHA-256: b3561723f2c238fde6a7f3de0cd41231fb96fac06e479d4fee4d013833b15f6e.
+- The predictions lock (22 arms, 182 files) was verified on the tag.
 - **Timestamps:** OpenTimestamps proofs (`*.ots`) sit next to each lock.
 - **Files:** `research/ledger/predictions/<arm>/types.csv`, `research/ledger/labels/`, `gates/`, `reviews/`, `movies/`, `final/`.
 - In a clean checkout all three locks check clean. Scoring refuses to run without `UNBLIND.json`, which does not exist.
@@ -35,7 +35,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 ## 3. The rulebook in ten lines, and departures
 
 1. Unit: the MANC DN type. Primary set: the 321 excitatory front-leg types.
-2. Primary prediction A1 is the authors' own type-level screen. Its score is the mean rhythm score of usable replicates; a type that is never usable scores 0.
+2. Primary prediction A1 is the authors' type-level screen: the mean rhythm score of usable replicates (never usable scores 0).
 3. Bands: driver if the score is at least 0.5, non-driver if it is below 0.05.
 4. Truth is the blind front-leg consensus (yes or no) from records written by separate headless sessions:
    - two passes, then adjudication of disputes;
@@ -72,14 +72,14 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 ## 4. Gates and reviews
 
 - **G1:** pass (480/480 flags, currents and runs equal; 390/417 scores exact, maximum difference 0.00088).
-- **G2:** failed the 0.8 bar (A1 vs B1 Spearman 0.792). No code bug was found, so B1 was locked as is.
+- **G2:** done as the prompt requires. Spearman 0.792, just under about 0.8, so the cause was found before locking: 0.864 on the 293 types usable in both; no code bug.
 - **G3:** fail. B3 and B6 are not locked.
 - **G4:** pass. 1,500 of 1,500 re-runs across 15 campaigns gave identical digests, 615 of them on the other host type.
 - **G5:** pass before the lock and at the end, identical to the baseline (`final/G5_END_REPORT.md`).
 - **Independent reviews:**
   - Stage 0: three rounds, every finding resolved before the freeze (L19, L22, L23).
   - Arms: two rounds, verdict LOCK with conditions; all conditions met (L34).
-  - Labels: no independent review in this run; the transcript audit covered all 18 sessions.
+  - Labels: one round after the lock, verdict usable with caveats, no blocker. The consensus reproduces exactly; the majors are coverage and the completeness statistic (`final/REVIEW_labels_round1.md`).
 
 ## 5. Predictions only
 
@@ -104,7 +104,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 
 ## 6. Labels only
 
-- **Sessions:** 18 separate Claude Code sessions: 8 pass-1 families, 2 searches, 6 pass-2 sessions (relabel, then quote check), 2 adjudicators. 15 ended on their own; the 3 breaching ones were stopped.
+- **Sessions:** 18 separate Claude Code sessions (8 pass-1, 2 searches, 6 pass-2, 2 adjudicators). 15 ended on their own; the 3 breaching ones were stopped.
 - **Records:**
   - Sources: 61. Final records: 141.
   - Of the 166 pass-1 records, 22 were not found by pass 2 and 3 were unresolved disputes; all 25 were dropped.
@@ -120,7 +120,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
   - front-leg rhythm, both readings yes or no: n = 112, raw 1.0, kappa 1.0;
   - front-leg rhythm, all values: raw 0.94, kappa 0.90;
   - MANC type 1.0; middle leg 0.94 (kappa 0.92); hind leg 0.94 (0.91); walking effect 0.90 (0.80); line specificity 0.88 (0.79).
-- **Completeness:** a capture-recapture estimate puts about 182 (paper, type) pairs in the literature. Pass 1 found 46 (the dedicated family excluded), about a quarter.
+- **Completeness:** the frozen code estimates 182 (paper, type) pairs, but it merges all eLife papers. Corrected: 125-197, so pass 1 found roughly a quarter to two fifths.
 - **Transcript audit:** 18 sessions. 3 sessions breached (5 reads in all); 9 attempts were blocked; there was no fetch from a banned host.
 - **Final exposed list** (15 names, 18 MANC types): DNg100, DNb08, DNg12, DNg97, MDN, DNa01, DNa02, DNp09, DNg13, DNp01, DNg16, DNg55, DNg75, DNg74, DNg62.
 - **Name-only overlap with the prediction tables:**
@@ -128,7 +128,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
   - Of the 18 with a clear front-leg label, 16 are in A1; 12 of those are not exposed.
   - So the primary set has 12 types, and the pre-registered rule will call the primary analysis underpowered.
 - **Spot-check:** a sample of 20 records for you is in `labels/spot_check_sample.csv`.
-- **Atlas movies:** a 2.2 GB CC0 zip on Dryad, one top-down view. 2D leg-tip tracking looks plausible; full leg pose is doubtful.
+- **Atlas movies:** a 2.2 GB CC0 zip on Dryad; leg-tip tracking looks plausible, full pose doubtful.
 
 ## 7. Money and time
 
@@ -136,7 +136,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
   - first workspace about $27 (an estimate at the pause);
   - second workspace settled at $29.68 of compute, covered by credit, with $0.00 billed;
   - together about $57 of the $300 cap.
-- **Claude:** at least $94 at API list prices for the labeler and helper runs, on your subscription. The three stopped sessions report no cost. Weekly usage went from 28 % to 34 %.
+- **Claude:** at least $94 at API list prices (the three stopped sessions report no cost), on your subscription; weekly usage went from 28 % to 34 %.
 - **Wall clock:**
   - prereg froze at 22:35;
   - predictions locked at 08:47, including about 6 idle hours;
@@ -145,17 +145,17 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 ## 8. What worries me
 
 - **Too few labels.** The primary set has 12 types, so the primary analysis will say "underpowered". Causes: the atlas family was lost to a tooling artefact, and recall is about a quarter.
-- **Agreement probably overstates accuracy:** every reader was the same model family.
+- **Agreement probably overstates accuracy:** every reader was the same model family, and pass-2 identifiers could cue the type.
 - **Unflagged score sightings** can't be ruled out.
 - **Line specificity is mostly unknown** (13 of 18 types).
 - **B2:** its DNg100 positive control scores 0.059. I would not trust B2's ranking.
 - **B4:** 199 of its 207 "halts" calls are over-excitation, not stops.
-- **A1 vs B1 is 0.79,** below the pre-registered 0.8.
+- **A1 vs B1 agree at 0.79** overall (0.86 where both are usable).
 - **The blind is procedural:** the labelers may have read the paper in training.
 
 ## 9. What I would do next
 
-1. **Labels v2** under a new pre-registration, against the same locked predictions: deny tool-results reads at tool level, re-run every family including atlas, add sessions for recall, and decide v1 vs v2 before any scoring.
+1. **Labels v2** under a new pre-registration, against the same locked predictions: deny tool-results reads at tool level, re-run every family including atlas, fix the eLife DOI bug, and decide v1 vs v2 before any scoring.
 2. **An independent review of the label side** before unblinding, plus your hand check of the sample.
 3. **Run 2 scoring:**
    - run `lock.py check` on all locks in a clean checkout of the labels tag;
