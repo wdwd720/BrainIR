@@ -247,7 +247,14 @@ def malecns_network() -> tuple[N.LedgerNetwork, dict[str, list[int]], dict]:
     net = N.LedgerNetwork("malecns_v1.0_frontleg_authors", W.tocsr(), wt["size"].astype(float).to_numpy(), wt, readout,
                           {"network": "authors' MaleCNS front-leg network (W_20260210_vncRoisOnly)", "n": int(len(ids)),
                            "n_readout": int(readout.sum())})
-    info = {"n_malecns_exc_dn_mapped": int(exc.sum()), "n_groups": len(groups)}
+    # every mapped MaleCNS DN with its transmitter, for the per-type disagreement record (PREREG 3.8)
+    dn = (wt["superclass"] == "descending_neuron") & wt["manc_type_mapped"].notna()
+    nt_by_type: dict[str, dict[str, int]] = {}
+    for i in np.flatnonzero(dn.to_numpy()):
+        d = nt_by_type.setdefault(str(wt.loc[i, "manc_type_mapped"]), {})
+        nt = str(wt.loc[i, "consensusNt"])
+        d[nt] = d.get(nt, 0) + 1
+    info = {"n_malecns_exc_dn_mapped": int(exc.sum()), "n_groups": len(groups), "malecns_dn_transmitters_by_manc_type": nt_by_type}
     return net, groups, info
 
 

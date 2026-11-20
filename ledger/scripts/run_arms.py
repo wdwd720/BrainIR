@@ -211,10 +211,22 @@ def cmd_b2(a) -> None:
     types, reps = AR.aggregate_group_arm("B2", net.name, net, groups, res, scfg)
     fl = N.front_leg()
     manc = N.type_groups(fl.table)
-    dis = [{"manc_type": t, "n_manc_exc": len(manc.get(t, [])), "n_malecns_exc": len(groups.get(t, []))} for t in sorted(set(manc) | set(groups))
-           if len(manc.get(t, [])) != len(groups.get(t, []))]
+    nts = info.pop("malecns_dn_transmitters_by_manc_type")
+    dis = []
+    for t in sorted(set(manc) | set(groups) | set(nts)):
+        n_m, n_c = len(manc.get(t, [])), len(groups.get(t, []))
+        other_nt = {k: v for k, v in nts.get(t, {}).items() if k != "acetylcholine"}
+        kinds = []
+        if n_m and not nts.get(t):
+            kinds.append("no_malecns_member")
+        if n_m != n_c:
+            kinds.append("member_count")
+        if n_m and other_nt:
+            kinds.append("transmitter")
+        if kinds:
+            dis.append({"manc_type": t, "kinds": kinds, "n_manc_exc": n_m, "n_malecns_exc": n_c, "malecns_other_transmitters": other_nt})
     AR.write_arm("B2", types, reps, {"model": mcfg.to_dict(), "screen": scfg.to_dict(), "seeds": AR.SEEDS, "network": net.meta, **info},
-                 {"results_log_sha256": AR.results_log_sha("B2"), "member_count_disagreements": dis})
+                 {"results_log_sha256": AR.results_log_sha("B2"), "type_disagreements_between_animals": dis})
     print("B2", len(types), "types; usable", int((types["status"] == "ok").sum()), "; disagreements", len(dis))
 
 
