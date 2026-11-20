@@ -127,10 +127,13 @@ BANNED_HOSTS = (
     "zenodo.org", "jsdelivr.net", "jsdelivr.com", "nbviewer.org", "nbviewer.jupyter.org", "githack.com", "statically.io",
     "gitee.com", "gitee.io", "gitlab.com", "gitlab.io", "bitbucket.org", "codeberg.org", "sourceforge.net",
     "doi.org",
+    # PREREG v2 L3 kind 2 mirrors (review M6)
+    "softwareheritage.org", "sourcegraph.com", "archive.org", "huggingface.co", "hf.co",
 )
+BANNED_URL_TOKENS = ("smpuglie", "pugliese_2026", "wdwd720", "brainir")  # PREREG v2 L3 kind 2
 SHADOW_RE = re.compile(r"sci-?hub|libgen|library\.lol|z-?lib|annas-archive|booksc\.|b-ok\.", re.IGNORECASE)
 KEY_REQUIRED_HOSTS = ("api.elsevier.com", "api.wiley.com")  # Crossref text-mining links that need an API key
-BANNED_DOI_PREFIXES = ("10.5281/",)  # Zenodo
+BANNED_DOI_PREFIXES = ("10.5281/", "10.57967/")  # Zenodo, Hugging Face
 RXIV_PREFIXES = ("10.1101/", "10.64898/")
 HOST_GAPS = {"www.biorxiv.org": 3.0, "www.medrxiv.org": 3.0, "api.biorxiv.org": 1.0}  # seconds between requests to a host
 
@@ -331,6 +334,10 @@ def banned_reason(url: str) -> str | None:
             return f"banned host {b}"
     if SHADOW_RE.search(host):
         return "shadow library"
+    low = url.lower()
+    for tok in BANNED_URL_TOKENS:
+        if tok in low:
+            return f"banned token {tok}"
     return None
 
 
@@ -1818,9 +1825,9 @@ class Paper:
         if not re.match(r"^10\.\d{4,9}/\S+$", doi):
             self.err("not a DOI; nothing fetched")
         elif low.startswith(BANNED_DOI_PREFIXES):
-            self.err("DOI of a banned host (Zenodo); nothing fetched")
+            self.err("DOI of a banned host; nothing fetched")
             self.meta["banned_host"] = True
-            self.meta["notes"].append("this DOI belongs to a banned host (Zenodo): do not fetch it, not even live")
+            self.meta["notes"].append("this DOI belongs to a banned host: do not fetch it, not even live")
         else:
             self.route("europepmc_search", self.r_europepmc_search)
             if self.pmcid:
@@ -1860,6 +1867,8 @@ class Paper:
             status, mode, source = "abstract_only", "abstract", f"abstract only ({self.abstract_src})"
         else:
             status, mode, source = "unreachable", "none", None
+        if self.meta.get("banned_host"):
+            status, mode, source = "banned_host", "none", None  # PREREG v2 L7: registered, never fetched or assigned
         if pdf_info and pages and pchars < MIN_PDF_CHARS and mode != "xml":
             self.meta["notes"].append(f"article.pdf has {pages} pages but only {pchars} characters of text (scanned?): read its page images")
         if pdf_text and mode != "pdf":

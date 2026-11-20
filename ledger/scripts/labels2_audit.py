@@ -24,7 +24,6 @@ import labels_collect as LC  # noqa: E402  (frozen; BREACH_KINDS)
 import labels2_rooms as R2  # noqa: E402
 
 OUT = HERE.parents[1] / "research" / "ledger" / "labels_v2"
-PATH_RE = re.compile(r"(/[^\s\"'`]*?/tool-results/[^\s\"'`,)\]}>]+)")
 
 
 def _banned(host: str) -> bool:
@@ -32,15 +31,29 @@ def _banned(host: str) -> bool:
     return any(host == b or host.endswith("." + b) or b in host for b in LA.BANNED_HOSTS)
 
 
-MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co")
+MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co",
+           "nbviewer.jupyter.org")
 TOKENS = re.compile(r"wdwd720|smpuglie|BrainIR", re.I)
 
 
-def scan(room: str) -> tuple[set[str], list[dict]]:
-    """(paths named in the session's own tool results, excluding WebFetch results from banned hosts) and v2-only breach issues:
-    successful fetches of the v2 mirrors (L3 kind 2) and tool results whose text names the repository, its owner or the
-    authors' code (L3 kind 5)."""
-    calls, named, issues = {}, set(), []
+def _strings(x):
+    if isinstance(x, str):
+        yield x
+    elif isinstance(x, list):
+        for y in x:
+            yield from _strings(y)
+    elif isinstance(x, dict):
+        for v in x.values():
+            yield from _strings(v)
+
+
+def scan(room: str) -> tuple[list[str], list[dict]]:
+    """(the raw text of the session's own tool results, excluding WebFetch results from banned hosts; review B3: exemption paths
+    are matched verbatim in it, not extracted by a pattern) and v2-only breach issues: successful fetches of the v2 mirrors
+    (L3 kind 2; a WebFetch answer starting with a fetch-failure message is not a success) and WebSearch/WebFetch results or
+    reads/greps of the session's own tool-results files whose text names the repository, its owner or the authors' code
+    (L3 kind 5)."""
+    calls, texts, issues = {}, [], []
     for f in R2.transcripts(Path(room)):
         for line in f.read_text(errors="replace").splitlines():
             try:
@@ -55,18 +68,19 @@ def scan(room: str) -> tuple[set[str], list[dict]]:
                     calls[c["id"]] = (c.get("name"), c.get("input") or {})
                 elif c.get("type") == "tool_result" and c.get("tool_use_id") in calls:
                     name, inp = calls[c["tool_use_id"]]
-                    text = json.dumps(c.get("content"))
+                    raw = "\n".join(list(_strings(c.get("content"))) + list(_strings(d.get("toolUseResult"))))
                     host = (urlparse(inp.get("url", "")).hostname or "") if name == "WebFetch" else ""
-                    ok = not c.get("is_error")
+                    ok = not c.get("is_error") and not (name == "WebFetch" and raw.lstrip().startswith(LA.FETCH_FAIL_PREFIXES))
                     if name == "WebFetch" and _banned(host):
                         continue
                     if name == "WebFetch" and ok and any(host == m or host.endswith("." + m) for m in MIRRORS):
                         issues.append({"kind": "banned_host_fetch", "url": inp.get("url", "")})
-                    own_tr_read = name == "Read" and "/tool-results/" in str(inp.get("file_path", ""))
-                    if ok and (name in ("WebSearch", "WebFetch") or own_tr_read) and TOKENS.search(text):
-                        issues.append({"kind": "forbidden_token_in_tool_result", "tool": name, "token": TOKENS.search(text).group(0)})
-                    named |= set(PATH_RE.findall(text))
-    return named, issues
+                    target = str(inp.get("file_path") or inp.get("path") or "")
+                    own_tr = name in ("Read", "Grep") and "/tool-results/" in target
+                    if ok and (name in ("WebSearch", "WebFetch") or own_tr) and TOKENS.search(raw):
+                        issues.append({"kind": "forbidden_token_in_tool_result", "tool": name, "token": TOKENS.search(raw).group(0)})
+                    texts.append(raw)
+    return texts, issues
 
 
 def audit(verify: bool = False) -> list[dict]:
@@ -84,13 +98,13 @@ def audit(verify: bool = False) -> list[dict]:
         v1man = dict(man, family="pugliese_dedicated" if man.get("family") == "dedicated" else man.get("family"))
         r = LA.audit_session(v1man)
         own_dir = str(LA.PROJECTS / LA.encode(man["room"]))
-        fetched, extra = scan(man["room"])
+        texts, extra = scan(man["room"])
         breaches, own_reads = list(extra), 0
         if not r["transcripts"]:
             breaches.append({"kind": "no_transcript"})  # L3 kind 4
         for i in r["issues"]:
             p = str(i.get("path") or "")
-            if i["kind"] == "file_outside_room" and p.startswith(own_dir + "/") and "/tool-results/" in p and p in fetched:
+            if i["kind"] == "file_outside_room" and p.startswith(own_dir + "/") and "/tool-results/" in p and any(p in x for x in texts):
                 own_reads += 1
                 continue
             if i["kind"] in LC.BREACH_KINDS:

@@ -20,6 +20,7 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -53,10 +54,18 @@ def _sha(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
 
+def is_dedicated(x: str) -> bool:
+    """A DOI, slug or URL of a dedicated simulation source (the frozen audit's tokens, in DOI and slug form)."""
+    s = (x or "").lower()
+    return any(tok.lower() in s or re.sub(r"[^a-z0-9]+", "_", tok.lower()).strip("_") in s for tok in LA.DEDICATED)
+
+
 def deny_paths() -> list[Path]:
-    p = [REPO, HOME / "ledger_rooms" / "run1", HOME / "ledger_rooms" / "run1_aux", HOME / "ledger_rooms_review_gates",
+    p = [REPO, HOME / "ledger_rooms" / "run1", HOME / "ledger_rooms" / "run1_aux", HOME / "ledger_rooms" / "run1*", HOME / "ledger_rooms_review_gates",
          HOME / "ledger_rooms_review_prereg2", HOME / "ledger_rooms" / "run2_canary" / "planted", Path("/private/tmp"), Path("/tmp"),
-         LA.PROJECTS / LA.encode(str(REPO)), LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1")) + "-*"),
+         LA.PROJECTS / LA.encode(str(REPO)), LA.PROJECTS / (LA.encode(str(REPO)) + "*"),
+         LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1")) + "-*"),
+         LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1")) + "*"),
          LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1_aux")) + "-*"), HOME / "ledger_rooms_review*"]
     return p + ([SCRATCH_HINT] if SCRATCH_HINT else [])
 
@@ -66,7 +75,8 @@ WEB_TOOLS = {"search": "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch", "reader_w
 WEB_KINDS = tuple(WEB_TOOLS)
 WEB_NOTE = ("\n\nThe sources of these experiments could not be downloaded; you MAY fetch exactly these DOIs with WebFetch from the "
             "publisher, PubMed Central, Europe PMC or bioRxiv (never the sites of PROTOCOL section 6, never code repositories).\n")
-MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co")
+MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co",
+           "nbviewer.jupyter.org")
 NO_WEB_TOOLS = "Read,Write,Edit,Glob,Grep"
 
 
@@ -135,6 +145,11 @@ def prompt_for(spec: dict) -> str:
 
 
 def build_room(spec: dict) -> Path:
+    if any(is_dedicated(s) for s in spec.get("sources") or []) and spec.get("family") != "dedicated":
+        raise SystemExit(f"{spec['session']}: a dedicated source may go only into a dedicated room (PREREG v2 L7)")
+    missing = [s for s in spec.get("sources") or [] if not (SOURCES / s / "meta.json").exists()]
+    if missing:
+        raise SystemExit(f"{spec['session']}: sources not downloaded: {missing}")
     room = ROOMS / spec["session"]
     if room.exists():
         raise SystemExit(f"room {room} exists already; rooms are single-use")
@@ -237,6 +252,8 @@ def status() -> list[dict]:
         n_disp = max(0, sum(1 for _ in (out / "dispositions.csv").open()) - 1) if (out / "dispositions.csv").exists() else 0
         rows.append({"session": s, "kind": man["kind"], "alive": any(_alive(r["pid"]) for r in man["runs"]), "records": n_rec,
                      "dispositions": n_disp, "n_sources": len(man.get("sources") or []), "results": results, "models": sorted(models)})
+    ROOMS.mkdir(parents=True, exist_ok=True)
+    (ROOMS / "_status.json").write_text(json.dumps(rows, indent=1) + "\n", encoding="utf-8")  # copied per session by the collector
     return rows
 
 
@@ -340,6 +357,11 @@ def main() -> None:
         resume(a.session, "phaseb", prompt, {"quotes_to_verify.csv": Path(a.quotes)})
         print("phase B started for", a.session, "; Phase A snapshot", hashes)
     elif a.cmd == "repair":
+        man = json.loads((MANIFESTS / f"{a.session}.json").read_text(encoding="utf-8"))
+        if any(r["tag"] == "repair" for r in man["runs"]):  # as run 1's labels_rooms: one repair round
+            raise SystemExit(f"{a.session}: the one repair round was already used")
+        if any(r["tag"] == "phaseb" for r in man["runs"]) and (man["pass"] == "pass2" or man["session"].startswith("atlas-codeB")):
+            raise SystemExit(f"{a.session}: a second-reading repair is allowed only before Phase B")
         prompt = (KIT / "PROMPT_REPAIR.md").read_text(encoding="utf-8").replace("{ERRORS}", Path(a.errors).read_text())
         resume(a.session, "repair", prompt)
         print("repair started for", a.session)
