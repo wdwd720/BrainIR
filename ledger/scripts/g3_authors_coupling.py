@@ -30,8 +30,18 @@ from brainir_ledger import networks as N  # noqa: E402
 def main() -> None:
     run = sys.argv[1] if len(sys.argv) > 1 else "33195857"
     member = f"simulations/DNg100_Stim_fullManc/hyak/run_id={run}/ckpt/DNg100_Stim_fullManc_Rs.npz"
-    z, f = open_archive("DNg100_Stim_fullManc.zip")
-    raw = z.read(member)
+    from brainir import paths
+
+    cache = paths.data_root() / "raw" / "external" / "pugliese_2026_zenodo" / "DNg100_Stim_fullManc" / member
+    nbytes = None
+    if cache.exists():
+        raw = cache.read_bytes()
+    else:
+        z, f = open_archive("DNg100_Stim_fullManc.zip")
+        raw = z.read(member)
+        nbytes = f.n_bytes
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_bytes(raw)
     fc = N.full_cord()
     ls = N.leg_setup(fc)
     e1 = [ls["e1"][leg] for leg in L.LEGS]
@@ -41,6 +51,9 @@ def main() -> None:
         names = nz.namelist()
         arrs = {n.removesuffix(".npy"): np.load(io.BytesIO(nz.read(n)), allow_pickle=False) for n in names}
     coords, data, shape = arrs["coords"], arrs["data"], tuple(int(x) for x in arrs["shape"])
+    if len(shape) == 4:  # (stimulus configuration, replicate, neuron, time) -> (simulation, neuron, time)
+        coords = np.vstack([coords[0] * shape[1] + coords[1], coords[2], coords[3]])
+        shape = (shape[0] * shape[1], shape[2], shape[3])
     n_sims, n_neur, n_t = shape
     sel = np.isin(coords[1], keep_rows)
     sub = np.zeros((n_sims, len(keep_rows), n_t), dtype=np.float32)
@@ -66,7 +79,7 @@ def main() -> None:
     out = {"run": run, "n_replicates": n_sims, "T_samples": n_t, "leg_median_scores": {leg: float(np.median([r["legs"][leg] for r in per_rep]))
                                                                                      for leg in L.LEGS},
            "coupling_v1": pairs, "n_coupled": sum(bool(v["coupled"]) for v in pairs.values()),
-           "bytes_read": f.n_bytes}
+           "bytes_read": nbytes, "array_shape": list(shape)}
     d = RESEARCH / "gates"
     d.mkdir(parents=True, exist_ok=True)
     (d / f"G3_authors_coupling_{run}.json").write_text(json.dumps(out, indent=1, default=float) + "\n", encoding="utf-8", newline="\n")

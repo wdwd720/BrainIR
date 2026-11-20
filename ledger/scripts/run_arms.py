@@ -66,10 +66,15 @@ def cmd_b0(a) -> None:
     raw = B0_PATH.read_bytes()
     d = json.loads(raw)
     fl = N.front_leg()
+    reps_raw = pd.DataFrame(d["replicates"])
+    unusable = reps_raw[~reps_raw["usable"]]
+    weak = unusable[unusable["n_active_all"] < 5].groupby("candidate").size()
+    strong = unusable[unusable["n_active_all"] >= 5].groupby("candidate").size()
     rows = []
     for c in d["candidates"]:
-        rows.append({"row": int(c["candidate"]), "bodyId": int(c["source_id"]), "manc_type": c["cell_type"], "n_usable": c["n_usable"],
-                     "mean_score": c["mean_score"]})
+        k = int(c["candidate"])
+        rows.append({"row": k, "bodyId": int(c["source_id"]), "manc_type": c["cell_type"], "n_usable": c["n_usable"],
+                     "mean_score": c["mean_score"], "n_weak": int(weak.get(k, 0)), "n_strong": int(strong.get(k, 0))})
     neur = pd.DataFrame(rows)
     assert (fl.table.loc[neur["row"], "bodyId"].to_numpy() == neur["bodyId"].to_numpy()).all()
     t0 = AU.per_type_from_neurons(neur, "B0", "manc_v1.2.1_frontleg")

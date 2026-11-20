@@ -27,3 +27,15 @@ Coupling (leg signal v1, PREREG 4.7):
 
 Criteria: 1_every_leg_rhythmic PASS, 2_per_leg_agreement PASS, 3_hind_weaker PASS, 4_no_coupling FAIL
 **G3 items 1-4: FAIL.** Item 5 is checked on the B3 arm.
+
+## Diagnostic after the verdict (does not change it): the authors' own traces under the same test
+
+`ledger/scripts/g3_authors_coupling.py` applied the identical eligibility rule and coupling test (PREREG 4.7, E1 leg signal,
+same seed) to the authors' own full-cord DNg100 traces, run 33195857 (32 replicates, Zenodo `DNg100_Stim_fullManc.zip`,
+`G3_authors_coupling_33195857.json`). Result: T1R-T2R R 0.60 (p 0.001, **coupled**), T2R-T3R R 0.75 (p 0.001, **coupled**),
+T1L-T2L R 0.59 (p 0.018), T1L-T1R R 0.33 (p 0.33), T2L-T2R R 0.21 (p 0.53); T3L-T3R and T2L-T3L had fewer than 8 eligible
+replicates. The authors' own simulation therefore fails item 4 as well, with the same ipsilateral pattern BrainIR shows
+(T2R-T3R strongest). The failure lies in item 4 (it encodes the paper's verbal "no phase coupling", which the authors' traces
+do not support under a formal test), not in the BrainIR full-cord build, which matches the authors on every per-leg
+statistic. The pre-registered verdict stands: B3 and B6 are not locked in run 1 (prompt §8: "report it as failed and say
+why"). A later version could replace item 4 by "coupling pattern consistent with the authors' traces".

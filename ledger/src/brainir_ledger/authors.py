@@ -120,7 +120,8 @@ def a1_replicates(lo: int = USABLE_LO, files: dict | None = None) -> pd.DataFram
 
 
 def a0_neurons(table: pd.DataFrame, files: dict | None = None) -> pd.DataFrame:
-    """Per neuron (index = row of the authors' front-leg table): mean over usable of 128 replicates."""
+    """Per neuron (index = row of the authors' front-leg table): mean over usable of 128 replicates, and counts of unusable
+    replicates that were too weak (nActive < 5) or too strong (> 1500)."""
     files = files or fetch()
     sc = pd.read_csv(files["a0_score"], index_col=0)
     ac = pd.read_csv(files["a0_activity"], index_col=0)
@@ -129,7 +130,8 @@ def a0_neurons(table: pd.DataFrame, files: dict | None = None) -> pd.DataFrame:
     for i in sc.index:
         s = sc.loc[i][use.loc[i]].astype(float).to_numpy()
         rows.append({"row": int(i), "bodyId": int(table.loc[int(i), "bodyId"]), "manc_type": str(table.loc[int(i), "type"]),
-                     "n_usable": int(len(s)), "mean_score": float(s.mean()) if len(s) else None})
+                     "n_usable": int(len(s)), "mean_score": float(s.mean()) if len(s) else None,
+                     "n_weak": int((ac.loc[i] < USABLE_LO).sum()), "n_strong": int((ac.loc[i] > USABLE_HI).sum())})
     return pd.DataFrame(rows)
 
 
@@ -146,6 +148,7 @@ def per_type_from_neurons(neur: pd.DataFrame, arm: str, network: str) -> pd.Data
         rows.append({"arm": arm, "network": network, "manc_type": t, "n_members": int(len(g)),
                      "member_ids": ";".join(str(int(b)) for b in g["bodyId"]), "n_replicates": None, "n_usable": int(g["n_usable"].sum()),
                      "mean_score": tmean, "median_score": None, "frac_ge_0_5": None, "best_score": tmax, "median_freq_hz": None,
-                     "median_current": None, "median_n_active_readout": None, "status": "ok" if len(m) else "never_usable_weak",
+                     "median_current": None, "median_n_active_readout": None,
+                     "status": "ok" if len(m) else ("never_usable_weak" if g["n_weak"].sum() >= g["n_strong"].sum() else "never_usable_strong"),
                      "band": band(primary), "primary_score": primary, "type_max": tmax, "type_mean": tmean})
     return finish_types(rows)

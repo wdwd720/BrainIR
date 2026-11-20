@@ -84,6 +84,26 @@ def split_synonyms(s: str) -> list[tuple[str, str]]:
     return out
 
 
+def driver_lines(types: list[str], S: pd.DataFrame) -> pd.DataFrame | None:
+    """Kit driver-line map from the anatomy-only extraction (copied to <data>/raw/external/driver_lines_extraction/); names are
+    mapped to MANC types through the type list and the synonym map (exact, case-insensitive); unmapped names are kept."""
+    src = EXT / "driver_lines_extraction" / "driver_lines_raw.csv"
+    if not src.exists():
+        return None
+    raw = pd.read_csv(src, dtype=str).fillna("")
+    lut = {t.lower(): t for t in types}
+    for n, t in zip(S["name"], S["manc_type"]):
+        lut.setdefault(str(n).lower(), t)
+    def mapname(x: str) -> str:
+        x = x.strip()
+        return lut.get(x.lower(), lut.get(x.split("(")[0].strip().lower(), "UNMAPPED"))
+    out = pd.DataFrame({"line_id": raw["line_id"], "manc_type": raw["dn_type_as_written"].map(mapname),
+                        "name_as_written": raw["dn_type_as_written"], "line_kind": raw["line_kind"],
+                        "other_cells": raw["other_cells_as_written"], "expression_note": raw["expression_note"],
+                        "source_doi": raw["source_doi"], "source_locator": raw["source_locator"]})
+    return out.drop_duplicates().sort_values(["line_id", "manc_type", "source_doi"]).reset_index(drop=True)
+
+
 def main() -> None:
     ft, fc, an, prov = load_inputs()
     body2type, ren = canonical_types(ft, fc)
@@ -126,6 +146,12 @@ def main() -> None:
         hits = [name] if name in types else sorted(set(S.loc[S["name"] == name, "manc_type"]))
         ex.append({"name_as_given": name, "manc_types": ";".join(hits), "resolved": bool(hits)})
     pd.DataFrame(ex).to_csv(KIT / "exposed_types.csv", index=False, lineterminator="\n")
+    dl = driver_lines(types, S)
+    if dl is not None:
+        dl.to_csv(KIT / "driver_lines.csv", index=False, lineterminator="\n")
+        src = EXT / "driver_lines_extraction" / "driver_lines_raw.csv"
+        prov[str(src.relative_to(paths.data_root()))] = _sha(src)
+        print(f"driver lines: {len(dl)} rows, {dl['line_id'].nunique()} lines, {int((dl['manc_type'] != 'UNMAPPED').sum())} rows mapped")
     (KIT / "kit_inputs.json").write_text(json.dumps({"inputs_sha256": prov, "n_types": len(types), "n_synonym_rows": int(len(S))},
                                                     indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     print(f"types {len(types)}, synonym rows {len(S)}; exposed: " + ", ".join(f"{e['name_as_given']}->{e['manc_types'] or '?'}" for e in ex))
