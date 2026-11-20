@@ -224,6 +224,22 @@ def collect() -> None:
     LC.collect()
 
 
+def searches(round_: int) -> None:
+    """PREREG v2 L8/L9: one fresh search session per search kind for this round (run after the first complete reading of the
+    registry, and after each round whose leads added >= 10 % new units, at most three rounds)."""
+    if round_ > 3:
+        raise SystemExit("at most three search rounds (PREREG v2 L9)")
+    kinds = json.loads((KIT / "families_v2.json").read_text(encoding="utf-8"))["search_kinds"]
+    names = []
+    for k in kinds:
+        name = f"search-{k.replace('_', '')}-r{round_}"
+        if (SPECS / f"{name}.json").exists():
+            continue
+        _spec({"session": name, "kind": "search", "search_kind": k, "pass_id": "search", "sources": []})
+        names.append(name)
+    print(json.dumps({"search_specs": names}))
+
+
 def leads(round_: int) -> None:
     reg = _registry()
     known = set(reg["doi"])
@@ -696,7 +712,7 @@ def v1_vs_v2() -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["registry", "atlas-ids", "atlas-quotes", "redo-breaching", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
+    ap.add_argument("cmd", choices=["registry", "atlas-ids", "atlas-quotes", "redo-breaching", "searches", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
                                     "verify-score", "finalize", "v1-vs-v2"])
     ap.add_argument("--round", type=int, default=0)
     a = ap.parse_args()
@@ -706,6 +722,8 @@ def main() -> None:
         readers(a.round)
     if a.cmd == "leads":
         leads(a.round)
+    if a.cmd == "searches":
+        searches(a.round)
 
 
 if __name__ == "__main__":
