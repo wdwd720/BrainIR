@@ -1,0 +1,39 @@
+# BrainIR prediction ledger, run 2 (research/ledger/RUN2_PROMPT.md, Stage 0): free hosted runners for this public repository.
+# Lives on branch ledger/v1 only and runs only for tags named gha-* (never main, no manual trigger). Logs print progress only,
+# never a per-type score; result files are encrypted to a public key before upload (the private key never leaves the Mac).
+name: ledger-gha
+on:
+  push:
+    tags: ["gha-*"]
+permissions:
+  contents: read
+env:
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  OPENBLAS_CORETYPE: "Haswell"
+  NPY_DISABLE_CPU_FEATURES: "AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL AVX512_SPR"
+jobs:
+  probe:
+    if: startsWith(github.ref_name, 'gha-probe')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: uv 0.13.7 and Python 3.12.10 with the run 1 image pins
+        run: |
+          curl -LsSf https://astral.sh/uv/0.13.7/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv python install 3.12.10
+          uv venv -p 3.12.10 .venv-gha
+          uv pip install -p .venv-gha/bin/python numpy==2.5.3 scipy==1.18.1 pandas==3.0.6 pyarrow==25.0.1 pydantic==2.13.5 networkx==3.7 duckdb==1.5.5 google-crc32c==1.8.0 requests==2.34.2
+      - name: Host and numerics probe
+        run: |
+          nproc; lscpu | grep -m1 'Model name' || true; free -g | head -2
+          PYTHONPATH=src:ledger/src .venv-gha/bin/python - <<'PY'
+          import json
+          from brainir_ledger.jobs import probe
+          r = probe({"key": "gha-probe"})
+          print("numerics_digest12", r["numerics_digest"][:12])
+          print(json.dumps({k: r["host"][k] for k in ("python", "platform", "numpy", "scipy", "env")}))
+          PY
