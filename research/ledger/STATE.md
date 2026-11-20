@@ -24,7 +24,14 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
 - Code written (uncommitted parts may exist): `labels2_rooms.py`, `labels2_collect.py`, `labels2_audit.py`, `labels2_canary.py`,
   `typescreen_v2.py`, `jobs_v2.py` (group_v2), gha builders calibk/regress/b1r/b2r/g3v2, `g3v2_evaluate.py`, `lock2.py`.
   Downloader `labels2_download.py` being written by a helper agent; PREREG_v2 under review by a fresh reviewer (14:00).
-- [ ] Stage 1: PREREG_v2.md (Parts L, P, S, disclosure) + kit v2; fresh reviewer audit; tag ledger-prereg-v2, push, OTS.
+- [~] Stage 1: PREREG_v2.md + kit v2 reviewed ('freeze after fixes'), fixes committed c3b4e70 (L52); a fresh reviewer
+      re-checks (report -> `~/ledger_rooms_review_prereg2b/RECHECK_prereg_v2.md`). THEN: `lock2.py prereg`, commit, tag
+      `ledger-prereg-v2` (push the tag alone), OTS. G3 item 4' already known to FAIL under the governing rule (P2).
+- After the freeze, in order: publish GHA `g3v2`, `calibk`, `regress` (packed in data/ledger/gha/; push each tag alone);
+  `labels2_collect.py registry`; downloads (`labels2_download.py`, helper agent writing it); `atlas-ids`; `readers --round 0`;
+  search specs round 1; implementation review of code vs PREREG v2; `lock2.py labelcode` + `lock2.py scoring` (scoring v2 +
+  gate_v2 being written by a helper agent); evaluate G3 v2; THEN start `labels2_rooms.py schedule` (first label session).
+- Quota: 40 % at 13:51 (run 2 start ~34 %). Helper agents are expensive (~0.5-1 % each): keep them few.
 - [ ] Stage 2 (after freeze): G3 v2 incl. DNg100-only calibration BEFORE the first label session; tuner v2 K on DNg100
       (MANC + MaleCNS); tuner regression (K off = B1 on 30 types x 16 seeds); B1r, B2r, B3 (B6 only if budget); B4 v2
       recompute; determinism; review; LOCK_predictions_v2 (additive), tag, push, OTS.

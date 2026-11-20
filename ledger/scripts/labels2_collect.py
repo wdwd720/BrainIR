@@ -140,21 +140,28 @@ def _downloaded(s: str) -> bool:
 
 # --------------------------------------------------------------------------------------------------------- readers
 def readers(round_: int) -> None:
+    """Reader specs (<= 6 sources per session) for registered sources of this round not yet assigned; sources the downloader
+    marked unreachable go to web-enabled `reader_web` sessions (PREREG v2 C1)."""
     reg = _registry()
     reg = reg[reg["round"].astype(int) == round_]
     assigned = set()
     for m in sorted(R2.MANIFESTS.glob("*.json")):
         assigned |= set(json.loads(m.read_text()).get("sources") or [])
-    todo = reg[(~reg["slug"].isin(assigned)) & (reg["family"] != "atlas")]
+    for f in SPECS.glob("*.json"):
+        assigned |= set(json.loads(f.read_text()).get("sources") or [])
+    skip = {slug(d) for d in (ATLAS_DOI,)}
+    todo = reg[(~reg["slug"].isin(assigned)) & (~reg["slug"].isin(skip))]
     todo = todo[[_downloaded(s) for s in todo["slug"]]]
-    specs = []
+    status = {s: json.loads((SOURCES / s / "meta.json").read_text()).get("status") for s in todo["slug"]}
+    n = 0
     for fam, g in todo.groupby("family"):
-        slugs = list(g["slug"])
-        for i in range(0, len(slugs), 6):
-            n = len(list(SPECS.glob(f"pass1-{fam}-r{round_}-*.json"))) + 1
-            specs.append(_spec({"session": f"pass1-{fam}-r{round_}-{n:02d}", "kind": "reader", "family": fam, "pass_id": "pass1",
-                                "sources": slugs[i:i + 6]}))
-    print(json.dumps({"reader_specs": len(specs), "sources": int(len(todo))}))
+        for kind in ("reader", "reader_web"):
+            slugs = [s for s in g["slug"] if (status[s] == "unreachable") == (kind == "reader_web")]
+            for i in range(0, len(slugs), 6):
+                k = len(list(SPECS.glob(f"pass1-{fam}-r{round_}-*.json"))) + 1
+                _spec({"session": f"pass1-{fam}-r{round_}-{k:02d}", "kind": kind, "family": fam, "pass_id": "pass1", "sources": slugs[i:i + 6]})
+                n += 1
+    print(json.dumps({"reader_specs": n, "sources": int(len(todo)), "unreachable_to_reader_web": sum(v == "unreachable" for v in status.values())}))
 
 
 def atlas_ids() -> None:
@@ -168,6 +175,17 @@ def atlas_ids() -> None:
     _spec({"session": "atlas-codeA", "kind": "atlas_code", "pass_id": "pass1", "sources": [slug(ATLAS_DOI)], "inputs": inp})
     _spec({"session": "atlas-codeB", "kind": "atlas_code", "pass_id": "pass1", "sources": [slug(ATLAS_DOI)], "inputs": inp})
     print(json.dumps({"atlas_line_ids": len(ids), "specs": ["atlas-map", "atlas-codeA", "atlas-codeB"]}))
+
+
+def atlas_quotes() -> None:
+    """Phase B input for atlas coder B: coder A's quotes keyed `atlas:<LINE>` (PREREG v2 L8)."""
+    rows = []
+    for r in sorted(_jsonl(RAW / "pass1" / "atlas-codeA" / "records.valid.jsonl"), key=lambda x: str(x.get("record_id"))):
+        line = re.sub(r"\s+", "", str((r.get("driver_lines") or [r.get("name_in_paper", "")])[0])).upper()
+        if not any(x["exp_id"] == f"atlas:{line}" for x in rows):
+            rows.append({"exp_id": f"atlas:{line}", "doi": r["doi"], "source_locator": r["source_locator"], "quote": r["quote"]})
+    _write_csv(WORK / "atlas" / "quotes_to_verify_B.csv", rows, ["exp_id", "doi", "source_locator", "quote"])
+    print(json.dumps({"atlas_quotes_for_B": len(rows)}))
 
 
 # --------------------------------------------------------------------------------------------------------- collect / leads / reassign
@@ -555,11 +573,11 @@ def v1_vs_v2() -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["registry", "atlas-ids", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
+    ap.add_argument("cmd", choices=["registry", "atlas-ids", "atlas-quotes", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
                                     "verify-score", "finalize", "v1-vs-v2"])
     ap.add_argument("--round", type=int, default=0)
     a = ap.parse_args()
-    {"registry": registry, "atlas-ids": atlas_ids, "collect": collect, "reassign": reassign, "second": second, "adjudication": adjudication,
+    {"registry": registry, "atlas-ids": atlas_ids, "atlas-quotes": atlas_quotes, "collect": collect, "reassign": reassign, "second": second, "adjudication": adjudication,
      "verify-sample": verify_sample, "verify-score": verify_score, "finalize": finalize, "v1-vs-v2": v1_vs_v2}.get(a.cmd, lambda: None)()
     if a.cmd == "readers":
         readers(a.round)
