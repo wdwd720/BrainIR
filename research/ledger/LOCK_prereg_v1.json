@@ -1,0 +1,208 @@
+{
+ "authors_files_pinned": {
+  "a0_activity": [
+   "figures/DN_Screen-hyak-combined128reps/combinedActivitySummary.csv",
+   "1b6a0e7bbda92e9830fa0c52e2cf22d46c4429b662bf34e663247a9f9b6a6ac4"
+  ],
+  "a0_score": [
+   "figures/DN_Screen-hyak-combined128reps/combinedScoreSummary.csv",
+   "0e1651bf17e277e80c2d3512ace837ab77dc0ed54ff0adb73e4964b39efe1aa1"
+  ],
+  "a1_activity": [
+   "figures/DN_Screen-hyak-run_id=32818378/activitySummary.csv",
+   "c877904acefbe9a7cac468e37f3954ba141a95611a790b7b22b80ba079c0dd7b"
+  ],
+  "a1_score": [
+   "figures/DN_Screen-hyak-run_id=32818378/scoreSummary.csv",
+   "c93255a84316a87819b50b31ebcae137f6bef13deeb7f32db107a824feab2106"
+  ],
+  "full_nmns_alllegs": [
+   "figures/DNg100_Stim_fullManc-hyak-30662613-33195857-33195876-33195882/nMnsActive_allLegs.csv",
+   "c67873234033a8e8f41d7e96360abebb9243312e2f52dab1619b5ccdb2c73d06"
+  ],
+  "full_scores_alllegs": [
+   "figures/DNg100_Stim_fullManc-hyak-30662613-33195857-33195876-33195882/scores_allLegs.csv",
+   "8c9a014420ebc629bc47cad68f0671e6fb62a1e40a38f4a499f4b3c14d526647"
+  ]
+ },
+ "authors_zenodo_configs_pinned": {
+  "DN_Screen__fig1_edf1.zip:simulations/DN_Screen/hyak/run_id=32818378/.hydra/overrides.yaml": "a1e572bfc40b81a628be530120dac50847fbf34ede182f93205d8d00ff300721",
+  "DN_Screen__fig1_edf1.zip:simulations/DN_Screen/hyak/run_id=32818378/logs/run_config.yaml": "26e02175972215b84c986ec867a31d05adbbccb06c72eaf226e234623ae82c10",
+  "DN_Screen__fig1_edf1.zip:simulations/DN_Screen/hyak/run_id=33160051/logs/run_config.yaml": "49d875ea49a8c63b90d4b56304375380d0b2ab74f2d010baa95b07d4a83068ed",
+  "DNg100_Stim_fullManc.zip:simulations/DNg100_Stim_fullManc/hyak/run_id=30662613/logs/run_config.yaml": "f230e5b6ebd83142d2be001e1a11c3ad4653f18914e275ac1134c203b85dbcbe",
+  "DNg100_Stim_fullManc.zip:simulations/DNg100_Stim_fullManc/hyak/run_id=33195876/logs/run_config.yaml": "081df1cf7e13ce5aaf5c2cea1166f9096eb66e669412000b47db6e3b6d61c516"
+ },
+ "environment": {
+  "local": {
+   "cpu": {
+    "cpu_model": "Apple M5",
+    "machine": "arm64",
+    "processor": "arm"
+   },
+   "env": {
+    "MKL_NUM_THREADS": null,
+    "NPY_DISABLE_CPU_FEATURES": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_CORETYPE": null,
+    "OPENBLAS_NUM_THREADS": null
+   },
+   "numpy": "2.5.3",
+   "numpy_cpu_features_enabled": {
+    "ASIMD": true,
+    "ASIMDDP": true,
+    "ASIMDHP": true
+   },
+   "pandas": "3.0.6",
+   "platform": "macOS-26.6-arm64-arm-64bit",
+   "pyarrow": "25.0.1",
+   "python": "3.12.14",
+   "scipy": "1.18.1"
+  },
+  "modal_image": {
+   "base": "modal.Image.debian_slim(python_version='3.12')",
+   "env": {
+    "MKL_NUM_THREADS": "1",
+    "NPY_DISABLE_CPU_FEATURES": "AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL AVX512_SPR",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_CORETYPE": "Haswell",
+    "OPENBLAS_NUM_THREADS": "1"
+   },
+   "image_builder_version": "2025.06",
+   "local_python_sources": [
+    "brainir",
+    "brainir_ledger"
+   ],
+   "pip": [
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "pandas==3.0.6",
+    "pyarrow==25.0.1",
+    "pydantic==2.13.5",
+    "networkx==3.7",
+    "duckdb==1.5.5",
+    "google-crc32c==1.8.0",
+    "requests==2.34.2"
+   ]
+  }
+ },
+ "frozen_code": {
+  "ledger/scripts/build_kit.py": "8d1e074f73afc74bb76e915232bc4eada90e9503d2b29f7e9b5fbde573398f34",
+  "ledger/scripts/labels_audit.py": "dbe819b8fc706ccf573b8b6da8a287d503a2ab23d4ebe78baa80cfa1014240ca",
+  "ledger/scripts/labels_collect.py": "97a90ef003424732ad75bf891f17054d8dacece698326c2dd20dcea9274910a1",
+  "ledger/scripts/labels_prepare.py": "34896eb7398785b8b7a724f502813aef462d7bf5b9459160c3171a68beecbf3c",
+  "ledger/scripts/labels_rooms.py": "054e5c3182a91a8712b450ef6d1f144cd21f99906db5910dd0ebf63dab6ee6c2",
+  "ledger/scripts/lock.py": "0741853960ee151a3f63081c5b60fcb7a4405ac61641d59926478e8bbc5d6377",
+  "ledger/src/brainir_ledger/__init__.py": "63568fe603080455147391b889af521c50d9d4dd7b9f62cef920c31126748d8a",
+  "ledger/src/brainir_ledger/labels/__init__.py": "6d04bd1fbcef3eabcdc9b34e955f0deb816609466c626d7631e1f25c8f7fc817",
+  "ledger/src/brainir_ledger/labels/aggregate.py": "f7736a3e4aecec7e2004efad78acfbf56340533b48504c7e2a6bf47b2d9a3725",
+  "ledger/src/brainir_ledger/labels/agreement.py": "6155ab3add815c5d329c26421c1aa11e8f6c28d288b994a5b1d8d9e007323e13",
+  "ledger/src/brainir_ledger/labels/schema.py": "aa0b3599852bfb742504a21a93df51bd2d804a026bc081dead6a161130f8cd65",
+  "ledger/src/brainir_ledger/scoring/__init__.py": "b91910aab32dcd01bccc2fceed989632d1829643a1cf3bd9c9afa25606849555",
+  "ledger/src/brainir_ledger/scoring/pipeline.py": "702d6d63542b36c390e2a78c4907a1d42cf5cd35b1489256be33ad97acb74bca",
+  "ledger/src/brainir_ledger/scoring/stats.py": "46626425e4106c59848b95f93fb82617a1b6258ac4432bf0382760b5e487b90b",
+  "ledger/tests/conftest.py": "51209c9580dfd5056e9bcf921b5bdef26d2e52eb177a889569f5180095f96ff0",
+  "ledger/tests/test_audit.py": "60ae88395ee7352e53bbb873b213147fb8912e230f901b878d3e67cb79e674a4",
+  "ledger/tests/test_label_isolation.py": "27cf5a0091a5addd1a629d9ea3bf2c38b4e4a422698a5031761720c648c15892",
+  "ledger/tests/test_label_workflow_e2e.py": "2f5f71f6adb324605dfe454f5435fc6958044a1a14d53a68d0bc0f6a6d1489bb",
+  "ledger/tests/test_labels.py": "629deb4ce319c71e6b3d21823fd148501382d475710835d5aefe4111511f6bc3",
+  "ledger/tests/test_stats.py": "65d877da28ca4d3388fbcf8f1c480ba918cec8a9ae7d75c107c812e2b0322b2f",
+  "ledger/tests/test_unblind_guard.py": "955f9669a5ea8e204ef6d96ffc87d2beb53bdba576bfe3f7be77cce6414c2f6c"
+ },
+ "git_dirty_ledger_paths": [],
+ "git_head": "36894c78d65a7b8eb6b74626026bbbe8fb66897d",
+ "kit": {
+  "research/ledger/kit/CHANGELOG.md": "bbfb94bdab42a1c74a17491c095349a46b6246ea4ea76ca487bfcae84ff632f2",
+  "research/ledger/kit/DEDICATED_PERMISSION.md": "b051aff5782c7fd2ec8fefc13e4329d8410671510f34443960937ba63eca48cd",
+  "research/ledger/kit/PROMPT_ADJUDICATE.md": "f2092eda21e47832ebc8e5198c1ecac8d1ab58132178f472b3810c5f93db575d",
+  "research/ledger/kit/PROMPT_PASS1.md": "a30e329f93f030f17f83808e6c65d6a7bb95d15173da599be6d76101bd2a95da",
+  "research/ledger/kit/PROMPT_PASS2.md": "240335810c0bf8947870471512f4ac627572fe86b6dd35bbb56f35c99d1142a6",
+  "research/ledger/kit/PROMPT_PASS2_PHASEB.md": "aa8733fb07a7b13361e75beae85c24d0fcfc23215d1cdfeaa74f72652e0cd4c6",
+  "research/ledger/kit/PROMPT_REPAIR.md": "c555d21aec26a07da48eb0e7216a239d487e6ae0b0717c532850d1a6e2e88d43",
+  "research/ledger/kit/PROMPT_SEARCH.md": "8f93bff786a6feb25593f40761d8bdbc73936298c83e512d79e3d8199971879e",
+  "research/ledger/kit/PROTOCOL.md": "31ee2d096fcddc140ed5410afee86a1cb5d916df96010cc5f8f0f9d92ebec242",
+  "research/ledger/kit/driver_lines.csv": "e67058ae178f3912fc113a1a9a4cf1658cdc6af582ca1043febea3495381bf69",
+  "research/ledger/kit/exposed_types.csv": "a7a7f9353c989de208b555e9f9da1e1203d7b6e1705d1b5db337a1bd0e5591be",
+  "research/ledger/kit/families.json": "a96a3734fc03028bf2142f7c4020475a263d283186a5797f9cd51533234d512e",
+  "research/ledger/kit/kit_inputs.json": "9dcfda7dca296d53dc2054da506371f59a4b0adc6768ff3fb6fd0604d740d600",
+  "research/ledger/kit/record_schema.json": "9de66215fe505ed1cbbe9fd2e8fee006371806109dda29ecec236a6f9b5d29a2",
+  "research/ledger/kit/sources_seed.csv": "23f4680f2ddf115b1d1210e56b7f9c5df1645c27e0cf13ef0a9ca95279dc02b6",
+  "research/ledger/kit/synonyms.csv": "80091acf9432c026012ea0b0067dd824e428fd9074f0587de4cca2dbeb6490b4",
+  "research/ledger/kit/type_list.csv": "ae36f839ada40a3c7ad57d753a741a93965c923a83e12c7aed79be956f27ad02"
+ },
+ "kit_version": 1,
+ "pre_freeze_evidence": {
+  "research/ledger/calibration/front_dng100_v1.json": "79586937cffc8862f5b88e796fe2d31f195ca2b1690721e1b2c5a063f344b3e6",
+  "research/ledger/calibration/full_sweep_v1.json": "9e9e604465a9a4c4afdac64ede966bff35496f3a1dfae1c58b0ed975da67d238",
+  "research/ledger/calibration/g3_runs_v1.json": "056215d1cdaf4639c1e498aef88d9cc0210fd468aa3151950ec71602f0fcefed",
+  "research/ledger/g0/G0_REPORT.json": "1e52a4d65dada327885693499ab977ea3d88f0504f7fd64eafbe97fa575e6018",
+  "research/ledger/g0/G0_REPORT.md": "b57369f187248532e820df7196c5916e1a0a0e832df5dc6c4708b4d58b5d9c6b",
+  "research/ledger/g0/manc_reproduction_rebuilt_on_mac.md": "4dff1cee3da4c434bc4c7d325158249c71f8ce75f6bea739404777ab87b48fc9",
+  "research/ledger/g0/manc_reproduction_summary_rebuilt_on_mac.json": "8d51e63058a6014c5379bf12df232a9c8b632f06bb0d69ba0dd5da42074bef48",
+  "research/ledger/gates/G3_REPORT.json": "6ceae167e814c9b127a20cd0499b3f45f3580a298e894d80448ff7a2c1774d1c",
+  "research/ledger/gates/G3_REPORT.md": "d8304e23beff58c11a4b6422917bfefc9ecef5bff731d0825ae174a2b4b4a507",
+  "research/ledger/gates/G3_authors_coupling_33195857.json": "407360edd8f8ce60c0e71cd190eea70afd0f2121306efaf978559c8d77fe096f",
+  "research/ledger/pilot/frontleg_v1.json": "50d4adb75c69dd0cc06e32ec0ff244360b99ffda4e5aadf7aa392b138f849fa8",
+  "research/ledger/pilot/fullcord_v1.json": "05209bb542586c7d84fd6c9b1b6df94a98bd375576c0a0419a1c9afd487dbd3d",
+  "research/ledger/pilot/probe_v1.json": "99102f6563dacf577639a46fa7baf864b8e4c904c516bb867196eb0a0c904f28"
+ },
+ "prediction_code_snapshot": {
+  "ledger/pyproject.toml": "116ebf71abe920679e0753fa1ec5e137227de965cfb96de3343d500889f6207a",
+  "ledger/scripts/calibrate_dng100.py": "e62699738486fa96bbc1d0330ba92560f3f6094c232a0265e43b21140d3b25bb",
+  "ledger/scripts/fetch_malecns_annotations.py": "4918124e4d52cba16bae6284691891c37f37e9c0ae4df8509d9534bb7c542897",
+  "ledger/scripts/g0_check.py": "676449ba9f115b1fde0e33959e639565e1569d5a3a1690afe1a1e1ac58f30cfd",
+  "ledger/scripts/g3_authors_coupling.py": "743d5aa71b161d4192cc8c81bf706927e20b0015e876fcbeccfc803c10aa51ba",
+  "ledger/scripts/g3_evaluate.py": "872a3e737e586ee803cebc7628f08ba4e815a9d50a993e2ab2d907cf82a8cc90",
+  "ledger/scripts/pilot.py": "f1179379ddf6f897e2bbb92c9b98fb64d8cb61d265a9ed24fa0b457b3ff635a0",
+  "ledger/scripts/run_arms.py": "4ef0f5393cbb7f28ad0be9b4626de6cde023af9f8644fe9a9de6a512c2c28c3e",
+  "ledger/scripts/stage1_core.sh": "17e05801c686cb4ceccdd023ac8a31146aa92d3b069d13bc36fdec4e894a2db0",
+  "ledger/scripts/zenodo_remote_zip.py": "61179e4c4b9f0d9fd9cf1abb3174bf1054b44a4b138c0ea0c096ef2155df11c0",
+  "ledger/src/brainir_ledger/arms.py": "d9b98349f676781abe0b4bc638c2e753d18211f821c542c12273d65eaee62c17",
+  "ledger/src/brainir_ledger/authors.py": "cbc3aa17c3656b2b309d363a9628f4435168a5e1bb4d2cb0ff57ef723e6f5623",
+  "ledger/src/brainir_ledger/backend.py": "9cecf0e6e8de3da578c33f780b87bb55592dbc7323afdd2a99e37d41d51d393d",
+  "ledger/src/brainir_ledger/baselines.py": "bc83c1933a29922016256280927d83594af8de98dc74e37e54ea986d7f2756ac",
+  "ledger/src/brainir_ledger/controls.py": "fea1d5a27151d8f527e383e5db7e0d17b64f845bfaa7c4fecc0ca88daff45195",
+  "ledger/src/brainir_ledger/env.py": "6ea3b6fbccbb2bb96c2db3086d6db6f3bb542ad97d2743b64f5bf801cec35d64",
+  "ledger/src/brainir_ledger/jobs.py": "d64398aa08354acda193059cbde700aeb4a9b9cbd75841a794a7f1be7728173e",
+  "ledger/src/brainir_ledger/legs.py": "0cbc328ffe9f857527a71be7c779414e11e5078e1dd7d2bb7815a377962c5281",
+  "ledger/src/brainir_ledger/networks.py": "b256c2bae4b001000edd1546b6ca2476107a775d2863e28973360047e9daf401",
+  "ledger/src/brainir_ledger/tables.py": "7502f83150371dd207641f1ff909fea9fd0e13c7a05586889ae282edd1c59de2",
+  "ledger/src/brainir_ledger/typescreen.py": "e5ffe2d0026eac3f16dcc3b12d6717fe304bc625758becd98720442dd9892dbc",
+  "ledger/tests/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "ledger/tests/test_typescreen.py": "5bd1cfa8147201ffd22e3a735f1e2c1d127d1278e832af1c5d23294719826a7d",
+  "ledger/uv.lock": "fcc54bb9d92cdab2edbbff96b3deb8bf95bfa0ea1a118388e3a48a1b5e5a2171"
+ },
+ "prereg": {
+  "research/ledger/PREREG.md": "b3561723f2c238fde6a7f3de0cd41231fb96fac06e479d4fee4d013833b15f6e",
+  "research/ledger/RUN1_PROMPT.md": "54f8c3b5a934ac645d70e0aea60f4028ff8c795115a2776bd47f1c2eff0d02dd"
+ },
+ "reviews": {
+  "research/ledger/reviews/RESOLUTION_prereg_round1.md": "604a38d76a92c06815666c95bd970b7579dd846e69abf8bd10582025d7d58c8a",
+  "research/ledger/reviews/RESOLUTION_prereg_round2.md": "d96996d828d92693ec34b3f57ec29cb5ac25da71a6d9cb718534c47aebd66b66",
+  "research/ledger/reviews/RESOLUTION_prereg_round3.md": "1b14766f5137a04e7fa6a60210a0d34a2afaa08bbceef83eec7181b97783a4ed",
+  "research/ledger/reviews/REVIEW_prereg_round1.md": "ff5188fbd7eaf133d60c108471ea9a061d1e05f79e39628efe8283144b426de8"
+ },
+ "seeds": {
+  "adjudication_order": 20261125,
+  "bootstrap": 20261120,
+  "controls": [
+   101,
+   102,
+   103,
+   104,
+   105,
+   201,
+   202,
+   203,
+   204,
+   205
+  ],
+  "coupling_null": 20261123,
+  "g1_sample": 20261124,
+  "paired_bootstrap": 20261122,
+  "parameter": "0..15 (G3: 0..63)",
+  "permutation": 20261121,
+  "spot_check": 20261126
+ },
+ "stage": "prereg",
+ "utc": "2026-11-20T06:35:24Z"
+}
