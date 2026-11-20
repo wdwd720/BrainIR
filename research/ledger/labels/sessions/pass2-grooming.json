@@ -1,0 +1,76 @@
+{
+ "session": "pass2-grooming",
+ "pass": "pass2",
+ "family": "grooming",
+ "room": "$HOME/ledger_rooms/run1/pass2-grooming",
+ "runs": [
+  {
+   "tag": "main",
+   "pid": 44259,
+   "start_utc": "2026-11-20T17:39:27Z",
+   "prompt_sha256": "d44748928a83fe57a782766c6cdb64b6a2657c26c0bb83c784671c9d8e14d741",
+   "prompt": "You are a careful literature curator doing an INDEPENDENT SECOND READING for a blinded study of *Drosophila* descending\nneurons (DNs). You have no access to any model, simulation or prediction, and you must not look for one.\n\nYour room (current directory) contains `PROTOCOL.md` (read it completely first and follow it exactly), `record_schema.json`,\n`type_list.csv`, `synonyms.csv`, `driver_lines.csv`, `experiments_to_label.csv` and `out/`.\n\nSession: `pass2-grooming`. Pass: `pass2`. Record IDs: `p2-grooming-0001`, ...\n\n`experiments_to_label.csv` lists experiments found by someone else, identified only by `exp_id, doi, source_locator,\ndriver_lines, name_in_paper, preparation, effector, stimulation, sibling_index, n_siblings`. It contains no labels and no\nMANC type: those are yours to determine. Rows with `n_siblings` > 1 share all identifiers: the line labels several DN types\nand each row stands for one of them. For such a group, determine from the source and the kit which MANC types the line\nlabels, sort them alphabetically, and give the row with `sibling_index` k the k-th type (if you find a different number\nof types than `n_siblings`, assign as many as you can in that order and explain in `notes`). For each row:\n1. Open the source yourself and find that experiment (the locator, line, name, preparation and stimulation identify it).\n2. Write one complete record to `out/records.jsonl` from your own reading: your own verbatim quote (at most 25 words), your\n   own mapping of the name to a MANC type (`type_list.csv`, `synonyms.csv`, `driver_lines.csv`), and every label field.\n   Copy `exp_id` into the record unchanged; do NOT copy `sibling_index` or `n_siblings` into the record (the schema\n   rejects unknown fields). Keep `preparation` as given unless the source clearly shows otherwise (then say so in\n   `notes`).\n3. If you cannot find the experiment in the source, do NOT write a record (never invent a quote). Instead add a row to\n   `out/not_found.csv`, a CSV file whose first line is the header `exp_id,reason`.\n\nThere is a second phase later; you will be told when. Do not look for any other input file now. Finish with `out/notes.md`\n(what you could not access, anything uncertain).\n\nRules: never use a model or simulation result; never visit the sites listed in PROTOCOL section 6; mark\n`saw_simulation_score` true if you see one by accident; write only inside `out/`. Save records as you go.\n"
+  },
+  {
+   "tag": "phaseb",
+   "pid": 62252,
+   "start_utc": "2026-11-20T17:50:30Z",
+   "resumed_session": "9b89dc07-bfec-42fb-ad2c-e2c1f92b722b",
+   "prompt_sha256": "aa8733fb07a7b13361e75beae85c24d0fcfc23215d1cdfeaa74f72652e0cd4c6",
+   "prompt": "Phase B (quote verification). Your Phase A records are saved; do not change `out/records.jsonl` or `out/not_found.csv`\nfrom now on.\n\nA new file is now in your room: `quotes_to_verify.csv` with columns `exp_id, doi, source_locator, quote` (quotes written by\nthe first reader). For each row, check whether the quote occurs in the source at or near the locator (allow differences in\nwhitespace, punctuation, line breaks and ligatures; do not allow different words). Write `out/quote_checks.csv`, a CSV file whose first line is the header\n`exp_id,quote_found,where,comment`, where `quote_found` is exactly `true` or `false` and `where` names the place you found it (or\nwhere you looked). Same rules as before: no model or simulation results, no banned sites, write only inside `out/`.\n",
+   "files_added": {
+    "quotes_to_verify.csv": "baa4a8f13817010ed81584d3b2ee4f14491d76b24099ac7a3794a87003722af0"
+   }
+  }
+ ],
+ "model": "opus",
+ "fallback": "sonnet",
+ "flags": [
+  "--restricted",
+  "--strict-mcp-config",
+  "--tools",
+  "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch",
+  "--allowedTools",
+  "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch",
+  "--disallowedTools",
+  "WebFetch(domain:github.com)",
+  "WebFetch(domain:githubusercontent.com)",
+  "WebFetch(domain:github.io)",
+  "WebFetch(domain:zenodo.org)",
+  "WebFetch(domain:jsdelivr.net)",
+  "WebFetch(domain:nbviewer.org)",
+  "WebFetch(domain:githack.com)",
+  "WebFetch(domain:statically.io)",
+  "WebFetch(domain:gitee.com)",
+  "WebFetch(domain:*.github.com)",
+  "WebFetch(domain:*.githubusercontent.com)",
+  "WebFetch(domain:*.github.io)",
+  "WebFetch(domain:*.zenodo.org)",
+  "WebFetch(domain:*.jsdelivr.net)",
+  "WebFetch(domain:*.nbviewer.org)",
+  "WebFetch(domain:*.githack.com)",
+  "WebFetch(domain:*.statically.io)",
+  "WebFetch(domain:*.gitee.com)",
+  "--permission-mode",
+  "acceptEdits",
+  "--permission-prompts",
+  "none",
+  "--disable-slash-commands",
+  "--no-chrome",
+  "--model",
+  "opus",
+  "--fallback-model",
+  "sonnet",
+  "--output-format",
+  "stream-json",
+  "--verbose"
+ ],
+ "files": {
+  "PROTOCOL.md": "31ee2d096fcddc140ed5410afee86a1cb5d916df96010cc5f8f0f9d92ebec242",
+  "driver_lines.csv": "e67058ae178f3912fc113a1a9a4cf1658cdc6af582ca1043febea3495381bf69",
+  "experiments_to_label.csv": "e4693eb90c57a9aef84317df5ee47bdfc23d5b2130c6259a6c401bc3b6ce1601",
+  "record_schema.json": "9de66215fe505ed1cbbe9fd2e8fee006371806109dda29ecec236a6f9b5d29a2",
+  "synonyms.csv": "80091acf9432c026012ea0b0067dd824e428fd9074f0587de4cca2dbeb6490b4",
+  "type_list.csv": "ae36f839ada40a3c7ad57d753a741a93965c923a83e12c7aed79be956f27ad02"
+ }
+}
