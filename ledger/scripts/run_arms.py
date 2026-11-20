@@ -173,6 +173,35 @@ def cmd_controls(a) -> None:
         print(name, "usable types", int((types["status"] == "ok").sum()), "; drivers", int((types["band"] == "driver").sum()))
 
 
+def cmd_controls_pilot(a) -> None:
+    """Cost pilot before the control campaign: one rewired and one class-shuffled network, 20 random types x 4 seeds."""
+    import time as _time
+
+    sel = json.loads((PREDICTIONS / "B1" / "selection.json").read_text())
+    fl = N.front_leg()
+    groups = N.type_groups(fl.table)
+    rng = np.random.default_rng(7)
+    pick = sorted(rng.choice(sorted(groups), 20, replace=False))
+    scfg, mcfg = AR.b1_screen_cfg(int(sel["kept_lower_bound"])), ModelConfig(t_end=1.0)
+    out = {}
+    for name in ("B1-ctl-rewire-101", "B1-ctl-classshuffle-201"):
+        Wc, _ = CT.build(fl, name)
+        jobs = AR.group_jobs(f"PILOT-{name}", {t: groups[t] for t in pick}, scfg, mcfg, seeds=[0, 1, 2, 3])
+        t0 = _time.time()
+        res = AR.run(f"PILOT-{name}", jobs, {"W": Wc, "sizes": fl.sizes, "readout": fl.readout}, campaign=f"PILOT_{name}")
+        walls = [r["job_wall_s"] for r in res.values() if "error" not in r]
+        runs = [r["n_tuning_runs"] for r in res.values() if "error" not in r]
+        out[name] = {"n": len(walls), "mean_job_s": float(np.mean(walls)), "p95_job_s": float(np.percentile(walls, 95)),
+                     "mean_tuning_runs": float(np.mean(runs)), "usable_frac": float(np.mean([r["usable"] for r in res.values() if "error" not in r])),
+                     "campaign_wall_s": round(_time.time() - t0, 1)}
+    per_job = float(np.mean([v["mean_job_s"] for v in out.values()]))
+    est_core_h = per_job * 10 * 321 * 16 / 3600
+    out["estimate_full_campaign"] = {"jobs": 10 * 321 * 16, "container_hours": est_core_h,
+                                     "usd_at_list_price": est_core_h * (0.0473 + 3 * 0.008)}
+    write_json(out, GATES / "controls_pilot.json")
+    print(json.dumps(out, indent=1))
+
+
 def cmd_b5(a) -> None:
     sel = json.loads((PREDICTIONS / "B1" / "selection.json").read_text())
     fl = N.front_leg()
@@ -373,12 +402,13 @@ def cmd_g2(a) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["authors", "b0", "baselines", "b1", "select-b1", "controls", "b5", "b4", "b2", "g1", "g1-cause", "g2", "g4"])
+    ap.add_argument("cmd", choices=["authors", "b0", "baselines", "b1", "select-b1", "controls", "controls-pilot", "b5", "b4", "b2", "g1",
+                                    "g1-cause", "g2", "g4"])
     ap.add_argument("--lower", type=int, default=10)
     ap.add_argument("--only", default=None)
     a = ap.parse_args()
     {"authors": cmd_authors, "b0": cmd_b0, "baselines": cmd_baselines, "b1": cmd_b1, "select-b1": cmd_select_b1, "controls": cmd_controls,
-     "b5": cmd_b5, "b4": cmd_b4, "b2": cmd_b2, "g1": cmd_g1, "g1-cause": cmd_g1_cause, "g2": cmd_g2, "g4": cmd_g4}[a.cmd](a)
+     "b5": cmd_b5, "b4": cmd_b4, "b2": cmd_b2, "g1": cmd_g1, "g1-cause": cmd_g1_cause, "g2": cmd_g2, "g4": cmd_g4, "controls-pilot": cmd_controls_pilot}[a.cmd](a)
 
 
 if __name__ == "__main__":
