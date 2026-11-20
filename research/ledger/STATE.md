@@ -16,8 +16,14 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
 ## Plan / checklist
 - [x] Stage 0: caffeinate, prompt saved, locks/tree/UNBLIND checked, baseline re-run (L49), controls_check committed,
       GHA probe: fingerprint a72e417cfd91 identical.
-- [ ] Stage 0: GHA campaign harness (release `ledgerdata-*` holds inputs; tag `gha-run-*` triggers; encrypted artifacts) and
-      the TRUST GATE: 100 locked run 1 jobs incl. full-cord DNg100 seeds -> identical / rounding / fail.
+- [x] Stage 0: GHA harness (`ledger/scripts/gha.py pack|publish|collect`, runner `gha_runner.py`; release `ledgerdata-<name>`
+      holds inputs; tag `gha-run-<name>` (pushed alone after the branch) triggers; results encrypted to `.github/ledger_gha_pub.pem`,
+      private key `data/cache/ledger_gha_key/`). TRUST GATE: 100/100 IDENTICAL (`gates_v2/TRUST_GATE.json`, L50).
+- [x] Isolation canary passes with tool rules (`gates_v2/CANARY_v2.json`): repo, planted file, scratchpad, sibling room, banned
+      hosts blocked; room files, PDF, image and own tool-results readable. Launcher `labels2_rooms.py` (queue + `schedule`).
+- Code written (uncommitted parts may exist): `labels2_rooms.py`, `labels2_collect.py`, `labels2_audit.py`, `labels2_canary.py`,
+  `typescreen_v2.py`, `jobs_v2.py` (group_v2), gha builders calibk/regress/b1r/b2r/g3v2, `g3v2_evaluate.py`, `lock2.py`.
+  Downloader `labels2_download.py` being written by a helper agent; PREREG_v2 under review by a fresh reviewer (14:00).
 - [ ] Stage 1: PREREG_v2.md (Parts L, P, S, disclosure) + kit v2; fresh reviewer audit; tag ledger-prereg-v2, push, OTS.
 - [ ] Stage 2 (after freeze): G3 v2 incl. DNg100-only calibration BEFORE the first label session; tuner v2 K on DNg100
       (MANC + MaleCNS); tuner regression (K off = B1 on 30 types x 16 seeds); B1r, B2r, B3 (B6 only if budget); B4 v2
