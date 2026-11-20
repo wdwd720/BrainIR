@@ -29,8 +29,11 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
   B3/B6 not locked (L16).
 
 ## In progress
-- Review round 2 (verification of round-1 fixes) -> if clean: `lock.py prereg` -> commit -> tag `ledger-prereg-v1` ->
-  `git push origin ledger/v1 ledger-prereg-v1` -> OTS stamp of LOCK_prereg_v1.json and PREREG.md -> commit .ots.
+- Review round 3 (verification of round-2 fixes; rounds 1-2 resolved, `reviews/`). Then the freeze:
+  1. `uv run --project ledger --no-sync python ledger/scripts/lock.py prereg` -> commit "freeze pre-registration v1";
+  2. `git tag -a ledger-prereg-v1` on that commit; `git push origin ledger/v1 ledger-prereg-v1`;
+  3. `uvx --from opentimestamps-client ots stamp research/ledger/LOCK_prereg_v1.json research/ledger/PREREG.md`; commit the
+     .ots files; push the branch.
 
 ## Next (Stage 1, after the tag)
 1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `g2`; `controls`; `b5`;
