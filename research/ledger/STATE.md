@@ -37,6 +37,10 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
   `data/cache/ledger_logs/stage1_controls_resumed.log`); G4 watcher 2 (`g4_watch2.log`) for 103-205. Earlier: a watcher runs
   `g4 --only` for B4 and each control as soon as its `types.csv` appears (log `data/cache/ledger_logs/g4_watch.log`);
   G5 pre-lock checks (log `data/cache/ledger_logs/g5_prelock.log`).
+- (08:32 PST) Spend guard paused at 02:25 (L33); the last control and its G4 resumed and finished at 08:40.
+- (08:41 PST) ALL Modal work done. 10/10 controls pass `r2_controls_check.py`; G4 1,500/1,500 over 15 campaigns; dry run on all
+  22 arms ok; ENVIRONMENT/PREDICTIONS_SUMMARY regenerated; pre-mortem L34. Next: commit, `lock.py predictions` (explicit
+  names), commit, `lock_verify.py --tag HEAD`, tag, `lock_verify.py`, OTS, commit; then Stage 2 wave 1.
 - Lock checklist (pre-mortem L29 = check these, then write the results into the LOG):
   1. every campaign: non-error results == jobs (controls 5,136 each, B4 22,816, B2 5,248, B5 25,680), unique keys, no
      solver failures; replicates rows == jobs; B4 `n_base_rhythmic_128` >= 8; DNg100 sane in B4/B2.

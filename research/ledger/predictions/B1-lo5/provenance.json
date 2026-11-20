@@ -1,0 +1,89 @@
+{
+ "code_commit": "f9673171b135e402a6a37b153d9ca8351b770450",
+ "env": {
+  "backend_settings": null,
+  "local": {
+   "cpu": {
+    "cpu_model": "Apple M5",
+    "machine": "arm64",
+    "processor": "arm"
+   },
+   "env": {
+    "MKL_NUM_THREADS": null,
+    "NPY_DISABLE_CPU_FEATURES": null,
+    "OMP_NUM_THREADS": null,
+    "OPENBLAS_CORETYPE": null,
+    "OPENBLAS_NUM_THREADS": null
+   },
+   "numpy": "2.5.3",
+   "numpy_cpu_features_enabled": {
+    "ASIMD": true,
+    "ASIMDDP": true,
+    "ASIMDHP": true
+   },
+   "pandas": "3.0.6",
+   "platform": "macOS-26.6-arm64-arm-64bit",
+   "pyarrow": "25.0.1",
+   "python": "3.12.14",
+   "scipy": "1.18.1"
+  },
+  "modal_image": {
+   "base": "modal.Image.debian_slim(python_version='3.12')",
+   "env": {
+    "MKL_NUM_THREADS": "1",
+    "NPY_DISABLE_CPU_FEATURES": "AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL AVX512_SPR",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_CORETYPE": "Haswell",
+    "OPENBLAS_NUM_THREADS": "1"
+   },
+   "image_builder_version": "2025.06",
+   "local_python_sources": [
+    "brainir",
+    "brainir_ledger"
+   ],
+   "pip": [
+    "numpy==2.5.3",
+    "scipy==1.18.1",
+    "pandas==3.0.6",
+    "pyarrow==25.0.1",
+    "pydantic==2.13.5",
+    "networkx==3.7",
+    "duckdb==1.5.5",
+    "google-crc32c==1.8.0",
+    "requests==2.34.2"
+   ]
+  }
+ },
+ "files_sha256": {
+  "config.json": "691689009d168ad12df0f8cd8a94614e4f1af35f0500ec5b90736d68781b0134",
+  "replicates.parquet": "4e1de43e66edc9e15ed9ef22db16613b3dddd2c3d94832a8e2ad89aac0ec15c6",
+  "types.csv": "eff74a68a7d4068edbc58dbedf938c7966404fcf44f01b015c82a5d8acc7c5c3"
+ },
+ "network_meta": {
+  "authors_ids_not_in_build": [],
+  "authors_table_rows": 4604,
+  "builder": "benchmarks/dng100_walking_cpg/reproduce_dynamics.py::paper_network",
+  "dataset": "manc",
+  "floor": 5,
+  "n": 4604,
+  "n_negative_rows": 2172,
+  "n_pairs": 196535,
+  "n_pairs_observed": 196536,
+  "n_positive_rows": 2419,
+  "n_readout": 144,
+  "n_zero_rows": 13,
+  "network": "manc_v1.2.1_frontleg_paper",
+  "nt_overrides": 4604,
+  "readout": "role vnc_motor & sub_class fl (144)",
+  "remove_autapses": true,
+  "roi_restrict": null,
+  "sign_basis": "nt_body_prediction",
+  "sign_rule": "pugliese2026.sign.predictedNt",
+  "size_source": "manc:v1.0 size_voxels by body ID",
+  "total_synapses": 3817772,
+  "total_synapses_observed": 3817784,
+  "version": "v1.2.1"
+ },
+ "results_log_sha256": "3d146cecb8bbf17ebe2c58adf8b5f0deca1e7a5827d36d61b36c9bf0ea20ca66",
+ "written_utc": "2026-11-20T06:49:03Z"
+}
