@@ -95,9 +95,17 @@ def cmd_baselines(a) -> None:
     pos = {int(b): i for i, b in enumerate(fl.table["bodyId"])}
     core = [pos[int(b)] for b in core_ids]
     df = BL.compute(fl.C, fl.W, fl.readout, groups, core)
-    base = pd.DataFrame({"arm": "S", "network": fl.name, "manc_type": df["manc_type"]})
+    ids = fl.table["bodyId"].to_numpy()
+    base = pd.DataFrame({"arm": "S", "network": fl.name, "manc_type": df["manc_type"],
+                         "n_members": df["manc_type"].map(lambda t: len(groups[t])),
+                         "member_ids": df["manc_type"].map(lambda t: ";".join(str(int(ids[m])) for m in groups[t]))})
+    for c in ("n_replicates", "n_usable", "mean_score", "median_score", "frac_ge_0_5", "best_score", "median_freq_hz", "median_current",
+              "median_n_active_readout"):
+        base[c] = None
+    base["status"] = "ok"
+    base["band"] = None
     out = base.merge(df, on="manc_type")
-    out["primary_score"] = out["S1_direct_mn"]
+    out["primary_score"] = out["S1_direct_mn"]  # convenience only; the analysis uses each S column (PREREG 3.5)
     AR.write_arm("S", out, None, {"definitions": "PREREG section 3.5", "core_positions": core, "core_source": "benchmarks/dng100/oracle/oracle.json"},
                  {})
     print("S", len(out), "types")
@@ -131,10 +139,14 @@ def cmd_select_b1(a) -> None:
         if (PREDICTIONS / dst).exists():
             shutil.rmtree(PREDICTIONS / dst)
         shutil.copytree(PREDICTIONS / f"B1-lo{src}", PREDICTIONS / dst)
-        for f in ("types.csv",):
-            df = pd.read_csv(PREDICTIONS / dst / f)
-            df["arm"] = dst
-            df.to_csv(PREDICTIONS / dst / f, index=False, lineterminator="\n", float_format="%.10g")
+        df = pd.read_csv(PREDICTIONS / dst / "types.csv")
+        df["arm"] = dst
+        df.to_csv(PREDICTIONS / dst / "types.csv", index=False, lineterminator="\n", float_format="%.10g")
+        prov = json.loads((PREDICTIONS / dst / "provenance.json").read_text())
+        prov["selected_from"] = f"B1-lo{src}"
+        prov["files_sha256"] = {f.name: hashlib.sha256(f.read_bytes()).hexdigest() for f in sorted((PREDICTIONS / dst).glob("*"))
+                                if f.is_file() and f.name != "provenance.json"}
+        write_json(prov, PREDICTIONS / dst / "provenance.json")
     sel = {"rule": "PREREG 3.4: larger Spearman with A1 over all 321 types (primary scores); |diff| < 0.01 -> 10", "spearman": rho,
            "kept_lower_bound": keep, "B1-alt_lower_bound": other}
     write_json(sel, PREDICTIONS / "B1" / "selection.json")
