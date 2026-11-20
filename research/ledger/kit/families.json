@@ -1,0 +1,41 @@
+{
+ "kit_version": 1,
+ "pass1_families": {
+  "atlas": {
+   "title": "the optogenetic DN behaviour atlas",
+   "scope": "Cande et al. 2018 (eLife; 'Optogenetic dissection of descending behavioral control in Drosophila'), including ALL of its supplementary tables, supplementary files and the public movies' metadata. This is a systematic screen: write a record for every DN line it tested, including lines with no visible effect. Use its line-to-type tables for the mapping and record line specificity as the paper reports it."
+  },
+  "catalogue": {
+   "title": "DN driver-line resources and their activation data",
+   "scope": "Namiki et al. 2018 (eLife; the DN line-to-type resource), the 2025 Janelia split-GAL4 driver-line collection for descending neurons (about 800 lines, about 190 types; find it), Lillvis et al. 2024, and any activation experiments these resources report or cite directly. If a resource contains no activation experiment, say so in out/notes.md and use it only for name and line mapping."
+  },
+  "grooming": {
+   "title": "grooming and other limb-cleaning descending neurons",
+   "scope": "Simpson-lab descending-neuron papers on grooming (e.g. Hampel et al. 2015 eLife, Guo, Zhang and Simpson 2022, and the lab's other grooming papers), and any other paper that activates DNs and reports grooming or other leg-sweeping movements."
+  },
+  "walking_stopping": {
+   "title": "walking, backward walking and stopping",
+   "scope": "Bidaye et al. 2014 (Science) and 2020 (Neuron), Sapkal et al. 2024 (Nature, halting), Braun et al. 2024 (Nature, Ramdya lab), and any other paper that activates DNs and reports forward walking, backward walking, speed changes, stopping or freezing."
+  },
+  "steering": {
+   "title": "steering and turning",
+   "scope": "Rayshubskiy et al. (steering DNs; preprint and journal versions), Yang et al. 2024 (steering), and any other paper that activates DNs and reports turning or steering in walking or standing flies."
+  },
+  "escape_landing": {
+   "title": "escape, takeoff, landing and other single leg movements",
+   "scope": "Ache et al. 2019 (landing), the escape and takeoff literature (e.g. von Reyn et al. 2014 and 2017, Card-lab giant-fibre and takeoff papers), and any other paper that activates DNs and reports jumping, takeoff, landing, leg extension, reaching or posture changes."
+  },
+  "pugliese_dedicated": {
+   "title": "the walking-CPG papers (dedicated session)",
+   "scope": "Pugliese et al. 2026 (Nature, doi 10.1038/s41586-026-11195-y; bioRxiv 10.1101/2025.09.12.675944) and Sapkal et al. 2026 (bioRxiv 10.64898/2026.04.29.721658). THIS SESSION ONLY may read these two sources. Record only their real-fly activation experiments. These papers also contain computational results: do not use them, and set saw_simulation_score to true on every record of any DN type for which you saw a simulation score."
+  },
+  "recent_broad": {
+   "title": "other activation studies, especially 2018-2026",
+   "scope": "Any paper or preprint (2024-2026 especially, but any year) that activates a named DN type or a DN driver line and reports leg movement, and that is not one of: Cande 2018, Namiki 2018, the 2025 DN driver collection, Lillvis 2024, Simpson-lab grooming papers, Bidaye 2014/2020, Sapkal 2024, Braun 2024, Rayshubskiy, Yang 2024, Ache 2019, von Reyn 2014/2017, Pugliese 2026, Sapkal 2026. Include courtship, feeding, egg-laying, flight and other studies if leg movement is reported. Use Cheong et al. 2024, Stuerner et al. 2025 and the MaleCNS paper for names only."
+  }
+ },
+ "search_sessions": {
+  "search_names": "Start from DN names: search for activation experiments type by type (Namiki names such as DNa01, DNb.., DNg.., DNp.., and older names such as BDN, MDN, oDN, aDN, giant fibre), and from driver-line identifiers (SS...).",
+  "search_behaviour": "Start from behaviours and methods: optogenetic or thermogenetic activation screens of descending neurons, walking, grooming, escape, courtship, feeding, egg-laying and flight papers that mention descending neurons, and follow reference lists and citing papers."
+ }
+}
