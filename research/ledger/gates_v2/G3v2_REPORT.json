@@ -1,0 +1,137 @@
+{
+ "gate": "G3 v2",
+ "n_runs": 64,
+ "n_item5": 16,
+ "per_leg": {
+  "T1L": {
+   "frac_ge_0_5": 0.84375,
+   "median": 0.94209425,
+   "mean": 0.7827065972521552,
+   "authors_frac_ge_0_5": 0.734,
+   "authors_median": 0.887
+  },
+  "T1R": {
+   "frac_ge_0_5": 0.609375,
+   "median": 0.78018575,
+   "mean": 0.5839991623317308,
+   "authors_frac_ge_0_5": 0.578,
+   "authors_median": 0.687
+  },
+  "T2L": {
+   "frac_ge_0_5": 0.484375,
+   "median": 0.4745505,
+   "mean": 0.498010199879227,
+   "authors_frac_ge_0_5": 0.469,
+   "authors_median": 0.452
+  },
+  "T2R": {
+   "frac_ge_0_5": 0.828125,
+   "median": 0.9112649166666666,
+   "mean": 0.7848394288421475,
+   "authors_frac_ge_0_5": 0.789,
+   "authors_median": 0.936
+  },
+  "T3L": {
+   "frac_ge_0_5": 0.203125,
+   "median": 0.271463875,
+   "mean": 0.30400271625984066,
+   "authors_frac_ge_0_5": 0.164,
+   "authors_median": 0.215
+  },
+  "T3R": {
+   "frac_ge_0_5": 0.8125,
+   "median": 0.6908498249999999,
+   "mean": 0.6639689644483222,
+   "authors_frac_ge_0_5": 0.781,
+   "authors_median": 0.716
+  }
+ },
+ "hind_mean": 0.48398584035408143,
+ "front_mean": 0.683352879791943,
+ "item4p_decided_by": "gates_v2/G3v2_PREVIEW.json (PREREG v2 P2)",
+ "item4p_preview_pass": false,
+ "formal_run_coupling_consistency_reported": {
+  "T1L-T1R": {
+   "n_ours": 34,
+   "n_authors": 13,
+   "R_ours": 0.2342174535387455,
+   "R_authors": 0.3304198707303225,
+   "evaluable": true,
+   "abs_diff": 0.09620241719157696,
+   "p": 0.6271372862713729
+  },
+  "T2L-T2R": {
+   "n_ours": 29,
+   "n_authors": 15,
+   "R_ours": 0.22629461557202984,
+   "R_authors": 0.20934418839257907,
+   "evaluable": true,
+   "abs_diff": 0.016950427179450778,
+   "p": 0.8879112088791121
+  },
+  "T3L-T3R": {
+   "n_ours": 13,
+   "n_authors": 4,
+   "R_ours": 0.595487608660012,
+   "R_authors": 0.6264556982126628,
+   "evaluable": false
+  },
+  "T1L-T2L": {
+   "n_ours": 29,
+   "n_authors": 12,
+   "R_ours": 0.5896085998993504,
+   "R_authors": 0.5851032903685615,
+   "evaluable": true,
+   "abs_diff": 0.004505309530788981,
+   "p": 0.9805019498050195
+  },
+  "T2L-T3L": {
+   "n_ours": 8,
+   "n_authors": 2,
+   "R_ours": 0.5826304769967601,
+   "R_authors": 0.9999870400108524,
+   "evaluable": false
+  },
+  "T1R-T2R": {
+   "n_ours": 37,
+   "n_authors": 18,
+   "R_ours": 0.1402629181555287,
+   "R_authors": 0.6021113997912623,
+   "evaluable": true,
+   "abs_diff": 0.46184848163573355,
+   "p": 0.0034996500349965005
+  },
+  "T2R-T3R": {
+   "n_ours": 46,
+   "n_authors": 27,
+   "R_ours": 0.8794732894300968,
+   "R_authors": 0.7458427753090401,
+   "evaluable": true,
+   "abs_diff": 0.13363051412105675,
+   "p": 0.0575942405759424
+  }
+ },
+ "formal_run_item4p_pass_reported": false,
+ "k_evaluable": 5,
+ "alpha_per_pair": 0.01,
+ "reported_variants": {
+  "bonferroni_0.01_over_k": true
+ },
+ "item5": {
+  "accepted_at_384": 14,
+  "front_pair_mean_score": 0.7885519817708333,
+  "currents": [
+   320.0,
+   384.0,
+   512.0
+  ]
+ },
+ "criteria": {
+  "1_every_leg_rhythmic": true,
+  "2_per_leg_agreement": true,
+  "3_hind_weaker": true,
+  "4p_coupling_consistent": false,
+  "5_dng100_b3_procedure": true
+ },
+ "pass": false
+}

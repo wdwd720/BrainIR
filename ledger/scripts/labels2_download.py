@@ -111,7 +111,7 @@ except ImportError:
 
 SCRIPT_VERSION = "1.0.0"
 USER_AGENT = "brainir-ledger-downloader/1.0"
-TIMEOUT = (20, 120)  # connect, read (seconds)
+TIMEOUT = (20, 60)  # connect, read (seconds; read = longest silence between bytes)
 ROUTES = ("europepmc_search", "europepmc_fulltext", "pmc_cloud", "biorxiv", "europepmc_preprint", "elife", "crossref")
 
 EPMC_REST = "https://www.ebi.ac.uk/europepmc/webservices/rest"
@@ -402,7 +402,8 @@ class Http:
             except FetchError:
                 raise
             except requests.RequestException as e:
-                if attempt < self.attempts:
+                # a host that stays silent twice will not answer: timeouts are retried once only (run 2 LOG L55)
+                if attempt < self.attempts and not (isinstance(e, requests.Timeout) and attempt >= 2):
                     d = self._backoff(attempt)
                     log.warning("%s on %s; retry %d/%d in %.0f s", type(e).__name__, url, attempt, self.attempts - 1, d)
                     time.sleep(d)
@@ -439,7 +440,8 @@ class Http:
                         raise FetchError(url, f"response larger than {cap} bytes")
                 return bytes(buf)
             except requests.RequestException as e:
-                if attempt < self.attempts:
+                # a host that stays silent twice will not answer: timeouts are retried once only (run 2 LOG L55)
+                if attempt < self.attempts and not (isinstance(e, requests.Timeout) and attempt >= 2):
                     time.sleep(self._backoff(attempt))
                     continue
                 raise FetchError(url, f"stream error: {e}", transient=True) from e
