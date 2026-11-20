@@ -42,9 +42,10 @@ LOGS = REPO / "data" / "cache" / "ledger_logs"
 LAB2_RAW = REPO / "research" / "ledger" / "labels_v2" / "raw"
 SCRATCH_HINT = Path(os.environ["LEDGER_SCRATCH"]) if os.environ.get("LEDGER_SCRATCH") else None
 KIT_FILES = ["PROTOCOL.md", "record_schema.json", "type_list.csv", "synonyms.csv", "driver_lines.csv"]
-PROMPTS = {"reader": "PROMPT_READER.md", "reader_web": "PROMPT_READER_WEB.md", "second": "PROMPT_SECOND.md", "adjudication": "PROMPT_ADJUDICATE.md", "search": "PROMPT_SEARCH.md",
+PROMPTS = {"reader": "PROMPT_READER.md", "reader_web": "PROMPT_READER_WEB.md", "second_web": "PROMPT_SECOND.md",
+           "adjudication_web": "PROMPT_ADJUDICATE.md", "second": "PROMPT_SECOND.md", "adjudication": "PROMPT_ADJUDICATE.md", "search": "PROMPT_SEARCH.md",
            "atlas_map": "PROMPT_ATLAS_MAP.md", "atlas_code": "PROMPT_ATLAS_CODE.md", "verify": "PROMPT_VERIFY.md"}
-PASS_OF = {"reader": "pass1", "reader_web": "pass1", "second": "pass2", "adjudication": "adjudication", "search": "search", "atlas_map": "atlas_map",
+PASS_OF = {"reader": "pass1", "reader_web": "pass1", "second_web": "pass2", "adjudication_web": "adjudication", "second": "pass2", "adjudication": "adjudication", "search": "search", "atlas_map": "atlas_map",
            "atlas_code": None, "verify": "verify"}
 
 
@@ -56,11 +57,15 @@ def deny_paths() -> list[Path]:
     p = [REPO, HOME / "ledger_rooms" / "run1", HOME / "ledger_rooms" / "run1_aux", HOME / "ledger_rooms_review_gates",
          HOME / "ledger_rooms_review_prereg2", HOME / "ledger_rooms" / "run2_canary" / "planted", Path("/private/tmp"), Path("/tmp"),
          LA.PROJECTS / LA.encode(str(REPO)), LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1")) + "-*"),
-         LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1_aux")) + "-*")]
+         LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1_aux")) + "-*"), HOME / "ledger_rooms_review*"]
     return p + ([SCRATCH_HINT] if SCRATCH_HINT else [])
 
 
-WEB_KINDS = ("search", "reader_web")
+WEB_TOOLS = {"search": "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch", "reader_web": "Read,Write,Edit,Glob,Grep,WebFetch",
+             "second_web": "Read,Write,Edit,Glob,Grep,WebFetch", "adjudication_web": "Read,Write,Edit,Glob,Grep,WebFetch"}
+WEB_KINDS = tuple(WEB_TOOLS)
+WEB_NOTE = ("\n\nThe sources of these experiments could not be downloaded; you MAY fetch exactly these DOIs with WebFetch from the "
+            "publisher, PubMed Central, Europe PMC or bioRxiv (never the sites of PROTOCOL section 6, never code repositories).\n")
 MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co")
 NO_WEB_TOOLS = "Read,Write,Edit,Glob,Grep"
 
@@ -69,8 +74,8 @@ def flags_v2(kind: str = "search") -> list[str]:
     """Run 1's frozen flags with the v2 deny rules added to its --disallowedTools list. Only search sessions and the reader of
     unreachable sources keep WebSearch/WebFetch (PREREG v2 L13); every other kind gets file tools only."""
     flags = list(LR.FLAGS)
-    if kind not in WEB_KINDS:
-        flags = [NO_WEB_TOOLS if (k > 0 and flags[k - 1] in ("--tools", "--allowedTools")) else f for k, f in enumerate(flags)]
+    tools = WEB_TOOLS.get(kind, NO_WEB_TOOLS)
+    flags = [tools if (k > 0 and flags[k - 1] in ("--tools", "--allowedTools")) else f for k, f in enumerate(flags)]
     i = flags.index("--disallowedTools")
     j = i + 1
     while j < len(flags) and not flags[j].startswith("--"):
@@ -124,6 +129,8 @@ def prompt_for(spec: dict) -> str:
         t = t.replace(k, v)
     if spec.get("family") == "dedicated":
         t += "\n" + (KIT / "DEDICATED_PERMISSION.md").read_text(encoding="utf-8")
+    if kind in ("second_web", "adjudication_web"):
+        t += WEB_NOTE
     return t
 
 
@@ -135,6 +142,8 @@ def build_room(spec: dict) -> Path:
     for name in KIT_FILES:
         if spec["kind"] == "search" and name == "record_schema.json":
             continue
+        if spec["kind"] == "atlas_code" and name in ("type_list.csv", "synonyms.csv", "driver_lines.csv"):
+            continue  # PREREG v2 L8: the coders work without the type map
         shutil.copyfile(KIT / name, room / name)
     for name, src in (spec.get("inputs") or {}).items():
         shutil.copyfile(src, room / name)

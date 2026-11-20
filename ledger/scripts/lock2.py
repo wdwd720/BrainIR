@@ -5,7 +5,9 @@
     lock2.py scoring      -> research/ledger/LOCK_scoring_v2.json     (v2 scoring code and tests, before any unblinding)
     lock2.py predictions ARM ... [ARM=reason ...] --platform TEXT -> research/ledger/LOCK_predictions_v2.json (additive to v1)
     lock2.py labels       -> research/ledger/LOCK_labels_v2.json
-    lock2.py check LOCKFILE   (every 64-hex value whose key is an existing path is re-hashed; missing paths reported)
+    lock2.py labelcode [--amend PATH=REASON ...]   (kit amendments after the prereg freeze, PREREG v2 L12)
+    lock2.py check LOCKFILE   (every repository file hashed in a binding section is re-hashed; missing ones reported; chained
+                               lock hashes re-hashed; code-snapshot sections reported only; archive members skipped; PREREG v2 S5.1)
 """
 
 from __future__ import annotations
@@ -39,10 +41,23 @@ def hashes(paths) -> dict[str, str]:
     return {rel(p): sha(p) for p in sorted(set(paths)) if p.is_file() and not p.name.startswith(".")}
 
 
-def globs(gs) -> dict[str, str]:
-    out = {}
+SNAPSHOT_SECTIONS = ("prediction_code_snapshot", "code_snapshot")
+
+
+def tracked() -> set[str]:
+    return set(subprocess.run(["git", "ls-files"], cwd=REPO, capture_output=True, text=True).stdout.splitlines())
+
+
+def globs(gs, untracked: list | None = None) -> dict[str, str]:
+    """Hashes of git-tracked files matching the globs (a lock must be reproducible from its commit); untracked matches are
+    listed by name in `untracked` and not hashed."""
+    tr, out = tracked(), {}
     for g in gs:
-        out.update(hashes(REPO.glob(g)))
+        for k, v in hashes(REPO.glob(g)).items():
+            if k in tr:
+                out[k] = v
+            elif untracked is not None:
+                untracked.append(k)
     return out
 
 
@@ -68,13 +83,22 @@ def lock_prereg() -> None:
     rec["kit_v2"] = hashes((RES / "kit_v2").glob("*"))
     rec["gates_v2_at_freeze"] = hashes((RES / "gates_v2").glob("*"))
     rec["reviews_v2_at_freeze"] = hashes((RES / "reviews_v2").glob("*"))
-    rec["code_snapshot"] = globs(CODE_GLOBS)
+    rec["untracked_code_not_hashed"] = []
+    rec["code_snapshot"] = globs(CODE_GLOBS, rec["untracked_code_not_hashed"])
     write("LOCK_prereg_v2.json", rec)
 
 
-def lock_labelcode() -> None:
+def lock_labelcode(amend: dict[str, str]) -> None:
     rec = base("labelcode_v2")
-    rec["label_code"] = globs(LABEL_CODE)
+    pre = json.loads((RES / "LOCK_prereg_v2.json").read_text(encoding="utf-8"))
+    rec["amendments_after_prereg"] = {}
+    for path, reason in amend.items():
+        old = pre["kit_v2"].get(path)
+        if old is None:
+            raise SystemExit(f"{path} is not a kit file of LOCK_prereg_v2.json")
+        rec["amendments_after_prereg"][path] = {"old": old, "new": sha(REPO / path), "reason": reason}
+    rec["untracked_code_not_hashed"] = []
+    rec["label_code"] = globs(LABEL_CODE + ["ledger/scripts/gate_v2.py"], rec["untracked_code_not_hashed"])
     rec["kit_v2"] = hashes((RES / "kit_v2").glob("*"))
     rec["prereg_v2_lock_sha256"] = sha(RES / "LOCK_prereg_v2.json")
     write("LOCK_labelcode_v2.json", rec)
@@ -82,8 +106,10 @@ def lock_labelcode() -> None:
 
 def lock_scoring() -> None:
     rec = base("scoring_v2")
+    rec["untracked_code_not_hashed"] = []
     rec["scoring_code"] = globs(["ledger/src/brainir_ledger/scoring/*.py", "ledger/src/brainir_ledger/scoring_v2/*.py",
-                                 "ledger/scripts/score_v2.py", "ledger/tests/test_scoring_v2*.py"])
+                                 "ledger/scripts/score_v2.py", "ledger/scripts/gate_v2.py", "ledger/tests/test_scoring_v2*.py"],
+                                rec["untracked_code_not_hashed"])
     rec["prereg_v2_lock_sha256"] = sha(RES / "LOCK_prereg_v2.json")
     write("LOCK_scoring_v2.json", rec)
 
@@ -96,7 +122,8 @@ def lock_predictions(arms: list[str], not_locked: dict[str, str], platform: str)
     rec["platform"] = platform
     rec["gates_v2"] = hashes((RES / "gates_v2").glob("*"))
     rec["reviews_v2"] = hashes((RES / "reviews_v2").glob("*"))
-    rec["code"] = globs(CODE_GLOBS)
+    rec["untracked_code_not_hashed"] = []
+    rec["code"] = globs(CODE_GLOBS, rec["untracked_code_not_hashed"])
     rec["prereg_v2_lock_sha256"] = sha(RES / "LOCK_prereg_v2.json")
     write("LOCK_predictions_v2.json", rec)
 
@@ -116,24 +143,45 @@ def lock_labels() -> None:
 
 def check(path: Path) -> int:
     rec = json.loads(path.read_text(encoding="utf-8"))
-    changed, missing, n = [], [], 0
+    changed, missing, snap_changed, amended, n, n_archive = [], [], [], [], 0, 0
+    amendments = {}
+    if path.name == "LOCK_prereg_v2.json" and (RES / "LOCK_labelcode_v2.json").exists():
+        amendments = json.loads((RES / "LOCK_labelcode_v2.json").read_text(encoding="utf-8")).get("amendments_after_prereg") or {}
 
-    def walk(d):
-        nonlocal n
+    def walk(d, binding):
+        nonlocal n, n_archive
         for k, v in d.items():
             if isinstance(v, dict):
-                walk(v)
+                walk(v, binding)
             elif isinstance(v, str) and len(v) == 64 and all(c in "0123456789abcdef" for c in v) and ("/" in k or k.endswith((".json", ".md"))):
+                if ".zip:" in k:
+                    n_archive += 1
+                    continue
                 p = REPO / k
                 n += 1
                 if not p.exists():
-                    missing.append(k)
+                    (missing if binding else snap_changed).append(k)
                 elif sha(p) != v:
-                    changed.append(k)
+                    a = amendments.get(k)
+                    if binding and a and a["old"] == v and a["new"] == sha(p):
+                        amended.append(k)
+                    else:
+                        (changed if binding else snap_changed).append(k)
     for sec, val in rec.items():
         if isinstance(val, dict):
-            walk(val)
-    print(json.dumps({"lock": path.name, "n_checked": n, "changed": changed, "missing": missing}))
+            walk(val, sec not in SNAPSHOT_SECTIONS)
+    chained = {"prereg_lock_sha256": "LOCK_prereg_v1.json", "prereg_v2_lock_sha256": "LOCK_prereg_v2.json",
+               "labelcode_v2_lock_sha256": "LOCK_labelcode_v2.json", "labels_v1_lock_sha256": "LOCK_labels_v1.json"}
+    for key, fname in chained.items():
+        if key in rec:
+            n += 1
+            p = RES / fname
+            if not p.exists():
+                missing.append(fname)
+            elif sha(p) != rec[key]:
+                changed.append(fname)
+    print(json.dumps({"lock": path.name, "n_checked": n, "changed": changed, "missing": missing, "amended": amended,
+                      "snapshot_changed_reported_only": snap_changed, "archive_members_skipped": n_archive}))
     return 1 if (changed or missing) else 0
 
 
@@ -149,7 +197,11 @@ def main() -> None:
         notl = dict(a.split("=", 1) for a in args if "=" in a)
         lock_predictions(arms, notl, plat)
         return
-    {"prereg": lock_prereg, "labelcode": lock_labelcode, "scoring": lock_scoring, "labels": lock_labels}[what]()
+    if what == "labelcode":
+        args = sys.argv[2:]
+        lock_labelcode(dict(args[i + 1].split("=", 1) for i, a in enumerate(args) if a == "--amend"))
+        return
+    {"prereg": lock_prereg, "scoring": lock_scoring, "labels": lock_labels}[what]()
 
 
 if __name__ == "__main__":

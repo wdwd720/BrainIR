@@ -59,7 +59,8 @@ def scan(room: str) -> tuple[set[str], list[dict]]:
                         continue
                     if name == "WebFetch" and ok and any(host == m or host.endswith("." + m) for m in MIRRORS):
                         issues.append({"kind": "banned_host_fetch", "url": inp.get("url", "")})
-                    if ok and TOKENS.search(text):
+                    own_tr_read = name == "Read" and "/tool-results/" in str(inp.get("file_path", ""))
+                    if ok and (name in ("WebSearch", "WebFetch") or own_tr_read) and TOKENS.search(text):
                         issues.append({"kind": "forbidden_token_in_tool_result", "tool": name, "token": TOKENS.search(text).group(0)})
                     named |= set(PATH_RE.findall(text))
     return named, issues

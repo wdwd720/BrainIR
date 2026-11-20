@@ -138,6 +138,26 @@ def _downloaded(s: str) -> bool:
     return (SOURCES / s / "meta.json").exists()
 
 
+def _meta(s: str) -> dict:
+    return json.loads((SOURCES / s / "meta.json").read_text())
+
+
+def _specs(kinds=None) -> list[dict]:
+    kinds = (kinds,) if isinstance(kinds, str) else kinds
+    out = []
+    for f in sorted(SPECS.glob("*.json")):
+        s = json.loads(f.read_text())
+        if kinds is None or s.get("kind") in kinds:
+            out.append(s)
+    return out
+
+
+def _web_slugs() -> set[str]:
+    """Sources read by `reader_web` sessions (PREREG v2 C1): their second reading / adjudication get WebFetch-only flags and their
+    records are outside the verification frame."""
+    return {x for s in _specs("reader_web") for x in s.get("sources") or []}
+
+
 # --------------------------------------------------------------------------------------------------------- readers
 def readers(round_: int) -> None:
     """Reader specs (<= 6 sources per session) for registered sources of this round not yet assigned; sources the downloader
@@ -152,7 +172,11 @@ def readers(round_: int) -> None:
     skip = {slug(d) for d in (ATLAS_DOI,)}
     todo = reg[(~reg["slug"].isin(assigned)) & (~reg["slug"].isin(skip))]
     todo = todo[[_downloaded(s) for s in todo["slug"]]]
-    status = {s: json.loads((SOURCES / s / "meta.json").read_text()).get("status") for s in todo["slug"]}
+    banned = sorted(s for s in todo["slug"] if _meta(s).get("banned_host"))  # PREREG v2 L7: registered, never fetched or assigned
+    if banned:
+        _write_csv(WORK / f"banned_host_sources_round_{round_}.csv", [{"slug": s} for s in banned], ["slug"])
+    todo = todo[~todo["slug"].isin(banned)]
+    status = {s: _meta(s).get("status") for s in todo["slug"]}
     n = 0
     for fam, g in todo.groupby("family"):
         for kind in ("reader", "reader_web"):
@@ -161,7 +185,8 @@ def readers(round_: int) -> None:
                 k = len(list(SPECS.glob(f"pass1-{fam}-r{round_}-*.json"))) + 1
                 _spec({"session": f"pass1-{fam}-r{round_}-{k:02d}", "kind": kind, "family": fam, "pass_id": "pass1", "sources": slugs[i:i + 6]})
                 n += 1
-    print(json.dumps({"reader_specs": n, "sources": int(len(todo)), "unreachable_to_reader_web": sum(v == "unreachable" for v in status.values())}))
+    print(json.dumps({"reader_specs": n, "sources": int(len(todo)), "banned_host_not_assigned": len(banned),
+                      "unreachable_to_reader_web": sum(v == "unreachable" for v in status.values())}))
 
 
 def atlas_ids() -> None:
@@ -178,12 +203,13 @@ def atlas_ids() -> None:
 
 
 def atlas_quotes() -> None:
-    """Phase B input for atlas coder B: coder A's quotes keyed `atlas:<LINE>` (PREREG v2 L8)."""
-    rows = []
+    """Phase B input for atlas coder B: coder A's quotes keyed `atlas:<LINE>:<headless|intact>` (PREREG v2 L8)."""
+    rows, seen = [], set()
     for r in sorted(_jsonl(RAW / "pass1" / "atlas-codeA" / "records.valid.jsonl"), key=lambda x: str(x.get("record_id"))):
-        line = re.sub(r"\s+", "", str((r.get("driver_lines") or [r.get("name_in_paper", "")])[0])).upper()
-        if not any(x["exp_id"] == f"atlas:{line}" for x in rows):
-            rows.append({"exp_id": f"atlas:{line}", "doi": r["doi"], "source_locator": r["source_locator"], "quote": r["quote"]})
+        line, prep = _atlas_key(r)
+        if (line, prep) not in seen:
+            seen.add((line, prep))
+            rows.append({"exp_id": f"atlas:{line}:{prep}", "doi": r["doi"], "source_locator": r["source_locator"], "quote": r["quote"]})
     _write_csv(WORK / "atlas" / "quotes_to_verify_B.csv", rows, ["exp_id", "doi", "source_locator", "quote"])
     print(json.dumps({"atlas_quotes_for_B": len(rows)}))
 
@@ -234,19 +260,35 @@ def _units_known() -> set:
 
 
 def reassign() -> None:
+    """PREREG v2 L3/L5/C1: sources without a disposition and all sources of a breaching reader go to a new session of the same
+    kind (at most 2 reassignments); sources a (non-web) reader marks `unreachable` go to a `reader_web` session. Each new spec
+    names the session it `replaces` for those sources; the earlier session's records of them are dropped (`_pass1_generic`)."""
     specs = []
+    breach = _breaching() if (LAB / "transcript_audit.json").exists() else set()
+    taken = {(s.get("replaces"), x) for s in _specs(("reader", "reader_web")) if s.get("replaces") for x in s.get("sources") or []}
     for m in sorted(R2.MANIFESTS.glob("*.json")):
         man = json.loads(m.read_text())
-        if man["kind"] != "reader" or any(R2._alive(r["pid"]) for r in man["runs"]):
+        if man["kind"] not in ("reader", "reader_web") or any(R2._alive(r["pid"]) for r in man["runs"]):
             continue
+        srcs = [s for s in man.get("sources") or [] if (man["session"], s) not in taken]
         rows, _ = LC.read_csv_rows(Path(man["room"]) / "out" / "dispositions.csv", ["doi", "disposition", "n_records", "reason"])
-        done = {norm_doi(r["doi"]) for r in rows if r.get("disposition") in ("records", "no_qualifying_experiment", "unreachable")}
-        missing = [s for s in man.get("sources") or [] if norm_doi(json.loads((SOURCES / s / "meta.json").read_text())["doi"]) not in done]
-        attempt = int(re.search(r"-a(\d)$", man["session"]).group(1)) if re.search(r"-a(\d)$", man["session"]) else 0
+        disp = {norm_doi(r["doi"]): (r.get("disposition") or "").strip() for r in rows}
+        doi_of = {s: norm_doi(_meta(s)["doi"]) for s in srcs}
+        if man["session"] in breach:
+            missing = list(srcs)
+        else:
+            missing = [s for s in srcs if disp.get(doi_of[s]) not in ("records", "no_qualifying_experiment", "unreachable")]
+        m_att = re.search(r"-a(\d)$", man["session"])
+        attempt = int(m_att.group(1)) if m_att else 0
+        base = re.sub(r"-a\d$", "", man["session"])
         if missing and attempt < 2:
-            base = re.sub(r"-a\d$", "", man["session"])
-            specs.append(_spec({"session": f"{base}-a{attempt + 1}", "kind": "reader", "family": man["family"], "pass_id": "pass1",
-                                "sources": missing}))
+            specs.append(_spec({"session": f"{base}-a{attempt + 1}", "kind": man["kind"], "family": man["family"], "pass_id": "pass1",
+                                "sources": missing, "replaces": man["session"]}))
+        if man["kind"] == "reader" and man["session"] not in breach:
+            unreach = [s for s in srcs if disp.get(doi_of[s]) == "unreachable" and not _meta(s).get("banned_host")]
+            if unreach:
+                specs.append(_spec({"session": f"{base}-w{attempt}", "kind": "reader_web", "family": man["family"], "pass_id": "pass1",
+                                    "sources": unreach, "replaces": man["session"]}))
     print(json.dumps({"reassigned_sessions": len(specs)}))
 
 
@@ -271,26 +313,31 @@ def _atlas_side(session: str, use_snapshot: bool) -> list[dict]:
     return recs
 
 
+def _atlas_key(r: dict) -> tuple[str, str]:
+    """PREREG v2 L8: (line ID upper-cased without spaces, headless or intact): a line tested headless and intact = two experiments."""
+    line = re.sub(r"\s+", "", str((r.get("driver_lines") or [r.get("name_in_paper", "")])[0])).upper()
+    return line, ("headless" if r.get("preparation") == "headless" else "intact")
+
+
 def atlas_pairs() -> tuple[list[dict], list[dict], dict, dict]:
     """Coder A = first reading, coder B = second reading; keyed by line ID; expanded to one record per mapped type."""
     amap = atlas_map()
     sides = {}
     for tag, sess in (("A", "atlas-codeA"), ("B", "atlas-codeB")):
-        by_line = {}
+        by_key = {}
         for r in sorted(_atlas_side(sess, tag == "B"), key=lambda x: str(x.get("record_id"))):
-            line = re.sub(r"\s+", "", str((r.get("driver_lines") or [r.get("name_in_paper", "")])[0])).upper()
-            by_line.setdefault(line, r)
-        sides[tag] = by_line
-    p1, p2, info = [], [], {"lines_A": len(sides["A"]), "lines_B": len(sides["B"]), "mapped_lines": 0}
-    for line, ra in sorted(sides["A"].items()):
+            by_key.setdefault(_atlas_key(r), r)
+        sides[tag] = by_key
+    p1, p2, info = [], [], {"keys_A": len(sides["A"]), "keys_B": len(sides["B"]), "mapped_keys": 0}
+    for (line, prep), ra in sorted(sides["A"].items()):
         types, conf, basis = amap.get(line, ([], "low", ""))
         if types:
-            info["mapped_lines"] += 1
+            info["mapped_keys"] += 1
         for t in (types or ["UNMAPPED"]):
-            for tag, src, dst in (("A", ra, p1), ("B", sides["B"].get(line), p2)):
+            for tag, src, dst in (("A", ra, p1), ("B", sides["B"].get((line, prep)), p2)):
                 if src is None:
                     continue
-                r = dict(src, exp_id=f"atlas:{line}:{t}", manc_type=t, mapping_confidence=conf if types else "low",
+                r = dict(src, exp_id=f"atlas:{line}:{prep}:{t}", manc_type=t, mapping_confidence=conf if types else "low",
                          mapping_basis=f"atlas line map: {basis}"[:300])
                 if len(types) > 1:
                     r["line_specificity"] = "multi_dn"
@@ -300,9 +347,12 @@ def atlas_pairs() -> tuple[list[dict], list[dict], dict, dict]:
     rows, _ = LC.read_csv_rows(RAW / "pass1" / "atlas-codeB" / "quote_checks.csv", ["exp_id", "quote_found", "where", "comment"])
     for row in rows:
         v = row.get("quote_found", "").strip().lower()
-        line = row["exp_id"].split(":")[1].upper() if row["exp_id"].startswith("atlas:") else row["exp_id"].upper()
+        parts = row["exp_id"].split(":")
+        if len(parts) < 3 or parts[0] != "atlas":
+            continue
+        line, prep = parts[1].upper(), parts[2].lower()
         for t in (amap.get(line, ([], "", ""))[0] or ["UNMAPPED"]):
-            qc[f"atlas:{line}:{t}"] = True if v in LC.TRUE_WORDS else (False if v in LC.FALSE_WORDS else None)
+            qc[f"atlas:{line}:{prep}:{t}"] = True if v in LC.TRUE_WORDS else (False if v in LC.FALSE_WORDS else None)
     return p1, p2, qc, info
 
 
@@ -345,6 +395,8 @@ def _pass1_generic() -> list[dict]:
     for sd in sorted((RAW / "pass1").glob("pass1-*")):
         if sd.name not in breach:
             recs += _jsonl(sd / "records.valid.jsonl")
+    repl = {(s["replaces"], x) for s in _specs(("reader", "reader_web")) if s.get("replaces") for x in s.get("sources") or []}
+    recs = [r for r in recs if (r["exp_id"].split(":", 1)[0], slug(r["doi"])) not in repl]
     kept, _ = dedupe_v2(recs)
     return kept
 
@@ -377,20 +429,22 @@ def second() -> None:
     recs = {r["exp_id"]: r for r in todo}
     fam_of = {norm_doi(d): f for d, f in zip(_registry()["doi"], _registry()["family"])}
     groups = collections.defaultdict(list)
+    web = _web_slugs()
     for d in sorted(by_doi):
-        groups["dedicated" if fam_of.get(d) == "dedicated" else "general"].append(d)
+        groups[("dedicated" if fam_of.get(d) == "dedicated" else "general", slug(d) in web)].append(d)
     n_specs = 0
-    for grp, dois in groups.items():
+    for (grp, is_web), dois in groups.items():
+        tag = grp + ("-web" if is_web else "")
         for i in range(0, len(dois), 6):
             batch = dois[i:i + 6]
             exps = [r for d in batch for r in by_doi[d]]
-            n = len(list(SPECS.glob(f"pass2-{grp}-*.json"))) + 1
-            name = f"pass2-{grp}-{n:02d}"
+            n = sum(1 for f in SPECS.glob("pass2-*.json") if re.fullmatch(rf"pass2-{tag}-\d+", f.stem)) + 1
+            name = f"pass2-{tag}-{n:02d}"
             ex_path, q_path = WORK / "second" / name / "experiments_to_label.csv", WORK / "second" / name / "quotes_to_verify.csv"
             _write_csv(ex_path, exps, LP.ID_FIELDS)
             _write_csv(q_path, [{"exp_id": r["exp_id"], "doi": recs[r["exp_id"]]["doi"], "source_locator": recs[r["exp_id"]]["source_locator"],
                                  "quote": recs[r["exp_id"]]["quote"]} for r in exps], ["exp_id", "doi", "source_locator", "quote"])
-            _spec({"session": name, "kind": "second", "family": "dedicated" if grp == "dedicated" else None, "pass_id": "pass2",
+            _spec({"session": name, "kind": "second_web" if is_web else "second", "family": "dedicated" if grp == "dedicated" else None, "pass_id": "pass2",
                    "sources": [slug(d) for d in batch], "inputs": {"experiments_to_label.csv": str(ex_path)},
                    "quotes": str(q_path), "exp_ids": [r["exp_id"] for r in exps]})
             n_specs += 1
@@ -417,6 +471,7 @@ def adjudication() -> None:
         for row in csv.DictReader(open(f, encoding="utf-8")):
             sib[row["exp_id"]] = row
     groups = collections.defaultdict(list)
+    web = _web_slugs()
     fam_of = dict(zip(_registry()["doi"], _registry()["family"]))
     for a in p1 + a1:
         b = p2.get(a["exp_id"])
@@ -425,23 +480,23 @@ def adjudication() -> None:
         for f in AGG.COMPARED_FIELDS:
             if a.get(f) != b.get(f):
                 ra, rb = (a.get(f), b.get(f)) if rng.random() < 0.5 else (b.get(f), a.get(f))
-                g = "dedicated" if fam_of.get(norm_doi(a["doi"])) == "dedicated" else "general"
+                g = ("dedicated" if fam_of.get(norm_doi(a["doi"])) == "dedicated" else "general", slug(a["doi"]) in web)
                 groups[g].append({**{k: (";".join(a[k]) if isinstance(a.get(k), list) else a.get(k, "")) for k in LP.ID_FIELDS
                                      if k not in ("sibling_index", "n_siblings")}, "sibling_index": sib.get(a["exp_id"], {}).get("sibling_index", 1),
                                   "n_siblings": sib.get(a["exp_id"], {}).get("n_siblings", 1),
                                   "field": f, "reading_A": json.dumps(ra), "reading_B": json.dumps(rb)})
     n_specs = 0
-    for g, rows in groups.items():
+    for (g, is_web), rows in groups.items():
         dois = sorted({norm_doi(r["doi"]) for r in rows})
         for i in range(0, len(dois), 6):
             batch = set(dois[i:i + 6])
-            name = f"adjudication-{g}-{i // 6 + 1:02d}"
+            name = f"adjudication-{g}{'-web' if is_web else ''}-{i // 6 + 1:02d}"
             path = WORK / "adjudication" / name / "disagreements.csv"
             _write_csv(path, [r for r in rows if norm_doi(r["doi"]) in batch], LP.ID_FIELDS + ["field", "reading_A", "reading_B"])
-            _spec({"session": name, "kind": "adjudication", "family": "dedicated" if g == "dedicated" else None, "pass_id": "adjudication",
+            _spec({"session": name, "kind": "adjudication_web" if is_web else "adjudication", "family": "dedicated" if g == "dedicated" else None, "pass_id": "adjudication",
                    "sources": [slug(d) for d in sorted(batch)], "inputs": {"disagreements.csv": str(path)}})
             n_specs += 1
-    print(json.dumps({"adjudication_specs": n_specs, "disputed_fields": {g: len(r) for g, r in groups.items()}}))
+    print(json.dumps({"adjudication_specs": n_specs, "disputed_fields": {f"{g}{'-web' if w else ''}": len(r) for (g, w), r in groups.items()}}))
 
 
 # --------------------------------------------------------------------------------------------------------- merge / finalize
@@ -524,8 +579,9 @@ def finalize() -> None:
 
 def _verify_frame() -> list[dict]:
     final = _jsonl(LAB / "records.jsonl")
-    frame = sorted([r for r in final if AGG.eligible(r) and not r["exp_id"].split(":", 1)[0].startswith("pass1-dedicated")],
-                   key=lambda r: r["exp_id"])
+    web = _web_slugs()
+    frame = sorted([r for r in final if AGG.eligible(r) and not r["exp_id"].split(":", 1)[0].startswith("pass1-dedicated")
+                    and slug(r["doi"]) not in web], key=lambda r: r["exp_id"])
     return frame
 
 

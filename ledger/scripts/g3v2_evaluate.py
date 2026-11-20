@@ -71,19 +71,14 @@ def authors_offsets() -> dict[str, list[float]]:
     return out
 
 
-def main() -> None:
-    res = [r for r in read_log(data_dir() / "calibration" / "GHA_g3v2" / "results.pkl") if "error" not in r]
-    g3 = sorted([r for r in res if r["key"].startswith("g3v2|")], key=lambda r: int(r["key"].rsplit("s", 1)[1]))
-    it5 = [r for r in res if r["key"].startswith("g3v2item5|")]
-    ours = {leg: np.array([r["extras"]["legs"][leg]["score"] for r in g3]) for leg in L.LEGS}
-    per_leg = {leg: {"frac_ge_0_5": float((ours[leg] >= 0.5).mean()), "median": float(np.median(ours[leg])), "mean": float(ours[leg].mean()),
-                     "authors_frac_ge_0_5": G1.AUTH_FRAC[leg], "authors_median": G1.AUTH_MED[leg]} for leg in L.LEGS}
-    c1 = all(v["frac_ge_0_5"] >= 0.10 for v in per_leg.values())
-    c2 = all(abs(v["frac_ge_0_5"] - v["authors_frac_ge_0_5"]) <= 0.25 and abs(v["median"] - v["authors_median"]) <= 0.30 for v in per_leg.values())
-    hind = (per_leg["T3L"]["mean"] + per_leg["T3R"]["mean"]) / 2
-    front = (per_leg["T1L"]["mean"] + per_leg["T1R"]["mean"]) / 2
-    c3 = hind < front
-    # item 4': our per-replicate offsets (leg signal v1 = columns 0..5 of leg_signals, as run 1's g3_evaluate) vs the authors'
+def load_g3(path: Path, prefix: str) -> tuple[list[dict], list[dict]]:
+    res = [r for r in read_log(path) if "error" not in r]
+    return sorted([r for r in res if r["key"].startswith(prefix)], key=lambda r: int(r["key"].rsplit("s", 1)[1])), res
+
+
+def item4p(g3: list[dict]) -> tuple[dict, int, bool, dict]:
+    """Item 4' (PREREG v2 P2): per reported leg pair, two-sample permutation test of |R_ours - R_authors| (offsets of runs where
+    both legs score >= 0.5; evaluable if both sides have >= 8); governing rule: k >= 3 and every evaluable p >= 0.01."""
     sig = [L.unpack_traces(r["extras"]["leg_signals"]) for r in g3]
     auth = authors_offsets()
     rng = np.random.default_rng(PERM_SEED)
@@ -108,15 +103,35 @@ def main() -> None:
     k = sum(v["evaluable"] for v in pairs.values())
     alpha = 0.01  # PREREG v2 P2: v1 4.7's alpha, no multiplicity correction
     c4p = bool(k >= 3 and all(v["p"] >= alpha for v in pairs.values() if v["evaluable"]))
-    variants = {"bonferroni_0.01_over_k": bool(k >= 3 and all(v["p"] >= 0.01 / k for v in pairs.values() if v["evaluable"])),
-                "coupled_status_match": None}
+    variants = {"bonferroni_0.01_over_k": bool(k >= 3 and all(v["p"] >= 0.01 / k for v in pairs.values() if v["evaluable"]))}
+    return pairs, k, c4p, variants
+
+
+def main() -> None:
+    g3, res = load_g3(data_dir() / "calibration" / "GHA_g3v2" / "results.pkl", "g3v2|")
+    it5 = [r for r in res if r["key"].startswith("g3v2item5|")]
+    ours = {leg: np.array([r["extras"]["legs"][leg]["score"] for r in g3]) for leg in L.LEGS}
+    per_leg = {leg: {"frac_ge_0_5": float((ours[leg] >= 0.5).mean()), "median": float(np.median(ours[leg])), "mean": float(ours[leg].mean()),
+                     "authors_frac_ge_0_5": G1.AUTH_FRAC[leg], "authors_median": G1.AUTH_MED[leg]} for leg in L.LEGS}
+    c1 = all(v["frac_ge_0_5"] >= 0.10 for v in per_leg.values())
+    c2 = all(abs(v["frac_ge_0_5"] - v["authors_frac_ge_0_5"]) <= 0.25 and abs(v["median"] - v["authors_median"]) <= 0.30 for v in per_leg.values())
+    hind = (per_leg["T3L"]["mean"] + per_leg["T3R"]["mean"]) / 2
+    front = (per_leg["T1L"]["mean"] + per_leg["T1R"]["mean"]) / 2
+    c3 = hind < front
+    # item 4' of the formal run: REPORTED only; item 4' is decided by the pre-freeze preview (`g3v2_preview.py`, PREREG v2 P2)
+    pairs, k, c4p_formal, variants = item4p(g3)
+    preview = json.loads((RESEARCH / "gates_v2" / "G3v2_PREVIEW.json").read_text())
+    c4p = bool(preview["item4p_pass"])
+    alpha = 0.01
     # item 5: the B3 procedure on the DNg100 type, accepted at 384 in >= 14 of 16 seeds, front-pair score >= 0.5 (mean over usable)
     acc384 = sum(1 for r in it5 if r.get("usable") and abs(float(r.get("current") or 0) - 384.0) < 1e-6)
     front_scores = [r["extras"]["legs"]["front"]["score"] for r in it5 if r.get("usable")]
     front_mean = float(np.mean(front_scores)) if front_scores else None
     c5 = bool(len(it5) == 16 and acc384 >= 14 and front_mean is not None and front_mean >= 0.5)
     out = {"gate": "G3 v2", "n_runs": len(g3), "n_item5": len(it5), "per_leg": per_leg, "hind_mean": hind, "front_mean": front,
-           "coupling_consistency": pairs, "k_evaluable": k, "alpha_per_pair": alpha, "reported_variants": variants,
+           "item4p_decided_by": "gates_v2/G3v2_PREVIEW.json (PREREG v2 P2)", "item4p_preview_pass": c4p,
+           "formal_run_coupling_consistency_reported": pairs, "formal_run_item4p_pass_reported": c4p_formal,
+           "k_evaluable": k, "alpha_per_pair": alpha, "reported_variants": variants,
            "item5": {"accepted_at_384": acc384, "front_pair_mean_score": front_mean, "currents": sorted({float(r.get('current') or 0) for r in it5})},
            "criteria": {"1_every_leg_rhythmic": c1, "2_per_leg_agreement": c2, "3_hind_weaker": c3, "4p_coupling_consistent": c4p,
                         "5_dng100_b3_procedure": c5},

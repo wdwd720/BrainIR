@@ -1,0 +1,79 @@
+{
+ "what": "G3 v2 item 4' preview (PREREG v2 P2); decides item 4'",
+ "inputs": {
+  "g3_v1_results": "$DATA/ledger/calibration/g3_v1/results.pkl",
+  "g3_v1_results_sha256": "61794801ee13d683c137fa906d1b94840164215a4bf0155037e44f8fa27fc1eb",
+  "n_runs": 64,
+  "authors_traces": "$DATA/raw/external/pugliese_2026_zenodo/DNg100_Stim_fullManc/simulations/DNg100_Stim_fullManc/hyak/run_id=33195857/ckpt/DNg100_Stim_fullManc_Rs.npz",
+  "authors_traces_sha256": "317b466d5b139f93dbcb930e69178db6b0d4daa8987e9adac210d72a9d91a876"
+ },
+ "perm_seed": 20261202,
+ "n_perm": 10000,
+ "pairs": {
+  "T1L-T1R": {
+   "n_ours": 34,
+   "n_authors": 13,
+   "R_ours": 0.2342174535387455,
+   "R_authors": 0.3304198707303225,
+   "evaluable": true,
+   "abs_diff": 0.09620241719157696,
+   "p": 0.6271372862713729
+  },
+  "T2L-T2R": {
+   "n_ours": 29,
+   "n_authors": 15,
+   "R_ours": 0.22629461557202984,
+   "R_authors": 0.20934418839257907,
+   "evaluable": true,
+   "abs_diff": 0.016950427179450778,
+   "p": 0.8879112088791121
+  },
+  "T3L-T3R": {
+   "n_ours": 13,
+   "n_authors": 4,
+   "R_ours": 0.595487608660012,
+   "R_authors": 0.6264556982126628,
+   "evaluable": false
+  },
+  "T1L-T2L": {
+   "n_ours": 29,
+   "n_authors": 12,
+   "R_ours": 0.5896085998993504,
+   "R_authors": 0.5851032903685615,
+   "evaluable": true,
+   "abs_diff": 0.004505309530788981,
+   "p": 0.9805019498050195
+  },
+  "T2L-T3L": {
+   "n_ours": 8,
+   "n_authors": 2,
+   "R_ours": 0.5826304769967601,
+   "R_authors": 0.9999870400108524,
+   "evaluable": false
+  },
+  "T1R-T2R": {
+   "n_ours": 37,
+   "n_authors": 18,
+   "R_ours": 0.1402629181555287,
+   "R_authors": 0.6021113997912623,
+   "evaluable": true,
+   "abs_diff": 0.46184848163573355,
+   "p": 0.0034996500349965005
+  },
+  "T2R-T3R": {
+   "n_ours": 46,
+   "n_authors": 27,
+   "R_ours": 0.8794732894300968,
+   "R_authors": 0.7458427753090401,
+   "evaluable": true,
+   "abs_diff": 0.13363051412105675,
+   "p": 0.0575942405759424
+  }
+ },
+ "k_evaluable": 5,
+ "governing_rule": "k >= 3 and every evaluable pair p >= 0.01 (no multiplicity correction)",
+ "item4p_pass": false,
+ "variants_reported": {
+  "bonferroni_0.01_over_k": true
+ }
+}
