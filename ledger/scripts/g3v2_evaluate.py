@@ -106,15 +106,17 @@ def main() -> None:
             row["evaluable"] = False
         pairs[f"{a}-{b}"] = row
     k = sum(v["evaluable"] for v in pairs.values())
-    alpha = 0.01 / k if k else None
+    alpha = 0.01  # PREREG v2 P2: v1 4.7's alpha, no multiplicity correction
     c4p = bool(k >= 3 and all(v["p"] >= alpha for v in pairs.values() if v["evaluable"]))
+    variants = {"bonferroni_0.01_over_k": bool(k >= 3 and all(v["p"] >= 0.01 / k for v in pairs.values() if v["evaluable"])),
+                "coupled_status_match": None}
     # item 5: the B3 procedure on the DNg100 type, accepted at 384 in >= 14 of 16 seeds, front-pair score >= 0.5 (mean over usable)
     acc384 = sum(1 for r in it5 if r.get("usable") and abs(float(r.get("current") or 0) - 384.0) < 1e-6)
     front_scores = [r["extras"]["legs"]["front"]["score"] for r in it5 if r.get("usable")]
     front_mean = float(np.mean(front_scores)) if front_scores else None
     c5 = bool(len(it5) == 16 and acc384 >= 14 and front_mean is not None and front_mean >= 0.5)
     out = {"gate": "G3 v2", "n_runs": len(g3), "n_item5": len(it5), "per_leg": per_leg, "hind_mean": hind, "front_mean": front,
-           "coupling_consistency": pairs, "k_evaluable": k, "alpha_per_pair": alpha,
+           "coupling_consistency": pairs, "k_evaluable": k, "alpha_per_pair": alpha, "reported_variants": variants,
            "item5": {"accepted_at_384": acc384, "front_pair_mean_score": front_mean, "currents": sorted({float(r.get('current') or 0) for r in it5})},
            "criteria": {"1_every_leg_rhythmic": c1, "2_per_leg_agreement": c2, "3_hind_weaker": c3, "4p_coupling_consistent": c4p,
                         "5_dng100_b3_procedure": c5},

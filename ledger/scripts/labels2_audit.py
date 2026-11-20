@@ -29,9 +29,15 @@ def _banned(host: str) -> bool:
     return any(host == b or host.endswith("." + b) or b in host for b in LA.BANNED_HOSTS)
 
 
-def own_fetched_paths(room: str) -> set[str]:
-    """Paths that this session's own WebFetch results name as saved files, for fetches of allowed hosts."""
-    calls, out = {}, set()
+MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co")
+TOKENS = re.compile(r"wdwd720|smpuglie|BrainIR", re.I)
+
+
+def scan(room: str) -> tuple[set[str], list[dict]]:
+    """(paths named in the session's own tool results, excluding WebFetch results from banned hosts) and v2-only breach issues:
+    successful fetches of the v2 mirrors (L3 kind 2) and tool results whose text names the repository, its owner or the
+    authors' code (L3 kind 5)."""
+    calls, named, issues = {}, set(), []
     for f in R2.transcripts(Path(room)):
         for line in f.read_text(errors="replace").splitlines():
             try:
@@ -42,15 +48,21 @@ def own_fetched_paths(room: str) -> set[str]:
             if not isinstance(content, list):
                 continue
             for c in content:
-                if c.get("type") == "tool_use" and c.get("name") == "WebFetch":
-                    calls[c["id"]] = (c.get("input") or {}).get("url", "")
+                if c.get("type") == "tool_use":
+                    calls[c["id"]] = (c.get("name"), c.get("input") or {})
                 elif c.get("type") == "tool_result" and c.get("tool_use_id") in calls:
-                    url = calls[c["tool_use_id"]]
-                    if _banned(urlparse(url).hostname or ""):
-                        continue
+                    name, inp = calls[c["tool_use_id"]]
                     text = json.dumps(c.get("content"))
-                    out |= set(PATH_RE.findall(text))
-    return out
+                    host = (urlparse(inp.get("url", "")).hostname or "") if name == "WebFetch" else ""
+                    ok = not c.get("is_error")
+                    if name == "WebFetch" and _banned(host):
+                        continue
+                    if name == "WebFetch" and ok and any(host == m or host.endswith("." + m) for m in MIRRORS):
+                        issues.append({"kind": "banned_host_fetch", "url": inp.get("url", "")})
+                    if ok and TOKENS.search(text):
+                        issues.append({"kind": "forbidden_token_in_tool_result", "tool": name, "token": TOKENS.search(text).group(0)})
+                    named |= set(PATH_RE.findall(text))
+    return named, issues
 
 
 def audit() -> list[dict]:
@@ -61,8 +73,8 @@ def audit() -> list[dict]:
         v1man = dict(man, family="pugliese_dedicated" if man.get("family") == "dedicated" else man.get("family"))
         r = LA.audit_session(v1man)
         own_dir = str(LA.PROJECTS / LA.encode(man["room"]))
-        fetched = own_fetched_paths(man["room"])
-        breaches, own_reads = [], 0
+        fetched, extra = scan(man["room"])
+        breaches, own_reads = list(extra), 0
         for i in r["issues"]:
             p = str(i.get("path") or "")
             if i["kind"] == "file_outside_room" and p.startswith(own_dir + "/") and "/tool-results/" in p and p in fetched:

@@ -123,11 +123,13 @@ could not access, anything uncertain) and make sure `out/records.jsonl` has one 
 
 ## 8. Version 2 clarifications (they take precedence where they differ from sections 5-7)
 
-- **Local sources.** Your assigned sources are already downloaded into `sources/<id>/` in your room: `text.txt` (full text
+- **Local sources.** Your assigned sources are already downloaded into `sources/<slug>/` in your room: `text.txt` (full text
   or abstract), `figures/` (figure images), `supp/` (supplementary tables as text or CSV), `pages/` (page images of PDFs),
-  `meta.json` (DOI, title, what could be downloaded). Read these local files first: the text, then the figures, legends and
-  supplementary tables (you can open images). Use a live web fetch only for a source whose `meta.json` says `"status":
-  "unreachable"`, or to read a figure or table that is missing locally; record that in `out/notes.md`.
+  `meta.json` (DOI, title, what could be downloaded). Read the text, then the figures, legends and supplementary tables (you
+  can open images). Most sessions have no web tools: if a source or a figure you need is missing, record that in
+  `out/notes.md` and give the source the disposition `unreachable` with the reason; a separate session will try to fetch
+  it. Only a session whose instructions say so may fetch a source from the web. Section 5's mention of `sources_seed.csv`
+  does not apply in version 2.
 - **Session contract.** Before you stop, write `out/dispositions.csv` (header `doi,disposition,n_records,reason`) with one
   row for EVERY source assigned to you: `records` (you wrote records from it), `no_qualifying_experiment` (you read it and
   it has no experiment of section 1) or `unreachable` (you could not read it; say why). There is no time limit: finish

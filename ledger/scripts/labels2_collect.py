@@ -157,6 +157,19 @@ def readers(round_: int) -> None:
     print(json.dumps({"reader_specs": len(specs), "sources": int(len(todo))}))
 
 
+def atlas_ids() -> None:
+    """PREREG v2 L7: the atlas line IDs from the kit's Cande rows (line IDs only, read by OCR in run 1); no paper is opened."""
+    rows = [r for r in csv.DictReader(open(KIT / "driver_lines.csv", encoding="utf-8")) if norm_doi(r["source_doi"]) == ATLAS_DOI]
+    ids = sorted({re.sub(r"\s+", "", r["line_id"]).upper() for r in rows if r["line_id"].strip()})
+    _write_csv(WORK / "atlas" / "atlas_line_ids.csv", [{"line_id": x} for x in ids], ["line_id"])
+    src_map = [slug(ATLAS_DOI), slug(NAMIKI_DOI), slug(CATALOGUE_DOI)]
+    inp = {"atlas_line_ids.csv": str(WORK / "atlas" / "atlas_line_ids.csv")}
+    _spec({"session": "atlas-map", "kind": "atlas_map", "pass_id": "atlas_map", "sources": src_map, "inputs": inp})
+    _spec({"session": "atlas-codeA", "kind": "atlas_code", "pass_id": "pass1", "sources": [slug(ATLAS_DOI)], "inputs": inp})
+    _spec({"session": "atlas-codeB", "kind": "atlas_code", "pass_id": "pass1", "sources": [slug(ATLAS_DOI)], "inputs": inp})
+    print(json.dumps({"atlas_line_ids": len(ids), "specs": ["atlas-map", "atlas-codeA", "atlas-codeB"]}))
+
+
 # --------------------------------------------------------------------------------------------------------- collect / leads / reassign
 def collect() -> None:
     LC.collect()
@@ -167,7 +180,10 @@ def leads(round_: int) -> None:
     known = set(reg["doi"])
     units_before = _units_known()
     new_rows, units_round = [], set()
+    breach = _breaching() if (LAB / "transcript_audit.json").exists() else set()
     for sd in sorted((RAW / "search").glob(f"search-*-r{round_}")):
+        if sd.name in breach:
+            continue
         rows, _ = LC.read_csv_rows(sd / "leads.csv", ["doi", "title", "year", "name_in_paper", "manc_type", "family_hint", "locator"])
         for r in rows:
             d = norm_doi(r.get("doi", ""))
@@ -243,8 +259,8 @@ def atlas_pairs() -> tuple[list[dict], list[dict], dict, dict]:
     sides = {}
     for tag, sess in (("A", "atlas-codeA"), ("B", "atlas-codeB")):
         by_line = {}
-        for r in _atlas_side(sess, tag == "B"):
-            line = str((r.get("driver_lines") or [r.get("name_in_paper", "")])[0]).strip().upper()
+        for r in sorted(_atlas_side(sess, tag == "B"), key=lambda x: str(x.get("record_id"))):
+            line = re.sub(r"\s+", "", str((r.get("driver_lines") or [r.get("name_in_paper", "")])[0])).upper()
             by_line.setdefault(line, r)
         sides[tag] = by_line
     p1, p2, info = [], [], {"lines_A": len(sides["A"]), "lines_B": len(sides["B"]), "mapped_lines": 0}
@@ -260,6 +276,7 @@ def atlas_pairs() -> tuple[list[dict], list[dict], dict, dict]:
                          mapping_basis=f"atlas line map: {basis}"[:300])
                 if len(types) > 1:
                     r["line_specificity"] = "multi_dn"
+                    r["other_cell_types"] = sorted(set(r.get("other_cell_types") or []) | (set(types) - {t}))
                 dst.append(r)
     qc = {}
     rows, _ = LC.read_csv_rows(RAW / "pass1" / "atlas-codeB" / "quote_checks.csv", ["exp_id", "quote_found", "where", "comment"])
@@ -279,14 +296,49 @@ def _breaching() -> set[str]:
     return {r["session"] for r in json.loads(p.read_text()) if r.get("breach")}
 
 
+V2_ORDER = ["atlas", "driver_line_resources", "grooming", "walking_stopping", "steering", "escape_landing", "recent_broad", "dedicated"]
+
+
+def _fam_of_session(s: str) -> str:
+    m = re.match(r"pass1-([a-z_]+?)-r\d", s)
+    return m.group(1) if m else s
+
+
+def dedupe_v2(recs: list[dict]) -> tuple[list[dict], list[dict]]:
+    """PREREG v2 L8: identical frozen content signature -> kept once, from the session earliest in V2_ORDER (ties: name)."""
+    def rank(r):
+        s = r["exp_id"].split(":", 1)[0]
+        f = _fam_of_session(s)
+        return (V2_ORDER.index(f) if f in V2_ORDER else len(V2_ORDER), s, r["exp_id"])
+    seen, kept, dropped = {}, [], []
+    for r in sorted(recs, key=rank):
+        sig = AGG.content_signature(r)
+        if sig in seen:
+            dropped.append({"dropped": r["exp_id"], "kept": seen[sig]})
+            continue
+        seen[sig] = r["exp_id"]
+        kept.append(r)
+    return kept, dropped
+
+
 def _pass1_generic() -> list[dict]:
     breach = _breaching()
     recs = []
     for sd in sorted((RAW / "pass1").glob("pass1-*")):
         if sd.name not in breach:
             recs += _jsonl(sd / "records.valid.jsonl")
-    kept, _ = AGG.dedupe_pass1(recs)
+    kept, _ = dedupe_v2(recs)
     return kept
+
+
+NEUTRAL_WORDS = ["walk", "walking", "stop", "stopping", "halt", "halting", "groom", "grooming", "turn", "turning", "steer", "steering",
+                 "escape", "takeoff", "take-off", "jump", "landing", "flight", "backward", "forward", "rhythm", "rhythmic", "locomotion",
+                 "leg", "legs", "posture", "freeze", "freezing"]
+NEUTRAL_RE = re.compile(r"\b(" + "|".join(re.escape(w) for w in sorted(NEUTRAL_WORDS, key=len, reverse=True)) + r")\b", re.I)
+
+
+def neutral(s: str) -> str:
+    return NEUTRAL_RE.sub("[...]", s or "")
 
 
 def second() -> None:
@@ -299,6 +351,8 @@ def second() -> None:
     p1_type = {r["exp_id"]: r["manc_type"] for r in todo}
     rows = LP.add_siblings([{k: (";".join(r[k]) if isinstance(r.get(k), list) else r.get(k, "")) for k in LP.ID_FIELDS if k not in ("sibling_index", "n_siblings")}
                             for r in todo], p1_type)
+    for r in rows:
+        r["source_locator"], r["stimulation"] = neutral(r.get("source_locator", "")), neutral(r.get("stimulation", ""))
     by_doi = collections.defaultdict(list)
     for r in rows:
         by_doi[norm_doi(r["doi"])].append(r)
@@ -399,6 +453,9 @@ def merged() -> tuple[list[dict], dict, list[dict], list[dict]]:
 
 
 def line_spec_fill(final: list[dict]) -> list[dict]:
+    """PREREG v2 L10 (literal): only `unknown` records with a driver line in kit_v2/driver_lines.csv; `other_cells` naming a MANC DN
+    type -> multi_dn, other non-empty `other_cells` -> minor_offtarget; never `clean`; candidate-type ambiguity ignored."""
+    kt = LC.known_types()
     rows = list(csv.DictReader(open(KIT / "driver_lines.csv", encoding="utf-8")))
     by_line = collections.defaultdict(list)
     for r in rows:
@@ -407,23 +464,15 @@ def line_spec_fill(final: list[dict]) -> list[dict]:
     for rec in final:
         if rec.get("line_specificity") != "unknown":
             continue
-        lines = [x.strip().lower() for x in (rec.get("driver_lines") or []) if str(x).strip()]
+        lines = [str(x).strip().lower() for x in (rec.get("driver_lines") or []) if str(x).strip()]
         hits = [r for x in lines for r in by_line.get(x, [])]
-        if not hits:
+        cells = sorted({c.strip() for r in hits for c in re.split(r"[;,]", r.get("other_cells") or "") if c.strip()})
+        if not cells:
             continue
-        multi = any(len([t for t in r["candidate_types"].split(";") if t.strip()]) >= 2 or r["other_cells"].strip() for r in hits)
-        grades = [re.search(r"quality(?:_score)?=([ABC])", r["expression_note"]) for r in hits]
-        grades = [g.group(1) for g in grades if g]
-        if multi:
-            new = "multi_dn"
-        elif grades and all(g == "A" for g in grades):
-            new = "clean"
-        elif any(g in ("B", "C") for g in grades):
-            new = "minor_offtarget"
-        else:
-            continue
+        new = "multi_dn" if any(c in kt for c in cells) else "minor_offtarget"
         rec["line_specificity"] = new
-        log.append({"exp_id": rec["exp_id"], "filled": new})
+        rec["other_cell_types"] = sorted(set(rec.get("other_cell_types") or []) | set(cells))
+        log.append({"exp_id": rec["exp_id"], "filled": new, "cells": cells})
     return log
 
 
@@ -432,7 +481,12 @@ def finalize() -> None:
     fill_log = line_spec_fill(final)
     ex = pd.read_csv(KIT / "exposed_types.csv")
     exposed = {t for s in ex["manc_types"].dropna() for t in str(s).split(";") if t}
-    tl = AGG.type_labels(final, exposed=exposed, type_list=sorted(LC.known_types()))
+    ded = {r["exp_id"] for r in final if _fam_of_session(r["exp_id"].split(":", 1)[0]) == "dedicated"
+           or r["exp_id"].split(":", 1)[0].startswith("pass1-dedicated")}
+    elig = [r for r in final if AGG.eligible(r)]
+    by_nature = sorted({r["manc_type"] for r in elig} - {r["manc_type"] for r in elig if r["exp_id"] not in ded})
+    pd.DataFrame({"manc_type": by_nature, "reason": "eligible records only from dedicated sessions"}).to_csv(LAB / "exposed_v2.csv", index=False, lineterminator="\n")
+    tl = AGG.type_labels(final, exposed=exposed | set(by_nature), type_list=sorted(LC.known_types()))
     ag = agreement(p1, p2)
     with open(LAB / "records.jsonl", "w", encoding="utf-8", newline="\n") as fh:
         for r in final:
@@ -450,17 +504,37 @@ def finalize() -> None:
     print(json.dumps({k: v for k, v in summary.items() if k != "agreement"} | {"kappa_front_all_values": ag.get("primary_field_all_values")}, default=str))
 
 
-def verify_sample() -> None:
+def _verify_frame() -> list[dict]:
     final = _jsonl(LAB / "records.jsonl")
-    rng = np.random.default_rng(VERIFY_SEED)
-    pick = [final[i] for i in sorted(rng.choice(len(final), size=min(30, len(final)), replace=False))]
+    frame = sorted([r for r in final if AGG.eligible(r) and not r["exp_id"].split(":", 1)[0].startswith("pass1-dedicated")],
+                   key=lambda r: r["exp_id"])
+    return frame
+
+
+def verify_sample() -> None:
+    frame = _verify_frame()
+    idx = np.random.default_rng(VERIFY_SEED).choice(len(frame), min(30, len(frame)), replace=False)
+    pick = [frame[i] for i in idx]
     path = WORK / "verify" / "verify_sample.csv"
-    _write_csv(path, [{**{k: (";".join(r[k]) if isinstance(r.get(k), list) else r.get(k, "")) for k in
-                          ("exp_id", "doi", "source_locator", "driver_lines", "name_in_paper", "quote", "front_leg_rhythm")}} for r in pick],
-               ["exp_id", "doi", "source_locator", "driver_lines", "name_in_paper", "quote", "front_leg_rhythm"])
+    cols = ["exp_id", "doi", "source_locator", "driver_lines", "name_in_paper", "quote"]  # no recorded value (blind, L11)
+    _write_csv(path, [{k: (";".join(r[k]) if isinstance(r.get(k), list) else r.get(k, "")) for k in cols} for r in pick], cols)
+    (WORK / "verify" / "verify_truth.json").write_text(json.dumps({r["exp_id"]: r["front_leg_rhythm"] for r in pick}, indent=1) + "\n")
     _spec({"session": "verify-01", "kind": "verify", "pass_id": "verify", "sources": sorted({slug(r["doi"]) for r in pick}),
            "inputs": {"verify_sample.csv": str(path)}})
-    print(json.dumps({"verify_sample": len(pick)}))
+    print(json.dumps({"verify_sample": len(pick), "frame": len(frame)}))
+
+
+def verify_score() -> None:
+    truth = json.loads((WORK / "verify" / "verify_truth.json").read_text())
+    rows, _ = LC.read_csv_rows(RAW / "verify" / "verify-01" / "verification.csv", ["exp_id", "quote_found", "front_leg_rhythm", "locator", "comment"])
+    got = {r["exp_id"]: r for r in rows}
+    errors = [k for k, v in truth.items() if k not in got or got[k].get("front_leg_rhythm", "").strip().lower() in ("", "cannot_verify")
+              or got[k]["front_leg_rhythm"].strip().lower() != str(v).lower()]
+    quotes_found = sum(1 for k in truth if k in got and got[k].get("quote_found", "").strip().lower() in LC.TRUE_WORDS)
+    out = {"n": len(truth), "errors": len(errors), "error_rate": len(errors) / len(truth) if truth else None, "quotes_found": quotes_found,
+           "blocker": (len(errors) / len(truth) > 0.10) if truth else None}
+    (LAB / "verification.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(json.dumps(out))
 
 
 def v1_vs_v2() -> None:
@@ -481,12 +555,12 @@ def v1_vs_v2() -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["registry", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
-                                    "finalize", "v1-vs-v2"])
+    ap.add_argument("cmd", choices=["registry", "atlas-ids", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
+                                    "verify-score", "finalize", "v1-vs-v2"])
     ap.add_argument("--round", type=int, default=0)
     a = ap.parse_args()
-    {"registry": registry, "collect": collect, "reassign": reassign, "second": second, "adjudication": adjudication,
-     "verify-sample": verify_sample, "finalize": finalize, "v1-vs-v2": v1_vs_v2}.get(a.cmd, lambda: None)()
+    {"registry": registry, "atlas-ids": atlas_ids, "collect": collect, "reassign": reassign, "second": second, "adjudication": adjudication,
+     "verify-sample": verify_sample, "verify-score": verify_score, "finalize": finalize, "v1-vs-v2": v1_vs_v2}.get(a.cmd, lambda: None)()
     if a.cmd == "readers":
         readers(a.round)
     if a.cmd == "leads":

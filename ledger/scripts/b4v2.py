@@ -2,10 +2,10 @@
 digests are the ones of predictions v1); NO new simulation. PREDICTION SIDE.
 
 For type t at strength s: R = seeds whose background-only run scores >= 0.5 (< 8 -> background_not_rhythmic); L = seeds in R
-where t's run scores < 0.5. If |L| >= 0.75 |R|: in bounds = n_active_all <= 1500 and n_high_fr <= 100 (B4's screen
-configuration); fall = (background active MNs - t's active MNs) / max(background active MNs, 1) per seed;
-`halts` if >= 75 % of L are in bounds and the median fall over L is >= 0.25; `saturates` if more than 25 % of L are out of
-bounds; otherwise `rhythm_lost_other`. If |L| < 0.75 |R|: as v1 (speeds_up / slows_down / no_effect / no_effect_low_n).
+where t's run scores < 0.5. If |L| >= 0.75 |R|: in bounds = the run's screen verdict is not
+`strong` (B4's configuration: <= 1,500 active, <= 100 high-firing); fall = (background active MNs - t's active MNs) /
+max(background active MNs, 1) per seed; `halts` if every run in L is in bounds and the median fall over L is >= 0.25;
+`saturates` if more than half of L is out of bounds; otherwise `rhythm_lost_other`. If |L| < 0.75 |R|: as v1 (speeds_up / slows_down / no_effect / no_effect_low_n).
 
     uv run --project ledger --no-sync python ledger/scripts/b4v2.py   # -> research/ledger/predictions_v2/B4v2/
 """
@@ -27,7 +27,6 @@ from brainir_ledger import arms as AR  # noqa: E402
 from brainir_ledger.backend import read_log  # noqa: E402
 
 OUT = RESEARCH / "predictions_v2" / "B4v2"
-UPPER_ACTIVE, UPPER_HIGH = 1500, 100
 
 
 def call_v2(bg: list[dict], tr: list[dict]) -> tuple[str, dict]:
@@ -38,12 +37,12 @@ def call_v2(bg: list[dict], tr: list[dict]) -> tuple[str, dict]:
     L = [i for i in R if tr[i]["score"] < 0.5]
     info["n_lost"] = len(L)
     if len(L) >= 0.75 * len(R):
-        inb = [i for i in L if tr[i]["n_active_all"] <= UPPER_ACTIVE and tr[i]["n_high_fr"] <= UPPER_HIGH]
+        inb = [i for i in L if tr[i]["verdict"] != "strong"]  # in bounds = screen verdict not "strong" (PREREG v2 P3)
         fall = [(bg[i]["n_active_readout"] - tr[i]["n_active_readout"]) / max(bg[i]["n_active_readout"], 1) for i in L]
         info.update({"frac_lost_in_bounds": len(inb) / len(L), "median_mn_fall": float(np.median(fall))})
-        if len(inb) >= 0.75 * len(L) and np.median(fall) >= 0.25:
+        if len(inb) == len(L) and np.median(fall) >= 0.25:
             return "halts", info
-        if len(L) - len(inb) > 0.25 * len(L):
+        if len(L) - len(inb) > 0.5 * len(L):
             return "saturates", info
         return "rhythm_lost_other", info
     call, v1info = AR.b4_call(bg, tr)

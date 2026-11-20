@@ -42,9 +42,9 @@ LOGS = REPO / "data" / "cache" / "ledger_logs"
 LAB2_RAW = REPO / "research" / "ledger" / "labels_v2" / "raw"
 SCRATCH_HINT = Path(os.environ["LEDGER_SCRATCH"]) if os.environ.get("LEDGER_SCRATCH") else None
 KIT_FILES = ["PROTOCOL.md", "record_schema.json", "type_list.csv", "synonyms.csv", "driver_lines.csv"]
-PROMPTS = {"reader": "PROMPT_READER.md", "second": "PROMPT_SECOND.md", "adjudication": "PROMPT_ADJUDICATE.md", "search": "PROMPT_SEARCH.md",
+PROMPTS = {"reader": "PROMPT_READER.md", "reader_web": "PROMPT_READER_WEB.md", "second": "PROMPT_SECOND.md", "adjudication": "PROMPT_ADJUDICATE.md", "search": "PROMPT_SEARCH.md",
            "atlas_map": "PROMPT_ATLAS_MAP.md", "atlas_code": "PROMPT_ATLAS_CODE.md", "verify": "PROMPT_VERIFY.md"}
-PASS_OF = {"reader": "pass1", "second": "pass2", "adjudication": "adjudication", "search": "search", "atlas_map": "atlas_map",
+PASS_OF = {"reader": "pass1", "reader_web": "pass1", "second": "pass2", "adjudication": "adjudication", "search": "search", "atlas_map": "atlas_map",
            "atlas_code": None, "verify": "verify"}
 
 
@@ -54,18 +54,28 @@ def _sha(b: bytes) -> str:
 
 def deny_paths() -> list[Path]:
     p = [REPO, HOME / "ledger_rooms" / "run1", HOME / "ledger_rooms" / "run1_aux", HOME / "ledger_rooms_review_gates",
-         HOME / "ledger_rooms_review_prereg2", HOME / "ledger_rooms" / "run2_canary" / "planted", Path("/private/tmp"), Path("/tmp")]
+         HOME / "ledger_rooms_review_prereg2", HOME / "ledger_rooms" / "run2_canary" / "planted", Path("/private/tmp"), Path("/tmp"),
+         LA.PROJECTS / LA.encode(str(REPO)), LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1")) + "-*"),
+         LA.PROJECTS / (LA.encode(str(HOME / "ledger_rooms" / "run1_aux")) + "-*")]
     return p + ([SCRATCH_HINT] if SCRATCH_HINT else [])
 
 
-def flags_v2() -> list[str]:
-    """Run 1's frozen flags with the v2 deny rules added to its --disallowedTools list."""
+WEB_KINDS = ("search", "reader_web")
+MIRRORS = ("softwareheritage.org", "sourcegraph.com", "archive.org", "gitlab.com", "bitbucket.org", "codeberg.org", "huggingface.co")
+NO_WEB_TOOLS = "Read,Write,Edit,Glob,Grep"
+
+
+def flags_v2(kind: str = "search") -> list[str]:
+    """Run 1's frozen flags with the v2 deny rules added to its --disallowedTools list. Only search sessions and the reader of
+    unreachable sources keep WebSearch/WebFetch (PREREG v2 L13); every other kind gets file tools only."""
     flags = list(LR.FLAGS)
+    if kind not in WEB_KINDS:
+        flags = [NO_WEB_TOOLS if (k > 0 and flags[k - 1] in ("--tools", "--allowedTools")) else f for k, f in enumerate(flags)]
     i = flags.index("--disallowedTools")
     j = i + 1
     while j < len(flags) and not flags[j].startswith("--"):
         j += 1
-    extra = []
+    extra = [f"WebFetch(domain:{d})" for d in MIRRORS] + [f"WebFetch(domain:*.{d})" for d in MIRRORS]
     for p in deny_paths():
         for tool in ("Read", "Edit"):
             extra.append(f"{tool}(/{p}/**)")  # "//abs/path/**" = absolute path pattern
@@ -76,7 +86,7 @@ def sandbox_profile(room: Path) -> str:
     own_proj = LA.PROJECTS / LA.encode(str(room))
     rules = ["(version 1)", "(allow default)"]
     for p in deny_paths() + [HOME / "ledger_rooms", LA.PROJECTS]:
-        if str(p) in ("/private/tmp", "/tmp"):
+        if str(p) in ("/private/tmp", "/tmp") or "*" in str(p):
             continue  # claude needs its own temp files; the orchestrator's folder is denied via SCRATCH_HINT
         rules.append(f'(deny file-read* (subpath "{p}"))')
     rules += [f'(allow file-read* (subpath "{room}"))', f'(allow file-read* (subpath "{own_proj}"))']
@@ -103,7 +113,7 @@ def prompt_for(spec: dict) -> str:
     t = (KIT / PROMPTS[kind]).read_text(encoding="utf-8")
     fam = json.loads((KIT / "families_v2.json").read_text(encoding="utf-8"))
     rep = {"{SESSION}": spec["session"], "{PREFIX}": spec["session"]}
-    if kind == "reader":
+    if kind in ("reader", "reader_web"):
         f = fam["reader_families"][spec["family"]]
         rep.update({"{FAMILY_TITLE}": f["title"], "{FAMILY_SCOPE}": f["scope"]})
     if kind == "search":
@@ -145,14 +155,14 @@ def launch(spec: dict, mode: str = "tool") -> dict:
     room = build_room(spec)
     prompt = prompt_for(spec)
     MANIFESTS.mkdir(parents=True, exist_ok=True)
-    pid = spawn(["claude", "-p", prompt, *flags_v2()], room, ROOMS / f"{spec['session']}.main.stream.jsonl", mode)
+    pid = spawn(["claude", "-p", prompt, *flags_v2(spec["kind"])], room, ROOMS / f"{spec['session']}.main.stream.jsonl", mode)
     files = {}
     for p in sorted(room.rglob("*")):
         if p.is_file() and "out" not in p.relative_to(room).parts[:1]:
             files[str(p.relative_to(room))] = _sha(p.read_bytes())
     pid_ = spec.get("pass_id") or PASS_OF[spec["kind"]]
     man = {"session": spec["session"], "kind": spec["kind"], "family": spec.get("family"), "pass_id": pid_, "pass": pid_,
-           "room": str(room), "mode": mode, "sources": spec.get("sources") or [], "flags": flags_v2(),
+           "room": str(room), "mode": mode, "sources": spec.get("sources") or [], "flags": flags_v2(spec["kind"]),
            "runs": [{"tag": "main", "pid": pid, "start_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "prompt_sha256": _sha(prompt.encode()),
                      "prompt": prompt}], "files": files}
     (MANIFESTS / f"{spec['session']}.json").write_text(json.dumps(man, indent=1) + "\n", encoding="utf-8")
@@ -189,7 +199,7 @@ def resume(session: str, tag: str, prompt: str, extra_files: dict[str, Path] | N
     sid = _session_id(session)
     if sid is None:
         raise SystemExit(f"no session id for {session}")
-    pid = spawn(["claude", "-p", prompt, "--resume", sid, *flags_v2()], room, ROOMS / f"{session}.{tag}.stream.jsonl", man.get("mode", "tool"))
+    pid = spawn(["claude", "-p", prompt, "--resume", sid, *flags_v2(man["kind"])], room, ROOMS / f"{session}.{tag}.stream.jsonl", man.get("mode", "tool"))
     man["runs"].append({"tag": tag, "pid": pid, "start_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "resumed_session": sid,
                         "prompt_sha256": _sha(prompt.encode()), "prompt": prompt,
                         "files_added": {n: _sha(Path(s).read_bytes()) for n, s in (extra_files or {}).items()}})
