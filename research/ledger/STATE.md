@@ -44,6 +44,9 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
 - **Stage 2 cutoffs (L35):** pass 1 + searches end 13:30; pass 2 (A+B) 16:45; adjudication 18:30; labels lock/tag/OTS/push 19:15;
   then G5 + HANDOFF. Labelers are detached: after every launch keep a tracked background waiter (exits when a labeler PID dies
   or after ~20 min) so the orchestrator is woken; check the wall clock on every wake.
+- (09:04 PST) Stage 2 running (L36): pass1 steering/atlas/catalogue/pugliese_dedicated/walking_stopping + both searches alive;
+  to launch as slots free: grooming, escape_landing, recent_broad. Quota probe: scratchpad `quota.sh` (stream events) and a
+  one-turn haiku probe in scratchpad/qprobe; stop launching at 85 %, stop labelers at 93 %.
 - (08:41 PST) ALL Modal work done. 10/10 controls pass `r2_controls_check.py`; G4 1,500/1,500 over 15 campaigns; dry run on all
   22 arms ok; ENVIRONMENT/PREDICTIONS_SUMMARY regenerated; pre-mortem L34. Next: commit, `lock.py predictions` (explicit
   names), commit, `lock_verify.py --tag HEAD`, tag, `lock_verify.py`, OTS, commit; then Stage 2 wave 1.
