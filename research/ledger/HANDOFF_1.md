@@ -1,8 +1,8 @@
 # BrainIR prediction ledger, run 1: handoff
 
-Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
+Run: 2026-11-19 20:20 to 2026-11-20 ~10:55 PST, about 14.5 hours.
 - Spec: `research/ledger/RUN1_PROMPT.md`.
-- Decisions: `research/ledger/LOG.md` (L1-L45).
+- Decisions: `research/ledger/LOG.md` (L1-L46).
 
 ## 1. This machine
 
@@ -10,7 +10,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 - **G0 passed.** MANC v1.2.1 and v1.2.3 rebuilt byte-identically; the authors' front-leg and full-cord matrices reproduced exactly.
 - **What could not run here:**
   - one fast-suite test fails on arm64 at baseline (RK4 tolerance, L5);
-  - the Phase 3 benchmark check needs data that only exists on the PC;
+  - the Phase 3 benchmark check (its data is only on the PC);
   - the MaleCNS bulk data was not downloaded (disk and RAM, L9), so B2 uses the authors' pinned MaleCNS matrix and table.
 - Simulations ran on Modal (pinned image, one numerics fingerprint).
 - **Pushing worked.** `ledger-prereg-v1` was pushed at the freeze. The branch and the other two tags were pushed only after the labels froze (PREREG 13).
@@ -79,7 +79,8 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 - **Independent reviews:**
   - Stage 0: three rounds, every finding resolved before the freeze (L19, L22, L23).
   - Arms: two rounds, verdict LOCK with conditions; all conditions met (L34).
-  - Labels: one round after the lock, verdict usable with caveats, no blocker. The consensus reproduces exactly; the majors are coverage and the completeness statistic (`final/REVIEW_labels_round1.md`).
+  - Labels: one round after the lock, verdict usable with caveats, no blocker. The consensus reproduces exactly; the majors are coverage and the completeness statistic (`final/REVIEW_labels_round1.md`, resolutions alongside).
+- **Done-means check:** every locked arm passed the gates that apply to it and the arms review (per-arm table in `final/DONE_CHECKLIST.md`).
 
 ## 5. Predictions only
 
@@ -120,7 +121,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
   - front-leg rhythm, both readings yes or no: n = 112, raw 1.0, kappa 1.0;
   - front-leg rhythm, all values: raw 0.94, kappa 0.90;
   - MANC type 1.0; middle leg 0.94 (kappa 0.92); hind leg 0.94 (0.91); walking effect 0.90 (0.80); line specificity 0.88 (0.79).
-- **Completeness:** the frozen code estimates 182 (paper, type) pairs, but it merges all eLife papers. Corrected: 125-197, so pass 1 found roughly a quarter to two fifths.
+- **Completeness:** the frozen code estimates 182 (paper, type) pairs, but it merges all eLife papers. Corrected: 125-197 (`final/COMPLETENESS_ADDENDUM.json`), so pass 1 found a quarter to two fifths.
 - **Transcript audit:** 18 sessions. 3 sessions breached (5 reads in all); 9 attempts were blocked; there was no fetch from a banned host.
 - **Final exposed list** (15 names, 18 MANC types): DNg100, DNb08, DNg12, DNg97, MDN, DNa01, DNa02, DNp09, DNg13, DNp01, DNg16, DNg55, DNg75, DNg74, DNg62.
 - **Name-only overlap with the prediction tables:**
@@ -137,18 +138,15 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
   - second workspace settled at $29.68 of compute, covered by credit, with $0.00 billed;
   - together about $57 of the $300 cap.
 - **Claude:** at least $94 at API list prices (the three stopped sessions report no cost), on your subscription; weekly usage went from 28 % to 34 %.
-- **Wall clock:**
-  - prereg froze at 22:35;
-  - predictions locked at 08:47, including about 6 idle hours;
-  - labels locked at 10:30 and pushed at 10:31.
+- **Wall clock:** prereg 22:35; predictions 08:47 (after about 6 idle hours); labels 10:30, pushed 10:31.
 
 ## 8. What worries me
 
 - **Too few labels.** The primary set has 12 types, so the primary analysis will say "underpowered". Causes: the atlas family was lost to a tooling artefact, and recall is about a quarter.
-- **Agreement probably overstates accuracy:** every reader was the same model family, and pass-2 identifiers could cue the type.
+- **Agreement probably overstates accuracy:** every reader was the same model family; pass-2 identifiers could cue the type.
 - **Unflagged score sightings** can't be ruled out.
 - **Line specificity is mostly unknown** (13 of 18 types).
-- **B2:** its DNg100 positive control scores 0.059. I would not trust B2's ranking.
+- **B2:** DNg100 positive control 0.059; I would not trust its ranking.
 - **B4:** 199 of its 207 "halts" calls are over-excitation, not stops.
 - **A1 vs B1 agree at 0.79** overall (0.86 where both are usable).
 - **The blind is procedural:** the labelers may have read the paper in training.
@@ -156,7 +154,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 ## 9. What I would do next
 
 1. **Labels v2** under a new pre-registration, against the same locked predictions: deny tool-results reads at tool level, re-run every family including atlas, fix the eLife DOI bug, and decide v1 vs v2 before any scoring.
-2. **An independent review of the label side** before unblinding, plus your hand check of the sample.
+2. **Your hand check** of the 20-record sample before unblinding.
 3. **Run 2 scoring:**
    - run `lock.py check` on all locks in a clean checkout of the labels tag;
    - create `UNBLIND.json` naming the locks;
