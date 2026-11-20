@@ -231,14 +231,79 @@ def cmd_g1(a) -> None:
     print(json.dumps(summ))
 
 
+def _jobs_for(campaign: str) -> tuple[list[dict], dict]:
+    """Rebuild the job list and shared payload of a finished campaign (for G4)."""
+    mcfg1, mcfg2 = ModelConfig(t_end=1.0), ModelConfig(t_end=2.0)
+    fl = N.front_leg()
+    groups = N.type_groups(fl.table)
+    shared = {"W": fl.W, "sizes": fl.sizes, "readout": fl.readout}
+    if campaign.startswith("B1-lo"):
+        return AR.group_jobs(campaign, groups, AR.b1_screen_cfg(int(campaign[5:])), mcfg1), shared
+    sel = json.loads((PREDICTIONS / "B1" / "selection.json").read_text())
+    scfg = AR.b1_screen_cfg(int(sel["kept_lower_bound"]))
+    if campaign.startswith("B1-ctl-"):
+        Wc, _ = CT.build(fl, campaign)
+        return AR.group_jobs(campaign, groups, scfg, mcfg1), {**shared, "W": Wc}
+    if campaign == "B5":
+        return AR.b5_jobs(groups, scfg, mcfg1), shared
+    if campaign == "B4":
+        return AR.b4_jobs(fl, N.type_groups(fl.table, excitatory_only=False), mcfg2, ScreenConfig()), shared
+    if campaign == "B2":
+        net, g2, _ = AR.malecns_network()
+        return AR.group_jobs("B2", g2, scfg, mcfg1), {"W": net.W, "sizes": net.sizes, "readout": net.readout}
+    raise ValueError(campaign)
+
+
+def cmd_g4(a) -> None:
+    """Re-run 100 random jobs of a finished campaign in a separate campaign (other containers); digests must be identical."""
+    jobs, shared = _jobs_for(a.only)
+    orig = AR.load_results(a.only)
+    rng = np.random.default_rng(20261127)
+    pick = sorted(rng.choice(len(jobs), min(100, len(jobs)), replace=False))
+    sub = [dict(jobs[i]) for i in pick]
+    res = AR.run(f"G4-{a.only}", sub, shared, campaign=f"G4_{a.only}")
+    same = sum(res[j["key"]]["digest"] == orig[j["key"]]["digest"] for j in sub)
+    out = {"campaign": a.only, "n": len(sub), "identical_digests": int(same), "pass": same == len(sub),
+           "differing": [j["key"] for j in sub if res[j["key"]]["digest"] != orig[j["key"]]["digest"]]}
+    GATES.mkdir(parents=True, exist_ok=True)
+    write_json(out, GATES / f"G4_{a.only}.json")
+    print(json.dumps(out))
+
+
+def cmd_g2(a) -> None:
+    """B1 (and B1-alt, B0 per-type max) against A1: Spearman, top-10 overlap, the ten largest rank disagreements."""
+    a1 = pd.read_csv(PREDICTIONS / "A1" / "types.csv").set_index("manc_type")
+    out = {}
+    for arm in ("B1", "B1-alt", "A1-lo10", "B0", "A0"):
+        p = PREDICTIONS / arm / "types.csv"
+        if not p.exists():
+            continue
+        b = pd.read_csv(p).set_index("manc_type")
+        common = a1.index.intersection(b.index)
+        x, y = a1.loc[common, "primary_score"], b.loc[common, "primary_score"]
+        rx, ry = x.rank(ascending=False), y.rank(ascending=False)
+        top_a = set(x.sort_values(ascending=False).index[:10])
+        top_b = set(y.sort_values(ascending=False).index[:10])
+        dis = (rx - ry).abs().sort_values(ascending=False).index[:10]
+        out[arm] = {"n_common": int(len(common)), "spearman": spearman(x, y), "top10_overlap": len(top_a & top_b),
+                    "band_agreement": float((a1.loc[common, "band"] == b.loc[common, "band"]).mean()),
+                    "largest_rank_disagreements": [{"manc_type": t, "a1_score": float(x[t]), "arm_score": float(y[t]), "a1_rank": float(rx[t]),
+                                                    "arm_rank": float(ry[t]), "a1_status": a1.loc[t, "status"], "arm_status": b.loc[t, "status"]}
+                                                   for t in dis]}
+    GATES.mkdir(parents=True, exist_ok=True)
+    write_json(out, GATES / "G2_agreement.json")
+    for k, v in out.items():
+        print(k, "spearman", round(v["spearman"], 3), "top10", v["top10_overlap"], "band agreement", round(v["band_agreement"], 3))
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["authors", "b0", "baselines", "b1", "select-b1", "controls", "b5", "b4", "b2", "g1"])
+    ap.add_argument("cmd", choices=["authors", "b0", "baselines", "b1", "select-b1", "controls", "b5", "b4", "b2", "g1", "g2", "g4"])
     ap.add_argument("--lower", type=int, default=10)
     ap.add_argument("--only", default=None)
     a = ap.parse_args()
     {"authors": cmd_authors, "b0": cmd_b0, "baselines": cmd_baselines, "b1": cmd_b1, "select-b1": cmd_select_b1, "controls": cmd_controls,
-     "b5": cmd_b5, "b4": cmd_b4, "b2": cmd_b2, "g1": cmd_g1}[a.cmd](a)
+     "b5": cmd_b5, "b4": cmd_b4, "b2": cmd_b2, "g1": cmd_g1, "g2": cmd_g2, "g4": cmd_g4}[a.cmd](a)
 
 
 if __name__ == "__main__":

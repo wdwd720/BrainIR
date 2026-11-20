@@ -31,12 +31,13 @@ MANIFESTS = ROOMS / "_manifests"
 ROOM_FILES = ["PROTOCOL.md", "record_schema.json", "type_list.csv", "synonyms.csv", "driver_lines.csv"]
 PASS1_EXTRA = ["sources_seed.csv"]
 MODEL = "opus"
+FALLBACK = "sonnet"  # used only when the main model is busy or unavailable (rate limits shared with the orchestrator)
 TOOLS = "Read,Write,Edit,Glob,Grep,WebSearch,WebFetch"
 DENY = ["WebFetch(domain:github.com)", "WebFetch(domain:raw.githubusercontent.com)", "WebFetch(domain:githubusercontent.com)",
         "WebFetch(domain:zenodo.org)"]
 FLAGS = ["--restricted", "--strict-mcp-config", "--tools", TOOLS, "--allowedTools", TOOLS, "--disallowedTools", *DENY,
          "--permission-mode", "acceptEdits", "--permission-prompts", "none", "--disable-slash-commands", "--no-chrome",
-         "--model", MODEL, "--output-format", "stream-json", "--verbose"]
+         "--model", MODEL, "--fallback-model", FALLBACK, "--output-format", "stream-json", "--verbose"]
 PREFIX = {"pass1": "p1", "pass2": "p2", "search": "s", "adjudication": "adj"}
 
 
