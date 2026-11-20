@@ -115,16 +115,25 @@ def collect() -> None:
             if f.is_file():
                 shutil.copyfile(f, dest / f.name)
         info: dict = {}
-        src = dest / "records.jsonl"
+        src: Path | None = dest / "records.jsonl"
         snap = dest / "phaseA_snapshot"
-        if pass_id == "pass2" and (snap / "records.jsonl").exists():
+        if pass_id == "pass2" and (snap / "phaseA_hashes.json").exists():
+            # Phase A is frozen: its snapshot is authoritative; a file absent from the snapshot means Phase A wrote nothing
             h = json.loads((snap / "phaseA_hashes.json").read_text(encoding="utf-8"))["sha256"]
-            cur = hashlib.sha256(src.read_bytes()).hexdigest() if src.exists() else None
+            changed = []
+            for name in ("records.jsonl", "not_found.csv"):
+                live = dest / name
+                live_sha = hashlib.sha256(live.read_bytes()).hexdigest() if live.exists() else None
+                if live_sha != h.get(name):
+                    changed.append(name)
             info["phase_a_snapshot_used"] = True
-            info["phase_a_changed_after_quotes"] = cur != h.get("records.jsonl")
-            src = snap / "records.jsonl"
-        if not src.exists():
-            print(f"{session}: no records")
+            info["phase_a_changed_after_quotes"] = changed
+            src = snap / "records.jsonl" if "records.jsonl" in h else None
+        if src is None or not src.exists():
+            (dest / "records.valid.jsonl").write_text("", encoding="utf-8")
+            (dest / "validation.json").write_text(json.dumps({"n_valid": 0, "n_invalid": 0, "invalid": [], **info}, indent=1) + "\n",
+                                                  encoding="utf-8", newline="\n")
+            print(f"{session}: no records {info if info else ''}")
             continue
         good, bad = validate_lines(src.read_text(encoding="utf-8-sig", errors="replace").splitlines(), kt, session, pass_id)
         with open(dest / "records.valid.jsonl", "w", encoding="utf-8", newline="\n") as fh:
@@ -200,7 +209,14 @@ def quote_checks() -> tuple[dict[str, bool | None], dict]:
 def not_found() -> tuple[set[str], list[str]]:
     out, notes = set(), []
     for sd in sorted((RAW / "pass2").glob("*")):
-        src = sd / "phaseA_snapshot" / "not_found.csv" if (sd / "phaseA_snapshot").exists() else sd / "not_found.csv"
+        hp = sd / "phaseA_snapshot" / "phaseA_hashes.json"
+        if hp.exists():  # Phase A frozen: only the snapshot counts (absent from the snapshot = no not-found rows)
+            h = json.loads(hp.read_text(encoding="utf-8"))["sha256"]
+            src = sd / "phaseA_snapshot" / "not_found.csv" if "not_found.csv" in h else None
+        else:
+            src = sd / "not_found.csv"
+        if src is None:
+            continue
         rows, n = read_csv_rows(src, ["exp_id", "reason"])
         notes += n
         out |= {r["exp_id"] for r in rows if r.get("exp_id")}

@@ -15,8 +15,9 @@ of types than `n_siblings`, assign as many as you can in that order and explain 
 1. Open the source yourself and find that experiment (the locator, line, name, preparation and stimulation identify it).
 2. Write one complete record to `out/records.jsonl` from your own reading: your own verbatim quote (at most 25 words), your
    own mapping of the name to a MANC type (`type_list.csv`, `synonyms.csv`, `driver_lines.csv`), and every label field.
-   Copy `exp_id` into the record unchanged. Keep `preparation` as given unless the source clearly shows otherwise (then say
-   so in `notes`).
+   Copy `exp_id` into the record unchanged; do NOT copy `sibling_index` or `n_siblings` into the record (the schema
+   rejects unknown fields). Keep `preparation` as given unless the source clearly shows otherwise (then say so in
+   `notes`).
 3. If you cannot find the experiment in the source, do NOT write a record (never invent a quote). Instead add a row to
    `out/not_found.csv`, a CSV file whose first line is the header `exp_id,reason`.
 

@@ -25,11 +25,13 @@ OUT = REPO / "research" / "ledger" / "labels"
 BANNED_HOSTS = ("github.com", "githubusercontent.com", "github.io", "zenodo.org", "jsdelivr.net", "nbviewer", "githack.com",
                 "statically.io", "gitee.com")
 BANNED_URL_TOKENS = ("smpuglie", "pugliese_2026", "wdwd720", "brainir")
-DEDICATED = ("10.1038/s41586-026-11195-y", "2025.09.12.675944", "2026.04.29.721658", "s41586-026-11195")
+DEDICATED = ("10.1038/s41586-026-11195-y", "2025.09.12.675944", "2026.04.29.721658", "s41586-026-11195", "pmc13142387", "13142387")
 PHRASES = re.compile(r"rhythmicity score|motor rhythmicity|activation screen|connectome simulation|simulated activation|BrainIR|"
                      r"wdwd720|smpuglie|Pugliese", re.I)
-DENIAL = re.compile(r"denied|not allowed|outside (of )?the (allowed )?working director|permission|restricted|blocked|"
-                    r"does not have access|is not permitted", re.I)
+# A tool call FAILED (nothing was retrieved or written) only if the harness marked it as an error, or, for WebFetch, if the
+# result is one of the harness's fixed no-content messages. Page content is never searched for keywords (a paper summary
+# may contain "restricted", "blocked" or "permission" and still be a successful fetch).
+FETCH_FAIL_PREFIXES = ("The server returned HTTP", "REDIRECT DETECTED", "Request failed", "Failed to fetch", "Unable to fetch")
 
 
 def encode(path: str) -> str:
@@ -68,18 +70,27 @@ def audit_session(man: dict) -> dict:
                 if c.get("type") == "tool_use":
                     calls[c.get("id")] = {"name": c.get("name"), "input": c.get("input") or {}}
                 elif c.get("type") == "tool_result":
-                    results[c.get("tool_use_id")] = {"is_error": bool(c.get("is_error")), "text": json.dumps(c.get("content"))}
+                    cont = c.get("content")
+                    if isinstance(cont, list):
+                        txt = " ".join(x.get("text", "") for x in cont if isinstance(x, dict))
+                    else:
+                        txt = str(cont or "")
+                    results[c.get("tool_use_id")] = {"is_error": bool(c.get("is_error")), "text": txt}
     issues, blocked, searches, phrase_hits = [], [], [], []
     n_fetch = 0
     for cid, call in calls.items():
         res = results.get(cid, {"is_error": True, "text": "no result"})
-        failed = res["is_error"] or bool(DENIAL.search(res["text"][:400]))
         name, inp = call["name"], call["input"]
+        failed = res["is_error"] or (name == "WebFetch" and res["text"].lstrip().startswith(FETCH_FAIL_PREFIXES))
         if name in ("Read", "Write", "Edit", "Glob", "Grep"):
-            p = str(inp.get("file_path") or inp.get("path") or "")
-            pat = str(inp.get("pattern") or "") if name in ("Glob", "Grep") else ""
-            if _outside(p, room) or pat.startswith("/") or pat.startswith("~") or ".." in pat:
-                (blocked if failed else issues).append({"kind": "file_outside_room", "tool": name, "path": p or pat})
+            targets = [str(inp.get("file_path") or ""), str(inp.get("path") or "")]
+            if name == "Glob":
+                targets.append(str(inp.get("pattern") or ""))   # a Glob pattern is a path pattern
+            if name == "Grep":
+                targets.append(str(inp.get("glob") or ""))      # a Grep pattern is a text regex: not a path
+            bad = [x for x in targets if x and _outside(x, room)]
+            if bad:
+                (blocked if failed else issues).append({"kind": "file_outside_room", "tool": name, "path": bad[0]})
         elif name == "WebFetch":
             url = str(inp.get("url", ""))
             n_fetch += 1

@@ -44,6 +44,10 @@ def breaching_sessions() -> set[str]:
     missing = [sd.name for sd in (RAW / "pass1").glob("pass1-*") if sd.name not in audited]
     if missing:
         raise SystemExit(f"transcript audit does not cover {missing}")
+    rooms = Path.home() / "ledger_rooms" / "run1"
+    newest_log = max((f.stat().st_mtime for f in rooms.glob("*.stream.jsonl")), default=0)
+    if AUDIT.stat().st_mtime < newest_log:
+        raise SystemExit("the transcript audit is older than a session log; re-run labels_audit.py")
     return {r["session"] for r in rows if any(i["kind"] in BREACH_KINDS for i in r["issues"])}
 
 
@@ -92,14 +96,28 @@ def pass2_inputs() -> None:
     WORK.mkdir(parents=True, exist_ok=True)
     (WORK / "pass1_dedupe_log.json").write_text(json.dumps({"n_kept": len(kept), "dropped": dropped, "excluded_breaching_sessions": sorted(breach)},
                                                            indent=1) + "\n", encoding="utf-8")
+    p1_type = {r["exp_id"]: r["manc_type"] for r in kept}
+    allrows = add_siblings([{"exp_id": r["exp_id"], "doi": r["doi"], "source_locator": r["source_locator"],
+                             "driver_lines": ";".join(sorted((x.strip() for x in r.get("driver_lines") or []), key=str.lower)),
+                             "name_in_paper": r["name_in_paper"], "preparation": r["preparation"], "effector": r["effector"],
+                             "stimulation": r["stimulation"]} for r in kept], p1_type)
+    # a sibling group goes whole to the pass-2 session of its earliest-family member
+    from brainir_ledger.labels.aggregate import FAMILY_ORDER  # noqa: PLC0415
+    rank = {f: i for i, f in enumerate(FAMILY_ORDER)}
+    gkey = {r["exp_id"]: tuple(str(r[k]).strip().lower() for k in ("doi", "source_locator", "driver_lines", "name_in_paper", "preparation",
+                                                                    "effector", "stimulation")) for r in allrows}
+    home: dict[tuple, str] = {}
+    for r in allrows:
+        f = family_of(r["exp_id"])
+        k = gkey[r["exp_id"]]
+        if k not in home or rank.get(f, 99) < rank.get(home[k], 99):
+            home[k] = f
     by: dict[str, list[dict]] = {}
-    for r in kept:
-        by.setdefault(family_of(r["exp_id"]), []).append(r)
-    for fam, recs in sorted(by.items()):
-        rows = [{"exp_id": r["exp_id"], "doi": r["doi"], "source_locator": r["source_locator"], "driver_lines": ";".join(r.get("driver_lines") or []),
-                 "name_in_paper": r["name_in_paper"], "preparation": r["preparation"], "effector": r["effector"], "stimulation": r["stimulation"]}
-                for r in recs]
-        rows = add_siblings(rows, {r["exp_id"]: r["manc_type"] for r in recs})
+    for r in allrows:
+        by.setdefault(home[gkey[r["exp_id"]]], []).append(r)
+    recs_by_id = {r["exp_id"]: r for r in kept}
+    for fam, rows in sorted(by.items()):
+        recs = [recs_by_id[r["exp_id"]] for r in rows]
         quotes = [{"exp_id": r["exp_id"], "doi": r["doi"], "source_locator": r["source_locator"], "quote": r["quote"]} for r in recs]
         out = WORK / "pass2_inputs" / fam
         _write(out / "experiments_to_label.csv", rows, ID_FIELDS)

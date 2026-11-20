@@ -114,11 +114,11 @@ def check(lockfile: Path) -> int:
             elif isinstance(v, str) and len(v) == 64 and (REPO / k).exists() and sha(REPO / k) != v:
                 bad.append(k)
 
-    for sec in ("code", "prereg", "kit", "pre_freeze_evidence", "arms_locked", "gates", "reviews", "labels", "raw"):
+    for sec in ("code", "prereg", "kit", "pre_freeze_evidence", "arms_locked", "gates", "reviews", "labels", "raw", "sessions", "work_inputs"):
         if isinstance(rec.get(sec), dict):
             walk(rec[sec])
     missing = []
-    for sec in ("prereg", "kit"):
+    for sec in ("prereg", "kit", "labels", "sessions", "work_inputs"):
         for k in (rec.get(sec) or {}):
             if not (REPO / k).exists():
                 missing.append(k)
