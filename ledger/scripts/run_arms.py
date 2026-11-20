@@ -238,6 +238,50 @@ def cmd_g1(a) -> None:
     print(json.dumps(summ))
 
 
+def cmd_g1_cause(a) -> None:
+    """PREREG 9 G1: re-run the jobs whose result differs from B0 WITHOUT the numerics environment, 8 times each (spread over
+    containers and host types), and test whether hosts of one kind reproduce B0 exactly (B0 ran unpinned on mixed hosts)."""
+    from brainir_ledger.backend import LedgerModalBackend, run_campaign
+    from brainir_ledger.jobs import run_job
+
+    rows = pd.read_csv(GATES / "G1_rows.csv")
+    diff = rows[(rows["usable"] != rows["b0_usable"]) | (rows["current"] != rows["b0_current"]) |
+                ((rows["score"] - rows["b0_score"]).abs().fillna(0) > 0)]
+    fl = N.front_leg()
+    scfg, mcfg = ScreenConfig(), ModelConfig(t_end=1.0)
+    jobs = []
+    for _, r in diff.iterrows():
+        for k in range(8):
+            j = AR.group_jobs("G1C", {f"n{int(r.candidate)}": [int(r.candidate)]}, scfg, mcfg, seeds=[int(r.seed)])[0]
+            j["key"] = f"G1C|n{int(r.candidate)}|s{int(r.seed)}|r{k}"
+            jobs.append(j)
+    be = LedgerModalBackend(numerics=False, cpu=1.0, memory_mb=3072, max_containers=100, timeout_s=3600)
+    res = run_campaign(AR.data_dir() / "arms" / "G1_cause_unpinned", jobs, be, run_job,
+                       shared={"W": fl.W, "sizes": fl.sizes, "readout": fl.readout})
+    out = []
+    for _, r in diff.iterrows():
+        for k in range(8):
+            x = res.get(f"G1C|n{int(r.candidate)}|s{int(r.seed)}|r{k}")
+            if x is None or "error" in x:
+                continue
+            out.append({"candidate": int(r.candidate), "seed": int(r.seed), "rep": k, "avx512": bool(x["host"]["cpu"].get("avx512f")),
+                        "score": x["score"], "current": x["current"], "usable": x["usable"], "b0_score": r.b0_score,
+                        "pinned_score": r.score, "equals_b0": (x["score"] == r.b0_score and x["current"] == r.b0_current
+                                                              and x["usable"] == r.b0_usable),
+                        "equals_pinned": x["score"] == r.score})
+    df = pd.DataFrame(out)
+    summ = {"n_differing_jobs": int(len(diff)), "n_reruns": int(len(df))}
+    if len(df):
+        g = df.groupby("avx512")
+        summ["by_host"] = {("avx512" if k else "no_avx512"): {"n": int(len(v)), "equals_b0": int(v["equals_b0"].sum()),
+                                                              "equals_pinned": int(v["equals_pinned"].sum())} for k, v in g}
+        per_job = df.groupby(["candidate", "seed"]).agg(any_equals_b0=("equals_b0", "any")).reset_index()
+        summ["jobs_reproduced_by_some_host"] = int(per_job["any_equals_b0"].sum())
+    df.to_csv(GATES / "G1_cause_rows.csv", index=False, lineterminator="\n")
+    write_json(summ, GATES / "G1_cause_summary.json")
+    print(json.dumps(summ))
+
+
 def _jobs_for(campaign: str) -> tuple[list[dict], dict]:
     """Rebuild the job list and shared payload of a finished campaign (for G4)."""
     mcfg1, mcfg2 = ModelConfig(t_end=1.0), ModelConfig(t_end=2.0)
@@ -305,12 +349,12 @@ def cmd_g2(a) -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["authors", "b0", "baselines", "b1", "select-b1", "controls", "b5", "b4", "b2", "g1", "g2", "g4"])
+    ap.add_argument("cmd", choices=["authors", "b0", "baselines", "b1", "select-b1", "controls", "b5", "b4", "b2", "g1", "g1-cause", "g2", "g4"])
     ap.add_argument("--lower", type=int, default=10)
     ap.add_argument("--only", default=None)
     a = ap.parse_args()
     {"authors": cmd_authors, "b0": cmd_b0, "baselines": cmd_baselines, "b1": cmd_b1, "select-b1": cmd_select_b1, "controls": cmd_controls,
-     "b5": cmd_b5, "b4": cmd_b4, "b2": cmd_b2, "g1": cmd_g1, "g2": cmd_g2, "g4": cmd_g4}[a.cmd](a)
+     "b5": cmd_b5, "b4": cmd_b4, "b2": cmd_b2, "g1": cmd_g1, "g1-cause": cmd_g1_cause, "g2": cmd_g2, "g4": cmd_g4}[a.cmd](a)
 
 
 if __name__ == "__main__":

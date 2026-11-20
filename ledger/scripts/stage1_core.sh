@@ -19,5 +19,6 @@ run b1_lo5 b1 --lower 5 || exit 1
 run b1_lo10 b1 --lower 10 || exit 1
 run select_b1 select-b1 || exit 1
 run g1 g1
+run g1_cause g1-cause
 run g2 g2
 echo "== $(date -u +%H:%M:%S) core done" | tee -a "$L/stage1_sequence.log"
