@@ -399,8 +399,13 @@ def cmd_g4(a) -> None:
     sub = [dict(jobs[i]) for i in pick]
     res = AR.run(f"G4-{a.only}", sub, shared, campaign=f"G4_{a.only}")
     same = sum(res[j["key"]]["digest"] == orig[j["key"]]["digest"] for j in sub)
+
+    def avx(r):
+        return bool(((r.get("host") or {}).get("cpu") or {}).get("avx512f"))
+    crossed = sum(avx(res[j["key"]]) != avx(orig[j["key"]]) for j in sub)
     out = {"campaign": a.only, "n": len(sub), "identical_digests": int(same), "pass": same == len(sub),
-           "differing": [j["key"] for j in sub if res[j["key"]]["digest"] != orig[j["key"]]["digest"]]}
+           "differing": [j["key"] for j in sub if res[j["key"]]["digest"] != orig[j["key"]]["digest"]],
+           "n_rerun_on_other_host_type": int(crossed), "rerun_mode": "unbatched (cpu 1)"}
     GATES.mkdir(parents=True, exist_ok=True)
     write_json(out, GATES / f"G4_{a.only}.json")
     print(json.dumps(out))
