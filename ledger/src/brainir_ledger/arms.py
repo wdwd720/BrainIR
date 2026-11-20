@@ -45,14 +45,16 @@ def group_jobs(arm: str, groups: dict[str, list[int]], screen_cfg: ScreenConfig,
              "extras": extras or {"readout_traces": True}} for t, m in sorted(groups.items()) for s in seeds]
 
 
-BATCH = {"cpu": 4.0, "memory_mb": 8192, "batch_size": 4}  # four jobs per container, as parallel processes (L28)
+# jobs per container call, run by `workers` parallel processes (one fresh process per job); L28, L32 (8 jobs on 4 workers from
+# B1-ctl-classshuffle-201 on: less idle reserved CPU while the slowest job of a batch finishes)
+BATCH = {"cpu": 4.0, "memory_mb": 8192, "batch_size": 8, "workers": 4}
 
 
 def run(arm: str, jobs: list[dict], shared: dict, *, memory_mb: int = 3072, max_containers: int = 100, timeout_s: int = 3600,
         campaign: str | None = None, batched: bool = False) -> dict[str, dict]:
     if batched:
         be = LedgerModalBackend(cpu=BATCH["cpu"], memory_mb=BATCH["memory_mb"], max_containers=max_containers, timeout_s=timeout_s * 2,
-                                batch_size=BATCH["batch_size"])
+                                batch_size=BATCH["batch_size"], workers=BATCH["workers"])
     else:
         be = LedgerModalBackend(cpu=1.0, memory_mb=memory_mb, max_containers=max_containers, timeout_s=timeout_s)
     run_dir = data_dir() / "arms" / (campaign or arm)
