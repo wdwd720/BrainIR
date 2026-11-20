@@ -1,0 +1,6 @@
+# Labeler kit changelog
+
+| kit version | date | change | labels existing at the time |
+|---|---|---|---|
+| 1 | 2026-11-19 | initial (frozen with PREREG v1, `research/ledger/kit/`) | no |
+| 2 | 2026-11-20 | new folder `kit_v2/` (v1 untouched). Unchanged copies: `record_schema.json`, `type_list.csv`, `synonyms.csv`, `driver_lines.csv`, `exposed_types.csv`, `PROMPT_REPAIR.md`, `DEDICATED_PERMISSION.md`. `PROTOCOL.md`: v1 sections 1-7 verbatim plus section 8 (local sources, session contract, v2 score sighting, atlas line coding). New prompts: `PROMPT_READER.md` (first reading of assigned local sources), `PROMPT_SECOND.md` (second reading, Phase A), `PROMPT_PHASEB.md`, `PROMPT_ADJUDICATE.md`, `PROMPT_SEARCH.md` (leads only, four search kinds), `PROMPT_ATLAS_MAP.md` (names only), `PROMPT_ATLAS_CODE.md` (two codings by line ID), `PROMPT_VERIFY.md`; `families_v2.json`. No neuron-specific content. | yes (v1, v1.1); no joined information |

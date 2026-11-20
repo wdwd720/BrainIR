@@ -1,0 +1,48 @@
+{
+ "kit_version": 2,
+ "reader_families": {
+  "driver_line_resources": {
+   "title": "DN driver-line resources and their activation data",
+   "scope": "Namiki et al. 2018 (eLife; the DN line-to-type resource), the 2025 Janelia split-GAL4 driver-line collection for descending neurons (about 800 lines, about 190 types; find it), Lillvis et al. 2024, and any activation experiments these resources report or cite directly. If a resource contains no activation experiment, say so in out/notes.md and use it only for name and line mapping."
+  },
+  "grooming": {
+   "title": "grooming and other limb-cleaning descending neurons",
+   "scope": "Simpson-lab descending-neuron papers on grooming (e.g. Hampel et al. 2015 eLife, Guo, Zhang and Simpson 2022, and the lab's other grooming papers), and any other paper that activates DNs and reports grooming or other leg-sweeping movements."
+  },
+  "walking_stopping": {
+   "title": "walking, backward walking and stopping",
+   "scope": "Bidaye et al. 2014 (Science) and 2020 (Neuron), Sapkal et al. 2024 (Nature, halting), Braun et al. 2024 (Nature, Ramdya lab), and any other paper that activates DNs and reports forward walking, backward walking, speed changes, stopping or freezing."
+  },
+  "steering": {
+   "title": "steering and turning",
+   "scope": "Rayshubskiy et al. (steering DNs; preprint and journal versions), Yang et al. 2024 (steering), and any other paper that activates DNs and reports turning or steering in walking or standing flies."
+  },
+  "escape_landing": {
+   "title": "escape, takeoff, landing and other single leg movements",
+   "scope": "Ache et al. 2019 (landing), the escape and takeoff literature (e.g. von Reyn et al. 2014 and 2017, Card-lab giant-fibre and takeoff papers), and any other paper that activates DNs and reports jumping, takeoff, landing, leg extension, reaching or posture changes."
+  },
+  "dedicated": {
+   "title": "the walking-CPG papers (dedicated session)",
+   "scope": "Pugliese et al. 2026 (Nature, doi 10.1038/s41586-026-11195-y; bioRxiv 10.1101/2025.09.12.675944) and Sapkal et al. 2026 (bioRxiv 10.64898/2026.04.29.721658). THIS SESSION ONLY may read these two sources. Record only their real-fly activation experiments. These papers also contain computational results: do not use them, and set saw_simulation_score to true on every record of any DN type for which you saw a simulation score."
+  },
+  "recent_broad": {
+   "title": "other activation studies, especially 2018-2026",
+   "scope": "Any paper or preprint (2024-2026 especially, but any year) that activates a named DN type or a DN driver line and reports leg movement, and that is not one of: Cande 2018, Namiki 2018, the 2025 DN driver collection, Lillvis 2024, Simpson-lab grooming papers, Bidaye 2014/2020, Sapkal 2024, Braun 2024, Rayshubskiy, Yang 2024, Ache 2019, von Reyn 2014/2017, Pugliese 2026, Sapkal 2026. Include courtship, feeding, egg-laying, flight and other studies if leg movement is reported. Use Cheong et al. 2024, Stuerner et al. 2025 and the MaleCNS paper for names only."
+  }
+ },
+ "atlas": {
+  "title": "the optogenetic DN behaviour atlas (Cande et al. 2018)",
+  "sessions": {
+   "atlas_map": "PROMPT_ATLAS_MAP.md (names only)",
+   "atlas_code_A": "PROMPT_ATLAS_CODE.md, pass1",
+   "atlas_code_B": "PROMPT_ATLAS_CODE.md, pass2"
+  }
+ },
+ "search_kinds": {
+  "by_type_name": "Start from the DN type names in type_list.csv and synonyms.csv and search for activation experiments type by type.",
+  "by_behaviour": "Start from behaviours and methods: optogenetic or thermogenetic activation of descending neurons that changes walking, stopping, grooming, steering, escape, takeoff, landing or posture.",
+  "by_driver_line": "Start from the driver-line IDs in driver_lines.csv (split-GAL4 and other DN lines) and search for papers that activated these lines.",
+  "by_citation": "Start from papers that cite Cande et al. 2018 (the optogenetic DN atlas), Namiki et al. 2018 (the DN driver-line paper) or the 2025 DN driver-line catalogue, and check each for activation experiments."
+ },
+ "dedicated_sources_note": "The two Pugliese 2026 papers and the 2026 Sapkal preprint are placed only in dedicated rooms (PREREG v2 L7)."
+}

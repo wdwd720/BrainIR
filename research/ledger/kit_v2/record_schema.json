@@ -1,0 +1,338 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "BrainIR ledger label record v1",
+ "type": "object",
+ "required": [
+  "access",
+  "behaviour_category",
+  "doi",
+  "driver_lines",
+  "effect_on_walking",
+  "effector",
+  "effector_kind",
+  "expression",
+  "front_leg_rhythm",
+  "hind_leg_rhythm",
+  "labeler_confidence",
+  "line_specificity",
+  "manc_type",
+  "mapping_confidence",
+  "middle_leg_rhythm",
+  "name_in_paper",
+  "other_cell_types",
+  "pass_id",
+  "preparation",
+  "quote",
+  "record_id",
+  "saw_simulation_score",
+  "session",
+  "sex",
+  "source_locator",
+  "source_type",
+  "stimulation"
+ ],
+ "properties": {
+  "record_id": {
+   "type": "string"
+  },
+  "pass_id": {
+   "type": "string",
+   "enum": [
+    "pass1",
+    "pass2",
+    "search",
+    "adjudication"
+   ]
+  },
+  "session": {
+   "type": "string"
+  },
+  "doi": {
+   "type": "string"
+  },
+  "source_locator": {
+   "type": "string"
+  },
+  "quote": {
+   "type": "string",
+   "description": "verbatim quote from the source, at most 25 words"
+  },
+  "source_type": {
+   "type": "string",
+   "enum": [
+    "systematic_screen",
+    "targeted_study"
+   ]
+  },
+  "access": {
+   "type": "string",
+   "enum": [
+    "full_text",
+    "abstract_only",
+    "supplement_only",
+    "figure_or_movie"
+   ]
+  },
+  "name_in_paper": {
+   "type": "string"
+  },
+  "manc_type": {
+   "type": "string"
+  },
+  "mapping_confidence": {
+   "type": "string",
+   "enum": [
+    "high",
+    "medium",
+    "low"
+   ]
+  },
+  "driver_lines": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "effector": {
+   "type": "string"
+  },
+  "effector_kind": {
+   "type": "string",
+   "enum": [
+    "optogenetic",
+    "thermogenetic"
+   ]
+  },
+  "stimulation": {
+   "type": "string"
+  },
+  "sex": {
+   "type": "string",
+   "enum": [
+    "male",
+    "female",
+    "mixed",
+    "unknown"
+   ]
+  },
+  "preparation": {
+   "type": "string",
+   "enum": [
+    "intact_free",
+    "intact_tethered",
+    "headless",
+    "other"
+   ]
+  },
+  "expression": {
+   "type": "string",
+   "enum": [
+    "bilateral",
+    "unilateral",
+    "stochastic",
+    "unknown"
+   ]
+  },
+  "line_specificity": {
+   "type": "string",
+   "enum": [
+    "clean",
+    "minor_offtarget",
+    "multi_dn",
+    "unknown"
+   ]
+  },
+  "other_cell_types": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "front_leg_rhythm": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "middle_leg_rhythm": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "hind_leg_rhythm": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "behaviour_category": {
+   "type": "string",
+   "enum": [
+    "forward_walking",
+    "backward_walking",
+    "turning",
+    "anterior_grooming",
+    "posterior_grooming",
+    "halting",
+    "takeoff_or_jump",
+    "landing_or_extension",
+    "wing_or_flight",
+    "posture",
+    "no_visible_effect",
+    "other"
+   ]
+  },
+  "effect_on_walking": {
+   "type": "string",
+   "enum": [
+    "stops",
+    "slows",
+    "speeds",
+    "turns",
+    "none",
+    "not_assessed"
+   ]
+  },
+  "labeler_confidence": {
+   "type": "string",
+   "enum": [
+    "high",
+    "medium",
+    "low"
+   ]
+  },
+  "saw_simulation_score": {
+   "type": "boolean"
+  },
+  "page": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "type_coverage": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "sensory_condition": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "headless_surface": {
+   "type": [
+    "null",
+    "string"
+   ],
+   "enum": [
+    "ball",
+    "air",
+    "slippery_surface",
+    "other",
+    null
+   ]
+  },
+  "frequency_hz": {
+   "type": [
+    "integer",
+    "null",
+    "number"
+   ]
+  },
+  "coordination_notes": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "penetrance": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "n_flies": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "secondary_behaviours": {
+   "type": [
+    "array",
+    "null"
+   ],
+   "items": {
+    "type": "string"
+   }
+  },
+  "mapping_basis": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "notes": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "experiment_key": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "quote_verified": {
+   "type": [
+    "boolean",
+    "null"
+   ]
+  },
+  "title": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "year": {
+   "type": [
+    "integer",
+    "null"
+   ]
+  },
+  "exp_id": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "frequency_note": {
+   "type": [
+    "null",
+    "string"
+   ]
+  },
+  "n_flies_note": {
+   "type": [
+    "null",
+    "string"
+   ]
+  }
+ },
+ "additionalProperties": false
+}

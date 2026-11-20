@@ -1,0 +1,35 @@
+{
+ "n": 100,
+ "identical": 100,
+ "rounding_only": 0,
+ "different": 0,
+ "different_keys": [],
+ "by_origin": {
+  "arms/B1-ctl-classshuffle-201": 3,
+  "arms/B1-ctl-classshuffle-203": 3,
+  "arms/B1-ctl-classshuffle-205": 3,
+  "arms/B1-ctl-rewire-102": 3,
+  "arms/B1-ctl-rewire-104": 3,
+  "arms/B1-lo10": 15,
+  "arms/B1-lo5": 10,
+  "arms/B2": 15,
+  "arms/B4": 15,
+  "arms/B5": 10,
+  "calibration/g3_v1": 20
+ },
+ "verdict": "identical",
+ "platform": "GitHub Actions hosted runner ubuntu-24.04 (Linux x64), Python 3.12.10, run 1 image pins and numerics env",
+ "run_id": 44817206788,
+ "release": "ledgerdata-trust",
+ "trigger_tag": "gha-run-trust",
+ "sample_seed": 20261201,
+ "chunk_numerics_digests": [
+  "a72e417cfd91"
+ ],
+ "chunk_cpus": [
+  "{'machine': 'x86_64', 'processor': 'x86_64', 'cpu_model': 'AMD EPYC 9V74 80-Core Processor', 'avx512f': True, 'avx2': True, 'fma': True, 'n_logical': 4}",
+  "{'machine': 'x86_64', 'processor': 'x86_64', 'cpu_model': 'Intel(R) Xeon(R) 6975P-C', 'avx512f': True, 'avx2': True, 'fma': True, 'n_logical': 4}",
+  "{'machine': 'x86_64', 'processor': 'x86_64', 'cpu_model': 'Intel(R) Xeon(R) Platinum 8370C CPU @ 2.80GHz', 'avx512f': True, 'avx2': True, 'fma': True, 'n_logical': 4}"
+ ],
+ "rule": "identical -> use; rounding only (same usable flags, tuned currents and runs; |score diff| < 0.001) -> use, mark 'different platform'; otherwise do not use"
+}
