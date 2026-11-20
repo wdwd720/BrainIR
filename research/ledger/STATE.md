@@ -44,6 +44,9 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
 - **Stage 2 cutoffs (L35):** pass 1 + searches end 13:30; pass 2 (A+B) 16:45; adjudication 18:30; labels lock/tag/OTS/push 19:15;
   then G5 + HANDOFF. Labelers are detached: after every launch keep a tracked background waiter (exits when a labeler PID dies
   or after ~20 min) so the orchestrator is woken; check the wall clock on every wake.
+- (09:39 PST) L38: pass 1 + searches done; pass2 Phase A running for catalogue, grooming, steering, escape_landing,
+  pugliese_dedicated, recent_broad. Next per session when it ends: `labels_rooms.py phaseb --session pass2-<fam>`; after all
+  Phase B: collect, audit, `labels_prepare.py adjudication`, `launch adjudication --name general` / `--name dedicated`.
 - (09:15 PST) L37: pass1-atlas, pass1-walking_stopping, search-search_names BREACHED (read their own saved fetch images) ->
   excluded as frozen, stopped. Tool-results guard (scratchpad `toolresults_guard.sh`) MUST stay running for every later session;
   restart it after any interruption. Running clean: steering(ended), catalogue, pugliese_dedicated, grooming, escape_landing,
