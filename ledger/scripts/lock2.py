@@ -5,8 +5,9 @@
     lock2.py scoring      -> research/ledger/LOCK_scoring_v2.json     (v2 scoring code and tests, before any unblinding)
     lock2.py predictions ARM ... [ARM=reason ...] --platform TEXT -> research/ledger/LOCK_predictions_v2.json (additive to v1)
     lock2.py labels       -> research/ledger/LOCK_labels_v2.json
-    lock2.py amend PATH --reason TEXT [--old-rev REV]   (PREREG v2 L12: records a bug-fix change of a locked code or kit file in
-                               research/ledger/AMENDMENTS_v2.jsonl, before committing it; refused after UNBLIND.json exists)
+    lock2.py amend PATH --reason TEXT [--old-rev REV] [--crash-fix]   (PREREG v2 L12: records a bug-fix change of a locked code
+                               or kit file in research/ledger/AMENDMENTS_v2.jsonl, before committing it; after UNBLIND.json exists
+                               only `--crash-fix` of the scoring v2 code)
     lock2.py check LOCKFILE   (every repository file hashed in a binding section is re-hashed; missing ones reported; chained
                                lock hashes re-hashed; code-snapshot sections reported only; archive members skipped; PREREG v2 S5.1)
 """
@@ -68,9 +69,12 @@ def _chain_ok(path: str, locked: str, current: str, chains: dict) -> bool:
     return False
 
 
-def amend(path: str, reason: str, old_rev: str = "HEAD") -> None:
-    if (RES / "UNBLIND.json").exists():
-        raise SystemExit("no amendment after unblinding (PREREG v2 L12)")
+SCORING_V2 = ("ledger/src/brainir_ledger/scoring_v2/", "ledger/scripts/score_v2.py")
+
+
+def amend(path: str, reason: str, old_rev: str = "HEAD", crash_fix: bool = False) -> None:
+    if (RES / "UNBLIND.json").exists() and not (crash_fix and path.startswith(SCORING_V2)):
+        raise SystemExit("after unblinding only a crash fix of the scoring v2 code may be recorded (PREREG v2 L12, --crash-fix)")
     p = REPO / path
     is_kit = path.startswith("research/ledger/kit_v2/")
     is_code = (path.startswith(("ledger/", ".github/")) and p.suffix in (".py", ".sh", ".toml", ".yml", ".lock")) \
@@ -86,7 +90,8 @@ def amend(path: str, reason: str, old_rev: str = "HEAD") -> None:
         raise SystemExit(f"{path} is unchanged relative to {old_rev}")
     recs = any(f.stat().st_size > 0 for f in (RES / "labels_v2" / "raw" / "pass1").glob("*/records.valid.jsonl"))
     row = {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "path": path, "old": old, "new": new, "reason": reason,
-           "old_rev": git("rev-parse", old_rev), "v2_sessions_started": started, "v2_records_existed": recs}
+           "old_rev": git("rev-parse", old_rev), "v2_sessions_started": started, "v2_records_existed": recs,
+           "crash_fix": crash_fix, "after_unblinding": (RES / "UNBLIND.json").exists()}
     with AMEND.open("a", encoding="utf-8", newline="\n") as fh:
         fh.write(json.dumps(row, sort_keys=True) + "\n")
     print(json.dumps(row))
@@ -238,7 +243,8 @@ def main() -> None:
         return
     if what == "amend":
         args = sys.argv[2:]
-        amend(args[0], args[args.index("--reason") + 1], args[args.index("--old-rev") + 1] if "--old-rev" in args else "HEAD")
+        amend(args[0], args[args.index("--reason") + 1], args[args.index("--old-rev") + 1] if "--old-rev" in args else "HEAD",
+              "--crash-fix" in args)
         return
     {"prereg": lock_prereg, "labelcode": lock_labelcode, "scoring": lock_scoring, "labels": lock_labels}[what]()
 

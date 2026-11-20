@@ -19,7 +19,7 @@ label collection** plus **new secondary prediction arms**, frozen here before ei
 | exposed list | kit list plus types "exposed by nature" (L6) |
 | primary truth | labels v2 (S2); v1.1 is a sensitivity run |
 | section 13 (push predictions only after labels freeze) | predictions v1 have been public since 2026-11-20 10:31 PST (after labels v1 froze); predictions v2 are pushed only after labels v2 are locked (P5) |
-| `UNBLIND.json` | one flag file per run, naming one predictions lock and one labels lock (S4) |
+| `UNBLIND.json` | one flag file with one entry per run (S4), each naming its locks with their SHA-256, who authorised it and when |
 
 | version | date | change | stage data existing at the time | labels existing | joined information existing |
 |---|---|---|---|---|---|
@@ -163,7 +163,9 @@ label session (with a row in `kit_v2/CHANGELOG.md`, itself amended). Each change
 `lock2.py amend` in `AMENDMENTS_v2.jsonl` (path, old and new SHA-256, reason, whether v2 sessions had started and v2 records
 existed, UTC) and logged in the LOG; `lock2.py check` counts a file as matching only if recorded amendments lead from its
 locked hash to its current hash; the gate report lists every amendment. Rules, records, labels and predictions are never
-amended; the tool refuses everything after `UNBLIND.json` exists. Code-snapshot sections of a lock
+amended. After `UNBLIND.json` exists the tool refuses everything except the fix of a crash in the scoring v2 code (RUN2_PROMPT
+Stage 4: fix only the crash, log it, never alter a rule; `--crash-fix`). An amendment is a new version of the file with its
+changelog row; the lock file is never edited, and the locked version stays in git at the lock's commit. Code-snapshot sections of a lock
 (`prediction_code_snapshot`, `code_snapshot`) only record code at that moment; the binding code hashes are those of
 `LOCK_labelcode_v2.json`, `LOCK_scoring_v2.json` and `LOCK_predictions_v2.json`. After this freeze, reviews and gate evidence
 are added as new files; files hashed by this lock are not edited.
@@ -261,19 +263,24 @@ bootstrap vs the best of S1-S7, seed 20261122) and the "also reported" items of 
 **S2. Label versions.** Labels v2 is primary; labels v1.1 is a sensitivity analysis (chosen knowing only that v1.1 is too
 small). No pooling.
 
-**S3. New arms** (secondary): B1r and B2r (AUROC each on the primary-set types they cover; B1r vs B2r agreement); B3 if
-locked (AUROC of the front, middle and hind segment-pair scores against the front, middle and hind consensus labels); B6 is
-not analysed in run 2; B4 v2 (`call_128` against `stop_call` and `walking_effect` as v1 secondary 12, with `saturates` and
-`rhythm_lost_other` counted, analysed both excluded and as non-halts). Code in new files, tested on synthetic data, locked in
+**S3. New arms** (secondary): B1r and B2r (AUROC each on the primary-set types they cover; B1r vs B2r agreement as P1:
+Spearman over common types, top-10 overlap with ties broken by type name, band agreement); B3 and B6 are not analysed in run
+2 (not locked, P2); B4 v2 (`call_128`, as v1 secondary 12): against `stop_call` (halts vs stops: raw agreement, Cohen's kappa,
+confusion table) with `saturates` and `rhythm_lost_other` both excluded and counted as non-halts, and against
+`walking_effect` (halts -> stops, speeds_up -> speeds, slows_down -> slows, no_effect -> none) with those two calls excluded
+and counted. Code in new files, tested on synthetic data, locked in
 `LOCK_scoring_v2.json` before the first v2 label session (L12).
 
-**S4. Runs (each once), with their flag files (one predictions lock, one labels lock each; exposed set of L6):**
+**S4. Runs (each once), each an entry of `UNBLIND.json` naming its predictions lock and labels lock with their SHA-256
+(exposed set of L6):**
 - P (primary analysis): `LOCK_predictions_v1.json` + `LOCK_labels_v2.json`;
 - S-a (primary analysis on v1.1): `LOCK_predictions_v1.json` + `LOCK_labels_v1_1.json` (v1 exposed list);
 - S-b (PREREG v1 secondary analyses 1-14): `LOCK_predictions_v1.json` + `LOCK_labels_v2.json`;
-- S-c (S3 analyses): `LOCK_predictions_v2.json` + `LOCK_labels_v2.json` (only if predictions v2 exist).
+- S-c (S3 analyses): `LOCK_predictions_v2.json` + `LOCK_labels_v2.json` (only if predictions v2 exist; the primary set uses
+  A1's type names, read from `LOCK_predictions_v1.json`, whose hash `LOCK_predictions_v2.json` records).
 Runs P, S-b and S-c recompute `type_labels` from labels v2's `records.jsonl` with the v2 exposed set (scoring v2), not with
-the frozen kit-only check; S-a uses labels v1.1 with the frozen check and the v1 exposed list.
+the frozen kit-only check; S-a uses labels v1.1 with the frozen check and the v1 exposed list. A run whose pipeline crashed is run again once the
+crash is fixed (L12); the crashed output is kept beside the new one.
 
 **S5. The unblinding gate (RUN2_PROMPT section 8), from label files and type names only; every condition must hold:**
 1. the locks for rulebook v1 and v2, predictions v1, predictions v2 if it exists, labels v1.1, labels v2, label code v2 and
@@ -281,15 +288,19 @@ the frozen kit-only check; S-a uses labels v1.1 with the frozen check and the v1
    matches; chained lock hashes match; code-snapshot sections are reported, not required (L12); archive-member keys
    `<archive>.zip:<member>` are outside the repository and checked by the frozen `lock.py check`, which the v1 locks also pass;
    recorded amendments count as matching and are listed, L12);
-2. no session that contributed a record (reader, atlas map or coder, second reader, adjudicator, verifier) breached under L3;
-3. the label review has no blocker, and the verification (`labels_v2/verify/verification.json`, by a non-breaching verifier)
+2. no contributing session breached under L3 or lacks an audit row (contributing: a reader with a final record, the atlas map
+   and coders whose records were used, a second reader or adjudicator whose reading of a final record was used, the verifier
+   used; a session excluded and replaced under L3 is not contributing);
+3. the label review's verdict is `usable` or `usable with caveats` (not `blocked`), and the verification (`labels_v2/verify/verification.json`, by a non-breaching verifier)
    has an error rate on the front-leg field of at most 10 % (L11);
 4. Cohen's kappa of the two readings on the front-leg field >= 0.7: the frozen `agreement(p1, p2)["primary_field_all_values"]`
    with p1 = the deduplicated first readings (atlas coder A included, after mapping) of non-breaching sessions and p2 = the
    Phase A second readings of non-breaching sessions (atlas coder B included, after mapping), matched by `exp_id`;
 5. the primary set (labels v2, clear front-leg label, among A1's 321 types, not in the v2 exposed set) has at least 20 types,
    at least 5 yes and at least 5 no;
-6. a fresh reviewer signs a checklist confirming 1-5 and that nothing has been joined.
+6. a fresh reviewer signs `reviews_v2/GATE_CHECKLIST.md` (verdict line `confirmed`), confirming 1-5 from the gate report and
+   that nothing has been joined. The gate script (`gate_v2.py`, on a clean checkout of committed files) runs once before the
+   checklist and once after it, only to record condition 6; conditions 1-5 must come out identical, or the gate fails.
 **If any condition fails, nothing is unblinded.** After unblinding nothing moves in run 2 (no label, model or scoring-rule
 change); extra analyses only in a section marked exploratory.
 
