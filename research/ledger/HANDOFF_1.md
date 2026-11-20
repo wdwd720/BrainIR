@@ -2,22 +2,18 @@
 
 Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 - Spec: `research/ledger/RUN1_PROMPT.md`.
-- Decisions: `research/ledger/LOG.md` (L1-L43).
+- Decisions: `research/ledger/LOG.md` (L1-L44).
 
 ## 1. This machine
 
 - Apple M5 (10 cores), 16 GB RAM, macOS 26.6, uv 0.13.7, managed CPython 3.12.14, Claude Code 2.1.329.
-- **G0 passed.**
-  - MANC v1.2.1 and v1.2.3 rebuilt byte-identically.
-  - The authors' front-leg and full-cord matrices reproduced exactly.
+- **G0 passed.** MANC v1.2.1 and v1.2.3 rebuilt byte-identically; the authors' front-leg and full-cord matrices reproduced exactly.
 - **What could not run here:**
-  - One fast-suite test fails on arm64 at baseline (RK4 tolerance, L5).
-  - The Phase 3 benchmark check needs data that exists only on the PC.
-  - The MaleCNS bulk data was not downloaded (disk and RAM, L9), so B2 uses the authors' pinned MaleCNS matrix and table.
-- All simulations ran on Modal in a pinned image, with one numerics fingerprint everywhere.
-- **Pushing worked.**
-  - `ledger-prereg-v1` was pushed at the freeze.
-  - The branch and the other two tags were pushed only after the labels froze (PREREG 13).
+  - one fast-suite test fails on arm64 at baseline (RK4 tolerance, L5);
+  - the Phase 3 benchmark check needs data that only exists on the PC;
+  - the MaleCNS bulk data was not downloaded (disk and RAM, L9), so B2 uses the authors' pinned MaleCNS matrix and table.
+- Simulations ran on Modal (pinned image, one numerics fingerprint).
+- **Pushing worked.** `ledger-prereg-v1` was pushed at the freeze. The branch and the other two tags were pushed only after the labels froze (PREREG 13).
 
 ## 2. What exists and where
 
@@ -31,23 +27,23 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 | `ledger-labels-v1` | 4a015bd | `LOCK_labels_v1.json` | a7b5363fa315b15096612b2790fe2bea22b660c8b6df9e3fc08d7771e286ffb1 |
 
 - `PREREG.md` has SHA-256 b3561723f2c238fde6a7f3de0cd41231fb96fac06e479d4fee4d013833b15f6e.
-- The predictions lock covers 22 arms and 182 hashed files, and it was verified on the tag.
+- The predictions lock covers 22 arms and 182 files, and it was verified on the tag.
 - **Timestamps:** OpenTimestamps proofs (`*.ots`) sit next to each lock.
-- **Files:** `research/ledger/predictions/<arm>/types.csv`, `research/ledger/labels/`, `gates/`, `reviews/`, `movies/`.
-- **Clean-checkout check:** all three locks check clean, and the frozen scoring input check accepts both locks (102 files). Scoring refuses to run without `UNBLIND.json`, which does not exist.
+- **Files:** `research/ledger/predictions/<arm>/types.csv`, `research/ledger/labels/`, `gates/`, `reviews/`, `movies/`, `final/`.
+- In a clean checkout all three locks check clean. Scoring refuses to run without `UNBLIND.json`, which does not exist.
 
 ## 3. The rulebook in ten lines, and departures
 
 1. Unit: the MANC DN type. Primary set: the 321 excitatory front-leg types.
 2. Primary prediction A1 is the authors' own type-level screen. Its score is the mean rhythm score of usable replicates; a type that is never usable scores 0.
 3. Bands: driver if the score is at least 0.5, non-driver if it is below 0.05.
-4. Truth is the blind front-leg consensus label (yes or no), built from records written by separate headless sessions:
+4. Truth is the blind front-leg consensus (yes or no) from records written by separate headless sessions:
    - two passes, then adjudication of disputes;
    - headless outranks intact, and clean lines outrank non-specific ones;
    - conflicting cases are excluded.
-5. The primary set contains types labeled yes or no, among A1's 321, that are not exposed.
+5. Primary set: types labeled yes or no, among A1's 321, not exposed.
 6. Statistic: AUROC with a stratified bootstrap 95 % interval (seed 20261120) and a one-sided permutation p (descriptive).
-7. "Underpowered" if fewer than 20 types or fewer than 5 per class. "The model predicts" if the interval's lower bound is above 0.5.
+7. "Underpowered" below 20 types or 5 per class. "The model predicts" if the lower bound is above 0.5.
 8. "Adds value beyond wiring" only if A1 beats the best of S1-S7 (paired bootstrap, lower bound above 0).
 9. Controls, baselines and the BrainIR arms are descriptive.
 10. Scoring runs once, after both locks. Amendments are allowed only before the affected stage has data.
@@ -58,15 +54,18 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
   - the bootstrap is stratified by label;
   - the permutation test is one-sided;
   - the informed baseline S8 is excluded from "best baseline";
+  - the coupling test needs n ≥ 8;
   - records whose reader saw a score are dropped.
-- **B3 and B6 not locked:** G3 failed (L16). The authors' own traces fail the same coupling test (L18).
-- **B2** uses the pinned MaleCNS network (L9). **B1** keeps lower bound 10, the pre-registered tie rule (L26).
+- **Exposed list:** two uncertain types added (DNg74, DNg62), on the conservative side (L8).
+- **B1:** uses the authors' high-firing cap 200 (L13) and lower bound 10, the pre-registered tie rule (L26). It is scored on 144 front-leg motor neurons, while A1 is scored on the authors' 138 (L15).
+- **B3 and B6 not locked:** G3 failed (L16). B3's lower bound was calibrated on DNg100 only (L14), and the authors' own traces fail the same coupling test (L18).
+- **B2:** uses the pinned MaleCNS network (L9).
 - **Modal execution:**
   - batched containers ran 4 BLAS threads instead of 1, and 1,500 of 1,500 re-runs were identical (L28, L30, L32);
   - the workspace was switched at your request (L31);
   - there was a 6-hour idle gap after a spend-guard pause (L33).
 - **Labels:**
-  - Three labeler sessions (atlas, walking_stopping, search_names) read back images their own web fetches had saved outside their room. That counts as a breach under the frozen rule, so their records are excluded; no amendment was allowed (L37).
+  - Three labeler sessions (atlas, walking_stopping, search_names) read back images their own web fetches had saved outside their room. That counts as a breach under the frozen rule, so their records are excluded and the sessions were stopped. No amendment was allowed (L37).
   - From 09:13 a guard blocked such reads.
   - Home paths were redacted to `$HOME` (L40).
 
@@ -80,7 +79,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 - **Independent reviews:**
   - Stage 0: three rounds, every finding resolved before the freeze (L19, L22, L23).
   - Arms: two rounds, verdict LOCK with conditions; all conditions met (L34).
-  - Labels: no independent review in this run. The transcript audit covered all 18 sessions.
+  - Labels: no independent review in this run; the transcript audit covered all 18 sessions.
 
 ## 5. Predictions only
 
@@ -96,69 +95,48 @@ Run: 2026-11-19 20:20 to 2026-11-20 about 10:55 PST, roughly 14.5 hours.
 | B5 (best fixed strength) | 321 | - | 14 | 95 |
 | 10 control networks | 321 each | 316-320 | 0-13 | 152-300 |
 
-- **B4** (475 types, including inhibitory ones), calls at strength 128:
-
-| Call | Types |
-|---|---|
-| no effect | 250 |
-| halts | 207 |
-| slows | 14 |
-| speeds | 4 |
-
+- **B4** (475 types, including inhibitory ones), calls at strength 128: no effect 250, halts 207, slows 14, speeds 4.
+- **S** (anatomical baselines S1-S8): 321 types, no bands.
 - **Authors vs BrainIR:**
   - type level: Spearman 0.792, top-10 overlap 8, band agreement 0.85;
   - single neuron, per-type maximum: Spearman 0.840.
-- **Two flies** (B2 vs B1, 310 shared types): Spearman 0.311, top-10 overlap 1.
-  - 0.362 on cleanly mapped types;
-  - 0.121 on the rest.
+- **Two flies** (B2 vs B1, 310 shared types): Spearman 0.311, top-10 overlap 1 (cleanly mapped types 0.362, the rest 0.121).
 
 ## 6. Labels only
 
-- **Sessions:** 18 separate Claude Code sessions, all ended normally: 8 pass-1 families, 2 searches, 6 pass-2 sessions (relabel, then quote check), 2 adjudicators.
+- **Sessions:** 18 separate Claude Code sessions: 8 pass-1 families, 2 searches, 6 pass-2 sessions (relabel, then quote check), 2 adjudicators. 15 ended on their own; the 3 breaching ones were stopped.
 - **Records:**
   - Sources: 61. Final records: 141.
   - Of the 166 pass-1 records, 22 were not found by pass 2 and 3 were unresolved disputes; all 25 were dropped.
   - 148 search-only records stay out of the consensus.
   - 34 records whose reader saw a simulation score are kept out of the consensus.
-- **Final records by group:**
-
-| Preparation | Records | Line specificity | Records |
-|---|---|---|---|
-| headless | 43 | clean | 2 |
-| intact free | 60 | minor off-target | 19 |
-| intact tethered | 36 | multi-DN | 33 |
-| other | 2 | unknown | 87 |
-
+- **Final records by preparation:** headless 43, intact free 60, intact tethered 36, other 2.
+- **Final records by line specificity:** clean 2, minor off-target 19, multi-DN 33, unknown 87.
 - **Types with a clear front-leg label: 18.**
   - Best preparation: headless 6, intact free 6, intact tethered 6.
   - Best specificity: clean 1, minor off-target 3, multi-DN 1, unknown 13.
   - 6 of them have a systematic source.
 - **Agreement, pass 1 vs pass 2** (144 matched experiments):
-  - front-leg rhythm, both readings yes or no: n = 112, raw agreement 1.0, kappa 1.0;
-  - all values: raw 0.94, kappa 0.90.
-
-| Field | Raw agreement | Kappa |
-|---|---|---|
-| MANC type | 1.0 | 1.0 |
-| middle-leg rhythm | 0.94 | 0.92 |
-| hind-leg rhythm | 0.94 | 0.91 |
-| walking effect | 0.90 | 0.80 |
-| line specificity | 0.88 | 0.79 |
-
-- **Completeness:** a capture-recapture estimate puts about 182 (paper, type) pairs in the literature. Pass 1 found 46 of them (the dedicated family excluded), about a quarter.
-- **Transcript audit:** 18 sessions, 3 breaches (above), 9 blocked attempts, no fetch from a banned host.
+  - front-leg rhythm, both readings yes or no: n = 112, raw 1.0, kappa 1.0;
+  - front-leg rhythm, all values: raw 0.94, kappa 0.90;
+  - MANC type 1.0; middle leg 0.94 (kappa 0.92); hind leg 0.94 (0.91); walking effect 0.90 (0.80); line specificity 0.88 (0.79).
+- **Completeness:** a capture-recapture estimate puts about 182 (paper, type) pairs in the literature. Pass 1 found 46 (the dedicated family excluded), about a quarter.
+- **Transcript audit:** 18 sessions. 3 sessions breached (5 reads in all); 9 attempts were blocked; there was no fetch from a banned host.
 - **Final exposed list** (15 names, 18 MANC types): DNg100, DNb08, DNg12, DNg97, MDN, DNa01, DNa02, DNp09, DNg13, DNp01, DNg16, DNg55, DNg75, DNg74, DNg62.
 - **Name-only overlap with the prediction tables:**
   - 27 types have labels: 25 are among A1's 321 types, 27 among B4's, 26 in B2.
   - Of the 18 with a clear front-leg label, 16 are in A1; 12 of those are not exposed.
-  - So the primary set has 12 types, below 20, and the pre-registered rule will call the primary analysis underpowered.
+  - So the primary set has 12 types, and the pre-registered rule will call the primary analysis underpowered.
 - **Spot-check:** a sample of 20 records for you is in `labels/spot_check_sample.csv`.
 - **Atlas movies:** a 2.2 GB CC0 zip on Dryad, one top-down view. 2D leg-tip tracking looks plausible; full leg pose is doubtful.
 
 ## 7. Money and time
 
-- **Modal:** about $27 (first workspace) + about $30 (second) ≈ $57 of the $300 cap, all within the workspaces' included credit.
-- **Claude:** the 23 labeler and helper session runs cost about $94 at API list prices, on your subscription. Weekly usage went from 28 % to 34 %.
+- **Modal:**
+  - first workspace about $27 (an estimate at the pause);
+  - second workspace settled at $29.68 of compute, covered by credit, with $0.00 billed;
+  - together about $57 of the $300 cap.
+- **Claude:** at least $94 at API list prices for the labeler and helper runs, on your subscription. The three stopped sessions report no cost. Weekly usage went from 28 % to 34 %.
 - **Wall clock:**
   - prereg froze at 22:35;
   - predictions locked at 08:47, including about 6 idle hours;
