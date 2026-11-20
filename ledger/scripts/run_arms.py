@@ -59,8 +59,22 @@ def cmd_authors(a) -> None:
         print(arm, len(types), "types; never usable", int((types["status"] != "ok").sum()), "; drivers", int((types["band"] == "driver").sum()))
     neur = AU.a0_neurons(fl.table, files)
     t0 = AU.per_type_from_neurons(neur, "A0", "authors_manc_frontleg_2025-08-13")
-    AR.write_arm("A0", t0, neur, {"source": "authors' single-neuron screen, 8 runs x 16 = 128 replicates", "usable": "5 <= nActive <= 1500",
-                                  "files": AU.FILES}, {})
+    # long table: one row per neuron and replicate (PREREG 11), with the type key
+    sc = pd.read_csv(files["a0_score"], index_col=0)
+    ac = pd.read_csv(files["a0_activity"], index_col=0)
+    long = sc.stack().rename("score").to_frame().join(ac.stack().rename("n_active_notebook"))
+    long.index.names = ["row", "replicate"]
+    long = long.reset_index()
+    long["row"] = long["row"].astype(int)
+    long["replicate"] = long["replicate"].astype(int)
+    long["bodyId"] = fl.table.loc[long["row"], "bodyId"].to_numpy().astype(int)
+    long["manc_type"] = fl.table.loc[long["row"], "type"].to_numpy()
+    long["usable"] = (long["n_active_notebook"] >= AU.USABLE_LO) & (long["n_active_notebook"] <= AU.USABLE_HI)
+    AR.write_arm("A0", t0, long[["manc_type", "bodyId", "row", "replicate", "score", "n_active_notebook", "usable"]],
+                 {"source": "authors' single-neuron screen, 8 runs x 16 = 128 replicates", "usable": "5 <= nActive <= 1500",
+                  "files": AU.FILES, "replicates_layout": "one row per neuron and replicate (933 x 128)"}, {})
+    from brainir_ledger.tables import write_csv
+    write_csv(neur, PREDICTIONS / "A0" / "neurons.csv")
     print("A0", len(t0), "types from", len(neur), "neurons")
 
 
@@ -81,6 +95,8 @@ def cmd_b0(a) -> None:
     assert (fl.table.loc[neur["row"], "bodyId"].to_numpy() == neur["bodyId"].to_numpy()).all()
     t0 = AU.per_type_from_neurons(neur, "B0", "manc_v1.2.1_frontleg")
     reps = pd.DataFrame(d["replicates"])
+    reps.insert(0, "manc_type", fl.table.loc[reps["candidate"], "type"].to_numpy())
+    reps.insert(1, "bodyId", fl.table.loc[reps["candidate"], "bodyId"].to_numpy().astype(int))
     AR.write_arm("B0", t0, reps, {"source": "benchmarks/dng100_walking_cpg/results/dn_screen_manc_v1.2.1_nt-paper_r16.json (frozen as is)",
                                   "screen_config": d["summary"]["screen_config"]},
                  {"b0_file_sha256": hashlib.sha256(raw).hexdigest()})
@@ -211,6 +227,7 @@ def cmd_b5(a) -> None:
     jobs = AR.b5_jobs(groups, scfg, mcfg)
     res = AR.run("B5", jobs, {"W": fl.W, "sizes": fl.sizes, "readout": fl.readout})
     types, reps = AR.aggregate_b5(fl, groups, res)
+    types["mean_score"] = None   # the summary is the maximum over strengths (primary_score, best_score), not a mean
     AR.write_arm("B5", types, reps, {"model": mcfg.to_dict(), "screen_for_verdicts": scfg.to_dict(), "strengths": AR.B5_STRENGTHS,
                                      "seeds": AR.SEEDS}, {"results_log_sha256": AR.results_log_sha("B5")})
     print("B5", len(types), "types; drivers (max over strengths)", int((types["band"] == "driver").sum()))
@@ -254,8 +271,23 @@ def cmd_b2(a) -> None:
             kinds.append("transmitter")
         if kinds:
             dis.append({"manc_type": t, "kinds": kinds, "n_manc_exc": n_m, "n_malecns_exc": n_c, "malecns_other_transmitters": other_nt})
+    # mapping provenance: how each MaleCNS DN got its MANC type (body match first, string fallback), and conflicts
+    wt = net.table
+    dn = wt[(wt["superclass"] == "descending_neuron") & wt["manc_type_mapped"].notna()]
+    import glob as _glob
+
+    import pyarrow.feather as _feather
+    from brainir import paths as _paths
+    ann = _feather.read_table(_glob.glob(str(_paths.data_root() / "raw" / "external" / "malecns_v1.0_body_annotations" / "*.feather"))[0]) \
+        .to_pandas().set_index("bodyId")
+    a = ann.reindex(dn["bodyId"].astype(int))
+    body_matched = a["mancBodyid"].notna().to_numpy()
+    string_conflict = body_matched & a["mancType"].notna().to_numpy() & (a["mancType"].astype(str).to_numpy() != dn["manc_type_mapped"].astype(str).to_numpy())
+    mapping = {"n_dn_mapped": int(len(dn)), "n_via_body_match": int(body_matched.sum()), "n_via_mancType_string": int((~body_matched).sum()),
+               "n_body_match_disagreeing_with_mancType_string": int(string_conflict.sum()),
+               "n_groups_not_in_A1": int(len(set(groups) - set(manc)))}
     AR.write_arm("B2", types, reps, {"model": mcfg.to_dict(), "screen": scfg.to_dict(), "seeds": AR.SEEDS, "network": net.meta, **info},
-                 {"results_log_sha256": AR.results_log_sha("B2"), "type_disagreements_between_animals": dis})
+                 {"results_log_sha256": AR.results_log_sha("B2"), "type_disagreements_between_animals": dis, "type_mapping": mapping})
     print("B2", len(types), "types; usable", int((types["status"] == "ok").sum()), "; disagreements", len(dis))
 
 
