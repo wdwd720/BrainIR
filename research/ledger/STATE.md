@@ -29,8 +29,12 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
   B3/B6 not locked (L16).
 
 ## In progress
-- **Stage 0 DONE**: `ledger-prereg-v1` tagged and pushed (L24), OTS proofs committed.
-- Stage 1: core sequence `ledger/scripts/stage1_core.sh` (authors, b0, baselines, b1 x2, select-b1, g1, g1-cause, g2).
+- Stage 0 DONE (`ledger-prereg-v1`, pushed, OTS). **Do not push the branch again until labels are frozen** (predictions
+  are now in the working tree; PREREG 13).
+- Stage 1: A1/A1-lo10/A0/B0/S/B1/B1-alt written; G1 PASS, G2 investigated (L26). Running: controls (10 campaigns,
+  ~5 h), then B5 -> B4 -> B2 (parallel chain); G4 on B1-lo10/B1-lo5; independent arms review (subagent).
+- After the campaigns: G4 for each locked simulated arm, G5 baseline checks, fix review findings, pre-mortem, lock
+  predictions (`lock.py predictions <arms> B3=... B6=...`, `git add -f` parquet files), tag (not pushed), OTS.
 
 ## Next (Stage 1, after the tag)
 1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `g2`; `controls`; `b5`;
