@@ -131,8 +131,19 @@ def main() -> None:
         print(lock_prereg())
     elif what == "labels":
         print(lock_labels())
+    elif what == "predictions":
+        # usage: lock.py predictions ARM [ARM ...] [--not-locked ARM=reason ...]
+        args = sys.argv[2:]
+        arms, notl = [], {}
+        for a in args:
+            if "=" in a:
+                k, v = a.split("=", 1)
+                notl[k] = v
+            elif a != "--not-locked":
+                arms.append(a)
+        print(lock_predictions(arms, notl))
     else:
-        raise SystemExit("predictions lock is written by ledger/scripts/lock_predictions.py (needs the arm list)")
+        raise SystemExit(f"unknown stage {what}")
 
 
 if __name__ == "__main__":
