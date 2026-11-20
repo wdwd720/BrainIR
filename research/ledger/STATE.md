@@ -50,14 +50,20 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
      commit the lock, annotated tag `ledger-predictions-v1` (NOT pushed), `ledger/scripts/lock_verify.py` (must pass),
      `ots stamp` the lock file, commit the .ots + verify json. Then Stage 2.
 
-## Next (Stage 1, after the tag)
-1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `g2`; `controls`; `b5`;
-   `b4`; `b2`; `g4 --only <campaign>` for each locked simulated arm.
-2. Gates G1, G2, G4, G5 (baseline checks again), independent review of the arms -> fix -> `lock_predictions` (arms list)
-   -> tag `ledger-predictions-v1` (NOT pushed until labels freeze, PREREG 13) -> OTS.
-3. Stage 2: pilot one family -> pass 1 (8 families, waves of 4) -> collect/validate/repair -> labels_prepare pass2 ->
-   pass 2 Phase A -> Phase B -> search x2 -> labels_prepare adjudication -> adjudication (general, dedicated) -> audit ->
-   finalize -> lock labels -> tag -> push branch + all three tags -> OTS -> HANDOFF_1.md.
+## Next (after the predictions tag)
+1. Stage 2 wave 1 (immediately after the tag): `labels_rooms.py launch pass1 --family steering` (pilot),
+   `launch search --name search_names`, `launch search --name search_behaviour` (searches need no pass-1 output),
+   `movies_room.py launch` (atlas-movie availability; read ONLY `~/ledger_rooms/run1_aux/movies/out/movies_report.md`).
+   After ~15 min: `labels_rooms.py status` (alive, record count) + `labels_collect.py collect` (validation counts only).
+2. If the pilot writes valid records: launch the other pass-1 families (atlas, catalogue, grooming, walking_stopping,
+   escape_landing, pugliese_dedicated, recent_broad), keeping <= ~5 labeler sessions alive at once.
+3. As pass-1 sessions finish: `collect`; one `repair --session` round where validation shows invalid lines; then
+   `labels_audit.py`; `labels_prepare.py pass2`; `launch pass2 --all` (Phase A); for each finished Phase A
+   `phaseb --session pass2-<family>`; then `collect`, `labels_audit.py`, `labels_prepare.py adjudication`,
+   `launch adjudication --name general` and `--name dedicated`; `collect`; `labels_audit.py`; `labels_collect.py finalize`.
+4. Pre-mortem (LOG), `lock.py labels`, commit, tag `ledger-labels-v1`, OTS; then push `ledger/v1` and the three tags with
+   explicit refspecs (`git push origin ledger/v1 ledger-predictions-v1 ledger-labels-v1`; never `main`).
+5. G5 again; `HANDOFF_1.md` (<= 1,800 words, 10 sections, no score next to an outcome); print it as the final message.
 
 ## Rules to remember
 - Orchestrator never opens per-type labels (only validation summaries and aggregate counts) and never joins labels with
