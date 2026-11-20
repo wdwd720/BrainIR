@@ -1,4 +1,4 @@
-"""Predictions-only summary (PREDICTION SIDE: never reads labels) -> research/ledger/predictions/SUMMARY.json.
+"""Predictions-only summary (PREDICTION SIDE: never reads labels) -> research/ledger/gates/PREDICTIONS_SUMMARY.json.
 
 Per arm: number of types, usable types, predicted drivers / indeterminate / non-drivers (band of the primary score; B4: its
 categorical calls at strength 128). Agreement between the authors' screen and BrainIR's (A1 vs B1, A0 vs B0) and between the
@@ -77,7 +77,7 @@ def main() -> None:
     ctl = [a for a in arms if a.startswith("B1-ctl-")]
     if ctl and b1 is not None:
         out["agreement"]["B1 vs each control"] = {c: agree(b1, load(c)) for c in ctl}
-    p = PREDICTIONS / "SUMMARY.json"
+    p = PREDICTIONS.parent / "gates" / "PREDICTIONS_SUMMARY.json"
     p.write_text(json.dumps(out, indent=1, sort_keys=True, default=str) + "\n", encoding="utf-8", newline="\n")
     for arm, r in per_arm.items():
         print(arm, {k: v for k, v in r.items() if k not in ("calls_by_strength", "columns")})

@@ -28,7 +28,7 @@ exist so that run 2 reads the B2 and B4 results with their known weaknesses on r
 - Prediction-side context: the procedure accepts many replicates without any MN activity in both animals (usable
   replicates with 0 active front-leg MNs: B1 45.5 %, B2 43.8 %); B2 accepts at the starting current 128 more often (68.7 %
   of usable replicates vs 45.3 % in B1).
-- Agreement between the animals (`predictions/SUMMARY.json`): B1 vs B2 Spearman 0.31 over 310 common types, top-10
+- Agreement between the animals (`gates/PREDICTIONS_SUMMARY.json`): B1 vs B2 Spearman 0.31 over 310 common types, top-10
   overlap 1, band agreement 0.68; on the 236 types whose MaleCNS members all have a curated body match without a
   conflicting `mancType` string 0.36, on the 74 others 0.12.
 - **Reading for run 2:** B2 is locked as pre-registered, but it is a weak second-fly test. Its disagreement with B1 reflects
