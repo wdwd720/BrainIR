@@ -10,7 +10,7 @@ Session: `{SESSION}`. Pass: `{PASS_ID}`. Record IDs: `{PREFIX}-0001`, ...
 Task: for EVERY driver line the atlas tested (those in `atlas_line_ids.csv` and any other you find in its figures and source
 data), write one record to `out/records.jsonl` that codes the effect of activating that line, by line ID, from the paper's
 figures, figure legends and source data: put the line ID in `driver_lines` and `name_in_paper`, write `manc_type` as
-`LINE:<line_id>`, `mapping_confidence` as `low` and `mapping_basis` as `atlas line; type assigned later by script`
+`UNMAPPED`, `mapping_confidence` as `low` and `mapping_basis` as `atlas line; type assigned later by script`
 (PROTOCOL section 8). Code every label field from what the atlas reports for that line (PROTOCOL sections 2-4), with a
 verbatim quote of at most 25 words or, where the evidence is a figure or table cell, a quote of its label and an exact
 locator (figure, panel, table row). You do not know, and must not try to find out, which DN types the lines label.

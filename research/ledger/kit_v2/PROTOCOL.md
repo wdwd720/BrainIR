@@ -138,7 +138,7 @@ could not access, anything uncertain) and make sure `out/records.jsonl` has one 
   count. If you see one: stop reading that part, set `saw_simulation_score` = `true` on every record of the affected types,
   and add a row to `out/sightings.csv` (header `doi,locator,what_was_seen,types_as_printed`; `what_was_seen` is
   `rhythm_score`, `rank` or `driver_call`).
-- **Atlas lines.** Where your instructions say you code by driver-line ID, write `manc_type` as `LINE:<line_id>`,
+- **Atlas lines.** Where your instructions say you code by driver-line ID, write `manc_type` as `UNMAPPED`,
   `mapping_confidence` as `low` and `mapping_basis` as `atlas line; type assigned later by script`; the type is filled in
   afterwards from a separate mapping.
 

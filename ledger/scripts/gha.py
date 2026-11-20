@@ -68,12 +68,80 @@ def build_trust() -> tuple[list[tuple[dict, list[dict]]], str]:
     return groups, "arms"
 
 
-BUILDERS = {"trust": build_trust}
+def _nets():
+    from brainir.sim.model import ModelConfig
+    from brainir_ledger import arms as AR
+    from brainir_ledger import networks as N
+
+    fl = N.front_leg()
+    g1 = N.type_groups(fl.table)
+    net2, g2, _ = AR.malecns_network()
+    return AR, ModelConfig, (fl, g1), (net2, g2)
+
+
+def _v2_jobs(arm: str, groups: dict, k: int, AR, ModelConfig, seeds=None) -> list[dict]:
+    jobs = AR.group_jobs(arm, groups, AR.b1_screen_cfg(10), ModelConfig(t_end=1.0), seeds=seeds or AR.SEEDS)
+    return [dict(j, kind="group_v2", k_min=int(k)) for j in jobs]
+
+
+def build_calibk(k=None):
+    """PREREG v2 P1: the DNg100 pair (both members) under tuner v2 for K in {1, 2, 3, 5, 10}, seeds 0..15, on the MANC and the
+    MaleCNS front-leg networks. DNg100 only."""
+    AR, MC, (fl, g1), (net2, g2) = _nets()
+    out = []
+    for tag, net, grp in (("MANC", fl, g1), ("MaleCNS", net2, g2)):
+        shared = {"W": net.W, "sizes": net.sizes, "readout": net.readout}
+        jobs = []
+        for kk in (1, 2, 3, 5, 10):
+            jobs += [dict(j, key=f"calibK|{tag}|K{kk}|DNg100|s{j['seed']}") for j in _v2_jobs("x", {"DNg100": grp["DNg100"]}, kk, AR, MC)]
+        out.append((shared, jobs))
+    return out, "calibration"
+
+
+def build_regress(k=None):
+    """PREREG v2 P1 tuner regression: K = 0 on 30 random B1 types (seed 20261204) x 16 seeds; keys = B1-lo10 keys."""
+    AR, MC, (fl, g1), _ = _nets()
+    rng = np.random.default_rng(20261204)
+    types = sorted(rng.choice(sorted(g1), 30, replace=False))
+    jobs = _v2_jobs("B1-lo10", {t: g1[t] for t in types}, 0, AR, MC)
+    return [({"W": fl.W, "sizes": fl.sizes, "readout": fl.readout}, jobs)], "arms"
+
+
+def build_b1r(k):
+    AR, MC, (fl, g1), _ = _nets()
+    return [({"W": fl.W, "sizes": fl.sizes, "readout": fl.readout}, _v2_jobs("B1r", g1, k, AR, MC))], "arms"
+
+
+def build_b2r(k):
+    AR, MC, _, (net2, g2) = _nets()
+    return [({"W": net2.W, "sizes": net2.sizes, "readout": net2.readout}, _v2_jobs("B2r", g2, k, AR, MC))], "arms"
+
+
+def build_g3v2(k=None):
+    """PREREG v2 P2: G3 re-run (both DNg100 at 380, T = 2 s, seeds 0..63, run 1's job specs) and item 5 (the B3 procedure,
+    PREREG v1 3.7 / LOG L14, on the DNg100 type, seeds 0..15). DNg100 only."""
+    import calibrate_dng100 as CAL
+    from brainir.compute.backend import Shared
+    from brainir.sim.model import ModelConfig
+    from brainir.sim.screen import ScreenConfig
+
+    jobs, shared = CAL._full_jobs([380.0], range(64), 2.0, "g3v2")
+    dng = list(jobs[0]["stim_indices"])
+    scfg = ScreenConfig(n_active_lower=100, n_active_upper=7667, n_high_fr_upper=1022)
+    item5 = [{"key": f"g3v2item5|DNg100|s{s}", "kind": "group", "W": Shared("W"), "sizes": Shared("sizes"), "readout": Shared("readout"),
+              "members": dng, "seed": s, "model": ModelConfig(t_end=1.0).to_dict(), "screen": scfg.to_dict(),
+              "extras": {"legs": Shared("legs"), "readout_traces": True, "watch": dng}} for s in range(16)]
+    return [(shared, jobs + item5)], "calibration"
+
+
+BUILDERS = {"trust": build_trust, "calibk": build_calibk, "regress": build_regress, "b1r": build_b1r, "b2r": build_b2r,
+            "g3v2": build_g3v2}
 
 
 # ----------------------------------------------------------------------------------------------------- pack / publish
-def pack(name: str, chunk_jobs: int) -> None:
-    groups, area = BUILDERS[name.split("-")[0]]()
+def pack(name: str, chunk_jobs: int, k: int | None = None) -> None:
+    b = BUILDERS[name.split("-")[0]]
+    groups, area = b() if b is build_trust else b(k)
     out = GHA / name
     out.mkdir(parents=True, exist_ok=True)
     items, files, keys = [], {}, []
@@ -212,6 +280,7 @@ def main() -> None:
     p = sub.add_parser("pack")
     p.add_argument("name")
     p.add_argument("--chunk-jobs", type=int, default=25)
+    p.add_argument("--k", type=int, default=None)
     p = sub.add_parser("publish")
     p.add_argument("name")
     p.add_argument("--attempt", type=int, default=0)
@@ -221,7 +290,7 @@ def main() -> None:
     sub.add_parser("trust-compare")
     a = ap.parse_args()
     if a.cmd == "pack":
-        pack(a.name, a.chunk_jobs)
+        pack(a.name, a.chunk_jobs, a.k)
     elif a.cmd == "publish":
         publish(a.name, a.attempt)
     elif a.cmd == "collect":

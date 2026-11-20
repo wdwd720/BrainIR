@@ -10,7 +10,8 @@ Session: `{SESSION}`. Pass: `search`. Search kind: **{SEARCH_KIND}**. {SEARCH_SC
 Task: search the literature yourself (journal sites, PubMed/PMC, Europe PMC, bioRxiv, web searches, reference lists and
 citing papers) for papers that report experiments in which a DN type or a DN driver line was switched on in an adult fly
 (optogenetic or thermogenetic) and leg movement was observable. You do NOT write records. For every such paper write one
-row per DN type or line it tests to `out/leads.csv` (header `doi,title,year,name_in_paper,family_hint,locator`;
+row per DN type or line it tests to `out/leads.csv` (header `doi,title,year,name_in_paper,manc_type,family_hint,locator`; `manc_type` is the MANC type you
+map the name to with `type_list.csv`, `synonyms.csv` and `driver_lines.csv`, empty if you cannot;
 `family_hint` is one of `walking_stopping, grooming, steering, escape_landing, driver_line_resources, recent_broad`;
 `locator` says where in the paper the experiment is). Do not record what the experiment showed. Finish with `out/notes.md`
 (queries, databases, what you could not access).

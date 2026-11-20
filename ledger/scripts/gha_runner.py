@@ -25,7 +25,8 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "src"))
 sys.path.insert(0, str(REPO / "ledger" / "src"))
 from brainir.compute.backend import resolve_shared  # noqa: E402
-from brainir_ledger.jobs import probe, run_job  # noqa: E402
+from brainir_ledger.jobs import probe  # noqa: E402
+from brainir_ledger.jobs_v2 import run_job  # noqa: E402  (run 1's run_job for every kind but group_v2; L51)
 
 _PAYLOADS: dict[str, dict] = {}
 
