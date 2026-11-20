@@ -1,5 +1,7 @@
 # Resolution of the label-side review, round 1 (`REVIEW_labels_round1.md`)
 
+**Update (LOG L47):** finding 2 (a and b) is resolved by a new labels version, **v1.1** (`research/ledger/labels_v1_1/`, `LOCK_labels_v1_1.json`, tag `ledger-labels-v1.1`, changelog in the folder), as the prompt prescribes for a bug found after a lock; the reviewer verified v1.1 (section "v1.1 verification" of the review): finding 2 resolved, nothing wrong, scoring inputs byte-identical to v1. Finding 1 (coverage) is not a bug and cannot be repaired by re-processing; it needs new labeling under a new pre-registration (labels v2).
+
 The labels are locked (`ledger-labels-v1`). PREREG 12 forbids label-side code changes once Stage 2 has records, and the prompt
 says a bug found after a lock becomes a new version, never an edit. So nothing in v1 changes; every finding is recorded here,
 in the LOG (L45) and in the handoff, and carried into a labels v2 under a new pre-registration.

@@ -58,3 +58,17 @@ None.
 
 ## Scope notes
 - Beyond the brief I read PREREG headings and §7 lines 327-331, `lock.py` lines 1-60, label-side hashes in `LOCK_prereg_v1.json` and the guard log, and counted patterns in fetch prompts and queries without displaying them. `research/ledger/HANDOFF_1.md` has uncommitted edits that are not mine; I did not open it.
+
+## v1.1 verification (tag ledger-labels-v1.1, commit a21a380)
+
+**Finding 2 is resolved by v1.1, and nothing in v1.1 is wrong.**
+- **Unchanged files.** Byte-identical to v1: `records.jsonl`, `type_labels.csv`, `spot_check_sample.csv`, `merge_log.json`, `synonyms.csv`, `driver_lines.csv`, plus the copied `transcript_audit.json`.
+- **Changed files.** `agreement.md` differs only in the capture-recapture line and `agreement.json` only in `capture_recapture`. `sources.csv` and `search_only_records.jsonl` also differ.
+- **Added and omitted.** v1.1 adds `CHANGELOG.md` and omits `transcript_audit.md` and `REDACTION.json`, which stay in v1.
+- **Completeness.** 125.0 (n1 49, n2 62, m 24) equals my recomputation from the v1 raw inputs. Stricter DOI canonicalisation changes nothing.
+- **Search-only and sources.** `search_only_records.jsonl` has 56 records, matching my recomputation in set and order, none from the breaching session. `sources.csv` has 77 rows and no merged eLife row; sessions and `n_final_records` per DOI match my recomputation and sum to 141.
+- **Lock.** `lock.py check` passes for v1.1 and still for v1. The tag holds exactly the locked bytes: labels 12/12, raw 135/135, kit 17/17, code 56/56. The chained hashes of the v1 and prereg locks match, and v1's files are unchanged since `ledger-labels-v1`.
+- **Notes, not errors.**
+  - The audit-freshness gate passed on the copied audit's preserved timestamp. Content is identical and there are no new sessions.
+  - Excluding the search session applies PREREG's general exclusion rule, as the changelog states. The estimate now rests on one search session.
+  - `lock.py check` still skips raw presence and the chained hashes; I verified both.
