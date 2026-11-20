@@ -45,9 +45,16 @@ def group_jobs(arm: str, groups: dict[str, list[int]], screen_cfg: ScreenConfig,
              "extras": extras or {"readout_traces": True}} for t, m in sorted(groups.items()) for s in seeds]
 
 
+BATCH = {"cpu": 4.0, "memory_mb": 8192, "batch_size": 4}  # four jobs per container, as parallel processes (L28)
+
+
 def run(arm: str, jobs: list[dict], shared: dict, *, memory_mb: int = 3072, max_containers: int = 100, timeout_s: int = 3600,
-        campaign: str | None = None) -> dict[str, dict]:
-    be = LedgerModalBackend(cpu=1.0, memory_mb=memory_mb, max_containers=max_containers, timeout_s=timeout_s)
+        campaign: str | None = None, batched: bool = False) -> dict[str, dict]:
+    if batched:
+        be = LedgerModalBackend(cpu=BATCH["cpu"], memory_mb=BATCH["memory_mb"], max_containers=max_containers, timeout_s=timeout_s * 2,
+                                batch_size=BATCH["batch_size"])
+    else:
+        be = LedgerModalBackend(cpu=1.0, memory_mb=memory_mb, max_containers=max_containers, timeout_s=timeout_s)
     run_dir = data_dir() / "arms" / (campaign or arm)
     for attempt in range(3):  # resume after infrastructure errors / usage-limit stalls
         res = run_campaign(run_dir, jobs, be, run_job, shared=shared)

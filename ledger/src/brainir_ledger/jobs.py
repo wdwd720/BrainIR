@@ -113,6 +113,22 @@ def run_job(job: dict) -> dict:
                 "job_wall_s": round(time.time() - t0, 2)}
 
 
+def run_batch(batch: dict) -> list[dict]:
+    """Run several jobs in parallel worker processes inside one container (same code and environment for every job, one
+    process per job, results in input order). Throughput only: each job's numerics are those of `run_job` alone (checked by
+    gate G4, which re-runs jobs unbatched on other containers)."""
+    import multiprocessing as mp
+    import os
+
+    items = list(batch["items"])
+    n = max(1, min(len(items), int(batch.get("workers") or 1)))
+    if n == 1:
+        return [run_job(it) for it in items]
+    os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+    with mp.get_context("fork").Pool(processes=n, maxtasksperchild=1) as pool:
+        return pool.map(run_job, items, chunksize=1)
+
+
 def probe(job: dict) -> dict:
     """Container probe: host fingerprint plus a fixed numerical workload (tanh, dot, sparse matvec) hashed bit for bit."""
     import scipy.sparse as sp

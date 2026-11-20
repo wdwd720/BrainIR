@@ -48,9 +48,10 @@ class LedgerModalBackend(ModalBackend):
     PRICE_PER_CORE_S = 0.0473 / 3600
     PRICE_PER_GIB_S = 0.008 / 3600
 
-    def __init__(self, *, numerics: bool = True, app_name: str = LEDGER_APP, volume_name: str = LEDGER_VOLUME, **kw):
+    def __init__(self, *, numerics: bool = True, app_name: str = LEDGER_APP, volume_name: str = LEDGER_VOLUME, batch_size: int = 1, **kw):
         super().__init__(app_name=app_name, volume_name=volume_name, **kw)
         self.numerics = numerics
+        self.batch_size = int(batch_size)  # jobs per container call, run as parallel processes (jobs.run_batch)
 
     def image_spec(self) -> dict:
         return {"base": f"modal.Image.debian_slim(python_version={MODAL_PYTHON!r})", "pip": list(PINNED),
@@ -76,19 +77,31 @@ class LedgerModalBackend(ModalBackend):
             key, vol, blob_size = self._upload_shared(shared)
             volumes = {"/shared": vol}
         app = modal.App(self.app_name, image=self._image())
+        call_items = items
+        if self.batch_size > 1:
+            from .jobs import run_batch
+
+            fn = run_batch
+            call_items = [{"key": f"batch{i}", "items": items[i:i + self.batch_size], "workers": self.batch_size}
+                          for i in range(0, len(items), self.batch_size)]
         remote = app.function(cpu=self.cpu, memory=self.memory_mb, timeout=self.timeout_s, max_containers=self.max_containers,
                               retries=self.retries, volumes=volumes, serialized=True)(_make_remote_wrapper(fn, key))
         t0 = time.time()
         n_done = 0
         with app.run():
-            for res in remote.map(items, order_outputs=False, return_exceptions=True):
-                sink(res)
-                n_done += 1
+            for res in remote.map(call_items, order_outputs=False, return_exceptions=True):
+                if self.batch_size > 1 and isinstance(res, list):
+                    for r in res:
+                        sink(r)
+                        n_done += 1
+                else:
+                    sink(res)
+                    n_done += 1
         wall = time.time() - t0
         self.last_stats = RunStats("modal-ledger", len(items), wall,
                                    {"cpu": self.cpu, "memory_mb": self.memory_mb, "timeout_s": self.timeout_s, "max_containers": self.max_containers,
                                     "app": self.app_name, "shared_payload_key": key, "shared_payload_bytes": blob_size, "n_returned": n_done,
-                                    "image": self.image_spec()},
+                                    "batch_size": self.batch_size, "image": self.image_spec()},
                                    round(wall * min(self.max_containers, max(1, len(items))) *
                                          (self.cpu * self.PRICE_PER_CORE_S + self.memory_mb / 1024 * self.PRICE_PER_GIB_S), 4))
         return self.last_stats

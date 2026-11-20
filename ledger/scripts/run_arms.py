@@ -180,7 +180,7 @@ def cmd_controls(a) -> None:
     for name in names:
         Wc, stats = CT.build(fl, name)
         jobs = AR.group_jobs(name, groups, scfg, mcfg)
-        res = AR.run(name, jobs, {"W": Wc, "sizes": fl.sizes, "readout": fl.readout})
+        res = AR.run(name, jobs, {"W": Wc, "sizes": fl.sizes, "readout": fl.readout}, batched=True)
         types, reps = AR.aggregate_group_arm(name, f"{fl.name}+{name}", fl, groups, res, scfg)
         AR.write_arm(name, types, reps, {"model": mcfg.to_dict(), "screen": scfg.to_dict(), "seeds": AR.SEEDS, "control": name,
                                          "construction": stats},
@@ -239,7 +239,7 @@ def cmd_b4(a) -> None:
     mcfg = ModelConfig(t_end=2.0)
     scfg = ScreenConfig()
     jobs = AR.b4_jobs(fl, all_groups, mcfg, scfg)
-    res = AR.run("B4", jobs, {"W": fl.W, "sizes": fl.sizes, "readout": fl.readout})
+    res = AR.run("B4", jobs, {"W": fl.W, "sizes": fl.sizes, "readout": fl.readout}, batched=True)
     types, reps = AR.aggregate_b4(fl, all_groups, res)
     AR.write_arm("B4", types, reps, {"model": mcfg.to_dict(), "background": "both DNg100 at 250", "strengths": AR.B4_STRENGTHS,
                                      "seeds": AR.SEEDS, "groups": "all members of every DN type (any transmitter)"},
@@ -253,7 +253,7 @@ def cmd_b2(a) -> None:
     scfg = AR.b1_screen_cfg(int(sel["kept_lower_bound"]))
     mcfg = ModelConfig(t_end=1.0)
     jobs = AR.group_jobs("B2", groups, scfg, mcfg)
-    res = AR.run("B2", jobs, {"W": net.W, "sizes": net.sizes, "readout": net.readout})
+    res = AR.run("B2", jobs, {"W": net.W, "sizes": net.sizes, "readout": net.readout}, batched=True)
     types, reps = AR.aggregate_group_arm("B2", net.name, net, groups, res, scfg)
     fl = N.front_leg()
     manc = N.type_groups(fl.table)
