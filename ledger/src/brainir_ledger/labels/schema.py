@@ -12,7 +12,7 @@ import re
 
 LEG_VALUES = ("yes", "no", "unclear", "not_assessed")
 PREPARATION = ("intact_free", "intact_tethered", "headless", "other")
-EXPRESSION = ("bilateral", "unilateral", "stochastic")
+EXPRESSION = ("bilateral", "unilateral", "stochastic", "unknown")
 SPECIFICITY = ("clean", "minor_offtarget", "multi_dn", "unknown")
 BEHAVIOUR = ("forward_walking", "backward_walking", "turning", "anterior_grooming", "posterior_grooming", "halting",
              "takeoff_or_jump", "landing_or_extension", "wing_or_flight", "posture", "no_visible_effect", "other")
@@ -42,6 +42,7 @@ OPTIONAL = {
     "penetrance": (str, type(None)), "n_flies": (int, type(None)), "secondary_behaviours": (list, type(None)),
     "mapping_basis": (str, type(None)), "notes": (str, type(None)), "experiment_key": (str, type(None)),
     "quote_verified": (bool, type(None)), "title": (str, type(None)), "year": (int, type(None)),
+    "exp_id": (str, type(None)), "frequency_note": (str, type(None)), "n_flies_note": (str, type(None)),
 }
 ENUMS = {"pass_id": PASS_IDS, "source_type": SOURCE_TYPE, "access": ACCESS, "mapping_confidence": MAPPING_CONFIDENCE,
          "effector_kind": EFFECTOR_KIND, "sex": SEX, "preparation": PREPARATION, "expression": EXPRESSION,
@@ -67,18 +68,18 @@ def validate_record(rec: dict, known_types: set[str] | None = None) -> list[str]
     for k, t in REQUIRED.items():
         if k not in rec:
             errs.append(f"missing field {k}")
-        elif not isinstance(rec[k], t) or (t is str and not rec[k].strip()):
+        elif not isinstance(rec[k], t) or (t is str and not rec[k].strip()) or (t is not bool and isinstance(rec[k], bool)):
             errs.append(f"field {k} must be a non-empty {t.__name__}")
     for k, ts in OPTIONAL.items():
-        if k in rec and not isinstance(rec[k], ts):
-            errs.append(f"field {k} has wrong type {type(rec[k]).__name__}")
+        if k in rec and (not isinstance(rec[k], ts) or (bool not in ts and isinstance(rec[k], bool))):
+            errs.append(f"field {k} has the wrong type")
     extra = set(rec) - set(REQUIRED) - set(OPTIONAL)
     if extra:
         errs.append(f"unknown fields {sorted(extra)}")
     for k, vocab in ENUMS.items():
         v = rec.get(k)
         if v is not None and k in rec and v not in vocab:
-            errs.append(f"field {k} = {v!r} not in {list(vocab)}")
+            errs.append(f"field {k} has a value outside its vocabulary {list(vocab)}")
     q = rec.get("quote")
     if isinstance(q, str) and len(q.split()) > MAX_QUOTE_WORDS:
         errs.append(f"quote has {len(q.split())} words (max {MAX_QUOTE_WORDS})")
@@ -92,10 +93,10 @@ def validate_record(rec: dict, known_types: set[str] | None = None) -> list[str]
     if isinstance(rec.get("secondary_behaviours"), list):
         bad = [x for x in rec["secondary_behaviours"] if x not in BEHAVIOUR]
         if bad:
-            errs.append(f"secondary_behaviours not in vocabulary: {bad}")
+            errs.append(f"secondary_behaviours has {len(bad)} value(s) outside the vocabulary")
     if known_types is not None and isinstance(rec.get("manc_type"), str) and rec["manc_type"] not in known_types \
             and rec["manc_type"] != UNMAPPED:
-        errs.append(f"manc_type {rec['manc_type']!r} is not in the type list (use {UNMAPPED!r} and explain in mapping_basis)")
+        errs.append(f"manc_type is not in the type list (use {UNMAPPED!r} and explain in mapping_basis)")
     if isinstance(rec.get("doi"), str) and not (rec["doi"].startswith("10.") or rec["doi"].startswith("http")):
         errs.append("doi must start with '10.' (or be a URL when no DOI exists)")
     return errs

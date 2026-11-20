@@ -54,8 +54,13 @@ def audit_session(man: dict) -> dict:
                     name, inp = c.get("name"), c.get("input") or {}
                     if name in ("Read", "Write", "Edit", "Glob", "Grep"):
                         p = str(inp.get("file_path") or inp.get("path") or "")
-                        if p and not (p.startswith(room) or not p.startswith("/")):
+                        pat = str(inp.get("pattern") or "")
+                        escapes = p.startswith("~") or ".." in Path(p).parts or (p.startswith("/") and not p.startswith(room + "/")
+                                                                                and p != room)
+                        if p and escapes:
                             issues.append({"kind": "file_outside_room", "tool": name, "path": p})
+                        if pat.startswith("/") or pat.startswith("~") or ".." in pat:
+                            issues.append({"kind": "file_outside_room", "tool": name, "pattern": pat})
                     if name == "WebFetch":
                         url = str(inp.get("url", ""))
                         fetches.append(url)

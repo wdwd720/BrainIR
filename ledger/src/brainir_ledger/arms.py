@@ -26,6 +26,7 @@ SEEDS = list(range(16))
 B1_CAP = 200
 B4_STRENGTHS = (32.0, 128.0, 512.0)
 B4_BACKGROUND = 250.0
+B4_MIN_BASE_RHYTHMIC = 8  # a call needs at least 8 of 16 seeds with a rhythmic background
 B5_STRENGTHS = (32.0, 64.0, 128.0, 256.0, 512.0)
 
 
@@ -163,7 +164,9 @@ def b4_call(bg: list[dict], tr: list[dict]) -> tuple[str, dict]:
     rel = [(tr[i]["frequency_hz"] - bg[i]["frequency_hz"]) / bg[i]["frequency_hz"] for i in both]
     info = {"n_base_rhythmic": len(base_ok), "frac_halt": float(np.mean(halts)) if halts else None, "n_both": len(both),
             "median_rel_freq_change": float(np.median(rel)) if rel else None}
-    if halts and np.mean(halts) >= 0.75:
+    if len(base_ok) < B4_MIN_BASE_RHYTHMIC:
+        return "background_not_rhythmic", info
+    if np.mean(halts) >= 0.75:
         return "halts", info
     if len(both) < 4:
         return "no_effect_low_n", info

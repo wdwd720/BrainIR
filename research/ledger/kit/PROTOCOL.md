@@ -58,7 +58,7 @@ controls or the pre-stimulus period. Fill `front_leg_rhythm`, `middle_leg_rhythm
 | `access` | `full_text`, `abstract_only`, `supplement_only`, `figure_or_movie` |
 | `name_in_paper` | the neuron or line name exactly as the paper uses it |
 | `manc_type` | the MANC type from `type_list.csv` / `synonyms.csv` / `driver_lines.csv`, or `UNMAPPED` |
-| `mapping_confidence` | `high` (paper names the MANC/Namiki type, or a listed synonym), `medium` (via a listed driver line or a strong anatomical description), `low` (guess) |
+| `mapping_confidence` | `high` (paper names the MANC/Namiki type, or an unambiguous listed synonym), `medium` (via a listed driver line, a strong anatomical description, or a name that maps to more than one MANC type in the kit), `low` (guess) |
 | `mapping_basis` | one sentence: how you mapped the name |
 | `driver_lines` | list of line IDs (e.g. `["SS01540"]`); `[]` if none named |
 | `effector`, `effector_kind` | e.g. `CsChrimson`, `optogenetic` / `thermogenetic` |
@@ -68,21 +68,27 @@ controls or the pre-stimulus period. Fill `front_leg_rhythm`, `middle_leg_rhythm
 | `preparation` | `intact_free`, `intact_tethered`, `headless`, `other` |
 | `sensory_condition` | e.g. dark, on ball, in air, if stated |
 | `headless_surface` | required when headless: `ball`, `air`, `slippery_surface`, `other` |
-| `expression` | `bilateral`, `unilateral`, `stochastic` |
+| `expression` | `bilateral`, `unilateral`, `stochastic`, `unknown` |
 | `line_specificity` | `clean`, `minor_offtarget`, `multi_dn`, `unknown` |
 | `other_cell_types` | other labelled cells named by the paper (required for `minor_offtarget` / `multi_dn`) |
 | `front_leg_rhythm`, `middle_leg_rhythm`, `hind_leg_rhythm` | `yes`, `no`, `unclear`, `not_assessed` |
 | `behaviour_category` | `forward_walking`, `backward_walking`, `turning`, `anterior_grooming`, `posterior_grooming`, `halting`, `takeoff_or_jump`, `landing_or_extension`, `wing_or_flight`, `posture`, `no_visible_effect`, `other` |
 | `secondary_behaviours` | optional list from the same vocabulary |
-| `frequency_hz` | stepping or leg-cycle frequency if reported (number), else null |
+| `frequency_hz` | stepping or leg-cycle frequency if reported (a number; for a range give the midpoint), else null |
+| `frequency_note` | optional text, e.g. the reported range or how it was measured |
 | `coordination_notes` | e.g. tripod, tetrapod, metachronal, one side only, if described |
 | `effect_on_walking` | `stops`, `slows`, `speeds`, `turns`, `none`, `not_assessed` |
-| `penetrance`, `n_flies` | as reported (penetrance free text; n_flies integer) |
+| `penetrance`, `n_flies` | as reported (penetrance free text; n_flies an integer, else null) |
+| `n_flies_note` | optional text when the number of flies is a range or unclear |
 | `labeler_confidence` | `high`, `medium`, `low` (abstract-only or paywalled: always `low`) |
 | `saw_simulation_score` | `true` if you saw any model/simulation score or prediction for this DN type, else `false` |
 | `notes` | optional |
 
-Output one JSON object per line in `out/records.jsonl`. Use JSON `true`/`false`/`null`, not strings.
+Output one JSON object per line in `out/records.jsonl`. Use JSON `true`/`false`/`null`, not strings, and numbers (not
+text) in numeric fields. Cross-field rules: `preparation` = `headless` needs `headless_surface`; `line_specificity` =
+`minor_offtarget` or `multi_dn` needs `other_cell_types`; a name that maps to more than one MANC type (the kit lists all
+candidates) gets `mapping_confidence` at most `medium`, the type the paper's anatomy supports, and an explanation in
+`mapping_basis` (if you cannot decide, use `UNMAPPED`).
 
 ## 5. Sources and access
 
@@ -99,14 +105,14 @@ Output one JSON object per line in `out/records.jsonl`. Use JSON `true`/`false`/
 ## 6. Things you must not do
 
 - Do not open, search for or read any computational model, simulation, connectome-simulation result, "rhythmicity score",
-  "activation screen" in a model, or prediction about which DNs drive walking. In particular do NOT visit:
-  `github.com/wdwd720/*`, `github.com/smpuglie/*`, `zenodo.org/records/22260924`, and (unless your instructions say this is
-  your dedicated source) Pugliese et al. 2026 (Nature, doi 10.1038/s41586-026-11195-y; bioRxiv 10.1101/2025.09.12.675944)
-  and Sapkal et al. 2026 (bioRxiv 10.64898/2026.04.29.721658).
+  "activation screen" in a model, or prediction about which DNs drive walking. Do not visit GitHub or Zenodo at all (they
+  are blocked for this work). Unless your instructions say this is your dedicated source, do not open Pugliese et al. 2026
+  (Nature, doi 10.1038/s41586-026-11195-y; bioRxiv 10.1101/2025.09.12.675944) or Sapkal et al. 2026 (bioRxiv
+  10.64898/2026.04.29.721658).
 - If you see a simulation score or model prediction for a DN type by accident, stop reading that part, set
   `saw_simulation_score` = `true` on every record of that type you write, and note it in `out/notes.md`.
-- Do not use your own memory of what a neuron does as evidence. Every record must rest on a source you opened in this
-  session, with a quote.
+- Do not use your own memory of what a neuron does as evidence, and do not let it guide which outcome you record. Every
+  record must rest on a source you opened in this session, with a quote.
 - Write files only inside `out/` in this room.
 
 ## 7. When you finish

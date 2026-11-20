@@ -151,8 +151,9 @@ def spearman(x, y) -> float:
 
 
 def primary_decision(n_types: int, n_pos: int, n_neg: int, ci_lo: float, diff_lo: float | None) -> dict:
-    """PREREG section 7 decision rules."""
+    """PREREG section 7 decision rules, tested in a fixed order: underpowered -> nothing is claimed; "adds value beyond
+    wiring" can only be claimed when "the model predicts" holds. The permutation p-value is descriptive."""
     under = n_types < 20 or n_pos < 5 or n_neg < 5
-    return {"underpowered": bool(under),
-            "model_predicts": (not under) and bool(np.isfinite(ci_lo) and ci_lo > 0.5),
-            "adds_value_beyond_wiring": (not under) and diff_lo is not None and bool(np.isfinite(diff_lo) and diff_lo > 0.0)}
+    predicts = (not under) and bool(ci_lo is not None and np.isfinite(ci_lo) and ci_lo > 0.5)
+    adds = predicts and diff_lo is not None and bool(np.isfinite(diff_lo) and diff_lo > 0.0)
+    return {"underpowered": bool(under), "model_predicts": predicts, "adds_value_beyond_wiring": adds}

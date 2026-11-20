@@ -50,6 +50,8 @@ def cmd_authors(a) -> None:
         types["n_members"] = types["manc_type"].map(lambda t: len(groups.get(t, [])))
         types["member_ids"] = types["manc_type"].map(lambda t: ";".join(str(int(ids[m])) for m in groups.get(t, [])))
         missing = sorted(set(types["manc_type"]) ^ set(groups))
+        if missing:
+            raise RuntimeError(f"{arm}: type names differ from the authors' excitatory type groups: {missing}")
         AR.write_arm(arm, types, reps, {"source": "authors' type-level screen, run 32818378", "usable": f"{lo} <= nActive <= 1500",
                                         "readout": "authors' 138 module-labelled front-leg MNs", "files": AU.FILES,
                                         "zenodo_configs": AU.ZENODO_CONFIGS},

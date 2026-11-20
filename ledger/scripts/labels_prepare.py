@@ -1,11 +1,14 @@
 """Prepare pass-2 and adjudication inputs from collected label records (LABEL SIDE: never reads predictions).
 
     uv run --project ledger --no-sync python ledger/scripts/labels_prepare.py pass2          # -> labels/work/pass2_inputs/<family>/
-    uv run --project ledger --no-sync python ledger/scripts/labels_prepare.py adjudication   # -> labels/work/adjudication_inputs/
+    uv run --project ledger --no-sync python ledger/scripts/labels_prepare.py adjudication   # -> labels/work/adjudication_inputs/<group>/
 
-pass2: for each pass-1 family, `experiments_to_label.csv` (identifiers only: experiment_key, doi, source_locator, driver_lines,
-name_in_paper, manc_type; NO label fields, NO quote) and `quotes_to_verify.csv` (experiment_key, doi, source_locator, quote).
-adjudication: `disagreements.csv`, one row per disputed field, readings A/B in a seeded random order (seed 20261125).
+pass2: pass-1 records are de-duplicated across sessions (`aggregate.dedupe_pass1`, logged), then for each family
+`experiments_to_label.csv` holds IDENTIFIERS ONLY (exp_id, doi, source_locator, driver_lines, name_in_paper, preparation,
+effector, stimulation: no label field, no MANC type, no quote) and `quotes_to_verify.csv` (exp_id, doi, source_locator,
+quote) is kept aside for Phase B, which starts only after Phase A is saved.
+adjudication: `disagreements.csv`, one row per disputed field, readings A/B in a seeded random order (seed 20261125); the
+experiments of the dedicated family go to their own group (only its session may open those sources).
 """
 
 from __future__ import annotations
@@ -13,84 +16,87 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import sys
 from pathlib import Path
 
 import numpy as np
 
 REPO = Path(__file__).resolve().parents[2]
-import sys  # noqa: E402
-
 sys.path.insert(0, str(REPO / "ledger" / "src"))
-from brainir_ledger.labels.aggregate import COMPARED_FIELDS  # noqa: E402
-from brainir_ledger.labels.schema import experiment_key  # noqa: E402
+from brainir_ledger.labels.aggregate import COMPARED_FIELDS, dedupe_pass1  # noqa: E402
 
 LAB = REPO / "research" / "ledger" / "labels"
 RAW = LAB / "raw"
 WORK = LAB / "work"
+DEDICATED = "pugliese_dedicated"
+ID_FIELDS = ["exp_id", "doi", "source_locator", "driver_lines", "name_in_paper", "preparation", "effector", "stimulation"]
 
 
 def read_jsonl(p: Path) -> list[dict]:
     return [json.loads(ln) for ln in p.read_text(encoding="utf-8").splitlines() if ln.strip()] if p.exists() else []
 
 
-def valid_records(session_dir: Path) -> list[dict]:
-    """Records that passed validation at collection time (labels_collect.py writes records.valid.jsonl)."""
-    return read_jsonl(session_dir / "records.valid.jsonl")
+def pass1_records() -> list[dict]:
+    recs = []
+    for sd in sorted((RAW / "pass1").glob("pass1-*")):
+        recs += read_jsonl(sd / "records.valid.jsonl")
+    return recs
+
+
+def family_of(exp_id: str) -> str:
+    return exp_id.split(":", 1)[0].removeprefix("pass1-")
+
+
+def _write(path: Path, rows: list[dict], fields: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=fields)
+        w.writeheader()
+        w.writerows(rows)
 
 
 def pass2_inputs() -> None:
-    seen = set()
-    for sd in sorted((RAW / "pass1").glob("pass1-*")):
-        fam = sd.name.removeprefix("pass1-")
+    kept, dropped = dedupe_pass1(pass1_records())
+    WORK.mkdir(parents=True, exist_ok=True)
+    (WORK / "pass1_dedupe_log.json").write_text(json.dumps({"n_kept": len(kept), "dropped": dropped}, indent=1) + "\n", encoding="utf-8")
+    by: dict[str, list[dict]] = {}
+    for r in kept:
+        by.setdefault(family_of(r["exp_id"]), []).append(r)
+    for fam, recs in sorted(by.items()):
+        rows = [{"exp_id": r["exp_id"], "doi": r["doi"], "source_locator": r["source_locator"], "driver_lines": ";".join(r.get("driver_lines") or []),
+                 "name_in_paper": r["name_in_paper"], "preparation": r["preparation"], "effector": r["effector"], "stimulation": r["stimulation"]}
+                for r in recs]
+        quotes = [{"exp_id": r["exp_id"], "doi": r["doi"], "source_locator": r["source_locator"], "quote": r["quote"]} for r in recs]
         out = WORK / "pass2_inputs" / fam
-        out.mkdir(parents=True, exist_ok=True)
-        rows, quotes = [], []
-        for r in valid_records(sd):
-            k = experiment_key(r)
-            if k in seen:      # the same experiment found by two pass-1 families is labelled once
-                continue
-            seen.add(k)
-            rows.append({"experiment_key": k, "doi": r["doi"], "source_locator": r["source_locator"],
-                         "driver_lines": ";".join(r.get("driver_lines") or []), "name_in_paper": r["name_in_paper"],
-                         "manc_type": r["manc_type"]})
-            quotes.append({"experiment_key": k, "doi": r["doi"], "source_locator": r["source_locator"], "quote": r["quote"]})
-        for name, data in (("experiments_to_label.csv", rows), ("quotes_to_verify.csv", quotes)):
-            with open(out / name, "w", newline="", encoding="utf-8") as fh:
-                w = csv.DictWriter(fh, fieldnames=list(data[0].keys()) if data else ["experiment_key"])
-                w.writeheader()
-                w.writerows(data)
+        _write(out / "experiments_to_label.csv", rows, ID_FIELDS)
+        _write(out / "quotes_to_verify.csv", quotes, ["exp_id", "doi", "source_locator", "quote"])
         print(fam, len(rows), "experiments")
+    print("dropped as cross-session duplicates:", len(dropped))
 
 
 def adjudication_inputs() -> None:
     rng = np.random.default_rng(20261125)
-    p1 = {}
-    for sd in sorted((RAW / "pass1").glob("pass1-*")):
-        for r in valid_records(sd):
-            p1.setdefault(experiment_key(r), r)
+    kept, _ = dedupe_pass1(pass1_records())
     p2 = {}
     for sd in sorted((RAW / "pass2").glob("pass2-*")):
-        for r in valid_records(sd):
-            p2.setdefault(r.get("experiment_key") or experiment_key(r), r)
-    rows = []
-    for k, a in p1.items():
-        b = p2.get(k)
+        for r in read_jsonl(sd / "records.valid.jsonl"):
+            p2.setdefault(r["exp_id"], r)
+    groups: dict[str, list[dict]] = {}
+    for a in kept:
+        b = p2.get(a["exp_id"])
         if b is None:
             continue
+        g = "dedicated" if family_of(a["exp_id"]) == DEDICATED else "general"
         for f in COMPARED_FIELDS:
             if a.get(f) != b.get(f):
                 ra, rb = (a.get(f), b.get(f)) if rng.random() < 0.5 else (b.get(f), a.get(f))
-                rows.append({"experiment_key": k, "doi": a["doi"], "source_locator": a["source_locator"],
-                             "driver_lines": ";".join(a.get("driver_lines") or []), "name_in_paper": a["name_in_paper"],
-                             "manc_type": a["manc_type"], "field": f, "reading_A": ra, "reading_B": rb})
-    out = WORK / "adjudication_inputs"
-    out.mkdir(parents=True, exist_ok=True)
-    with open(out / "disagreements.csv", "w", newline="", encoding="utf-8") as fh:
-        w = csv.DictWriter(fh, fieldnames=["experiment_key", "doi", "source_locator", "driver_lines", "name_in_paper", "manc_type", "field",
-                                           "reading_A", "reading_B"])
-        w.writeheader()
-        w.writerows(rows)
-    print(len(rows), "disputed fields in", len({r["experiment_key"] for r in rows}), "experiments")
+                groups.setdefault(g, []).append({"exp_id": a["exp_id"], "doi": a["doi"], "source_locator": a["source_locator"],
+                                                 "driver_lines": ";".join(a.get("driver_lines") or []), "name_in_paper": a["name_in_paper"],
+                                                 "preparation": a["preparation"], "effector": a["effector"], "stimulation": a["stimulation"],
+                                                 "field": f, "reading_A": json.dumps(ra), "reading_B": json.dumps(rb)})
+    for g, rows in sorted(groups.items()):
+        _write(WORK / "adjudication_inputs" / g / "disagreements.csv", rows, ID_FIELDS + ["field", "reading_A", "reading_B"])
+        print(g, len(rows), "disputed fields in", len({r["exp_id"] for r in rows}), "experiments")
 
 
 def main() -> None:

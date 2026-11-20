@@ -26,6 +26,15 @@ baselines (section 3.5).
 separately and are never joined before both are frozen and reviewed. The scoring entry point
 `brainir_ledger.scoring.pipeline.run_scoring` refuses to run unless `research/ledger/UNBLIND.json` exists and names the
 SHA-256 of both lock files (`brainir_ledger.scoring.require_unblind`); run 1 never creates it.
+- `UNBLIND.json` = `{"predictions_lock": "LOCK_predictions_v<k>.json", "labels_lock": "LOCK_labels_v<k>.json",
+  "predictions_lock_sha256": ..., "labels_lock_sha256": ..., "authorised_by": ..., "utc": ...}`; lock names are plain file
+  names in `research/ledger/` (no paths). It is created only by the person who authorises unblinding.
+- `LOCK_predictions_v<k>.json` lists every locked arm's files with SHA-256 (`arms_locked`), the arms not locked and why,
+  the gates and reviews; `LOCK_labels_v<k>.json` lists every label table (`labels`, at least `records.jsonl` and
+  `type_labels.csv`) and the raw session outputs with SHA-256. Both are written by `ledger/scripts/lock.py`.
+- Before computing anything the scoring verifies every file it reads against these locks, recomputes the type labels from
+  `records.jsonl` and requires them to equal `type_labels.csv`, writes the primary result first, and reports every
+  secondary analysis with a status (ok / not_locked / input_missing / error).
 
 ---
 
@@ -43,8 +52,10 @@ SHA-256 of both lock files (`brainir_ledger.scoring.require_unblind`); run 1 nev
   (name and line columns only, never behaviour columns).
 - **Exposed list** (LOG L8): DNg100, DNb08, DNg12, DNg97, MDN, DNa01, DNa02, DNp09, DNg13, DNp01, DNg16, DNg55, DNg75,
   plus DNg74 and DNg62 (found in the repository notes, counted as exposed although uncertain). Literature names are
-  mapped to `manc_type` through the synonym map; a name that maps to several MANC types exposes all of them. Exposed types
-  are predicted and labeled but reported in a separate row and excluded from the headline number.
+  mapped to `manc_type` through the synonym map; a name that maps to several MANC types exposes all of them. Resolved
+  (`kit/exposed_types.csv`): **18 MANC types**: DNa01, DNa02, DNb08, DNfl028, DNg100, DNg12, DNg13, DNg16, DNg55, DNg62,
+  DNg74, DNg75, DNg97, DNp01, DNp09, DNp71, DNxl022, MDN. Exposed types are predicted and labeled but reported in a
+  separate row and excluded from the headline number.
 
 ---
 
@@ -155,6 +166,7 @@ so B3 is not run as a locked arm in run 1. Its definition is kept here unchanged
   types are stimulated as one group, as a driver line labels all members) at 32, 128 and 512 per member, added to any
   background current. Each run is paired with the background-only run of the same seed.
 - Per run: score and frequency (front-leg MNs). Calls at the middle strength (128):
+  - `background_not_rhythmic` if fewer than 8 of the 16 background-only runs score >= 0.5 (no call is made);
   - `halts` if score < 0.5 in at least 75 % of the replicates whose background-only score is >= 0.5;
   - otherwise `speeds_up` / `slows_down` if the median paired relative frequency change (over replicates where both runs
     score >= 0.5) is above +15 % / below -15 %;
@@ -195,8 +207,8 @@ active module MNs of the leg; else no signal. The source used is recorded per le
 
 4.5 **Phase offset** of leg B relative to leg A in one replicate (the authors' code): z-score both signals over
 t >= 0.25 s; period P = lag of the first peak (prominence >= 0.05, `scipy.signal.find_peaks`) of the autocorrelation of
-the mean-subtracted A; cross-correlate A with B; take the arg-max lag within (-P, P); offset = 2 pi lag / P wrapped to
-[-pi, pi). Undefined if A has no period or either signal is flat.
+the mean-subtracted A; cross-correlate A with B; take the arg-max lag within [-P, P-1] (the authors' slicing); offset =
+2 pi lag / P wrapped to [-pi, pi). Undefined if A has no period or either signal is flat.
 
 4.6 **When coordination is reported**: only for replicates where both legs pass the rhythm threshold (leg score >= 0.5)
 and the offset is defined.
@@ -220,8 +232,8 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 
 ## 5. Status, bands and the primary score
 
-- `status` per type and arm: `ok` (at least one usable replicate), `never_usable_weak` (no usable replicate and the
-  majority of replicates ended too weak), `never_usable_strong` (otherwise). For A0/A1: too weak = nActive < 5, too strong
+- `status` per type and arm: `ok` (at least one usable replicate), `never_usable_weak` (no usable replicate and at least
+  half of the replicates ended too weak), `never_usable_strong` (otherwise). For A0/A1: too weak = nActive < 5, too strong
   = nActive > 1500. For BrainIR tuners: the verdict of the last tuning run.
 - **Primary score** = mean over usable replicates; `never_usable_*` -> 0 (primary); excluded (sensitivity analysis).
 - `band`: `driver` if score >= 0.5 (the paper's rule), `non_driver` if score < 0.05, else `indeterminate`.
@@ -230,8 +242,8 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 
 ## 6. Truth: blind labels
 
-- Records are produced by separate headless Claude Code sessions that never see a model score (section 10 of the
-  protocol; kit `research/ledger/kit/`). The orchestrator launches sessions, validates schema and runs the deterministic
+- Records are produced by separate headless Claude Code sessions that never see a model score (kit
+  `research/ledger/kit/`, `PROTOCOL.md` sections 1-7; launcher `ledger/scripts/labels_rooms.py` with frozen flags). The orchestrator launches sessions, validates schema and runs the deterministic
   aggregator; it never writes, edits or adjudicates a label.
 - A record = one experiment: a DN type or driver line activated (optogenetic or thermogenetic) in an adult fly with leg
   movement observable. Fields and vocabularies: `research/ledger/kit/record_schema.json` (validator
@@ -239,29 +251,54 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   specific content).
 - "Rhythmic leg movement" = repeated cyclic movement of a leg, three or more cycles, that starts or clearly increases with
   stimulation relative to controls or the pre-stimulus period.
-- **Passes.** Pass 1 finds and labels experiments (sessions split by source family). Pass 2 independently re-labels the
-  same experiments from the experiment identifiers only (source, locator, line, name used) and verifies each quote. An
-  independent search session looks for experiments without pass 1's list (capture-recapture estimate of misses). A third
-  blind session adjudicates every experiment where passes 1 and 2 disagree on any leg-rhythm field, the effect on walking,
-  preparation or line specificity.
-- **Final record** = the pass-1 record with every disagreeing field replaced by the adjudicated value. Records whose quote
-  pass 2 could not find in the source are dropped. Records found only by the independent search enter the consensus only
-  if they were also double-labelled; otherwise they are reported separately.
-- **Type consensus (per leg pair: front, middle, hind; `brainir_ledger.labels.aggregate`):**
-  1. eligible records: schema-valid, quote verified, `saw_simulation_score` false, mapping confidence not `low`, field in
-     {yes, no};
-  2. keep the eligible records with the best preparation rank (headless 0; intact_free / intact_tethered 1; other 2), then
-     among those the best specificity rank (clean 0; minor_offtarget 1; unknown 2; multi_dn 3);
-  3. if any remaining record has confidence high or medium, drop the low-confidence ones;
-  4. all remaining agree -> that label; otherwise `conflicting`;
-  5. no eligible record -> `unclear` if some record says unclear for that leg pair, else `not_assessed`.
-  **Stop call** per type (`stop_call`): eligible records as in 1 except that the leg field may have any value; keep those
-  with the best preparation rank; `stops` if one of them has `effect_on_walking` = `stops` or `behaviour_category` =
-  `halting` and none of them has `front_leg_rhythm` = `yes`; else `no_stop` if one of them has `front_leg_rhythm` = `yes`
-  or `effect_on_walking` in {none, slows, speeds, turns}; else `not_assessed`.
-  **Walking effect** per type (`walking_effect`): among the same best-preparation records, the set of
-  `effect_on_walking` values other than `not_assessed`: one value -> that value; several -> `conflicting`; none ->
-  `not_assessed`. Both are reported, never used in the primary analysis.
+- **Identity.** Every pass-1 record gets a unique `exp_id` = "<session>:<record_id>" at collection; pass 2 and the
+  adjudicator copy it from their input files; nothing is matched by content. The same experiment written by two pass-1
+  sessions (identical DOI, locator, driver lines, name used, preparation, MANC type, effector and stimulation) is kept once,
+  from the session earliest in the order atlas, catalogue, grooming, walking_stopping, steering, escape_landing,
+  recent_broad, pugliese_dedicated (logged).
+- **Passes.** Pass 1 finds and labels experiments (eight sessions split by source family, `kit/families.json`). Pass 2
+  independently re-labels the same experiments given identifiers only (`exp_id`, DOI, locator, driver lines, name used,
+  preparation, effector, stimulation; never a label, quote or MANC type) and maps the name to a MANC type itself (Phase A);
+  only after Phase A is saved does it receive the pass-1 quotes and check each against the source (Phase B,
+  `quote_checks.csv`); experiments it cannot find go to `not_found.csv`. Compared fields: `manc_type`, the three leg-rhythm
+  fields, `effect_on_walking`, `line_specificity`. Two independent search sessions look for experiments without any list
+  (capture-recapture). A third blind session adjudicates every compared field on which passes 1 and 2 disagree
+  (readings in seeded random order, seed 20261125); the experiments of the dedicated family (Pugliese 2026, Sapkal 2026)
+  have their own pass-2 and adjudication sessions, the only ones allowed to open those two sources.
+- **Final record** = the pass-1 record (quote found by pass 2, not in `not_found.csv`) with each disputed field group
+  replaced by the adjudicator's reading (groups: MANC type with mapping confidence and basis; line specificity with other
+  cell types; each leg field; effect on walking); `labeler_confidence` = the lowest of the readers who contributed;
+  `saw_simulation_score` = true if any reader saw a score; re-validated (invalid -> dropped). A dispute without an
+  adjudicated record -> dropped. All drops are logged in `labels/merge_log.json`.
+- **Search-only records** (found by the search sessions but not by pass 1, matched on normalised DOI and MANC type) are
+  reported separately (`search_only_records.jsonl`) and never enter the consensus. Completeness: Chapman capture-recapture
+  estimate at the (normalised DOI, MANC type) level between the de-duplicated pass-1 set and the search set; preprint and
+  journal versions with different DOIs inflate the "missed" count (stated as a limitation).
+- **Operating rules fixed now:** one repair round per session for schema-invalid records (the same session fixes only the
+  listed lines; the error list never repeats label values); a session whose transcript audit shows a file access outside
+  its room, a fetch of a banned host, or (outside the dedicated sessions) a fetch of the two dedicated sources is excluded
+  (its pass-1 records, or the experiments it read as pass 2 / adjudicator); the model each session actually used (the
+  launcher allows a fallback when the main model is busy) is recorded; the orchestrator looks only at validation summaries
+  and aggregate counts of labels until unblinding (never at a per-type label).
+- **Known weakness:** the labelers are language models that may have read the Pugliese preprint or reviews of it during
+  training; the blind is procedural (no access to scores in the session), not cognitive. They are instructed not to use
+  memory as evidence, and every record must rest on a quote from a source opened in the session.
+- **Type consensus (per leg pair: front, middle, hind; `brainir_ledger.labels.aggregate`):** eligible records are final
+  records with `saw_simulation_score` false, mapping confidence not `low` and a mapped MANC type. For a leg field, take the
+  eligible records whose value is yes, no or unclear, then
+  1. if any has confidence high or medium, drop the low-confidence ones;
+  2. if any has line specificity other than `multi_dn`, drop the `multi_dn` ones;
+  3. keep the best preparation rank (headless 0; intact_free / intact_tethered 1; other 2), then the best specificity rank
+     (clean 0; minor_offtarget 1; unknown 2; multi_dn 3);
+  4. all remaining `yes` -> yes; all `no` -> no; both yes and no present -> `conflicting`; otherwise (some unclear) ->
+     `unclear`;
+  5. no record with yes, no or unclear -> `not_assessed`.
+  **Stop call** (`stop_call`): each eligible record gives `stops` (effect `stops` or category `halting`), `no_stop`
+  (front-leg rhythm yes, or effect none / slows / speeds / turns) or nothing; over the records that give something, apply
+  steps 1-3 above; one value -> that value, two -> `conflicting`, none -> `not_assessed`. **Walking effect**
+  (`walking_effect`): the same with the record's `effect_on_walking` (not_assessed records give nothing). **Reported
+  frequency** (`freq_hz`): median of the numeric `frequency_hz` of eligible records with front-leg rhythm yes. These are
+  reported, never used in the primary analysis.
 - Duplicate records of one experiment (same experiment key) found by two pass-1 sessions count once.
 - **Primary truth** = front-leg consensus label in {yes, no}. Unclear, conflicting, not assessed: excluded.
 
@@ -278,11 +315,11 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   AUROC_obs}) / 10,001, seed 20261121.
 - **Decision rules**:
   - "Underpowered" if the set has fewer than 20 types or fewer than 5 in either class: report descriptively, claim nothing.
-  - "The model predicts" if the interval's lower bound is above 0.5.
-  - "The simulation adds value beyond wiring" only if A1 beats the best uninformed anatomical baseline (S1-S7, the one with
-    the highest AUROC on the same set) on a paired stratified bootstrap of the AUROC difference (10,000 resamples, seed
-    20261122): lower bound of the 95 % interval of (AUROC_A1 - AUROC_best) above 0. The comparison with S8 (informed) is
-    reported separately.
+  - "The model predicts" if the interval's lower bound is above 0.5 (the permutation p-value is descriptive).
+  - "The simulation adds value beyond wiring" is tested only if the model predicts, and holds only if A1 beats the best
+    uninformed anatomical baseline (S1-S7, the one with the highest AUROC on the same set; ties go to the first in S1..S7
+    order) on a paired stratified bootstrap of the AUROC difference (10,000 resamples, seed 20261122): lower bound of the
+    95 % interval of (AUROC_A1 - AUROC_best) above 0. The comparison with S8 (informed) is reported separately.
 - **Also reported for the headline set**: precision of predicted drivers (band driver) = fraction labeled yes; negative
   predictive value of predicted non-drivers = fraction labeled no; numbers in each band; calibration (fraction yes per
   score bin [0, 0.05), [0.05, 0.25), [0.25, 0.5), [0.5, 0.75), [0.75, 1]; Brier score of the score read as a
@@ -299,10 +336,12 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 5. Single-neuron screens summarised per type: A0 max, A0 mean, B0 max, B0 mean.
 6. Authors' numbers against BrainIR's: B1 and B1-alt AUROC; A1 vs B1 rank correlation; A1-lo10.
 7. Never-usable types excluded instead of scored 0.
-8. MaleCNS replication (B2) on its matched types; types where the two animals disagree in band.
+8. MaleCNS replication (B2): AUROC on its matched types; B1 vs B2 Spearman over common types and the list and count of
+   types whose band differs between the two animals.
 9. Per-leg-pair predictions of B3 against front, middle and hind labels: NOT AVAILABLE in run 1 (B3 not locked, G3
    failed). B6: not available.
-10. Predicted against reported frequency (Spearman over types with both).
+10. Predicted against reported frequency: B1's `median_freq_hz` (rhythmic usable replicates) against the label-side
+    `freq_hz` (section 6), Spearman over non-exposed types with both (A1 carries no frequency).
 11. Rewired controls: AUROC of each of the ten control sets (expected near 0.5).
 12. Stop and modulation: B4's middle-strength call (`call_128`) against `stop_call` (halts vs stops; raw agreement,
     kappa, confusion table) and against `walking_effect` (halts->stops, speeds_up->speeds, slows_down->slows,
@@ -321,7 +360,9 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   flags, changed currents); the cause is tested by re-running the differing jobs without the numerics environment on
   AVX-512 and non-AVX-512 hosts.
 - **G2 agreement with the authors**: B1 vs A1 Spearman correlation, top-10 overlap, the ten largest rank disagreements. If
-  the correlation is below 0.8 the cause is investigated before locking.
+  the correlation is below 0.8 the cause is investigated before locking. Allowed remedies: a code bug demonstrated on a
+  synthetic test or on DNg100/DNb08 is fixed and the arm re-run; nothing else (no model or procedure change motivated by
+  named types). Otherwise B1 is locked as it is, and the disagreement is reported.
 - **G3 full cord** (before B3 is locked), the authors' configuration: both DNg100 at 380, T = 2.0 s, seeds 0..63.
   Pass requires all of:
   1. every leg rhythmic in some replicates: fraction of replicates with leg score >= 0.5 at least 0.10 in each of the six
@@ -362,7 +403,8 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 `research/ledger/predictions/<arm>/`: `types.csv` (`arm, network, manc_type, n_members, member_ids, n_replicates,
 n_usable, mean_score, median_score, frac_ge_0_5, best_score, median_freq_hz, median_current, median_n_active_readout,
 status, band, primary_score` plus arm-specific columns: A0/B0 `type_max`, `type_mean`; S `S1_direct_mn` ...
-`S8_informed`; B4 `call_32`, `call_128`, `call_512`; B5 `score_I32`, `score_I64`, `score_I128`, `score_I256`,
+`S8_informed`; B4 `call_32`, `call_128`, `call_512` (values halts, speeds_up, slows_down, no_effect, no_effect_low_n,
+background_not_rhythmic); B5 `score_I32`, `score_I64`, `score_I128`, `score_I256`,
 `score_I512`), `replicates.parquet` (one row per type and seed), `legs.csv` (arms with per-leg output: `manc_type, leg,
 score, frequency_hz, n_active, low_confidence`; `leg` in T1L..T3R or front/middle/hind), `config.json`,
 `provenance.json`. Arm directories: `A1`, `A1-lo10`, `A0`, `B0`, `B1`, `B1-alt`, `S`, `B1-ctl-rewire-<seed>`,
@@ -376,8 +418,17 @@ has_systematic, exposed, confidence, freq_hz`, `agreement.md`).
 ## 12. Amendments
 
 An amendment is allowed only before the stage it affects has produced data, is versioned (`PREREG_v<k>.md` plus a row in
-the changelog below), states its reason, and may not use information from the other side of the blind.
+the changelog below), states its reason, and may not use information from the other side of the blind. A change to the
+labeler kit after the freeze is versioned the same way (`kit_version`, `kit/CHANGELOG.md`).
 
 | version | date | change | stage data existing at the time | labels existing |
 |---|---|---|---|---|
 | 1 | 2026-11-20 | initial | none (only DNg100/DNb08 pilot and calibration runs, and gate G3 on DNg100) | no |
+
+---
+
+## 13. Publication of the frozen tags
+
+The pre-registration tag is pushed as soon as it exists. The predictions tag is timestamped (OpenTimestamps) when it is
+created but pushed to the public repository only after the labels are frozen, so that no prediction table is reachable on
+the web while labelers work (labeler web fetches to GitHub and Zenodo are also denied at tool level).

@@ -87,4 +87,6 @@ def test_decision_rules():
     d = ST.primary_decision(30, 10, 20, 0.55, -0.01)
     assert d["model_predicts"] and not d["adds_value_beyond_wiring"] and not d["underpowered"]
     d = ST.primary_decision(30, 10, 20, 0.49, 0.2)
-    assert not d["model_predicts"] and d["adds_value_beyond_wiring"]
+    assert not d["model_predicts"] and not d["adds_value_beyond_wiring"]  # "adds value" requires "predicts"
+    d = ST.primary_decision(30, 10, 20, 0.6, 0.2)
+    assert d["model_predicts"] and d["adds_value_beyond_wiring"]

@@ -91,13 +91,20 @@ def driver_lines(types: list[str], S: pd.DataFrame) -> pd.DataFrame | None:
     if not src.exists():
         return None
     raw = pd.read_csv(src, dtype=str).fillna("")
-    lut = {t.lower(): t for t in types}
+    cand: dict[str, set[str]] = {}
+    for t in types:
+        cand.setdefault(t.lower(), set()).add(t)
     for n, t in zip(S["name"], S["manc_type"]):
-        lut.setdefault(str(n).lower(), t)
-    def mapname(x: str) -> str:
+        cand.setdefault(str(n).lower(), set()).add(t)
+
+    def candidates(x: str) -> list[str]:
         x = x.strip()
-        return lut.get(x.lower(), lut.get(x.split("(")[0].strip().lower(), "UNMAPPED"))
-    out = pd.DataFrame({"line_id": raw["line_id"], "manc_type": raw["dn_type_as_written"].map(mapname),
+        c = cand.get(x.lower()) or cand.get(x.split("(")[0].strip().lower()) or set()
+        return sorted(c)
+
+    cands = raw["dn_type_as_written"].map(candidates)
+    mapped = cands.map(lambda c: c[0] if len(c) == 1 else ("AMBIGUOUS" if len(c) > 1 else "UNMAPPED"))
+    out = pd.DataFrame({"line_id": raw["line_id"], "manc_type": mapped, "candidate_types": cands.map(";".join),
                         "name_as_written": raw["dn_type_as_written"], "line_kind": raw["line_kind"],
                         "other_cells": raw["other_cells_as_written"], "expression_note": raw["expression_note"],
                         "source_doi": raw["source_doi"], "source_locator": raw["source_locator"]})
@@ -132,6 +139,14 @@ def main() -> None:
                 rows.append({"manc_type": mt, "name": name, "kind": "literature", "source": src or "MaleCNS synonyms"})
     syn.append(pd.DataFrame(rows))
     S = pd.concat(syn, ignore_index=True).drop_duplicates().sort_values(["manc_type", "kind", "name", "source"]).reset_index(drop=True)
+    # ambiguity: how many MANC types a name can denote (as a synonym of several types, or as a type name used elsewhere)
+    ntypes = {}
+    for n in set(S["name"]):
+        ts = set(S.loc[S["name"] == n, "manc_type"]) | ({n} if n in types else set())
+        ntypes[n] = len(ts)
+    S["n_types_for_name"] = S["name"].map(ntypes)
+    S["ambiguous"] = S["n_types_for_name"] > 1
+    S.loc[S["kind"] == "malecns_mancType_string", "kind"] = "malecns_mancType_string_conflict"
     KIT.mkdir(parents=True, exist_ok=True)
     S.to_csv(KIT / "synonyms.csv", index=False, lineterminator="\n")
     # alphabetical type list, names only
@@ -142,8 +157,8 @@ def main() -> None:
     pd.DataFrame(tl).sort_values("manc_type", key=lambda s: s.str.lower()).to_csv(KIT / "type_list.csv", index=False, lineterminator="\n")
     # exposed list resolved to MANC types
     ex = []
-    for name in EXPOSED_AS_GIVEN:
-        hits = [name] if name in types else sorted(set(S.loc[S["name"] == name, "manc_type"]))
+    for name in EXPOSED_AS_GIVEN:  # PREREG section 2: a name that maps to several MANC types exposes all of them
+        hits = sorted(({name} if name in types else set()) | set(S.loc[S["name"] == name, "manc_type"]))
         ex.append({"name_as_given": name, "manc_types": ";".join(hits), "resolved": bool(hits)})
     pd.DataFrame(ex).to_csv(KIT / "exposed_types.csv", index=False, lineterminator="\n")
     dl = driver_lines(types, S)
@@ -151,7 +166,8 @@ def main() -> None:
         dl.to_csv(KIT / "driver_lines.csv", index=False, lineterminator="\n")
         src = EXT / "driver_lines_extraction" / "driver_lines_raw.csv"
         prov[str(src.relative_to(paths.data_root()))] = _sha(src)
-        print(f"driver lines: {len(dl)} rows, {dl['line_id'].nunique()} lines, {int((dl['manc_type'] != 'UNMAPPED').sum())} rows mapped")
+        print(f"driver lines: {len(dl)} rows, {dl['line_id'].nunique()} lines; mapped {int((~dl['manc_type'].isin(['UNMAPPED', 'AMBIGUOUS'])).sum())}, "
+              f"ambiguous {int((dl['manc_type'] == 'AMBIGUOUS').sum())}, unmapped {int((dl['manc_type'] == 'UNMAPPED').sum())}")
     (KIT / "kit_inputs.json").write_text(json.dumps({"inputs_sha256": prov, "n_types": len(types), "n_synonym_rows": int(len(S))},
                                                     indent=1, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
     print(f"types {len(types)}, synonym rows {len(S)}; exposed: " + ", ".join(f"{e['name_as_given']}->{e['manc_types'] or '?'}" for e in ex))

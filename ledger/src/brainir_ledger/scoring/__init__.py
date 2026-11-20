@@ -33,7 +33,10 @@ def require_unblind(flag: Path | None = None, research: Path | None = None) -> d
         if k not in d:
             raise BlindError(f"scoring refused: {flag.name} lacks '{k}'")
     for side in ("predictions", "labels"):
-        p = research / d[f"{side}_lock"]
+        name = str(d[f"{side}_lock"])
+        if "/" in name or "\\" in name or ".." in name or not name.startswith(f"LOCK_{side}_v") or not name.endswith(".json"):
+            raise BlindError(f"scoring refused: {side}_lock must be a plain file name LOCK_{side}_v<k>.json in research/ledger")
+        p = research / name
         if not p.exists() or _sha(p) != d[f"{side}_lock_sha256"]:
             raise BlindError(f"scoring refused: {side} lock {p.name} missing or its SHA-256 differs from {flag.name}")
     return d

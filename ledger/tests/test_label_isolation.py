@@ -68,15 +68,16 @@ def test_label_pipeline_opens_no_prediction_file(tmp_path, record):
     sys.addaudithook(hook)  # audit hooks cannot be removed; it only records
     from brainir_ledger.labels import aggregate, agreement, schema
 
-    p1 = [record(record_id=f"a{i}", manc_type=t, front_leg_rhythm=v) for i, (t, v) in enumerate([("DNa01", "yes"), ("DNa02", "no")])]
-    p2 = [dict(r, pass_id="pass2", quote_verified=True) for r in p1]
+    p1 = [record(record_id=f"a{i}", exp_id=f"pass1-atlas:a{i}", manc_type=t, front_leg_rhythm=v)
+          for i, (t, v) in enumerate([("DNa01", "yes"), ("DNa02", "no")])]
+    p2 = [dict(r, pass_id="pass2") for r in p1]
     p2[1]["front_leg_rhythm"] = "yes"
     adj = [dict(p1[1], pass_id="adjudication", front_leg_rhythm="no")]
     f = tmp_path / "records.jsonl"
     f.write_text("\n".join(json.dumps(r) for r in p1) + "\n", encoding="utf-8")
     start = len(opened)
     good, bad = schema.validate_file(f, {"DNa01", "DNa02"})
-    final, log = aggregate.merge_passes(good, p2, adj)
+    final, log = aggregate.merge_passes(good, p2, adj, {r["exp_id"]: True for r in p1})
     tl = aggregate.type_labels(final, exposed={"DNa02"})
     ag = agreement.agreement(good, p2)
     assert len(good) == 2 and not bad and len(final) == 2 and log["adjudicated"]
