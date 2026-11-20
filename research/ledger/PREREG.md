@@ -119,6 +119,9 @@ all sums over the type's excitatory members j; MN = the 144 front-leg MNs:
 - Expected AUROC near 0.5; reported per control and as the mean and range over the ten.
 
 ### 3.7 B3: full nerve cord, six legs (optional arm 1)
+**Status in run 1: NOT LOCKED.** Gate G3 was evaluated before this freeze on DNg100 alone and failed item 4 (section 9),
+so B3 is not run as a locked arm in run 1. Its definition is kept here unchanged for the record.
+
 - Network: the authors' full-cord network exactly (23,532 neurons; their node list on `manc:v1.2.3`, paper signs, floor 5,
   their 16 autapses, their sizes; LOG L10), verified pair by pair against their matrix.
 - Groups: excitatory DN members per type in the full-cord table (class "descending neuron", predictedNt "acetylcholine"),
@@ -164,6 +167,8 @@ all sums over the type's excitatory members j; MN = the 144 front-leg MNs:
   neuron), fraction >= 0.5, fraction of runs inside the activity bounds. Summary score: maximum over strengths of the mean.
 
 ### 3.11 B6: one-sided activation on the full cord (optional arm 5)
+**Status in run 1: NOT LOCKED** (it depends on B3's full-cord procedure, whose gate G3 failed).
+
 - B3 procedure with only the left members (`rootSide` LHS) or only the right members (RHS) of each type.
 - A leg is predicted to move if >= 50 % of usable replicates have leg score >= 0.5 with >= 1 active MN in that leg.
 
@@ -196,10 +201,11 @@ the mean-subtracted A; cross-correlate A with B; take the arg-max lag within (-P
 4.6 **When coordination is reported**: only for replicates where both legs pass the rhythm threshold (leg score >= 0.5)
 and the offset is defined.
 
-4.7 **Coupling strength** of a leg pair: R = |mean(exp(i offset))| over the eligible replicates of a type (n >= 4
-required). Null: the same pair with leg B taken from another replicate (a random derangement of eligible replicates),
-1,000 derangements, seed 20261123; report R, the null mean, and p = (1 + #{R_null >= R}) / 1001. **Coupled** if
-p < 0.01 and R >= 0.5.
+4.7 **Coupling strength** of a leg pair: R = |mean(exp(i offset))| over the eligible replicates (n >= 8 required; fewer:
+not reported). Null: the same pair with leg B taken from another replicate: 1,000 uniform random derangements of the
+eligible replicates (rejection sampling, `numpy.random.default_rng(20261123)`), R_null computed for each; report R, the
+circular mean offset, the null mean and p = (1 + #{R_null >= R}) / 1001. **Coupled** if p < 0.01 and R >= 0.5
+(`brainir_ledger.legs.coupling`).
 
 4.8 **Offsets reported**: left vs right in each segment (T1L-T1R, T2L-T2R, T3L-T3R) and neighbouring legs on the same side
 (T1L-T2L, T2L-T3L, T1R-T2R, T2R-T3R): circular mean, R, n, null mean, p.
@@ -249,8 +255,14 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   3. if any remaining record has confidence high or medium, drop the low-confidence ones;
   4. all remaining agree -> that label; otherwise `conflicting`;
   5. no eligible record -> `unclear` if some record says unclear for that leg pair, else `not_assessed`.
-  Stop call per type: `stops` if any eligible record at the best tier has effect `stops` or category `halting` and none at
-  that tier has a rhythmic `yes` for the front legs; reported, not used in the primary analysis.
+  **Stop call** per type (`stop_call`): eligible records as in 1 except that the leg field may have any value; keep those
+  with the best preparation rank; `stops` if one of them has `effect_on_walking` = `stops` or `behaviour_category` =
+  `halting` and none of them has `front_leg_rhythm` = `yes`; else `no_stop` if one of them has `front_leg_rhythm` = `yes`
+  or `effect_on_walking` in {none, slows, speeds, turns}; else `not_assessed`.
+  **Walking effect** per type (`walking_effect`): among the same best-preparation records, the set of
+  `effect_on_walking` values other than `not_assessed`: one value -> that value; several -> `conflicting`; none ->
+  `not_assessed`. Both are reported, never used in the primary analysis.
+- Duplicate records of one experiment (same experiment key) found by two pass-1 sessions count once.
 - **Primary truth** = front-leg consensus label in {yes, no}. Unclear, conflicting, not assessed: excluded.
 
 ---
@@ -288,13 +300,15 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 6. Authors' numbers against BrainIR's: B1 and B1-alt AUROC; A1 vs B1 rank correlation; A1-lo10.
 7. Never-usable types excluded instead of scored 0.
 8. MaleCNS replication (B2) on its matched types; types where the two animals disagree in band.
-9. Per-leg-pair predictions of B3 (front, middle, hind pair scores) against the front, middle and hind labels (AUROC
-   each; leg pairs with median active MNs < 3 flagged); B6 one-sided "legs that move" against unilateral records.
+9. Per-leg-pair predictions of B3 against front, middle and hind labels: NOT AVAILABLE in run 1 (B3 not locked, G3
+   failed). B6: not available.
 10. Predicted against reported frequency (Spearman over types with both).
 11. Rewired controls: AUROC of each of the ten control sets (expected near 0.5).
-12. Stop and modulation: B4 calls against the type-level stop call and the effect-on-ongoing-walking labels (confusion
-    tables, raw agreement, Cohen's kappa).
-13. Fixed-strength grid B5: AUROC at each strength and of the maximum over strengths.
+12. Stop and modulation: B4's middle-strength call (`call_128`) against `stop_call` (halts vs stops; raw agreement,
+    kappa, confusion table) and against `walking_effect` (halts->stops, speeds_up->speeds, slows_down->slows,
+    no_effect->none; raw agreement, kappa).
+13. Fixed-strength grid B5: AUROC at each strength (`score_I32` ... `score_I512`) and of the maximum over strengths
+    (`primary_score`).
 14. Every anatomical baseline's AUROC with interval (and S8 informed).
 
 ---
@@ -320,6 +334,10 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
   5. the B3 procedure applied to the DNg100 type is accepted at 384 in at least 14 of 16 seeds and its front-pair score
      is >= 0.5.
   If G3 fails, B3 and B6 are not locked and the failure is reported.
+  **Result (evaluated before this freeze, DNg100 only; `research/ledger/gates/G3_REPORT.md`):** items 1-3 pass (per-leg
+  fraction >= 0.5 ours/authors T1L 0.84/0.73, T1R 0.61/0.58, T2L 0.48/0.47, T2R 0.83/0.79, T3L 0.20/0.16, T3R 0.81/0.78;
+  hind mean 0.48 < front 0.68); **item 4 fails**: T2R-T3R (R 0.88, p 0.001), T1L-T2L (R 0.59, p 0.001) and T3L-T3R
+  (R 0.60, p 0.009) are coupled. G3 therefore FAILS; B3 and B6 are not locked in run 1 (LOG L16).
 - **G4 determinism**: 100 randomly chosen jobs of each locked simulated arm are re-run in a separate campaign (other
   containers); every result digest must be identical. Every output file is hashed in the lock.
 - **G5 nothing broken**: the Stage S baseline checks (`research/ledger/SETUP.md`) give the same results.
@@ -343,10 +361,15 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 
 `research/ledger/predictions/<arm>/`: `types.csv` (`arm, network, manc_type, n_members, member_ids, n_replicates,
 n_usable, mean_score, median_score, frac_ge_0_5, best_score, median_freq_hz, median_current, median_n_active_readout,
-status, band`), `replicates.parquet` (one row per type and seed), `legs.csv` (arms with per-leg output: one row per type
-and leg or segment pair: score, frequency, active MN count, low-confidence flag), `config.json`, `provenance.json`.
-Labels: `research/ledger/labels/` (`sources.csv`, `records.jsonl`, `synonyms.csv`, `driver_lines.csv`, `type_labels.csv`,
-`agreement.md`).
+status, band, primary_score` plus arm-specific columns: A0/B0 `type_max`, `type_mean`; S `S1_direct_mn` ...
+`S8_informed`; B4 `call_32`, `call_128`, `call_512`; B5 `score_I32`, `score_I64`, `score_I128`, `score_I256`,
+`score_I512`), `replicates.parquet` (one row per type and seed), `legs.csv` (arms with per-leg output: `manc_type, leg,
+score, frequency_hz, n_active, low_confidence`; `leg` in T1L..T3R or front/middle/hind), `config.json`,
+`provenance.json`. Arm directories: `A1`, `A1-lo10`, `A0`, `B0`, `B1`, `B1-alt`, `S`, `B1-ctl-rewire-<seed>`,
+`B1-ctl-classshuffle-<seed>`, `B2`, `B4`, `B5`.
+Labels: `research/ledger/labels/` (`sources.csv`, `records.jsonl`, `synonyms.csv`, `driver_lines.csv`, `type_labels.csv`
+with `manc_type, front, middle, hind, stop_call, walking_effect, best_preparation, best_specificity, n_records,
+has_systematic, exposed, confidence, freq_hz`, `agreement.md`).
 
 ---
 
@@ -357,4 +380,4 @@ the changelog below), states its reason, and may not use information from the ot
 
 | version | date | change | stage data existing at the time | labels existing |
 |---|---|---|---|---|
-| 1 | 2026-11-20 | initial | none (only DNg100/DNb08 calibration runs) | no |
+| 1 | 2026-11-20 | initial | none (only DNg100/DNb08 pilot and calibration runs, and gate G3 on DNg100) | no |

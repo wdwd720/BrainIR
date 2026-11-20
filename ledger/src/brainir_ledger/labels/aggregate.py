@@ -31,8 +31,13 @@ def read_records(path: Path) -> list[dict]:
     return out
 
 
-def merge_passes(pass1: list[dict], pass2: list[dict], adjudicated: list[dict]) -> tuple[list[dict], dict]:
-    """Final records and a log of what happened to each pass-1 record."""
+def merge_passes(pass1: list[dict], pass2: list[dict], adjudicated: list[dict],
+                 quote_checks: dict[str, bool] | None = None) -> tuple[list[dict], dict]:
+    """Final records and a log of what happened to each pass-1 record.
+
+    ``quote_checks``: experiment_key -> whether pass 2 found the pass-1 quote in the source (pass 2's `quote_checks.csv`).
+    A pass-1 record is kept only if its quote was checked and found. (For tests, None means: use the `quote_verified`
+    field of the pass-2 record, which then must be True.)"""
     p2 = {}
     for r in pass2:
         p2.setdefault(r.get("experiment_key") or experiment_key(r), []).append(r)
@@ -45,12 +50,14 @@ def merge_passes(pass1: list[dict], pass2: list[dict], adjudicated: list[dict]) 
             log["no_pass2"].append(k)
             continue
         t = twins[0]
-        if t.get("quote_verified") is False:
+        verified = quote_checks.get(k) if quote_checks is not None else t.get("quote_verified")
+        if verified is not True:
             log["quote_unverified"].append(k)
             continue
         diff = [f for f in COMPARED_FIELDS if r.get(f) != t.get(f)]
         rec = dict(r)
         rec["experiment_key"] = k
+        rec["quote_verified"] = True
         if diff:
             a = adj.get(k)
             if a is None:
@@ -108,12 +115,14 @@ def type_labels(records: Iterable[dict], *, flt: Callable[[dict], bool] | None =
             row["best_specificity"] = min((r["line_specificity"] for r in rs), key=lambda s: SPEC_RANK.get(s, 9))
             row["has_systematic"] = any(r.get("source_type") == "systematic_screen" for r in rs)
             row["confidence"] = min((r["labeler_confidence"] for r in rs), key=lambda c: {"high": 0, "medium": 1, "low": 2}[c])
+            eff = {r["effect_on_walking"] for r in top if r.get("effect_on_walking") not in (None, "not_assessed")}
+            row["walking_effect"] = (eff.pop() if len(eff) == 1 else "conflicting") if eff else "not_assessed"
             fr = [r["frequency_hz"] for r in rs if isinstance(r.get("frequency_hz"), (int, float))]
             row["freq_hz"] = sorted(fr)[len(fr) // 2] if fr else None
         else:
-            row.update(stop_call="not_assessed", best_preparation=None, best_specificity=None, has_systematic=False, confidence=None,
-                       freq_hz=None)
+            row.update(stop_call="not_assessed", walking_effect="not_assessed", best_preparation=None, best_specificity=None,
+                       has_systematic=False, confidence=None, freq_hz=None)
         rows.append(row)
-    cols = ["manc_type", "front", "middle", "hind", "stop_call", "best_preparation", "best_specificity", "n_records", "has_systematic",
-            "exposed", "confidence", "freq_hz"]
+    cols = ["manc_type", "front", "middle", "hind", "stop_call", "walking_effect", "best_preparation", "best_specificity", "n_records",
+            "has_systematic", "exposed", "confidence", "freq_hz"]
     return pd.DataFrame(rows, columns=cols)

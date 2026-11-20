@@ -86,3 +86,50 @@ def test_trace_packing_roundtrip():
     x = np.random.default_rng(0).random((50, 3))
     y = L.unpack_traces(L.pack_traces(x))
     assert np.allclose(x.astype(np.float32), y)
+
+
+def test_coupling_detects_locked_phase_and_not_random():
+    rng = np.random.default_rng(5)
+    t = np.arange(751) * 1e-3
+    a, b, c = [], [], []
+    for _ in range(16):
+        f = rng.uniform(9, 12)
+        ph = rng.uniform(0, 2 * np.pi)
+        a.append(np.sin(2 * np.pi * f * t + ph))
+        b.append(np.sin(2 * np.pi * f * t + ph + np.pi / 2))            # locked offset
+        c.append(np.sin(2 * np.pi * rng.uniform(9, 12) * t + rng.uniform(0, 2 * np.pi)))  # independent
+    locked = L.coupling(a, b, n_null=300, seed=1)
+    assert locked["coupled"] and locked["R"] > 0.9 and locked["p"] < 0.01
+    free = L.coupling(a, c, n_null=300, seed=1)
+    assert not free["coupled"]
+    small = L.coupling(a[:5], b[:5])
+    assert small["R"] is None and small["coupled"] is None
+
+
+def test_random_derangement_has_no_fixed_points():
+    rng = np.random.default_rng(0)
+    for n in (2, 3, 8, 16):
+        p = L.random_derangement(n, rng)
+        assert sorted(p) == list(range(n)) and not np.any(p == np.arange(n))
+
+
+def test_baselines_on_a_tiny_network():
+    from brainir_ledger.baselines import compute
+
+    # neurons: 0,1 = group members; 2 = premotor; 3 = core; 4,5 = MNs.  C/W post x pre.
+    C = np.zeros((6, 6))
+    C[2, 0] = 10      # 0 -> 2
+    C[4, 0] = 7       # 0 -> MN4 (direct)
+    C[3, 1] = 5       # 1 -> core
+    C[5, 2] = 20      # premotor 2 -> MN5
+    C[4, 3] = 6       # core 3 -> MN4
+    W = C.copy()
+    W[:, 3] *= -1     # neuron 3 inhibitory
+    mn = np.array([0, 0, 0, 0, 1, 1], bool)
+    df = compute(sp.csr_matrix(C), sp.csr_matrix(W), mn, {"T": [0, 1]}, [3]).iloc[0]
+    assert df["S1_direct_mn"] == 7
+    assert df["S2_twohop_signed"] == 10 * 20 + 5 * (-6)     # 0->2->5 and 1->3-|4
+    assert df["S3_twohop_abs"] == 10 * 20 + 5 * 6
+    assert df["S4_total_out"] == 22 and df["S5_out_partners"] == 3 and df["S7_n_members"] == 2
+    assert df["S6_premotor"] == 10 + 5  # neurons 2 and 3 both project onto MNs
+    assert df["S8_informed"] == 5

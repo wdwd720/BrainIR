@@ -52,7 +52,9 @@ def test_label_side_static(path):
             if isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant) and isinstance(first.value.value, str):
                 docs.add(id(first.value))
     strings = [n.value for n in ast.walk(tree) if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs]
-    hits = [s for s in strings if any(t in s for t in FORBIDDEN_TOKENS)]
+    basenames = {"types.csv", "replicates.parquet", "legs.csv"}
+    substrings = [t for t in FORBIDDEN_TOKENS if t not in basenames]
+    hits = [s for s in strings if any(t in s for t in substrings) or any(part in basenames for part in s.replace("\\", "/").split("/"))]
     assert not hits, f"{path.name} names prediction files: {hits}"
 
 

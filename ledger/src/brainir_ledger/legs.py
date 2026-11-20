@@ -159,6 +159,49 @@ def resultant_length(angles) -> float | None:
     return float(np.abs(np.mean(np.exp(1j * a))))
 
 
+def random_derangement(n: int, rng: np.random.Generator) -> np.ndarray:
+    """Uniform random permutation without fixed points (rejection sampling; n >= 2)."""
+    while True:
+        p = rng.permutation(n)
+        if not np.any(p == np.arange(n)):
+            return p
+
+
+MIN_COUPLING_N = 8
+
+
+def coupling(sig_a: list[np.ndarray], sig_b: list[np.ndarray], *, n_null: int = 1000, seed: int = 20261123) -> dict:
+    """Coupling of a leg pair over eligible replicates (PREREG 4.7): R of the per-replicate offsets of leg B relative to leg A,
+    against a replicate-shuffled null (leg B from another replicate, uniform random derangements). Needs n >= 8.
+
+    ``sig_a[i]``, ``sig_b[i]``: leg-A / leg-B signals of eligible replicate i (both legs rhythmic)."""
+    n = len(sig_a)
+    out = {"n": n, "R": None, "circ_mean": None, "null_mean_R": None, "p": None, "coupled": None}
+    if n < MIN_COUPLING_N:
+        return out
+    O = np.array([[phase_offset(sig_a[i], sig_b[j]) for j in range(n)] for i in range(n)])
+    obs = np.array([O[i, i] for i in range(n)])
+    ok = np.isfinite(obs)
+    if ok.sum() < MIN_COUPLING_N:
+        out["n"] = int(ok.sum())
+        return out
+    z = np.exp(1j * obs[ok]).mean()
+    R = float(np.abs(z))
+    rng = np.random.default_rng(seed)
+    nulls = []
+    idx = np.arange(n)
+    for _ in range(n_null):
+        p = random_derangement(n, rng)
+        v = O[idx, p]
+        v = v[np.isfinite(v)]
+        nulls.append(float(np.abs(np.exp(1j * v).mean())) if len(v) else 0.0)
+    nulls = np.array(nulls)
+    pval = (1 + int((nulls >= R - 1e-12).sum())) / (1 + n_null)
+    out.update(n=int(ok.sum()), R=R, circ_mean=float(np.angle(z)), null_mean_R=float(nulls.mean()), p=float(pval),
+               coupled=bool(pval < 0.01 and R >= 0.5))
+    return out
+
+
 def pack_traces(arr: np.ndarray) -> dict:
     """float32 + zlib for storing traces in job results (columns = neurons)."""
     a = np.ascontiguousarray(arr, dtype=np.float32)

@@ -39,6 +39,8 @@ class LedgerNetwork:
     table: pd.DataFrame       # authors' table, row order = network positions (RangeIndex)
     readout: np.ndarray       # bool mask of the main read-out (front-leg MNs / all module MNs)
     meta: dict
+    C: object = None          # observed unsigned counts (floor 5), same layout as W; anatomy for the baselines
+    btable: pd.DataFrame | None = None  # BrainIR network table (super_class, role_class, sign, ...), same row order
 
     @property
     def n(self) -> int:
@@ -56,7 +58,7 @@ def front_leg() -> LedgerNetwork:
     meta = dict(net.meta)
     meta.update(network="manc_v1.2.1_frontleg_paper", builder="benchmarks/dng100_walking_cpg/reproduce_dynamics.py::paper_network",
                 readout="role vnc_motor & sub_class fl (144)", n_readout=int(readout.sum()))
-    return LedgerNetwork("manc_v1.2.1_frontleg", net.W, net.sizes, wt, np.asarray(readout, bool), meta)
+    return LedgerNetwork("manc_v1.2.1_frontleg", net.W, net.sizes, wt, np.asarray(readout, bool), meta, C=net.C, btable=net.table)
 
 
 @lru_cache(maxsize=1)
@@ -98,7 +100,7 @@ def full_cord() -> LedgerNetwork:
                 readout="authors' module-labelled MNs (329), per leg by somaNeuromere x somaSide",
                 sizes_equal_authors=int(np.sum(np.isclose(size_auth, size_used))), n=int(len(ids)), n_autapses_kept=int(len(pos) and
                                                                                                              (net.W.diagonal() != 0).sum()))
-    return LedgerNetwork("manc_v1.2.3_fullcord", net.W, net.sizes, wt, readout, meta)
+    return LedgerNetwork("manc_v1.2.3_fullcord", net.W, net.sizes, wt, readout, meta, C=net.C, btable=net.table)
 
 
 def exc_dn_mask(table: pd.DataFrame) -> np.ndarray:

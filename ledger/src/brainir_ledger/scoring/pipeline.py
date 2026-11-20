@@ -161,6 +161,20 @@ def score_tables(pred_dir: Path, labels_dir: Path, *, n_boot: int = 10_000, n_pe
         A["B4_stop"] = {"n": len(common), "raw_agreement": float(np.mean([p == q for p, q in zip(pred, true)])) if common else None,
                         "kappa": ST.cohen_kappa(pred, true) if common else None,
                         "confusion": pd.crosstab(pd.Series(pred, name="pred"), pd.Series(true, name="label")).to_dict() if common else {}}
+    # 12b modulation: B4 middle-strength calls against the type-level effect on ongoing walking
+    if b4 is not None and "call_128" in b4 and "walking_effect" in type_labels:
+        tl = type_labels.set_index("manc_type")
+        cmap = {"halts": "stops", "speeds_up": "speeds", "slows_down": "slows", "no_effect": "none", "no_effect_low_n": "none"}
+        common = [t for t in b4.index if t in tl.index and tl.loc[t, "walking_effect"] in ("stops", "slows", "speeds", "none")]
+        pred = [cmap.get(b4.loc[t, "call_128"], "none") for t in common]
+        true = [tl.loc[t, "walking_effect"] for t in common]
+        A["B4_modulation"] = {"n": len(common), "raw_agreement": float(np.mean([p == q for p, q in zip(pred, true)])) if common else None,
+                              "kappa": ST.cohen_kappa(pred, true) if common else None}
+    # 13 fixed-strength grid: AUROC at every strength
+    b5 = load_arm(pred_dir, "B5")
+    if b5 is not None:
+        A["B5_per_strength"] = {c: evaluate(b5[c].fillna(0.0), y[y.index.isin(b5.index)], n_boot=n_boot, n_perm=n_perm)
+                                for c in sorted(b5.columns) if c.startswith("score_I")}
     return res
 
 
