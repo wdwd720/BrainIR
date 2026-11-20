@@ -28,12 +28,12 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
       2fa40cf8...51b0, OTS proof committed (564809a). Reviews: REVIEW, RECHECK, NARROW + resolutions in reviews_v2/ (L52-L54).
       From now on: files hashed by the prereg lock change only via `lock2.py amend` (L12/P4b); new evidence = new files.
 - Item 4' decided by `gates_v2/G3v2_PREVIEW.json` (fails): B3, B6 not locked in run 2.
-- [~] Stage 2 (GitHub): calibk done -> K = 1 (`gates_v2/CALIBK.json`, DNg100 only). Running: g3v2 (formal), regress (K=0 vs
-      B1 digests), b1r + b2r (K=1), det (100 random jobs per arm, `gha_det.py compare`). Then: `gha.py collect <name>`;
-      `g3v2_evaluate.py`; regression compare (to write: GHA_regress digests vs predictions/B1 replicates digests);
-      positive control + DNb08 report; B1r/B2r tables (to write: types.csv with manc_type, primary_score, band);
-      `b4v2.py`; independent review (code + calibration); `lock2.py predictions B1r B2r B4v2 B3=... B6=... --platform ...`;
-      tag `ledger-predictions-v2` (push only after the labels v2 lock, P5); OTS.
+- [~] Stage 2 (GitHub): K = 1 (CALIBK.json); regression 480/480 identical (REGRESSION_v2.json); G3 v2 formal: 1-3, 5 pass,
+      4' fails as the preview -> B3, B6 NOT locked (G3v2_REPORT.json); B4 v2 computed (predictions_v2/B4v2, digests checked;
+      NOT committed yet). Waiting: b1r, b2r, det on GitHub -> `gha.py collect b1r|b2r|det`; `b12r_gates.py tables`, `controls`;
+      `gha_det.py compare`; independent prediction-side review (code + calibration: no neuron other than DNg100 used);
+      `lock2.py predictions B1r B2r B4v2 B3="..." B6="..." --platform "..."`; commit; tag `ledger-predictions-v2` LOCALLY.
+      **From the commit of any predictions_v2 file on, do NOT push ledger/v1 until LOCK_labels_v2 exists (P5).**
 - [~] Stage 3: registry 75 DOIs; downloads running (background; log data/cache/ledger_logs/download_v2.*); atlas specs
       written (120 line IDs). Implementation reviews running (label side -> ~/ledger_rooms_review_impl_a/, scoring/gate ->
       ~/ledger_rooms_review_impl_b/). Then: fixes; `lock2.py labelcode`, `lock2.py scoring` (commit first); G3 v2 evaluated;
