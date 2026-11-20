@@ -44,6 +44,8 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
 - **Stage 2 cutoffs (L35):** pass 1 + searches end 13:30; pass 2 (A+B) 16:45; adjudication 18:30; labels lock/tag/OTS/push 19:15;
   then G5 + HANDOFF. Labelers are detached: after every launch keep a tracked background waiter (exits when a labeler PID dies
   or after ~20 min) so the orchestrator is woken; check the wall clock on every wake.
+- (10:55 PST) **RUN 1 COMPLETE** (L42-L43): labels locked and tagged, branch + 3 tags pushed, G5 end PASS,
+  `HANDOFF_1.md` written. Next steps are in the handoff, section 9 (labels v2 under a new pre-registration first).
 - (10:30 PST) L40: labels finalized and redacted; next `lock.py labels`, commit, tag `ledger-labels-v1`, OTS, push
   (`git push origin ledger/v1 ledger-prereg-v1 ledger-predictions-v1 ledger-labels-v1`), G5 end, HANDOFF.
 - (10:05 PST) L39: pass 2 done; adjudication-general and adjudication-dedicated running. Next: collect, audit,
