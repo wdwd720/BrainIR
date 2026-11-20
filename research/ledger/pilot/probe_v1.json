@@ -1,0 +1,130 @@
+{
+ "numerics_env=False": {
+  "by_cpu": {
+   "unknown avx512": {
+    "1f870ae1ccf4": 29
+   },
+   "unknown": {
+    "a72e417cfd91": 91
+   }
+  },
+  "n_distinct_digests": 2,
+  "numpy_features_example": {
+   "AVX": true,
+   "FMA3": true,
+   "AVX2": true,
+   "AVX512F": true,
+   "AVX512CD": true,
+   "AVX512VPOPCNTDQ": true,
+   "AVX512VL": true,
+   "AVX512BW": true,
+   "AVX512DQ": true,
+   "AVX512VNNI": true,
+   "AVX512IFMA": true,
+   "AVX512VBMI": true,
+   "AVX512VBMI2": true,
+   "AVX512BITALG": true,
+   "AVX512FP16": true,
+   "AVX512BF16": true,
+   "AVX512_SKX": true,
+   "AVX512_CLX": true,
+   "AVX512_CNL": true,
+   "AVX512_ICL": true,
+   "AVX512_SPR": true
+  },
+  "stats": {
+   "backend": "modal-ledger",
+   "n_items": 120,
+   "wall_time_s": 19.4,
+   "settings": {
+    "cpu": 0.25,
+    "memory_mb": 512,
+    "timeout_s": 300,
+    "max_containers": 60,
+    "app": "brainir-ledger",
+    "shared_payload_key": null,
+    "shared_payload_bytes": 0,
+    "n_returned": 120,
+    "image": {
+     "base": "modal.Image.debian_slim(python_version='3.12')",
+     "pip": [
+      "numpy==2.5.3",
+      "scipy==1.18.1",
+      "pandas==3.0.6",
+      "pyarrow==25.0.1",
+      "pydantic==2.13.5",
+      "networkx==3.7",
+      "duckdb==1.5.5",
+      "google-crc32c==1.8.0",
+      "requests==2.34.2"
+     ],
+     "env": {},
+     "local_python_sources": [
+      "brainir",
+      "brainir_ledger"
+     ],
+     "image_builder_version": "2025.06"
+    }
+   },
+   "estimated_cost_usd": 0.0051
+  }
+ },
+ "numerics_env=True": {
+  "by_cpu": {
+   "unknown": {
+    "a72e417cfd91": 79
+   },
+   "unknown avx512": {
+    "a72e417cfd91": 41
+   }
+  },
+  "n_distinct_digests": 1,
+  "numpy_features_example": {
+   "AVX": true,
+   "FMA3": true,
+   "AVX2": true
+  },
+  "stats": {
+   "backend": "modal-ledger",
+   "n_items": 120,
+   "wall_time_s": 19.2,
+   "settings": {
+    "cpu": 0.25,
+    "memory_mb": 512,
+    "timeout_s": 300,
+    "max_containers": 60,
+    "app": "brainir-ledger",
+    "shared_payload_key": null,
+    "shared_payload_bytes": 0,
+    "n_returned": 120,
+    "image": {
+     "base": "modal.Image.debian_slim(python_version='3.12')",
+     "pip": [
+      "numpy==2.5.3",
+      "scipy==1.18.1",
+      "pandas==3.0.6",
+      "pyarrow==25.0.1",
+      "pydantic==2.13.5",
+      "networkx==3.7",
+      "duckdb==1.5.5",
+      "google-crc32c==1.8.0",
+      "requests==2.34.2"
+     ],
+     "env": {
+      "OPENBLAS_NUM_THREADS": "1",
+      "OMP_NUM_THREADS": "1",
+      "MKL_NUM_THREADS": "1",
+      "OPENBLAS_CORETYPE": "Haswell",
+      "NPY_DISABLE_CPU_FEATURES": "AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL AVX512_SPR"
+     },
+     "local_python_sources": [
+      "brainir",
+      "brainir_ledger"
+     ],
+     "image_builder_version": "2025.06"
+    }
+   },
+   "estimated_cost_usd": 0.0051
+  }
+ }
+}
