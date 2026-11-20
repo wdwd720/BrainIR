@@ -32,6 +32,6 @@ new files and is hashed in `LOCK_labelcode_v2.json` / `LOCK_scoring_v2.json` bef
 | P3 B4 v2 | `b4v2.py` (verdict-based bounds, every-run-in-bounds for `halts`, majority for `saturates`) |
 | P4 platform, trust gate | `gha.py`, `gha_runner.py`, `.github/workflows/ledger-gha.yml`; `gates_v2/TRUST_GATE.json` |
 | P5 locks, push after labels | `lock2.py predictions`; push procedure (LOG) |
-| S4 runs and flags | `scoring_v2/pipeline_v2.py`, `scripts/score_v2.py` |
-| S5 gate | `scripts/gate_v2.py` -> `gates_v2/UNBLINDING_GATE.json` |
-| P4b, L12 locks, amendments, check | `lock2.py prereg / labelcode / scoring / predictions / labels / amend / check` (git-tracked code only; `labelcode` hashes this map; snapshot sections reported only; archive members skipped; chained hashes; amendment chains from `AMENDMENTS_v2.jsonl`; `amend` refuses rules, data, kit after the first session, and anything after `UNBLIND.json`) |
+| S4 runs, flags, equality with the locked `type_labels.csv`, crash rule | `scoring_v2/pipeline_v2.py`, `scripts/score_v2.py` (each run once; `<run>.started.json` marker: a crash leaves it; one repeat with `--after-crash-fix` after a recorded `lock2.py amend --crash-fix`) |
+| S5 gate | `scripts/gate_v2.py` -> `gates_v2/UNBLINDING_GATE.json` (clean checkout; run before and after the checklist; conditions 1-5 must be identical) |
+| P4b, L12 locks, amendments, check | `lock2.py prereg / labelcode / scoring / predictions / labels / amend / check` (git-tracked code only; `labelcode` hashes this map; snapshot sections reported only; archive members skipped; chained hashes; amendment chains from `AMENDMENTS_v2.jsonl`; `amend` refuses v1-hashed paths, rules, data, kit files other than prompts and changelog, kit after the first session, and anything after `UNBLIND.json` except `--crash-fix` of scoring v2; `check` ignores amendments for v1 locks and treats the P4b files of the prereg snapshot as binding) |

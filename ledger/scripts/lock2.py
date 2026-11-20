@@ -70,17 +70,37 @@ def _chain_ok(path: str, locked: str, current: str, chains: dict) -> bool:
 
 
 SCORING_V2 = ("ledger/src/brainir_ledger/scoring_v2/", "ledger/scripts/score_v2.py")
+P4B = ["ledger/src/brainir_ledger/typescreen_v2.py", "ledger/src/brainir_ledger/jobs_v2.py", "ledger/scripts/gha.py",
+       "ledger/scripts/gha_runner.py", "ledger/scripts/g3v2_preview.py", "ledger/scripts/g3v2_evaluate.py", "ledger/scripts/b4v2.py"]
+
+
+def _v1_hashed() -> set[str]:
+    """Every path any v1 lock hashes (PREREG v2 L12: never amended)."""
+    out: set[str] = set()
+
+    def walk(d):
+        for k, v in d.items():
+            if isinstance(v, dict):
+                walk(v)
+            elif isinstance(v, str) and len(v) == 64:
+                out.add(k)
+    for n in V1_LOCKS:
+        walk(json.loads((RES / n).read_text(encoding="utf-8")))
+    return out
 
 
 def amend(path: str, reason: str, old_rev: str = "HEAD", crash_fix: bool = False) -> None:
     if (RES / "UNBLIND.json").exists() and not (crash_fix and path.startswith(SCORING_V2)):
         raise SystemExit("after unblinding only a crash fix of the scoring v2 code may be recorded (PREREG v2 L12, --crash-fix)")
     p = REPO / path
-    is_kit = path.startswith("research/ledger/kit_v2/")
+    if path in _v1_hashed():
+        raise SystemExit(f"{path} is hashed by a v1 lock: never amended (PREREG v2 L12)")
+    is_kit = path.startswith("research/ledger/kit_v2/PROMPT_") or path == "research/ledger/kit_v2/CHANGELOG.md"
     is_code = (path.startswith(("ledger/", ".github/")) and p.suffix in (".py", ".sh", ".toml", ".yml", ".lock")) \
         or path == "research/ledger/IMPLEMENTATION_v2.md"
     if not (is_kit or is_code) or not p.is_file():
-        raise SystemExit(f"{path}: only code, the implementation map and kit files can be amended (never rules, records, labels, predictions)")
+        raise SystemExit(f"{path}: only v2 code, the implementation map and kit prompts (with the kit changelog) can be amended "
+                         "(never rules, other kit files, records, labels, predictions)")
     started = V2_MANIFESTS.exists() and any(V2_MANIFESTS.glob("*.json"))
     if is_kit and started:
         raise SystemExit("kit files can be amended only before the first v2 label session (PREREG v2 L12)")
@@ -191,7 +211,8 @@ def lock_labels() -> None:
 def check(path: Path) -> int:
     rec = json.loads(path.read_text(encoding="utf-8"))
     changed, missing, snap_changed, amended, n, n_archive = [], [], [], [], 0, 0
-    chains = _chains()
+    chains = {} if path.name in V1_LOCKS else _chains()  # amendments never count for v1 locks (PREREG v2 S5.1)
+    p4b_binding = set(P4B) if path.name == "LOCK_prereg_v2.json" else set()  # P4b files of the prereg snapshot are binding
 
     def walk(d, binding):
         nonlocal n, n_archive
@@ -213,7 +234,11 @@ def check(path: Path) -> int:
                         (changed if binding else snap_changed).append(k)
     for sec, val in rec.items():
         if isinstance(val, dict):
-            walk(val, sec not in SNAPSHOT_SECTIONS)
+            if sec in SNAPSHOT_SECTIONS and p4b_binding:
+                walk({k: v for k, v in val.items() if k in p4b_binding}, True)
+                walk({k: v for k, v in val.items() if k not in p4b_binding}, False)
+            else:
+                walk(val, sec not in SNAPSHOT_SECTIONS)
     chained = {"prereg_lock_sha256": "LOCK_prereg_v1.json", "prereg_v2_lock_sha256": "LOCK_prereg_v2.json",
                "labelcode_v2_lock_sha256": "LOCK_labelcode_v2.json", "labels_v1_lock_sha256": "LOCK_labels_v1.json"}
     for key, fname in chained.items():

@@ -28,28 +28,40 @@ def main(argv: list[str] | None = None, research: Path = RESEARCH) -> int:
     ap.add_argument("--after-crash-fix", action="store_true",
                     help="PREREG v2 S4/L12: re-run a run whose output records an error, after a crash fix recorded with `lock2.py amend --crash-fix`")
     a = ap.parse_args(argv)
-    if a.after_crash_fix:
-        prev = research / "results" / "run2" / f"{a.run}.json"
+    # PREREG v2 S4: a crash is an uncaught exception that stops a run; the run is repeated once after a crash fix recorded with
+    # `lock2.py amend --crash-fix`; an analysis ending with status `error` is a result, not a crash.
+    out_dir = research / "results" / "run2"
+    started = out_dir / f"{a.run}.started.json"
+    crashed = out_dir / f"{a.run}.crashed-1.json"
+    if started.exists():
+        if not a.after_crash_fix:
+            print(f"refused: {started.name} exists (an earlier attempt crashed or is running); see --after-crash-fix", file=sys.stderr)
+            return 2
+        if crashed.exists():
+            print("refused: this run was already repeated once after a crash (PREREG v2 S4)", file=sys.stderr)
+            return 2
         amend = research / "AMENDMENTS_v2.jsonl"
-        if not prev.exists():
-            print("no earlier output of this run", file=sys.stderr)
-            return 2
-        old = json.loads(prev.read_text(encoding="utf-8"))
-        crashed = "analyses_error" in old or any(v.get("status") == "error" for v in (old.get("analyses") or {}).values()) \
-            or (old.get("primary") or {}).get("status") == "error"
         fixes = [json.loads(x) for x in (amend.read_text(encoding="utf-8").splitlines() if amend.exists() else []) if x.strip()]
-        later = [f for f in fixes if f.get("crash_fix") and f.get("after_unblinding")
-                 and calendar.timegm(time.strptime(f["utc"], "%Y-%m-%dT%H:%M:%SZ")) > prev.stat().st_mtime]
-        if not (crashed and later):
-            print("refused: the earlier output records no error, or no crash fix was recorded after it", file=sys.stderr)
+        if not any(f.get("crash_fix") and f.get("after_unblinding")
+                   and calendar.timegm(time.strptime(f["utc"], "%Y-%m-%dT%H:%M:%SZ")) > started.stat().st_mtime for f in fixes):
+            print("refused: no crash fix was recorded after the crashed attempt", file=sys.stderr)
             return 2
-        k = 1 + len(list(prev.parent.glob(f"{a.run}.crashed-*.json")))
-        prev.rename(prev.parent / f"{a.run}.crashed-{k}.json")
+        started.rename(crashed)
+    elif a.after_crash_fix:
+        print("refused: no crashed attempt of this run", file=sys.stderr)
+        return 2
+    out_dir.mkdir(parents=True, exist_ok=True)
+    if (out_dir / f"{a.run}.json").exists():
+        print(f"refused: results/run2/{a.run}.json exists (each run once)", file=sys.stderr)
+        return 2
+    started.write_text(json.dumps({"run": a.run, "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}) + "\n")
     try:
         res = run(a.run, research, research / "UNBLIND.json")
-    except BlindError as e:
+    except BlindError as e:  # a refusal: nothing was computed
+        started.unlink(missing_ok=True)
         print(str(e), file=sys.stderr)
         return 2
+    started.unlink(missing_ok=True)  # completed; an uncaught exception leaves the marker (a crash, PREREG v2 S4)
     print(f"run {a.run}: {RUNS[a.run]['predictions_lock']} + {RUNS[a.run]['labels_lock']} -> results/run2/{a.run}.json")
     if "primary" in res:
         print(f"  primary: {res['primary']['status']}")

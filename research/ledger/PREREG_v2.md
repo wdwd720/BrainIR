@@ -157,9 +157,10 @@ blocker.** A breaching verifier is replaced once (L3); if the replacement also b
 **L12. Code.** All v2 label-side code, the gate script and the scoring v2 code are written after this freeze and locked
 before the first v2 label session (`LOCK_labelcode_v2.json`, `LOCK_scoring_v2.json`), together with
 `IMPLEMENTATION_v2.md` (each rule of this document -> the code that implements it), which a fresh reviewer checks before
-that session. **Amendments.** After a lock, a file it hashes may change only as a bug fix (code made to do what this text
-says; no rule changes): code and `IMPLEMENTATION_v2.md` until the unblinding, kit files (`kit_v2/`) only before the first v2
-label session (with a row in `kit_v2/CHANGELOG.md`, itself amended). Each change is recorded before it is committed with
+that session. **Amendments.** After a v2 lock, a file it hashes that no v1 lock hashes may change only as a bug fix (code made to
+do what this text says; no rule changes): code and `IMPLEMENTATION_v2.md` until the unblinding; kit prompts
+(`kit_v2/PROMPT_*.md`) only before the first v2 label session, only to restate a rule of this text, each checked by the fresh
+L12 reviewer, with a row in `kit_v2/CHANGELOG.md` (itself amended); other kit files are never amended. Each change is recorded before it is committed with
 `lock2.py amend` in `AMENDMENTS_v2.jsonl` (path, old and new SHA-256, reason, whether v2 sessions had started and v2 records
 existed, UTC) and logged in the LOG; `lock2.py check` counts a file as matching only if recorded amendments lead from its
 locked hash to its current hash; the gate report lists every amendment. Rules, records, labels and predictions are never
@@ -168,7 +169,7 @@ Stage 4: fix only the crash, log it, never alter a rule; `--crash-fix`). An amen
 changelog row; the lock file is never edited, and the locked version stays in git at the lock's commit. Code-snapshot sections of a lock
 (`prediction_code_snapshot`, `code_snapshot`) only record code at that moment; the binding code hashes are those of
 `LOCK_labelcode_v2.json`, `LOCK_scoring_v2.json` and `LOCK_predictions_v2.json`. After this freeze, reviews and gate evidence
-are added as new files; files hashed by this lock are not edited.
+are added as new files; files hashed by this lock change only through amendments allowed by L12 or P4b.
 
 **L13. Isolation.** Run 1's launcher flags (`labels_rooms.FLAGS`: `--restricted`, banned hosts with every subdomain) plus
 v2 deny rules: the mirrors of L3 kind 2; reads and edits of the repository, `~/ledger_rooms/run1*`, the review folders, the
@@ -177,7 +178,7 @@ other v2 sessions' project folders are blocked by `--restricted` (canary 2). Web
 and WebFetch) and for `reader_web` sessions and their second readings and adjudications (WebFetch only). The canaries (`gates_v2/CANARY_v2*.json`) showed the required blocks and permissions with tool
 rules alone; if a later canary or audit shows a leak, sessions run inside `sandbox-exec` denying those reads.
 
-**L14. Process.** Each of: the label review, the verification, the gate, runs once. A failed gate ends the collection (no
+**L14. Process.** Each of: the label review, the verification, the gate (its script twice, S5.6), runs once. A failed gate ends the collection (no
 further sessions to rescue it). After `LOCK_labels_v2.json`, nothing in labels v2 changes (the verification
 adds new files under `labels_v2/verify/` only, L11).
 
@@ -278,16 +279,19 @@ and counted. Code in new files, tested on synthetic data, locked in
 - S-b (PREREG v1 secondary analyses 1-14): `LOCK_predictions_v1.json` + `LOCK_labels_v2.json`;
 - S-c (S3 analyses): `LOCK_predictions_v2.json` + `LOCK_labels_v2.json` (only if predictions v2 exist; the primary set uses
   A1's type names, read from `LOCK_predictions_v1.json`, whose hash `LOCK_predictions_v2.json` records).
-Runs P, S-b and S-c recompute `type_labels` from labels v2's `records.jsonl` with the v2 exposed set (scoring v2), not with
-the frozen kit-only check; S-a uses labels v1.1 with the frozen check and the v1 exposed list. A run whose pipeline crashed is run again once the
-crash is fixed (L12); the crashed output is kept beside the new one.
+Runs P, S-b and S-c recompute `type_labels` from labels v2's `records.jsonl` with the v2 exposed set (scoring v2) and require
+equality with labels v2's locked `type_labels.csv`; S-a uses labels v1.1 with the frozen check and the v1 exposed list. A crash is an uncaught exception that stops a run; the run
+is repeated once after the fix (L12), and results the crashed run had written govern. An analysis ending with status `error`
+is a result, not a crash.
 
 **S5. The unblinding gate (RUN2_PROMPT section 8), from label files and type names only; every condition must hold:**
 1. the locks for rulebook v1 and v2, predictions v1, predictions v2 if it exists, labels v1.1, labels v2, label code v2 and
    scoring v2 all pass `lock2.py check` in a clean checkout (every repository file hashed in a binding section exists and
-   matches; chained lock hashes match; code-snapshot sections are reported, not required (L12); archive-member keys
+   matches; chained lock hashes match; code-snapshot sections are reported, not required, except the P4b files in `LOCK_prereg_v2.json`, which must match
+   or be reached by recorded amendments; archive-member keys
    `<archive>.zip:<member>` are outside the repository and checked by the frozen `lock.py check`, which the v1 locks also pass;
-   recorded amendments count as matching and are listed, L12);
+   recorded amendments count as matching for v2 locks and are listed, L12; the v1 locks must also pass the frozen
+   `lock.py check`, where amendments do not count);
 2. no contributing session breached under L3 or lacks an audit row (contributing: a reader with a final record, the atlas map
    and coders whose records were used, a second reader or adjudicator whose reading of a final record was used, the verifier
    used; a session excluded and replaced under L3 is not contributing);
@@ -298,8 +302,8 @@ crash is fixed (L12); the crashed output is kept beside the new one.
    Phase A second readings of non-breaching sessions (atlas coder B included, after mapping), matched by `exp_id`;
 5. the primary set (labels v2, clear front-leg label, among A1's 321 types, not in the v2 exposed set) has at least 20 types,
    at least 5 yes and at least 5 no;
-6. a fresh reviewer signs `reviews_v2/GATE_CHECKLIST.md` (verdict line `confirmed`), confirming 1-5 from the gate report and
-   that nothing has been joined. The gate script (`gate_v2.py`, on a clean checkout of committed files) runs once before the
+6. a fresh reviewer signs `reviews_v2/GATE_CHECKLIST.md` (verdict line `confirmed`), confirming 1-5 from the gate report, that
+   each listed amendment is a bug fix under L12 (judged from its diff), and that nothing has been joined. The gate script (`gate_v2.py`, on a clean checkout of committed files) runs once before the
    checklist and once after it, only to record condition 6; conditions 1-5 must come out identical, or the gate fails.
 **If any condition fails, nothing is unblinded.** After unblinding nothing moves in run 2 (no label, model or scoring-rule
 change); extra analyses only in a section marked exploratory.
