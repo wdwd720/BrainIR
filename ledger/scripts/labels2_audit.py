@@ -3,7 +3,10 @@ v2 session (its dedicated rule applies to the v2 `dedicated` family) and then ap
 read of a file in the session's OWN `<project>/<session-id>/tool-results/` folder that the session's own WebFetch saved from
 an allowed host is not a breach. Everything else the frozen audit calls a breach stays a breach.
 
-    uv run --project ledger --no-sync python ledger/scripts/labels2_audit.py   # -> research/ledger/labels_v2/transcript_audit.{json,md}
+    uv run --project ledger --no-sync python ledger/scripts/labels2_audit.py            # every session except the verifier
+                                                                                    # -> research/ledger/labels_v2/transcript_audit.{json,md}
+    uv run --project ledger --no-sync python ledger/scripts/labels2_audit.py --verify   # verifier sessions only (after the labels lock)
+                                                                                    # -> research/ledger/labels_v2/verify/transcript_audit_verify.{json,md}
 """
 
 from __future__ import annotations
@@ -66,16 +69,25 @@ def scan(room: str) -> tuple[set[str], list[dict]]:
     return named, issues
 
 
-def audit() -> list[dict]:
+def audit(verify: bool = False) -> list[dict]:
+    """PREREG v2 L3/L11: the main audit covers every session except the verifier and is never rewritten after the labels lock;
+    the verifier is audited separately into new files under `labels_v2/verify/`."""
+    out, stem = (OUT / "verify", "transcript_audit_verify") if verify else (OUT, "transcript_audit")
+    if not verify and (OUT.parent / "LOCK_labels_v2.json").exists():
+        raise SystemExit("LOCK_labels_v2.json exists: the main audit is locked; use --verify for the verifier")
     rows = []
     home = str(Path.home())
     for m in sorted(R2.MANIFESTS.glob("*.json")):
         man = json.loads(m.read_text(encoding="utf-8"))
+        if (man["kind"] == "verify") != verify:
+            continue
         v1man = dict(man, family="pugliese_dedicated" if man.get("family") == "dedicated" else man.get("family"))
         r = LA.audit_session(v1man)
         own_dir = str(LA.PROJECTS / LA.encode(man["room"]))
         fetched, extra = scan(man["room"])
         breaches, own_reads = list(extra), 0
+        if not r["transcripts"]:
+            breaches.append({"kind": "no_transcript"})  # L3 kind 4
         for i in r["issues"]:
             p = str(i.get("path") or "")
             if i["kind"] == "file_outside_room" and p.startswith(own_dir + "/") and "/tool-results/" in p and p in fetched:
@@ -88,17 +100,17 @@ def audit() -> list[dict]:
                      "issues": breaches, "own_tool_result_reads": own_reads, "blocked_attempts": len(r["blocked_attempts"]),
                      "n_tool_calls": r["n_tool_calls"], "n_fetches": r["n_fetches"], "n_searches": r["n_searches"],
                      "n_phrase_hits": r["n_phrase_hits"], "transcripts": len(r["transcripts"])})
-    OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "transcript_audit.json").write_text(json.dumps(rows, indent=1) + "\n", encoding="utf-8")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / f"{stem}.json").write_text(json.dumps(rows, indent=1) + "\n", encoding="utf-8")
     md = ["# Labels v2 transcript audit (frozen audit + the v2 own-tool-results exception)", "",
           "| session | kind | breach | issues | own tool-result reads | blocked attempts | tool calls | fetches |", "|---|---|---|---|---|---|---|---|"]
     md += [f"| {r['session']} | {r['kind']} | {'YES' if r['breach'] else 'no'} | {len(r['issues'])} | {r['own_tool_result_reads']} | "
            f"{r['blocked_attempts']} | {r['n_tool_calls']} | {r['n_fetches']} |" for r in rows]
-    (OUT / "transcript_audit.md").write_text("\n".join(md) + "\n", encoding="utf-8")
+    (out / f"{stem}.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     print(json.dumps({"sessions": len(rows), "breaching": [r["session"] for r in rows if r["breach"]],
                       "own_tool_result_reads": sum(r["own_tool_result_reads"] for r in rows)}))
     return rows
 
 
 if __name__ == "__main__":
-    audit()
+    audit(verify="--verify" in sys.argv[1:])

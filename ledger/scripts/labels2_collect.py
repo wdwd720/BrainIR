@@ -23,6 +23,7 @@ from __future__ import annotations
 import argparse
 import collections
 import csv
+import hashlib
 import json
 import re
 import sys
@@ -45,6 +46,8 @@ LAB = REPO / "research" / "ledger" / "labels_v2"
 RAW = LAB / "raw"
 WORK = LAB / "work"
 SPECS = WORK / "specs"
+VER = LAB / "verify"  # PREREG v2 L11: everything the verification writes, after the labels lock (new files only)
+LOCKED = REPO / "research" / "ledger" / "LOCK_labels_v2.json"
 KIT = REPO / "research" / "ledger" / "kit_v2"
 SOURCES = R2.SOURCES
 ATLAS_DOI = "10.7554/elife.34275"
@@ -161,7 +164,7 @@ def _web_slugs() -> set[str]:
 # --------------------------------------------------------------------------------------------------------- readers
 def readers(round_: int) -> None:
     """Reader specs (<= 6 sources per session) for registered sources of this round not yet assigned; sources the downloader
-    marked unreachable go to web-enabled `reader_web` sessions (PREREG v2 C1)."""
+    marked `abstract_only` or `unreachable` go to web-enabled `reader_web` sessions; banned-host DOIs are never assigned (PREREG v2 C1, L7)."""
     reg = _registry()
     reg = reg[reg["round"].astype(int) == round_]
     assigned = set()
@@ -180,13 +183,13 @@ def readers(round_: int) -> None:
     n = 0
     for fam, g in todo.groupby("family"):
         for kind in ("reader", "reader_web"):
-            slugs = [s for s in g["slug"] if (status[s] == "unreachable") == (kind == "reader_web")]
+            slugs = [s for s in g["slug"] if (status[s] in ("unreachable", "abstract_only")) == (kind == "reader_web")]
             for i in range(0, len(slugs), 6):
                 k = len(list(SPECS.glob(f"pass1-{fam}-r{round_}-*.json"))) + 1
                 _spec({"session": f"pass1-{fam}-r{round_}-{k:02d}", "kind": kind, "family": fam, "pass_id": "pass1", "sources": slugs[i:i + 6]})
                 n += 1
     print(json.dumps({"reader_specs": n, "sources": int(len(todo)), "banned_host_not_assigned": len(banned),
-                      "unreachable_to_reader_web": sum(v == "unreachable" for v in status.values())}))
+                      "to_reader_web": sum(v in ("unreachable", "abstract_only") for v in status.values())}))
 
 
 def atlas_ids() -> None:
@@ -205,7 +208,7 @@ def atlas_ids() -> None:
 def atlas_quotes() -> None:
     """Phase B input for atlas coder B: coder A's quotes keyed `atlas:<LINE>:<headless|intact>` (PREREG v2 L8)."""
     rows, seen = [], set()
-    for r in sorted(_jsonl(RAW / "pass1" / "atlas-codeA" / "records.valid.jsonl"), key=lambda x: str(x.get("record_id"))):
+    for r in sorted(_jsonl(RAW / "pass1" / (_atlas_session("atlas-codeA") or "-") / "records.valid.jsonl"), key=lambda x: str(x.get("record_id"))):
         line, prep = _atlas_key(r)
         if (line, prep) not in seen:
             seen.add((line, prep))
@@ -216,6 +219,8 @@ def atlas_quotes() -> None:
 
 # --------------------------------------------------------------------------------------------------------- collect / leads / reassign
 def collect() -> None:
+    if LOCKED.exists():
+        raise SystemExit("LOCK_labels_v2.json exists: labels v2 are locked (the verifier is collected by `verify-score`)")
     LC.collect()
 
 
@@ -294,7 +299,10 @@ def reassign() -> None:
 
 # --------------------------------------------------------------------------------------------------------- atlas
 def atlas_map() -> dict[str, tuple[list[str], str, str]]:
-    rows, _ = LC.read_csv_rows(RAW / "atlas_map" / "atlas-map" / "atlas_line_map.csv", ["line_id", "manc_types", "mapping_confidence", "mapping_basis"])
+    s = _atlas_session("atlas-map")
+    if s is None:
+        return {}
+    rows, _ = LC.read_csv_rows(RAW / "atlas_map" / s / "atlas_line_map.csv", ["line_id", "manc_types", "mapping_confidence", "mapping_basis"])
     kt = LC.known_types()
     out = {}
     for r in rows:
@@ -323,12 +331,13 @@ def atlas_pairs() -> tuple[list[dict], list[dict], dict, dict]:
     """Coder A = first reading, coder B = second reading; keyed by line ID; expanded to one record per mapped type."""
     amap = atlas_map()
     sides = {}
-    for tag, sess in (("A", "atlas-codeA"), ("B", "atlas-codeB")):
+    sess_of = {"A": _atlas_session("atlas-codeA"), "B": _atlas_session("atlas-codeB")}
+    for tag, sess in sess_of.items():
         by_key = {}
-        for r in sorted(_atlas_side(sess, tag == "B"), key=lambda x: str(x.get("record_id"))):
+        for r in sorted(_atlas_side(sess, tag == "B") if sess else [], key=lambda x: str(x.get("record_id"))):
             by_key.setdefault(_atlas_key(r), r)
         sides[tag] = by_key
-    p1, p2, info = [], [], {"keys_A": len(sides["A"]), "keys_B": len(sides["B"]), "mapped_keys": 0}
+    p1, p2, info = [], [], {"keys_A": len(sides["A"]), "keys_B": len(sides["B"]), "mapped_keys": 0, "sessions": sess_of}
     for (line, prep), ra in sorted(sides["A"].items()):
         types, conf, basis = amap.get(line, ([], "low", ""))
         if types:
@@ -344,7 +353,8 @@ def atlas_pairs() -> tuple[list[dict], list[dict], dict, dict]:
                     r["other_cell_types"] = sorted(set(r.get("other_cell_types") or []) | (set(types) - {t}))
                 dst.append(r)
     qc = {}
-    rows, _ = LC.read_csv_rows(RAW / "pass1" / "atlas-codeB" / "quote_checks.csv", ["exp_id", "quote_found", "where", "comment"])
+    rows, _ = (LC.read_csv_rows(RAW / "pass1" / sess_of["B"] / "quote_checks.csv", ["exp_id", "quote_found", "where", "comment"])
+               if sess_of["B"] else ([], None))
     for row in rows:
         v = row.get("quote_found", "").strip().lower()
         parts = row["exp_id"].split(":")
@@ -361,7 +371,36 @@ def _breaching() -> set[str]:
     p = LAB / "transcript_audit.json"
     if not p.exists():
         raise SystemExit("run ledger/scripts/labels2_audit.py first")
-    return {r["session"] for r in json.loads(p.read_text()) if r.get("breach")}
+    rows = json.loads(p.read_text())
+    if (VER / "transcript_audit_verify.json").exists():
+        rows += json.loads((VER / "transcript_audit_verify.json").read_text())
+    return {r["session"] for r in rows if r.get("breach")}
+
+
+def _atlas_session(base: str) -> str | None:
+    """PREREG v2 L3: a breaching atlas coder or map session is replaced once by `<base>-r1`; returns the session used (None if
+    neither is usable)."""
+    area = RAW / ("atlas_map" if base == "atlas-map" else "pass1")
+    breach = _breaching() if (LAB / "transcript_audit.json").exists() else set()
+    for s in (base, f"{base}-r1"):
+        if (area / s).exists() and s not in breach:
+            return s
+    return None
+
+
+REDO_KINDS = ("second", "second_web", "adjudication", "adjudication_web", "atlas_code", "atlas_map", "verify")
+
+
+def redo_breaching() -> None:
+    """PREREG v2 L3: the task of a breaching second reader, adjudicator, atlas coder, atlas-map session or verifier is given ONCE
+    to a new session (`<session>-r1`, same inputs); a breaching `-r1` is not replaced again."""
+    breach, n = _breaching(), 0
+    for s in _specs(REDO_KINDS):
+        name = s["session"]
+        if name in breach and not name.endswith("-r1") and not (SPECS / f"{name}-r1.json").exists():
+            _spec(dict(s, session=f"{name}-r1", replaces=name))
+            n += 1
+    print(json.dumps({"replacement_specs": n}))
 
 
 V2_ORDER = ["atlas", "driver_line_resources", "grooming", "walking_stopping", "steering", "escape_landing", "recent_broad", "dedicated"]
@@ -463,7 +502,7 @@ def _pass2_records() -> list[dict]:
 def adjudication() -> None:
     p1 = _pass1_generic()
     p2 = {r["exp_id"]: r for r in _pass2_records()}
-    a1, a2, _, _ = atlas_pairs() if (RAW / "pass1" / "atlas-codeA").exists() else ([], [], {}, {})
+    a1, a2, _, _ = atlas_pairs() if _atlas_session("atlas-codeA") else ([], [], {}, {})
     p2.update({r["exp_id"]: r for r in a2})
     rng = np.random.default_rng(ADJ_SEED)
     sib = {}
@@ -502,7 +541,10 @@ def adjudication() -> None:
 # --------------------------------------------------------------------------------------------------------- merge / finalize
 def _quote_checks_generic() -> dict:
     qc = {}
+    breach = _breaching()
     for sd in sorted((RAW / "pass2").glob("pass2-*")):
+        if sd.name in breach:
+            continue
         rows, _ = LC.read_csv_rows(sd / "quote_checks.csv", ["exp_id", "quote_found", "where", "comment"])
         for row in rows:
             v = row.get("quote_found", "").strip().lower()
@@ -514,7 +556,7 @@ def merged() -> tuple[list[dict], dict, list[dict], list[dict]]:
     p1, p2 = _pass1_generic(), _pass2_records()
     qc = _quote_checks_generic()
     nf, _ = LC.not_found()
-    a1, a2, aqc, ainfo = atlas_pairs() if (RAW / "pass1" / "atlas-codeA").exists() else ([], [], {}, {})
+    a1, a2, aqc, ainfo = atlas_pairs() if _atlas_session("atlas-codeA") else ([], [], {}, {})
     adj = []
     breach = _breaching()
     for sd in sorted((RAW / "adjudication").glob("adjudication-*")):
@@ -586,29 +628,54 @@ def _verify_frame() -> list[dict]:
 
 
 def verify_sample() -> None:
+    """PREREG v2 L11: once, after LOCK_labels_v2.json, on the locked records; new files under labels_v2/verify/ only."""
+    if not LOCKED.exists():
+        raise SystemExit("the verification runs after LOCK_labels_v2.json (PREREG v2 L11)")
+    if (VER / "verify_sample.csv").exists():
+        raise SystemExit("the verification sample exists already (drawn once)")
     frame = _verify_frame()
     idx = np.random.default_rng(VERIFY_SEED).choice(len(frame), min(30, len(frame)), replace=False)
     pick = [frame[i] for i in idx]
-    path = WORK / "verify" / "verify_sample.csv"
+    path = VER / "verify_sample.csv"
     cols = ["exp_id", "doi", "source_locator", "driver_lines", "name_in_paper", "quote"]  # no recorded value (blind, L11)
     _write_csv(path, [{k: (";".join(r[k]) if isinstance(r.get(k), list) else r.get(k, "")) for k in cols} for r in pick], cols)
-    (WORK / "verify" / "verify_truth.json").write_text(json.dumps({r["exp_id"]: r["front_leg_rhythm"] for r in pick}, indent=1) + "\n")
+    (VER / "verify_truth.json").write_text(json.dumps({r["exp_id"]: r["front_leg_rhythm"] for r in pick}, indent=1) + "\n")
     _spec({"session": "verify-01", "kind": "verify", "pass_id": "verify", "sources": sorted({slug(r["doi"]) for r in pick}),
            "inputs": {"verify_sample.csv": str(path)}})
     print(json.dumps({"verify_sample": len(pick), "frame": len(frame)}))
 
 
 def verify_score() -> None:
-    truth = json.loads((WORK / "verify" / "verify_truth.json").read_text())
-    rows, _ = LC.read_csv_rows(RAW / "verify" / "verify-01" / "verification.csv", ["exp_id", "quote_found", "front_leg_rhythm", "locator", "comment"])
-    got = {r["exp_id"]: r for r in rows}
-    errors = [k for k, v in truth.items() if k not in got or got[k].get("front_leg_rhythm", "").strip().lower() in ("", "cannot_verify")
-              or got[k]["front_leg_rhythm"].strip().lower() != str(v).lower()]
-    quotes_found = sum(1 for k in truth if k in got and got[k].get("quote_found", "").strip().lower() in LC.TRUE_WORDS)
-    out = {"n": len(truth), "errors": len(errors), "error_rate": len(errors) / len(truth) if truth else None, "quotes_found": quotes_found,
-           "blocker": (len(errors) / len(truth) > 0.10) if truth else None}
-    (LAB / "verification.json").write_text(json.dumps(out, indent=1) + "\n")
-    print(json.dumps(out))
+    """Collect the verifier's outputs into labels_v2/verify/raw/<session>/ (hashed), then score. The verifier used is `verify-01`,
+    or `verify-01-r1` if `verify-01` breached (audit: `labels2_audit.py --verify`); if both breached, gate 3 fails."""
+    aud = VER / "transcript_audit_verify.json"
+    if not aud.exists():
+        raise SystemExit("run ledger/scripts/labels2_audit.py --verify first")
+    breach = {r["session"] for r in json.loads(aud.read_text()) if r.get("breach")}
+    sess = next((s for s in ("verify-01", "verify-01-r1") if (R2.MANIFESTS / f"{s}.json").exists() and s not in breach), None)
+    truth = json.loads((VER / "verify_truth.json").read_text())
+    out = {"n": len(truth), "verifier_session": sess, "breaching_verifiers": sorted(breach)}
+    if sess is None:
+        out.update({"errors": None, "error_rate": None, "blocker": True, "reason": "no non-breaching verifier (L3, L11)"})
+    else:
+        man = json.loads((R2.MANIFESTS / f"{sess}.json").read_text())
+        dst = VER / "raw" / sess
+        dst.mkdir(parents=True, exist_ok=True)
+        hashes = {}
+        for f in sorted((Path(man["room"]) / "out").glob("*")):
+            if f.is_file():
+                (dst / f.name).write_bytes(f.read_bytes())
+                hashes[f.name] = hashlib.sha256(f.read_bytes()).hexdigest()
+        (dst / "out_sha256.json").write_text(json.dumps(hashes, indent=1) + "\n")
+        rows, _ = LC.read_csv_rows(dst / "verification.csv", ["exp_id", "quote_found", "front_leg_rhythm", "locator", "comment"])
+        got = {r["exp_id"]: r for r in rows}
+        errors = [k for k, v in truth.items() if k not in got or got[k].get("front_leg_rhythm", "").strip().lower() in ("", "cannot_verify")
+                  or got[k]["front_leg_rhythm"].strip().lower() != str(v).lower()]
+        quotes_found = sum(1 for k in truth if k in got and got[k].get("quote_found", "").strip().lower() in LC.TRUE_WORDS)
+        out.update({"errors": len(errors), "error_rate": len(errors) / len(truth) if truth else None, "quotes_found": quotes_found,
+                    "blocker": (len(errors) / len(truth) > 0.10) if truth else True})
+    (VER / "verification.json").write_text(json.dumps(out, indent=1) + "\n")
+    print(json.dumps({k: v for k, v in out.items() if k != "breaching_verifiers"}))
 
 
 def v1_vs_v2() -> None:
@@ -629,11 +696,11 @@ def v1_vs_v2() -> None:
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("cmd", choices=["registry", "atlas-ids", "atlas-quotes", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
+    ap.add_argument("cmd", choices=["registry", "atlas-ids", "atlas-quotes", "redo-breaching", "readers", "collect", "leads", "reassign", "second", "adjudication", "verify-sample",
                                     "verify-score", "finalize", "v1-vs-v2"])
     ap.add_argument("--round", type=int, default=0)
     a = ap.parse_args()
-    {"registry": registry, "atlas-ids": atlas_ids, "atlas-quotes": atlas_quotes, "collect": collect, "reassign": reassign, "second": second, "adjudication": adjudication,
+    {"registry": registry, "atlas-ids": atlas_ids, "atlas-quotes": atlas_quotes, "redo-breaching": redo_breaching, "collect": collect, "reassign": reassign, "second": second, "adjudication": adjudication,
      "verify-sample": verify_sample, "verify-score": verify_score, "finalize": finalize, "v1-vs-v2": v1_vs_v2}.get(a.cmd, lambda: None)()
     if a.cmd == "readers":
         readers(a.round)

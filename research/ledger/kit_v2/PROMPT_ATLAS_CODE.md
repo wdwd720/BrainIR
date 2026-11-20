@@ -8,7 +8,8 @@ already downloaded) and `out/`.
 Session: `{SESSION}`. Pass: `{PASS_ID}`. Record IDs: `{PREFIX}-0001`, ...
 
 Task: for EVERY driver line the atlas tested (those in `atlas_line_ids.csv` and any other you find in its figures and source
-data), write one record to `out/records.jsonl` that codes the effect of activating that line, by line ID, from the paper's
+data), write one record to `out/records.jsonl` for each preparation in which the atlas tested that line (a headless test
+and an intact test of the same line are two records; PROTOCOL section 1), coding the effect of activating it, by line ID, from the paper's
 figures, figure legends and source data: put the line ID in `driver_lines` and `name_in_paper`, write `manc_type` as
 `UNMAPPED`, `mapping_confidence` as `low` and `mapping_basis` as `atlas line; type assigned later by script`
 (PROTOCOL section 8). Code every label field from what the atlas reports for that line (PROTOCOL sections 2-4), with a

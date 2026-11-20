@@ -43,11 +43,12 @@ Nothing of v1 or v1.1 is ever pooled with v2.
 rule (`aggregate.merge_passes`), and the type consensus rule (`aggregate.type_labels`, eligibility `aggregate.eligible`).
 Clarifications (none depends on a particular neuron):
 - C1. Sources are downloaded mechanically before the session and placed in the room (L7). Readers, second readers,
-  adjudicators, atlas sessions and the verifier have **no web tools**; a source that could not be downloaded is read by a
-  separate web-enabled reader (`reader_web`). Sources the cache or a reader marks `unreachable` (except banned-host DOIs, L7)
-  go to `reader_web` (WebFetch only, for those DOIs); their second reading, Phase B and adjudication run with the same WebFetch-only flags, and their
-  records are outside the verification frame. A reassigned source's earlier records are dropped. PROTOCOL section 5's mention
-  of `sources_seed.csv` does not apply.
+  adjudicators, atlas sessions and the verifier have **no web tools**, with one exception: sources whose full text could not
+  be downloaded (downloader status `abstract_only` or `unreachable`, or marked `unreachable` by a reader; never banned-host
+  DOIs, L7) are read by separate `reader_web` sessions with WebFetch only, for those DOIs, and their second reading, Phase B
+  and adjudication run with the same WebFetch-only flags; their records are outside the verification frame. When a source is
+  reassigned (L3, L5), the earlier session's records of that source are dropped. PROTOCOL section 5's mention of
+  `sources_seed.csv` does not apply.
 - C2. Every session writes the contract files of L5.
 - C3. `saw_simulation_score` takes the meaning of L4; the reader also writes where (`out/sightings.csv`).
 - C4. Atlas records are coded by line ID with `manc_type = UNMAPPED` (the frozen validator's sentinel) and mapped by script
@@ -68,9 +69,11 @@ Clarifications (none depends on a particular neuron):
 Attempts denied by the tooling are reported, not breaches. The audit is the frozen `labels_audit.audit_session` (v2 family
 `dedicated` passed as its `pugliese_dedicated`) plus kinds 1-exception and 5 (`labels2_audit.py`). It covers every session and
 is newer than every session log before second-reading inputs are built and before the final aggregation. Consequences: a
-breaching reader's records are excluded and its sources are reassigned once to a new session; a breaching second reader,
-adjudicator, atlas coder or atlas-map session is excluded and its task is given once to a new session; a breaching verifier voids the
-verification, which is redone once with the same sample; leads of a breaching search session are dropped.
+breaching reader's records are excluded and its sources are reassigned to a new session (within L5's limit of two
+reassignments per source); a breaching second reader, adjudicator, atlas coder or atlas-map session is excluded and its task
+is given once to a new session with the same inputs (`<session>-r1`; a breaching replacement is not replaced again); a
+breaching verifier voids the verification, which is redone once by a new session with the same sample; leads of a
+breaching search session are dropped.
 
 **L4. Score sighting.** A sighting is seeing a rhythm score, a rank or a driver/non-driver call for a DN type from the
 Pugliese-type connectome activation screen, wherever printed (the Pugliese papers, the simulation part of the 2026 Sapkal
@@ -81,7 +84,8 @@ affected records and writes `out/sightings.csv` (`doi, locator, what_was_seen` i
 **L5. Session contract.** Every session writes `out/dispositions.csv`, one row per assigned source: `doi, disposition` in
 {records, no_qualifying_experiment, unreachable}, `n_records, reason`. A source without a disposition (including those of a
 session that ended early) is reassigned to a new session, at most twice; then it is reported as unreached. Valid records of a
-non-breaching session that ended early are kept. Sessions have no time limit. `assigned_sources.csv` has the columns
+non-breaching session that ended early are kept for the sources it gave a disposition; its records of a source without a
+disposition are dropped when that source is reassigned (C1). Sessions have no time limit. `assigned_sources.csv` has the columns
 `doi, slug, title, status`.
 
 **L6. Eligibility.** A record is eligible whatever session found it once it has passed the second reading (Phase A, Phase B)
@@ -142,21 +146,27 @@ one of whose driver-line IDs matches a `line_id` of `kit_v2/driver_lines.csv` (c
 a source says so, i.e. a reader recorded it). Name ambiguity (`candidate_types`) is ignored. Every fill is logged. The
 consensus is computed after the fill.
 
-**L11. Verification sample.** Run once, after `LOCK_labels_v2.json`, on the locked records. Frame: eligible final records that are neither dedicated nor from `reader_web` sources, sorted by `exp_id`; sample:
+**L11. Verification sample.** Drawn once, after `LOCK_labels_v2.json`, from the locked records; everything the verification
+writes is a new file under `labels_v2/verify/` (the sample, the verifier's collected outputs with their hashes, its transcript
+audit `transcript_audit_verify.json`, `verification.json`), hashed in the gate report; no locked file is rewritten. Frame: eligible final records that are neither dedicated nor from `reader_web` sources, sorted by `exp_id`; sample:
 `numpy.random.default_rng(20261203).choice(n, min(30, n), replace=False)`. A fresh blind session receives the identifiers,
 locator and quote but **not** the recorded front-leg value; it reports `quote_found` and its own `front_leg_rhythm` reading. A
 script compares: an error is a different value or `cannot_verify`; error rate = errors / sample size. **Above 10 % is a
-blocker.** Run once (a breaching verifier: L3).
+blocker.** A breaching verifier is replaced once (L3); if the replacement also breaches, gate 3 fails.
 
 **L12. Code.** All v2 label-side code, the gate script and the scoring v2 code are written after this freeze and locked
 before the first v2 label session (`LOCK_labelcode_v2.json`, `LOCK_scoring_v2.json`), together with
 `IMPLEMENTATION_v2.md` (each rule of this document -> the code that implements it), which a fresh reviewer checks before
-that session. A later change is allowed only as a bug fix (code made to do what this text says), logged with whether v2
-records existed; no rule changes. A kit file (`kit_v2/`) may be changed after this freeze only before the first v2 label
-session, only as such a bug fix, logged in `kit_v2/CHANGELOG.md` and the LOG and recorded in `LOCK_labelcode_v2.json`
-(`amendments_after_prereg`: path, hash at this freeze, new hash, reason); `lock2.py check` counts a recorded amendment as
-matching. Code-snapshot sections of a lock (`prediction_code_snapshot`, `code_snapshot`) record code at that moment; the
-binding code hashes are those of `LOCK_labelcode_v2.json`, `LOCK_scoring_v2.json` and `LOCK_predictions_v2.json`.
+that session. **Amendments.** After a lock, a file it hashes may change only as a bug fix (code made to do what this text
+says; no rule changes): code and `IMPLEMENTATION_v2.md` until the unblinding, kit files (`kit_v2/`) only before the first v2
+label session (with a row in `kit_v2/CHANGELOG.md`, itself amended). Each change is recorded before it is committed with
+`lock2.py amend` in `AMENDMENTS_v2.jsonl` (path, old and new SHA-256, reason, whether v2 sessions had started and v2 records
+existed, UTC) and logged in the LOG; `lock2.py check` counts a file as matching only if recorded amendments lead from its
+locked hash to its current hash; the gate report lists every amendment. Rules, records, labels and predictions are never
+amended; the tool refuses everything after `UNBLIND.json` exists. Code-snapshot sections of a lock
+(`prediction_code_snapshot`, `code_snapshot`) only record code at that moment; the binding code hashes are those of
+`LOCK_labelcode_v2.json`, `LOCK_scoring_v2.json` and `LOCK_predictions_v2.json`. After this freeze, reviews and gate evidence
+are added as new files; files hashed by this lock are not edited.
 
 **L13. Isolation.** Run 1's launcher flags (`labels_rooms.FLAGS`: `--restricted`, banned hosts with every subdomain) plus
 v2 deny rules: the mirrors of L3 kind 2; reads and edits of the repository, `~/ledger_rooms/run1*`, the review folders, the
@@ -166,7 +176,8 @@ and WebFetch) and for `reader_web` sessions and their second readings and adjudi
 rules alone; if a later canary or audit shows a leak, sessions run inside `sandbox-exec` denying those reads.
 
 **L14. Process.** Each of: the label review, the verification, the gate, runs once. A failed gate ends the collection (no
-further sessions to rescue it). After `LOCK_labels_v2.json`, nothing in labels v2 changes.
+further sessions to rescue it). After `LOCK_labels_v2.json`, nothing in labels v2 changes (the verification
+adds new files under `labels_v2/verify/` only, L11).
 
 ---
 
@@ -215,8 +226,8 @@ Under the governing rule item 4' **fails** (T1R-T2R). **Item 4' is decided by th
 the formal run is reported.** For the record: a Bonferroni rule (p >= 0.01 / 5) would pass, and a
 coupled-status match (v1 4.7 calls per pair) would fail (T1L-T2L, T1R-T2R). The strict rule was chosen because it is v1's own
 alpha and because the review showed the correction would turn this fail into a pass. B3 is marked "gate chosen with inputs
-known". G3 v2 is still run formally (GitHub, item 5 included) and evaluated before the first v2 label session; unless the
-formal run is only reported.
+known". G3 v2 is still run formally on GitHub (items 1-3 and 5; item 4' recomputed and
+reported only) and evaluated before the first v2 label session.
 
 **P3. B4 v2 (calls from the stored B4 replicates; no new simulation).** Data: `data/ledger/arms/B4/results.pkl` (sha256
 94cd68fd0e313123f6dbbc02b1258e7c541d20d0e1961629982f4a0b4ce2e3c2), every result checked against the digests locked in predictions v1. For type t at strength s in {32, 128,
@@ -230,9 +241,9 @@ no_effect_low_n). Reported: calls at 32, 128 and 512, cross-tables 32 vs 128 and
 **P4. Platform.** No Modal in run 2. GitHub Actions hosted runners (Linux x64; run 1's Python, libraries and numerics
 environment); fallback the Mac. The trust gate was run before this freeze: 100/100 identical (`gates_v2/TRUST_GATE.json`).
 
-**P4b. Prediction-side code.** `typescreen_v2.py`, `jobs_v2.py`, `gha.py`, `gha_runner.py`, `g3v2_evaluate.py`, `b4v2.py` are hashed
-in `LOCK_prereg_v2.json` (code snapshot) and in `LOCK_predictions_v2.json`; between the two, a change is allowed only as a
-logged bug fix (code made to do what this text says).
+**P4b. Prediction-side code.** `typescreen_v2.py`, `jobs_v2.py`, `gha.py`, `gha_runner.py`, `g3v2_preview.py`,
+`g3v2_evaluate.py`, `b4v2.py` are hashed in `LOCK_prereg_v2.json` (code snapshot) and in `LOCK_predictions_v2.json`; between
+the two, a change is allowed only as a bug fix (code made to do what this text says), recorded with `lock2.py amend` (L12).
 
 **P5. Lock.** `LOCK_predictions_v2.json` is additive to v1; every arm is marked "locked after labels v1 existed, before any
 unblinding"; an arm that fails a gate is not locked. Predictions v2 are committed locally and pushed only after
@@ -261,15 +272,18 @@ not analysed in run 2; B4 v2 (`call_128` against `stop_call` and `walking_effect
 - S-a (primary analysis on v1.1): `LOCK_predictions_v1.json` + `LOCK_labels_v1_1.json` (v1 exposed list);
 - S-b (PREREG v1 secondary analyses 1-14): `LOCK_predictions_v1.json` + `LOCK_labels_v2.json`;
 - S-c (S3 analyses): `LOCK_predictions_v2.json` + `LOCK_labels_v2.json` (only if predictions v2 exist).
-The v2 runs recompute `type_labels` from `records.jsonl` with the v2 exposed set (scoring v2), not with the frozen kit-only check.
+Runs P, S-b and S-c recompute `type_labels` from labels v2's `records.jsonl` with the v2 exposed set (scoring v2), not with
+the frozen kit-only check; S-a uses labels v1.1 with the frozen check and the v1 exposed list.
 
 **S5. The unblinding gate (RUN2_PROMPT section 8), from label files and type names only; every condition must hold:**
 1. the locks for rulebook v1 and v2, predictions v1, predictions v2 if it exists, labels v1.1, labels v2, label code v2 and
    scoring v2 all pass `lock2.py check` in a clean checkout (every repository file hashed in a binding section exists and
    matches; chained lock hashes match; code-snapshot sections are reported, not required (L12); archive-member keys
-   `<archive>.zip:<member>` are outside the repository and checked by the frozen `lock.py check`, which the v1 locks also pass);
+   `<archive>.zip:<member>` are outside the repository and checked by the frozen `lock.py check`, which the v1 locks also pass;
+   recorded amendments count as matching and are listed, L12);
 2. no session that contributed a record (reader, atlas map or coder, second reader, adjudicator, verifier) breached under L3;
-3. the label review has no blocker, and the verification error rate on the front-leg field is at most 10 % (L11);
+3. the label review has no blocker, and the verification (`labels_v2/verify/verification.json`, by a non-breaching verifier)
+   has an error rate on the front-leg field of at most 10 % (L11);
 4. Cohen's kappa of the two readings on the front-leg field >= 0.7: the frozen `agreement(p1, p2)["primary_field_all_values"]`
    with p1 = the deduplicated first readings (atlas coder A included, after mapping) of non-breaching sessions and p2 = the
    Phase A second readings of non-breaching sessions (atlas coder B included, after mapping), matched by `exp_id`;

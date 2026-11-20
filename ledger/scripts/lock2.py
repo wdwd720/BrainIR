@@ -5,7 +5,8 @@
     lock2.py scoring      -> research/ledger/LOCK_scoring_v2.json     (v2 scoring code and tests, before any unblinding)
     lock2.py predictions ARM ... [ARM=reason ...] --platform TEXT -> research/ledger/LOCK_predictions_v2.json (additive to v1)
     lock2.py labels       -> research/ledger/LOCK_labels_v2.json
-    lock2.py labelcode [--amend PATH=REASON ...]   (kit amendments after the prereg freeze, PREREG v2 L12)
+    lock2.py amend PATH --reason TEXT [--old-rev REV]   (PREREG v2 L12: records a bug-fix change of a locked code or kit file in
+                               research/ledger/AMENDMENTS_v2.jsonl, before committing it; refused after UNBLIND.json exists)
     lock2.py check LOCKFILE   (every repository file hashed in a binding section is re-hashed; missing ones reported; chained
                                lock hashes re-hashed; code-snapshot sections reported only; archive members skipped; PREREG v2 S5.1)
 """
@@ -42,6 +43,53 @@ def hashes(paths) -> dict[str, str]:
 
 
 SNAPSHOT_SECTIONS = ("prediction_code_snapshot", "code_snapshot")
+AMEND = RES / "AMENDMENTS_v2.jsonl"
+V2_MANIFESTS = Path.home() / "ledger_rooms" / "run2" / "_manifests"
+
+
+def _chains() -> dict[str, dict[str, str]]:
+    out: dict[str, dict[str, str]] = {}
+    if AMEND.exists():
+        for line in AMEND.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                a = json.loads(line)
+                out.setdefault(a["path"], {})[a["old"]] = a["new"]
+    return out
+
+
+def _chain_ok(path: str, locked: str, current: str, chains: dict) -> bool:
+    """True if recorded amendments lead from the locked hash to the current one (PREREG v2 L12)."""
+    h, seen = locked, set()
+    while h in chains.get(path, {}) and h not in seen:
+        seen.add(h)
+        h = chains[path][h]
+        if h == current:
+            return True
+    return False
+
+
+def amend(path: str, reason: str, old_rev: str = "HEAD") -> None:
+    if (RES / "UNBLIND.json").exists():
+        raise SystemExit("no amendment after unblinding (PREREG v2 L12)")
+    p = REPO / path
+    is_kit = path.startswith("research/ledger/kit_v2/")
+    is_code = (path.startswith(("ledger/", ".github/")) and p.suffix in (".py", ".sh", ".toml", ".yml", ".lock")) \
+        or path == "research/ledger/IMPLEMENTATION_v2.md"
+    if not (is_kit or is_code) or not p.is_file():
+        raise SystemExit(f"{path}: only code, the implementation map and kit files can be amended (never rules, records, labels, predictions)")
+    started = V2_MANIFESTS.exists() and any(V2_MANIFESTS.glob("*.json"))
+    if is_kit and started:
+        raise SystemExit("kit files can be amended only before the first v2 label session (PREREG v2 L12)")
+    blob = subprocess.run(["git", "show", f"{old_rev}:{path}"], cwd=REPO, capture_output=True).stdout
+    old, new = hashlib.sha256(blob).hexdigest(), sha(p)
+    if old == new:
+        raise SystemExit(f"{path} is unchanged relative to {old_rev}")
+    recs = any(f.stat().st_size > 0 for f in (RES / "labels_v2" / "raw" / "pass1").glob("*/records.valid.jsonl"))
+    row = {"utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "path": path, "old": old, "new": new, "reason": reason,
+           "old_rev": git("rev-parse", old_rev), "v2_sessions_started": started, "v2_records_existed": recs}
+    with AMEND.open("a", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(row, sort_keys=True) + "\n")
+    print(json.dumps(row))
 
 
 def tracked() -> set[str]:
@@ -88,15 +136,9 @@ def lock_prereg() -> None:
     write("LOCK_prereg_v2.json", rec)
 
 
-def lock_labelcode(amend: dict[str, str]) -> None:
+def lock_labelcode() -> None:
     rec = base("labelcode_v2")
-    pre = json.loads((RES / "LOCK_prereg_v2.json").read_text(encoding="utf-8"))
-    rec["amendments_after_prereg"] = {}
-    for path, reason in amend.items():
-        old = pre["kit_v2"].get(path)
-        if old is None:
-            raise SystemExit(f"{path} is not a kit file of LOCK_prereg_v2.json")
-        rec["amendments_after_prereg"][path] = {"old": old, "new": sha(REPO / path), "reason": reason}
+    rec["implementation_map"] = hashes([RES / "IMPLEMENTATION_v2.md"])
     rec["untracked_code_not_hashed"] = []
     rec["label_code"] = globs(LABEL_CODE + ["ledger/scripts/gate_v2.py"], rec["untracked_code_not_hashed"])
     rec["kit_v2"] = hashes((RES / "kit_v2").glob("*"))
@@ -144,9 +186,7 @@ def lock_labels() -> None:
 def check(path: Path) -> int:
     rec = json.loads(path.read_text(encoding="utf-8"))
     changed, missing, snap_changed, amended, n, n_archive = [], [], [], [], 0, 0
-    amendments = {}
-    if path.name == "LOCK_prereg_v2.json" and (RES / "LOCK_labelcode_v2.json").exists():
-        amendments = json.loads((RES / "LOCK_labelcode_v2.json").read_text(encoding="utf-8")).get("amendments_after_prereg") or {}
+    chains = _chains()
 
     def walk(d, binding):
         nonlocal n, n_archive
@@ -162,8 +202,7 @@ def check(path: Path) -> int:
                 if not p.exists():
                     (missing if binding else snap_changed).append(k)
                 elif sha(p) != v:
-                    a = amendments.get(k)
-                    if binding and a and a["old"] == v and a["new"] == sha(p):
+                    if binding and _chain_ok(k, v, sha(p), chains):
                         amended.append(k)
                     else:
                         (changed if binding else snap_changed).append(k)
@@ -197,11 +236,11 @@ def main() -> None:
         notl = dict(a.split("=", 1) for a in args if "=" in a)
         lock_predictions(arms, notl, plat)
         return
-    if what == "labelcode":
+    if what == "amend":
         args = sys.argv[2:]
-        lock_labelcode(dict(args[i + 1].split("=", 1) for i, a in enumerate(args) if a == "--amend"))
+        amend(args[0], args[args.index("--reason") + 1], args[args.index("--old-rev") + 1] if "--old-rev" in args else "HEAD")
         return
-    {"prereg": lock_prereg, "scoring": lock_scoring, "labels": lock_labels}[what]()
+    {"prereg": lock_prereg, "labelcode": lock_labelcode, "scoring": lock_scoring, "labels": lock_labels}[what]()
 
 
 if __name__ == "__main__":
