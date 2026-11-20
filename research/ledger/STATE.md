@@ -33,7 +33,8 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
   are now in the working tree; PREREG 13).
 - Stage 1: A1/A1-lo10/A0/B0/S/B1/B1-alt/B1-lo5/B1-lo10/B5/B2 written; G1 PASS; G2 investigated (L26); arms review done
   (verdict LOCK with conditions; fixes in 35ba697, L27); batched execution (L28). G4 PASS: B1-lo10, B1-lo5.
-- Running (00:10 PST): controls (batched, sequential 10 networks), B4 (batched); G4 for B5/B2 (bgyu6l5ah); a watcher runs
+- (01:05 PST) Modal workspace switched (L31). Controls 101-103 done; 104-105, 201-205 resumed via `controls --only <name>` (log
+  `data/cache/ledger_logs/stage1_controls_resumed.log`); G4 watcher 2 (`g4_watch2.log`) for 103-205. Earlier: a watcher runs
   `g4 --only` for B4 and each control as soon as its `types.csv` appears (log `data/cache/ledger_logs/g4_watch.log`);
   G5 pre-lock checks (log `data/cache/ledger_logs/g5_prelock.log`).
 - Lock checklist (pre-mortem L29 = check these, then write the results into the LOG):
