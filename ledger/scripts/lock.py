@@ -18,7 +18,14 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from brainir_ledger import REPO, RESEARCH  # noqa: E402
 
-CODE_GLOBS = ["ledger/src/brainir_ledger/**/*.py", "ledger/scripts/*.py", "ledger/tests/*.py", "ledger/pyproject.toml", "ledger/uv.lock"]
+CODE_GLOBS = ["ledger/src/brainir_ledger/**/*.py", "ledger/scripts/*.py", "ledger/scripts/*.sh", "ledger/tests/*.py", "ledger/pyproject.toml",
+              "ledger/uv.lock"]
+# code frozen by the pre-registration: the join (scoring), the label side, the lock itself, and their tests. Prediction-side
+# code is recorded as a snapshot in the prereg lock and frozen by the predictions lock (PREREG 12).
+FROZEN_AT_PREREG = ["ledger/src/brainir_ledger/scoring/*.py", "ledger/src/brainir_ledger/labels/*.py", "ledger/src/brainir_ledger/__init__.py",
+                    "ledger/scripts/labels_*.py", "ledger/scripts/build_kit.py", "ledger/scripts/lock.py", "ledger/tests/conftest.py",
+                    "ledger/tests/test_stats.py", "ledger/tests/test_unblind_guard.py", "ledger/tests/test_labels.py",
+                    "ledger/tests/test_label_isolation.py", "ledger/tests/test_audit.py", "ledger/tests/test_label_workflow_e2e.py"]
 
 
 def sha(p: Path) -> str:
@@ -34,9 +41,9 @@ def hashes(paths) -> dict[str, str]:
     return {rel(p): sha(p) for p in sorted(paths) if p.is_file() and not p.name.startswith(".")}
 
 
-def code_hashes() -> dict[str, str]:
+def code_hashes(globs=None) -> dict[str, str]:
     out = {}
-    for g in CODE_GLOBS:
+    for g in (globs or CODE_GLOBS):
         out.update(hashes(REPO.glob(g)))
     return out
 
@@ -57,10 +64,15 @@ def lock_prereg() -> Path:
     from brainir_ledger.env import fingerprint
 
     rec = base_record("prereg")
+    snapshot = rec.pop("code")
+    frozen = code_hashes(FROZEN_AT_PREREG)
     rec.update({
+        "frozen_code": frozen,
+        "prediction_code_snapshot": {k: v for k, v in snapshot.items() if k not in frozen},
         "prereg": hashes([RESEARCH / "PREREG.md", RESEARCH / "RUN1_PROMPT.md"]),
         "kit_version": 1,
         "kit": hashes((RESEARCH / "kit").glob("*")),
+        "reviews": hashes((RESEARCH / "reviews").glob("*")),
         "authors_files_pinned": AU.FILES, "authors_zenodo_configs_pinned": AU.ZENODO_CONFIGS,
         "pre_freeze_evidence": hashes(list((RESEARCH / "gates").glob("G3_*")) + list((RESEARCH / "calibration").glob("*.json"))
                                       + list((RESEARCH / "pilot").glob("*.json")) + list((RESEARCH / "g0").glob("*"))),
@@ -114,7 +126,9 @@ def check(lockfile: Path) -> int:
             elif isinstance(v, str) and len(v) == 64 and (REPO / k).exists() and sha(REPO / k) != v:
                 bad.append(k)
 
-    for sec in ("code", "prereg", "kit", "pre_freeze_evidence", "arms_locked", "gates", "reviews", "labels", "raw", "sessions", "work_inputs"):
+    # a prereg lock is checked on what it froze (frozen_code), not on the prediction-code snapshot it merely records
+    for sec in ("code", "frozen_code", "prereg", "kit", "pre_freeze_evidence", "arms_locked", "gates", "reviews", "labels", "raw", "sessions",
+                "work_inputs"):
         if isinstance(rec.get(sec), dict):
             walk(rec[sec])
     missing = []

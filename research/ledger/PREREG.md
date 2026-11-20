@@ -1,6 +1,8 @@
 # BrainIR prediction ledger: pre-registration (rulebook), version 1
 
-Status: **version 1**, frozen by git tag `ledger-prereg-v1` together with the scoring code and the labeler kit.
+Status: **version 1**, frozen by git tag `ledger-prereg-v1` together with the scoring code, the label-side code and the
+labeler kit (`LOCK_prereg_v1.json`, section `frozen_code`; the prediction-side code is recorded there as a snapshot and
+frozen by the predictions lock).
 Spec: `research/ledger/RUN1_PROMPT.md`. Decisions and their reasons: `research/ledger/LOG.md` (L-numbers below).
 Amendments: see section 12. Nothing in this file may be changed after the tag; a change is a new version (`PREREG_v2.md`)
 with a changelog entry stating which stage had produced data and whether labels existed.
@@ -47,11 +49,13 @@ SHA-256 of both lock files (`brainir_ledger.scoring.require_unblind`); run 1 nev
   (checked: 0 of 1,318 DN rows differ). Types that occur only in the full-cord network keep that table's name
   (`wTable_20251006`, `manc:v1.2.3`); where the same body has a different name in the two tables the v1.2.1 name is used.
 - **Synonym map** `research/ledger/labels/synonyms.csv` (kit copy `research/ledger/kit/synonyms.csv`): MANC type ->
-  MaleCNS types (bodies whose curated `mancType` is the MANC type, MaleCNS v1.0 body annotations), FlyWire and hemibrain
-  types (same annotations), literature names (the annotations' `synonyms` field, e.g. "Bidaye 2020: BDN2"), plus names
-  proposed by labelers (versioned). Built by `ledger/scripts/build_kit.py` from annotation files only.
+  MaleCNS types, FlyWire and hemibrain types and literature names (the `synonyms` field, e.g. "Bidaye 2020: BDN2") of the
+  MaleCNS v1.0 bodies matched to that MANC type (curated `mancBodyid` -> that MANC body's type; else the curated `mancType`
+  string), plus names proposed by labelers (versioned). Names that can denote more than one MANC type are flagged
+  (`ambiguous`, `n_types_for_name`). Built by `ledger/scripts/build_kit.py` from annotation files only.
 - **Driver-line map** `research/ledger/labels/driver_lines.csv`: line -> DN type(s), from anatomy/line-catalogue papers
-  (name and line columns only, never behaviour columns).
+  (name and line columns only, never behaviour columns; LOG L20); names that map to several MANC types are marked
+  `AMBIGUOUS` with all `candidate_types`.
 - **Exposed list** (LOG L8): DNg100, DNb08, DNg12, DNg97, MDN, DNa01, DNa02, DNp09, DNg13, DNp01, DNg16, DNg55, DNg75,
   plus DNg74 and DNg62 (found in the repository notes, counted as exposed although uncertain). Literature names are
   mapped to `manc_type` through the synonym map; a name that maps to several MANC types exposes all of them. Resolved
@@ -408,7 +412,8 @@ rhythmic and whose offset is defined; target 0 within a tripod ({T1L, T2R, T3L} 
 ## 10. Data, seeds and environment fixed here
 
 - Parameter seeds 0..15 (B1, B1-controls, B2, B3, B4, B5, B6); 0..63 for G3; control network seeds 101-105 and 201-205.
-- Bootstrap 20261120; permutation 20261121; paired bootstrap 20261122; coupling null 20261123; G1 sample 20261124.
+- Bootstrap 20261120; permutation 20261121; paired bootstrap 20261122; coupling null 20261123; G1 sample 20261124;
+  adjudication reading order 20261125; spot-check sample 20261126; G4 re-run sample 20261127.
 - Modal image: Debian slim, Python 3.12, numpy 2.5.3, scipy 1.18.1, pandas 3.0.6, pyarrow 25.0.1, pydantic 2.13.5,
   networkx 3.7, duckdb 1.5.5, google-crc32c 1.8.0, requests 2.34.2; `OPENBLAS_CORETYPE=Haswell`, single-threaded BLAS,
   NumPy AVX-512 dispatch disabled; image builder 2025.06.
@@ -425,7 +430,8 @@ background_not_rhythmic); B5 `score_I32`, `score_I64`, `score_I128`, `score_I256
 `score_I512`), `replicates.parquet` (one row per type and seed), `legs.csv` (arms with per-leg output: `manc_type, leg,
 score, frequency_hz, n_active, low_confidence`; `leg` in T1L..T3R or front/middle/hind), `config.json`,
 `provenance.json`. Arm directories: `A1`, `A1-lo10`, `A0`, `B0`, `B1`, `B1-alt`, `S`, `B1-ctl-rewire-<seed>`,
-`B1-ctl-classshuffle-<seed>`, `B2`, `B4`, `B5`.
+`B1-ctl-classshuffle-<seed>`, `B2`, `B4`, `B5`; `B1-lo5` and `B1-lo10` are the two runs from which `B1` and `B1-alt` are
+selected (section 3.4).
 Labels: `research/ledger/labels/` (`sources.csv`, `records.jsonl`, `synonyms.csv`, `driver_lines.csv`, `type_labels.csv`
 with `manc_type, front, middle, hind, stop_call, walking_effect, best_preparation, best_specificity, n_records,
 has_systematic, exposed, confidence, freq_hz`, `agreement.md`).
@@ -436,7 +442,9 @@ has_systematic, exposed, confidence, freq_hz`, `agreement.md`).
 
 An amendment is allowed only before the stage it affects has produced data, is versioned (`PREREG_v<k>.md` plus a row in
 the changelog below), states its reason, and may not use information from the other side of the blind. A change to the
-labeler kit after the freeze is versioned the same way (`kit_version`, `kit/CHANGELOG.md`).
+labeler kit after the freeze is versioned the same way (`kit_version`, `kit/CHANGELOG.md`). Frozen code (`frozen_code` in
+`LOCK_prereg_v1.json`) changes only as a logged bug fix with a new lock version: label-side code only before Stage 2 has
+produced any record, scoring code only before `UNBLIND.json` exists; each fix states whether labels existed.
 
 | version | date | change | stage data existing at the time | labels existing |
 |---|---|---|---|---|
