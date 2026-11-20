@@ -1,0 +1,85 @@
+{
+ "B2": {
+  "DNg100": {
+   "A1_primary_score": 0.895871412,
+   "B1_primary_score": 0.8277635304,
+   "B2_primary_score": 0.05922683929,
+   "currents": [
+    256.0
+   ],
+   "n_active_all_range_of_those": [
+    10,
+    29
+   ],
+   "n_replicates": 16,
+   "n_tuning_runs": [
+    2
+   ],
+   "n_usable": 16,
+   "n_with_le1_active_readout": 15
+  },
+  "acceptance": {
+   "B1": {
+    "frac_accepted_at_start_current_128": 0.4533804684047724,
+    "frac_zero_active_readout": 0.45536897923110914,
+    "usable_replicates": 4526
+   },
+   "B2": {
+    "frac_accepted_at_start_current_128": 0.6869066018988739,
+    "frac_zero_active_readout": 0.43784499889600353,
+    "usable_replicates": 4529
+   }
+  },
+  "agreement_by_mapping": {
+   "all": {
+    "n": 310,
+    "spearman_B1_B2": 0.3108107229950383
+   },
+   "clean": {
+    "n": 236,
+    "spearman_A1_B2": 0.46594119922226507,
+    "spearman_B1_B2": 0.3624435149554231
+   },
+   "fallback_or_conflict": {
+    "n": 74,
+    "spearman_A1_B2": 0.28613672383491806,
+    "spearman_B1_B2": 0.1208729874331047
+   }
+  }
+ },
+ "B4": {
+  "DNg100": {
+   "call_128": "halts",
+   "call_32": "no_effect",
+   "call_512": "halts",
+   "frac_halt_128": 0.8125,
+   "frac_halt_32": 0.125,
+   "frac_halt_512": 1.0
+  },
+  "background_rhythmic_seeds": 16,
+  "calls_128": {
+   "halts": 207,
+   "no_effect": 250,
+   "slows_down": 14,
+   "speeds_up": 4
+  },
+  "halts_split": {
+   "fewer_active_MNs_than_background": 8,
+   "same_or_more_active_MNs": 199
+  },
+  "n_lost_active_over_1500": 899,
+  "n_lost_beyond_B1_bounds (active > 1500 or high-firing > 200)": 2757,
+  "n_lost_verdict_strong_under_B4_stock_bounds": 2787,
+  "n_rhythm_losing_replicates": 3239,
+  "stock_bounds": "ScreenConfig(): n_active_lower 5, n_active_upper 1500, n_high_fr_upper 100"
+ },
+ "B5": {
+  "DNg100_per_strength": {
+   "score_I128": 0.0,
+   "score_I256": 0.8277635304,
+   "score_I32": 0.0,
+   "score_I512": 0.1682839816,
+   "score_I64": 0.0
+  }
+ }
+}

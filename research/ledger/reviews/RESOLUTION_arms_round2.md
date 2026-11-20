@@ -1,0 +1,14 @@
+# Resolution of the arms review, round 2 (`REVIEW_arms_round2.md`)
+
+| # | finding | resolution | where |
+|---|---|---|---|
+| 1 | lock command shorthand would lock an empty arm; `lock_verify` default tag missing before tagging | The lock command names all ten controls explicitly (`B1-ctl-rewire-101` ... `B1-ctl-classshuffle-205`); everything `lock.py` hashes is committed first; `lock_verify.py --tag HEAD` runs on the lock commit before the tag, and again on the tag. | LOG (lock entry) |
+| 2 | batched containers ran with 4 BLAS/OpenMP threads | Logged as a correction (L30): the image sets 1, but containers requested with 4 CPUs report 4 (apparently set by the platform per CPU request; inference). No execution change mid-campaign. Each control's G4 (unbatched, 1 thread) is a hard lock condition; 252 4-versus-1 pairs were identical before the remaining controls. | LOG L30; `gates/G4_*.json` |
+| 3 | a dead worker would hang a batch until timeout | Accepted for this run (0 infrastructure errors; keys would be re-run by the resumable runner, no partial or duplicate results possible). Recommended for later campaigns. | handoff (next steps) |
+| 4 | diagnostics numbers had no committed producing code; bounds of "strong" | `ledger/scripts/arm_diagnostics.py` computes every number (-> `gates/ARM_DIAGNOSTICS.json`) and freezes `gates/B4_halts_split.csv` and `gates/B2_mapping_split.csv`; the text states B4's stock bounds (cap 100 -> 2,787) and B1's (cap 200 -> 2,757; 899 above 1,500 active neurons); `PREDICTIONS_SUMMARY.json` is generated after the last control. | this commit |
+| 5 | B2 DNg100 check platform not recorded | `B2_DNG100_CHECK.json` regenerated with `computed_on` (macOS arm64, local) and a note; stated in ARM_DIAGNOSTICS. | this commit |
+| 6 | round-1 resolution rows 1-2 | Row 1 made a hard condition (true before `lock.py`); row 2 reworded ("written after the tag"). | this commit |
+| 7 | stale ENVIRONMENT.json | Regenerated after the last campaign, before `lock.py`; the per-result thread setting distinguishes the stopped first segments (1 thread) from the batched rest (4 threads). | lock commit |
+| 8 | `lock_verify` imported the working tree's scoring code | It now runs `verify_inputs` in a subprocess whose import path starts with the tag checkout and refuses if the scoring module is not imported from there. The run-2 step "`lock.py check LOCK_prereg_v1.json` in the tag checkout before scoring" goes into the handoff. | this commit; handoff |
+| nit | `A0/provenance.json` does not hash `A0/neurons.csv` | Accepted: the predictions lock hashes it. | — |
+| item 7 | lock B2 and B4 as pre-registered | Agreed by both the orchestrator and the reviewer; LOG decision entry L29 before the lock; both weaknesses go into the handoff (sections 4 and 8). The optional freeze of the per-type splits is done (finding 4). | LOG L29 |

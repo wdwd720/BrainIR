@@ -18,6 +18,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -84,9 +85,23 @@ def main() -> None:
     if rec.get("prereg_lock_sha256") and hashlib.sha256(pl.read_bytes()).hexdigest() != rec["prereg_lock_sha256"]:
         problems.append("prereg lock hash differs")
 
-    # clean checkout of the tag -> frozen verify_inputs (predictions side), placeholder labels lock
-    from brainir_ledger.scoring import BlindError
-    from brainir_ledger.scoring.pipeline import verify_inputs
+    # clean checkout of the tag -> the TAG's own frozen verify_inputs (run in a subprocess whose import path starts with the
+    # checkout, so the scoring code under test is the tagged one), placeholder labels lock
+    child = (
+        "import json, sys\n"
+        "from pathlib import Path\n"
+        "import brainir_ledger.scoring.pipeline as P\n"
+        "from brainir_ledger.scoring import BlindError\n"
+        "a = json.loads(sys.argv[1])\n"
+        "mod = str(Path(P.__file__).resolve())\n"
+        "if not mod.startswith(str(Path(a['wt']).resolve())):\n"
+        "    print(json.dumps({'ok': False, 'error': 'scoring module not imported from the checkout: ' + mod})); raise SystemExit(0)\n"
+        "try:\n"
+        "    v = P.verify_inputs(a['flag'], Path(a['res']), Path(a['pred']), Path(a['lab']))\n"
+        "    print(json.dumps({'ok': True, **v, 'scoring_module_from_checkout': True}))\n"
+        "except BlindError as e:\n"
+        "    print(json.dumps({'ok': False, 'error': str(e)}))\n"
+    )
 
     tmp = Path(tempfile.mkdtemp(prefix="ledger_lockverify_"))
     wt = tmp / "wt"
@@ -102,12 +117,16 @@ def main() -> None:
         llock = {"labels": {f"research/ledger/labels/{p.name}": hashlib.sha256(p.read_bytes()).hexdigest() for p in lab.iterdir()}}
         (res / "LOCK_labels_v0placeholder.json").write_text(json.dumps(llock), encoding="utf-8")
         flag = {"predictions_lock": lock_path.name, "labels_lock": "LOCK_labels_v0placeholder.json"}
+        args = {"wt": str(wt), "flag": flag, "res": str(res), "pred": str(wt / "research" / "ledger" / "predictions"), "lab": str(lab)}
+        env = dict(os.environ, PYTHONPATH=str(wt / "ledger" / "src"))
+        r = subprocess.run([sys.executable, "-c", child, json.dumps(args)], cwd=tmp, env=env, capture_output=True, text=True)
         try:
-            v = verify_inputs(flag, res, wt / "research" / "ledger" / "predictions", lab)
-            out["clean_checkout_verify_inputs"] = {"ok": True, **v}
-        except BlindError as e:
-            out["clean_checkout_verify_inputs"] = {"ok": False, "error": str(e)}
-            problems.append(f"verify_inputs on a clean checkout: {e}")
+            v = json.loads(r.stdout.strip().splitlines()[-1])
+        except (IndexError, json.JSONDecodeError):
+            v = {"ok": False, "error": f"child failed (exit {r.returncode}): {r.stderr.strip()[-800:]}"}
+        out["clean_checkout_verify_inputs"] = v
+        if not v.get("ok"):
+            problems.append(f"verify_inputs on a clean checkout: {v.get('error')}")
     finally:
         try:
             git("worktree", "remove", "--force", str(wt))

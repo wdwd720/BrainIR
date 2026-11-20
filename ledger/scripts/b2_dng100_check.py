@@ -34,6 +34,7 @@ def one(args):
 
 if __name__ == "__main__":
     from brainir_ledger import arms as AR
+    from brainir_ledger.env import fingerprint
 
     net, groups, info = AR.malecns_network()
     dng = [int(m) for m in groups["DNg100"]]
@@ -49,5 +50,6 @@ if __name__ == "__main__":
             rows.append(dict(zip(("condition", "seed", "score", "n_active_readout", "n_active_all", "frequency_hz"), row)))
     out = {"network": "authors' MaleCNS front-leg network (B2)", "members_positions": dng,
            "members_bodyIds": [int(net.table.loc[m, "bodyId"]) for m in dng], "model": "ModelConfig(t_end=1.0)",
-           "screen_cfg_for_scoring": "B1 kept procedure (lower bound from B1/selection.json)", "runs": rows}
+           "screen_cfg_for_scoring": "B1 kept procedure (lower bound from B1/selection.json)", "runs": rows,
+           "computed_on": fingerprint(), "note": "computed locally (orchestrator machine), not on the locked Modal platform"}
     (Path(__file__).resolve().parents[2] / "research" / "ledger" / "gates" / "B2_DNG100_CHECK.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8")
