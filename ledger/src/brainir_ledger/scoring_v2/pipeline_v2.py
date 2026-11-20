@@ -381,15 +381,12 @@ def run(name: str, research_dir: Path, flags_file: Path, *, n_boot: int = 10_000
                                                                               here.parent / "scoring" / "stats.py")}}
     kind = RUNS[name]["analysis"]
     if kind == "primary":
-        R: dict = {}
-        _run_v2("primary", lambda: primary(pred_dir, tl, ver["arms_locked"], n_boot=n_boot, n_perm=n_perm), R, {})
-        res["primary"] = R["primary"]
+        # PREREG v2 S4: an exception in the primary analysis is a crash (uncaught; the run is repeated once after the fix),
+        # never an `error` result
+        res["primary"] = {"status": "ok", "result": _clean(primary(pred_dir, tl, ver["arms_locked"], n_boot=n_boot, n_perm=n_perm))}
     elif kind == "secondary":
-        try:
-            res["analyses"] = secondary(pred_dir, labels_dir, tl, ver["arms_locked"], n_boot=n_boot, n_perm=n_perm)
-        except Exception as e:  # noqa: BLE001 - recorded, never silent
-            res["analyses"] = {}
-            res["analyses_error"] = {"error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()[-2000:]}
+        # single secondary analyses record `error` inside the frozen `secondary`; an exception escaping it is a crash (S4)
+        res["analyses"] = secondary(pred_dir, labels_dir, tl, ver["arms_locked"], n_boot=n_boot, n_perm=n_perm)
         missing = [k for k in PREREGISTERED_SECONDARY if k not in res["analyses"]]
         if missing:
             res["analyses_missing_from_code"] = missing
