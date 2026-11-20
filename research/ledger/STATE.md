@@ -19,15 +19,24 @@ Read first, in this order: `research/ledger/RUN1_PROMPT.md` (the spec), this fil
 - Labels `ledger-labels-v1`: by the end of the run.
 
 ## Done
-- Stage S: caffeinate, branch, prompt saved, `uv sync`, baseline tests and lock checks, MANC v1.2 raw download.
+- Stage S: caffeinate, branch, prompt saved, `uv sync`, baseline (1 platform test failure, P3 benchmark check cannot run),
+  MANC downloads + builds, **G0 PASS** (byte-identical builds; authors' front-leg and full-cord matrices exact), Modal
+  account checked (L7), pinned ledger backend with numerics env (L11-L12), pilot (DNg100/DNb08) vs B0 and determinism.
+- Stage 0 drafted: PREREG v1, scoring pipeline + UNBLIND guard, label schema/aggregator/agreement, kit (PROTOCOL, prompts,
+  families, type list, synonyms, exposed list), label-side scripts (rooms/prepare/collect), arm code (`arms.py`,
+  `run_arms.py`), lock script. 47 ledger tests pass.
+- DNg100-only calibration on the full cord (L14) and **G3 evaluated before the freeze: FAIL on item 4 (coupling)** ->
+  B3/B6 not locked (L16).
 
 ## In progress
-- MANC v1.0 raw download. Then ingest v1.0, v1.2.1, v1.2.3. Then G0.
+- Independent review of Stage 0 (subagent) -> fix -> lock_prereg -> tag `ledger-prereg-v1` -> push -> OTS.
+- Driver-line map extraction (subagent; anatomy only) -> kit v1.1 before Stage 2 if it arrives after the tag.
 
-## Next
-1. Modal credit check; ledger package + pinned backend; smoke test on DNg100/DNb08 only.
-2. G0 (manifests compared against `git show HEAD:data/manifests/...`; restore `data/manifests` after every ingest).
-3. Stage 0: exposed list (subagent, names only), PREREG, scoring code + tests, labeler kit, freeze.
+## Next (Stage 1, after the tag)
+1. `run_arms.py authors`, `b0`, `baselines`; `b1 --lower 5`, `b1 --lower 10`, `select-b1`; `g1`; `controls`; `b5`; `b4`; `b2`.
+2. Gates G1, G2 (B1 vs A1), G4 (determinism re-runs), G5 (baseline checks), independent review of the arms.
+3. Lock predictions (LOCK_predictions_v1.json, tag, OTS; push the predictions tag only after the label passes, LOG).
+4. Stage 2: pilot labeler on one family, then pass 1 (8 families), pass 2, search x2, adjudication, finalize, freeze labels.
 
 ## Open problems
 - `tests/test_sim_model.py::test_single_and_segment_integration_agree_and_rk4_converges` fails on this Mac at baseline (platform numerics).
