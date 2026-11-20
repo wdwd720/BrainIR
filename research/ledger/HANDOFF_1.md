@@ -31,7 +31,7 @@ Run: 2026-11-19 20:20 to 2026-11-20 ~10:55 PST, about 14.5 hours.
 - The predictions lock (22 arms, 182 files) was verified on the tag.
 - **Timestamps:** OpenTimestamps proofs (`*.ots`) sit next to each lock.
 - **Files:** `research/ledger/predictions/<arm>/types.csv`, `research/ledger/labels/`, `gates/`, `reviews/`, `movies/`, `final/`.
-- In a clean checkout all three locks check clean. Scoring refuses to run without `UNBLIND.json`, which does not exist.
+- In a clean checkout all four locks check clean. Scoring refuses to run without `UNBLIND.json`, which does not exist.
 
 ## 3. The rulebook in ten lines, and departures
 
