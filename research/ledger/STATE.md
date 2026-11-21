@@ -8,7 +8,10 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
 - I never author labels and never read the hemilineage papers' results. Frozen locks/BrainIR/main untouched. No Modal; GitHub
   first (<= 300 runner-hours), Mac second. Push branch + tags only; no force push. After unblinding nothing moves.
 
-## NOW (2026-11-21 ~11:30 PST): EXAM 2 UNBLINDED AND SCORED. NEVER RE-RUN score_h1.py (flag retired).
+## RUN 3 COMPLETE (2026-11-21 13:45 PST). Exam 2 unblinded once and scored; NEVER RE-RUN score_h1.py (flag retired).
+- All tags pushed (prereg-v3, predictions-h1, labels-h1, scorecard-h1, reliability-v1); every proof complete; baseline,
+  ledger suite and all locks green; HANDOFF_3.md written. The list below is the history of the run.
+
 - Gate run 2: all six conditions hold. Flag committed (ebf0f01), primary + secondary run once, recompute agrees, flag retired to
   results/run3/UNBLIND_h1_used.json. Verdict: PREDICTS (0.633, 0.533-0.724, p 0.0076, 27 units) but NOT beyond wiring
   (H-S-k2-signed 0.638; diff -0.006, -0.172..+0.166). RESULTS_2.md written; results commit 3dd9746 (+ wording fix commit).

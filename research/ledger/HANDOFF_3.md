@@ -19,7 +19,7 @@ Locks (sha256, files hashed):
 - `LOCK_reliability_v1`: 7d5f172e...2b80 (122)
 
 All verify, and each was committed exactly once. Pushes worked: origin `ledger/v1` equals local HEAD, all five tags are on
-origin, `main` is untouched, and nothing was force-pushed. OpenTimestamps: proofs are complete for the prereg, label-code and predictions locks, and pending (stamped 10:25-11:15) for the other three locks, `RESULTS_2.md` and `primary.json`.
+origin, `main` is untouched, and nothing was force-pushed. OpenTimestamps: every run 3 lock, `RESULTS_2.md` and `results/run3/primary.json` have complete, Bitcoin-attested proofs.
 
 ## 2. Departures from the prompt
 
@@ -125,7 +125,7 @@ Run 1 held conditions 1-5, with 6 pending. Run 2 held all six, and conditions 1-
 
 ## 8. Results
 
-First line of `RESULTS_2.md`: **"Pre-registered verdict: the model predicts, but it adds nothing beyond wiring."**
+First line of `RESULTS_2.md` (opening sentence): **"Pre-registered verdict: the model predicts, but it adds nothing beyond wiring."**
 
 - **Headline:** mean percentile rank 0.633 (0.533-0.724), p = 0.0076, 27 hemilineages. Top-1 is 0 of 27 and top-3 is 2 of
   27; chance is 0.02 and 0.07.
@@ -185,7 +185,7 @@ the gap is a hypothesis.
 - **Why job timestamps sum to 368 h:** 187 jobs queued during the stall were cancelled before any step ran. Their timestamps
   include queue time, but they never ran on a runner.
 - **Other compute:** none paid, no Modal. The Mac only orchestrated, built tables, scored and checked.
-- **Wall-clock:** 00:32 to 11:30 PST (11 hours). Most of the waiting was GitHub's stall.
+- **Wall-clock:** 00:32 to 11:30 PST for the work (11 hours), then waiting for proofs until 13:45. Most of the waiting was GitHub's stall.
 - **Baseline checks at the end match the start:** the BrainIR suite gives 532 passed with the known arm64 failure. The
   Phase 1-3 locks and the ledger suite (201 passed) are green.
 
