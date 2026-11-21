@@ -89,24 +89,35 @@ def _audit() -> dict[str, dict]:
     return {r["session"]: r for r in json.loads(p.read_text())} if p.is_file() else {}
 
 
+DROPS: dict[str, dict[str, int]] = {}
+
+
 def reading(slug: str, which: str, doi: str | None = None) -> list[dict]:
-    """Records of one reading of a source: every listed session's valid records of that source, de-duplicated (a record that
-    two scope halves both wrote is kept once). Sessions that breached contribute nothing."""
+    """Records of one reading of a source: every listed session's valid records, each stamped with the source's registry DOI
+    (lower case; reader sessions are assigned exactly one source, so a differently typed DOI is a typing variant, counted in
+    DROPS[...]['doi_retyped']), de-duplicated (a record two scope halves both wrote is kept once). Invalid records are counted
+    (`invalid`), never used; sessions that breached contribute nothing."""
     aud = _audit()
     out, seen = [], set()
+    reg = (doi or source_doi(slug)).lower().strip()
+    cnt = DROPS.setdefault(f"{slug}:{which}", {"invalid": 0, "doi_retyped": 0, "duplicates": 0, "breached_sessions": 0})
     for s in plan()["readings"][slug][which]:
         if aud.get(s, {}).get("breach"):
+            cnt["breached_sessions"] += 1
             continue
         for r in _jsonl(LAB / "raw" / "reading" / s / "records.jsonl"):
             if C.validate(r):
+                cnt["invalid"] += 1
                 continue
-            if doi and r["doi"].lower().strip() != doi.lower():
+            if r["doi"].lower().strip() != reg:
+                cnt["doi_retyped"] += 1
+            r = {**r, "doi": reg}
+            k = (reg, r["hemilineage_as_named"].strip().lower(), C.driver_norm(r["driver"]), r["preparation"], C.effector_class(r["effector"]))
+            if k in seen:
+                cnt["duplicates"] += 1
                 continue
-            k = (r["doi"].lower().strip(), r["hemilineage_as_named"].strip().lower(), C.driver_norm(r["driver"]), r["preparation"],
-                 C.effector_class(r["effector"]))
-            if k not in seen:
-                seen.add(k)
-                out.append(r)
+            seen.add(k)
+            out.append(r)
     return out
 
 
@@ -141,7 +152,8 @@ def disputes(slug: str) -> None:
     room_rows = [{k: v for k, v in r.items() if k != "key"} for r in rows]
     _write_jsonl(LAB / "work" / f"disputes_{slug}.jsonl", rows)
     _write_jsonl(LAB / "work" / f"disputes_{slug}_room.jsonl", room_rows)
-    pj = {"slug": slug, "doi": doi, "n_reading_1": len(a), "n_reading_2": len(b), "pairs": [[x["record_id"], y["record_id"]] for x, y in pairs],
+    pj = {"slug": slug, "doi": doi.lower(), "n_reading_1": len(a), "n_reading_2": len(b), "drops": {k: v for k, v in DROPS.items() if k.startswith(slug + ":")},
+          "pairs": [[x["record_id"], y["record_id"]] for x, y in pairs],
           "unmatched_1": [r["record_id"] for r in ua], "unmatched_2": [r["record_id"] for r in ub], "n_disputes": len(rows)}
     (LAB / "work" / f"pairing_{slug}.json").write_text(json.dumps(pj, indent=1) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps({k: (len(v) if isinstance(v, list) else v) for k, v in pj.items()}))
@@ -180,6 +192,9 @@ def finalize() -> None:
                     raise SystemExit(f"{slug} {disp[key]['dispute_id']}: not adjudicated")
                 cells = a["cells"]
             f = C.final_from_pair(x, y, cells)
+            bad = C.validate({k: v for k, v in f.items() if k != "paired_with"})
+            if bad:
+                raise SystemExit(f"{slug} {key}: merged record invalid after adjudication ({bad}); re-adjudicate")
             f["source_sessions"] = ";".join(sorted({x["session"], y["session"]} | ({adj[disp[key]["dispute_id"]]["_session"]} if key in disp else set())))
             f["origin"] = "pair"
             finals.append(f)
@@ -190,7 +205,7 @@ def finalize() -> None:
             if a is None:
                 raise SystemExit(f"{slug} {d['dispute_id']}: not adjudicated")
             if a.get("exists") and a.get("record"):
-                r = dict(a["record"])
+                r = {**dict(a["record"]), "doi": doi.lower()}
                 problems = C.validate(r)
                 if problems:
                     raise SystemExit(f"{slug} {d['dispute_id']}: adjudicated record invalid: {problems}")

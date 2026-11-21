@@ -188,32 +188,39 @@ G.BUILDERS.update(V3_BUILDERS)
 
 # ------------------------------------------------------------------------------------------------ publish / collect (v3 tags)
 RUN3_PREFIXES = {"p7", "hm", "hd", "hsens", "hc", "hmdet", "r3", "r4"}  # r3, r4: builders in gha3r.py (reliability study)
+# everything a hosted runner executes for a run 3 campaign (the workflow, its runner script, the packages it imports)
+RUNNER_SIDE = [".github/workflows/ledger-gha3.yml", "ledger/scripts/gha_runner3.py", "ledger/src/brainir_ledger", "src/brainir",
+               ".github/ledger_gha_pub.pem"]
 
 
 def publish3(name: str, attempt: int) -> None:
     if name.split("-")[0] not in RUN3_PREFIXES:
         raise SystemExit(f"{name}: not a run 3 campaign")
     man = json.loads((G.GHA / name / "manifest.json").read_text())
-    head = G.sh("git", "rev-parse", "HEAD")
-    tree = G.sh("git", "ls-tree", "-r", "--name-only", "HEAD", "--", "research/ledger/predictions_h1", "research/ledger/LOCK_predictions_h1.json",
-                "research/ledger/LOCK_predictions_h1b.json")
-    if tree.strip() and not (RESEARCH / "LOCK_labels_h1.json").exists():
-        raise SystemExit("HEAD contains exam 2 predictions and LOCK_labels_h1.json does not exist: publishing would push them "
-                         "(PREREG v3 P10); publish every campaign before committing predictions; refused")
-    if G.sh("git", "rev-parse", "origin/ledger/v1") != head:
-        raise SystemExit("push the branch first: the workflow code at HEAD must be on origin")
+    G.sh("git", "fetch", "-q", "origin", "ledger/v1")
+    origin = G.sh("git", "rev-parse", "origin/ledger/v1")
+    # the runner checks out the TAGGED commit: tag the public origin commit (never a local one, which may hold exam 2 predictions
+    # before the labels lock; PREREG v3 P10), after checking that everything the runner executes is identical there and at HEAD
+    diff = subprocess.run(["git", "diff", "--quiet", origin, "HEAD", "--", *RUNNER_SIDE], cwd=G.REPO).returncode
+    if diff != 0:
+        raise SystemExit("runner-side code differs between origin/ledger/v1 and HEAD: push it first (before any prediction is "
+                         "committed) or revert it; refused")
+    leak = G.sh("git", "ls-tree", "-r", "--name-only", origin, "--", "research/ledger/predictions_h1",
+                "research/ledger/LOCK_predictions_h1.json", "research/ledger/LOCK_predictions_h1b.json")
+    if leak.strip() and not (RESEARCH / "LOCK_labels_h1.json").exists():
+        raise SystemExit("origin holds exam 2 predictions before the labels lock: stop and investigate; refused")
     if not (G.REPO / ".github" / "workflows" / "ledger-gha3.yml").is_file():
         raise SystemExit("run 3 workflow missing")
     rel = f"ledgerdata-{name}"
     if subprocess.run(["gh", "release", "view", rel], cwd=G.REPO, capture_output=True).returncode != 0:
         assets = [str(p) for p in sorted((G.GHA / name).iterdir()) if p.is_file()]
-        G.sh("gh", "release", "create", rel, *assets, "--target", head, "--title", rel, "--prerelease",
+        G.sh("gh", "release", "create", rel, *assets, "--target", origin, "--title", rel, "--prerelease",
              "--notes", "BrainIR ledger run 3: inputs of a GitHub Actions campaign (public connectome matrices and job specs only; "
                         "no result). Results come back encrypted. See research/ledger/LOG.md.")
     tag = f"gha3-run-{name}" + (f"-r{attempt}" if attempt else "")
-    G.sh("git", "tag", tag, head)
+    G.sh("git", "tag", tag, origin)
     G.sh("git", "push", "origin", tag)
-    print("published", rel, "and pushed", tag, "jobs", man["n_jobs"], "chunks", man["n_chunks"])
+    print("published", rel, "and pushed", tag, "at", origin[:12], "jobs", man["n_jobs"], "chunks", man["n_chunks"])
 
 
 def runs_for3(name: str) -> list[dict]:

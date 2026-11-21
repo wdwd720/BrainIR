@@ -76,8 +76,8 @@ def _by_arm(res: dict[str, dict], seeds=None) -> dict[str, dict[str, list[dict]]
     return out
 
 
-def _write(arm: str, pred, pools, prov: dict, out: Path = OUT) -> None:
-    d = out / arm
+def _write(arm: str, pred, pools, prov: dict, out: Path | None = None) -> None:
+    d = (OUT if out is None else out) / arm
     d.mkdir(parents=True, exist_ok=True)
     pred.to_csv(d / "predicted.csv", index=False, lineterminator="\n", float_format="%.10g")
     if pools is not None:

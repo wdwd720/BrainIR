@@ -10,8 +10,9 @@ and `disputes.jsonl`. Each line of `disputes.jsonl` is one dispute:
 
 Session: `{SESSION}`. For every dispute, read the source at the locators (and anywhere else needed), then append one JSON line to
 `out/adjudications.jsonl`:
-- for `cells`: `{"dispute_id": ..., "cells": {"d5": "yes", ...}, "locator": ..., "quote": ..., "reason": ...}` with a value from
-  the cell vocabulary for every disputed cell;
+- for `cells`: `{"dispute_id": ..., "cells": {"d5": "yes", ...}, "locator": ..., "quote": ..., "reason": ...}` with a value for every
+  disputed field: for d1-d15 one of `yes`, `no`, `unclear`, `not_assessed`; for `record_type` one of `whole_two_sided`, `clonal`,
+  `one_sided`, `partial_or_mixed` (PROTOCOL section 1);
 - for `unmatched`: `{"dispute_id": ..., "exists": true|false, "record": {...full record per record_schema.json, record_id
   "{PREFIX}-NNNN"...} or null, "reason": ...}`: `exists` true if the source does report that experiment (then give the record as
   you code it), false if not.

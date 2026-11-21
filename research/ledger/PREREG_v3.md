@@ -205,7 +205,7 @@ is written down.
 `unit`, the twelve primary dimensions `d1 d2 d3 d4 d5 d6 d7p d10 d11 d13 d14 d15`, `n_members`, `n_replicates`, tuner outcome
 counts), `pools.csv` (per unit, replicate and pool: fraction of active motor neurons and per-leg rhythm), `provenance.json` (campaign,
 SHA-256 of the raw results file that holds the compressed motor-neuron traces, keys, digests). Arms: H-M, H-M-s0-3, H-D-128 ...
-H-D-512, H-C-rewire-101 ... H-C-classshuffle-205, H-M-S-all ... H-M-S-R, H-S-k0 ... H-S-k3-unsigned. **Locks:** `LOCK_predictions_h1.json` (`lock3.py predictions`) holds
+H-D-512, H-C-rewire-101 ... H-C-classshuffle-205, H-M-S-all ... H-M-S-R, H-S-k0 ... H-S-k3-unsigned, H-S-lin. **Locks:** `LOCK_predictions_h1.json` (`lock3.py predictions`) holds
 the primary arms, H-M, H-M-s0-3 and all eight H-S arms (the lock tool refuses a subset), and is committed and OTS-stamped **before
 the first h1 label session starts** (the lock tool refuses afterwards; gate condition 1 checks the commit times); tag
 `ledger-predictions-h1`. `LOCK_predictions_h1b.json` (`lock3.py predictions-b`) holds the descriptive arms (H-D, H-C, sensitivity
@@ -340,10 +340,13 @@ other; a reading of a large source may be split by hemilineage scope over severa
 name list each), and a record written by two sessions of the same reading is kept once. **Pairing** (`labels_h1/core.py`): the
 two readings' records are matched on (source, unit per U5 or the normalised name when no unit, preparation, effector class:
 thermogenetic, optogenetic, other); where several records share that key, they are matched by driver name after normalisation
-(lower case, letters and digits only), and a single leftover record on each side is paired. Matched
-pairs with any differing cell, and records present in one reading only, go to an adjudicator (run 2's design; reading order by a
-coin, `default_rng(20261306)`, per disputed record), who decides each disputed cell, and for an unmatched record whether it exists
-in the source (and, if so, its cells). The final record takes the agreed cells and the adjudicated ones.
+(lower case, letters and digits only), and a single leftover record on each side is paired. Every record of a reading carries its
+source's registry DOI (a reader's typing variant is counted, not a new source). Matched pairs with any differing field among
+d1-d15 and `record_type`, and records present in one reading only, go to an adjudicator (run 2's design; reading order by a coin,
+`default_rng(20261306)`, per disputed record), who decides each disputed field (cells from the cell vocabulary, `record_type` from
+the four record types), and for an unmatched record whether it exists in the source (and, if so, its full coding). The final record
+takes the agreed fields and the adjudicated ones and must pass the schema; one repair round (`labels3_rooms.py repair`) is allowed
+for a session whose records fail the schema.
 
 **T4. Consensus (per unit, per dimension, including 7'), by script, over any number of sources:**
 1. Only final records of type `whole_two_sided` that are **eligible** enter the primary consensus: no session that produced the
@@ -368,8 +371,9 @@ both code `yes`/`no`). Never truth.
 
 **T6. Searches.** Fresh sessions with web tools search for other whole-hemilineage activation studies: by hemilineage name, by
 driver, and by papers citing Harris 2015 or Soffers 2025; a lead qualifies only if it reports its **own** activation of a whole
-hemilineage (or named hemilineages) in adult flies; qualifying leads are registered (by script), downloaded and read by two readers like
-the main sources. One search round; a second only if the first adds a source with at least one `whole_two_sided` record.
+hemilineage (or named hemilineages) in adult flies; `labels3_leads.py` registers, by script, every lead from a non-breaching search
+session with a DOI, `adult_activation` = `yes` and `whole_hemilineage` = `yes` or `unclear` that is neither a known source nor a banned
+one (the readers decide the record type); registered sources are downloaded and read by two readers like the main sources. One search round; a second only if the first adds a source with at least one `whole_two_sided` record.
 
 **T7. Banned content and sightings.** Readers must not open connectome-simulation papers or this repository (run 2's deny rules
 and audit, extended to the dedicated simulation papers of exam 1 and to any source whose title or abstract reports a network
@@ -382,7 +386,8 @@ banned paper or host); all its records are excluded.
 session, because the deny rules were extended after the last canary), mechanical downloader, session contract (dispositions per
 source), the transcript audit (L3 of v2, with the dedicated tokens extended to simulation papers), the label review, the same model
 as run 2, quota thresholds by slowing down. The **verification sample**: after assembly and before the labels lock, 30 final
-`whole_two_sided` records drawn with `default_rng(20261313)` from all such records sorted by record id (all of them if fewer); a
+`whole_two_sided` **eligible** records drawn with `default_rng(20261313)` from all such records sorted by record id (all of them if
+fewer); a
 fresh verifier, blind to the recorded values, codes their twelve primary dimensions from the source; a cell is in error when the
 record's `yes`/`no` differs from the verifier's or the verifier marks it `cannot_verify`; error rate = cells in error / cells the
 records code `yes`/`no`. Label-side code is new (`ledger/scripts/labels3_*.py`, `ledger/scripts/gate_h1.py`,
@@ -391,7 +396,8 @@ specs. The kit holds the dimension list, the cell vocabulary and a
 hemilineage name list with synonyms, alphabetical and prediction-free.
 
 **T9. Lock.** `LOCK_labels_h1.json` (`lock3.py labels`; consensus, per-source matrices, secondary consensus, final records, raw
-readings, sessions, verification, review), tag `ledger-labels-h1`, OTS; then both h1 locks and tags are pushed.
+readings, sessions, verification, review), tag `ledger-labels-h1`, OTS; then the three h1 locks (predictions, descriptive
+predictions, labels) and their tags are pushed.
 
 ---
 

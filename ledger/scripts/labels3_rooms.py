@@ -10,6 +10,7 @@ room is built, because the reader can only open common image formats.
     labels3_rooms.py enqueue SPEC.json ...
     labels3_rooms.py schedule [--max 6] [--idle-exit-min 30]
     labels3_rooms.py status
+    labels3_rooms.py repair --session S      # the one repair round for schema-invalid records
 SPEC: {"kind": "reader"|"adjudication"|"search"|"cheong"|"verify", "session": "...", "sources": [slug, ...], "scope": [names],
        "search_kind": "...", "inputs": {"name in room": "path"}}
 """
@@ -106,6 +107,34 @@ _BUILD2 = R2.build_room
 repoint()
 
 
+def repair(session: str) -> None:
+    """The one repair round for schema-invalid records (run 2's design): resume the session with the line numbers and problems
+    only (never the coded values). Refused if the session already had a repair round."""
+    sys.path.insert(0, str(REPO / "ledger" / "src"))
+    from brainir_ledger.labels_h1 import core as C  # noqa: PLC0415
+
+    man = json.loads((R2.MANIFESTS / f"{session}.json").read_text())
+    if any(r["tag"] == "repair" for r in man["runs"]):
+        raise SystemExit(f"{session}: the repair round was used")
+    lines = (Path(man["room"]) / "out" / "records.jsonl").read_text(encoding="utf-8").splitlines()
+    errs = []
+    for i, line in enumerate(lines, 1):
+        if not line.strip():
+            continue
+        try:
+            probs = C.validate(json.loads(line))
+        except ValueError:
+            probs = ["not valid JSON"]
+        if probs:
+            errs.append(f"line {i}: " + "; ".join(probs))
+    if not errs:
+        print(f"{session}: every record is valid; no repair")
+        return
+    prompt = (KIT / "PROMPT_REPAIR.md").read_text(encoding="utf-8").replace("{ERRORS}", "\n".join(errs))
+    m = R2.resume(session, "repair", prompt)
+    print("repair launched", session, len(errs), "lines", m["runs"][-1]["pid"])
+
+
 def enqueue(paths: list[str]) -> None:
     R2.QUEUE.mkdir(parents=True, exist_ok=True)
     for p in paths:
@@ -129,6 +158,8 @@ def main() -> None:
     s.add_argument("--idle-exit-min", type=float, default=30.0)
     s.add_argument("--mode", default="tool", choices=["tool", "sandbox"])
     sub.add_parser("status")
+    r = sub.add_parser("repair")
+    r.add_argument("--session", required=True)
     args = ap.parse_args()
     if args.cmd == "launch":
         m = R2.launch(json.loads(Path(args.spec).read_text()), args.mode)
@@ -137,6 +168,8 @@ def main() -> None:
         enqueue(args.specs)
     elif args.cmd == "schedule":
         R2.schedule(args.max, args.idle_exit_min, args.mode)
+    elif args.cmd == "repair":
+        repair(args.session)
     else:
         print(json.dumps(R2.status(), indent=1, default=str))
 

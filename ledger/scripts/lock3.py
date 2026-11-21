@@ -263,8 +263,10 @@ def lock_labelcode() -> None:
     rec = L2.base("labelcode_h1")
     rec["label_code_h1"] = _code(LABEL_CODE_H1)
     rec["kit_v3"] = _section((RES / "kit_v3").glob("*"))
-    plan = [p for p in (RES / "labels_h1" / "plan.json", RES / "labels_h1" / "known_sources.csv", RES / "labels_h1" / "registry_main.csv")
-            if p.is_file()]
+    # the initial plan is locked as a copy: plan.json itself grows (adjudication, verification, re-reads, searched sources) and is
+    # hashed by the labels lock
+    plan = [p for p in (RES / "labels_h1" / "plan_initial.json", RES / "labels_h1" / "known_sources.csv",
+                        RES / "labels_h1" / "registry_main.csv") if p.is_file()]
     rec["label_plan"] = _section(plan + sorted((RES / "labels_h1" / "specs").glob("*")))
     rec["chained"] = _chain("LOCK_prereg_v3.json")
     L2.write("LOCK_labelcode_h1.json", rec)

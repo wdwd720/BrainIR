@@ -63,13 +63,15 @@ def _ranks(S: np.ndarray, true_col: np.ndarray) -> tuple[np.ndarray, np.ndarray]
 
 
 def identification(Z: pd.DataFrame, O: pd.DataFrame, *, min_coded: int = 3) -> dict:
-    """PREREG v3 S2. Z: candidates x DIMS (standardised predictions, all units). O: units x DIMS observed (1/0/NaN)."""
-    Oc = centre(O)
+    """PREREG v3 S1-S2. Z: candidates x DIMS (standardised predictions, all units). O: units x DIMS observed (1/0/NaN). The units
+    analysed are those of O with at least `min_coded` coded dimensions; each column of O is centred over the coded cells of
+    exactly those units (S1: "within the set analysed")."""
     coded = O.notna().sum(axis=1)
     H = [h for h in O.index if coded[h] >= min_coded and h in Z.index]
     if not H:
         return {"n": 0, "units": [], "mean_pr": None}
-    A = Oc.loc[H, DIMS].fillna(0.0).to_numpy()  # uncoded dims contribute nothing
+    Oc = centre(O.loc[H, DIMS])
+    A = Oc.fillna(0.0).to_numpy()  # uncoded dims contribute nothing
     S = A @ Z[DIMS].to_numpy().T
     true_col = np.array([Z.index.get_loc(h) for h in H])
     pr, pos = _ranks(S, true_col)
