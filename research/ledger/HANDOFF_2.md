@@ -13,6 +13,7 @@ All pushed to `origin` on branch `ledger/v1`; `main` untouched. Every lock has a
 
 Code locks, written before the first label session: `LOCK_labelcode_v2.json` (31f0d6b6...) and `LOCK_scoring_v2.json`
 (f116914a...). Predictions v2 stayed local until the labels lock, as P5 requires. A local pre-push hook enforced this.
+The `.ots` proofs are still pending at the calendars; run `ots upgrade` on them in a few hours to complete them.
 
 ## 2. Departures from the prompt
 
@@ -34,8 +35,13 @@ Code locks, written before the first label session: `LOCK_labelcode_v2.json` (31
   write its report, and it did. Its final version is filed, with the earlier draft beside it.
 - **Search stop.** Round 2 stopped at 9.6 % new units. It would have been 10.7 % with the breaching session's leads, which L3
   drops.
-- **Phase B.** An orchestration loop (in `data/cache`, not committed) started Phase B for each second reader by calling the
-  locked launcher.
+- **Phase B.** An orchestration loop (in `data/cache`, not committed) started Phase B for each second reader as soon as its
+  Phase A ended, by calling the locked launcher. That closed the second-reading repair window early: 5 records were lost as
+  having no valid second reading (4 dedicated, 1 web-read).
+- **Web-read quotes.** Phase B checks quotes against the local copy only, which for web-read sources is an abstract, so 6
+  web-read records were dropped as quote-unverified.
+- **Deny rules.** The launcher's deny rules were extended after canary v2c and were not re-canaried. The changes only add
+  blocks, and neither the audit nor the label reviewer's own transcript scan found any outside access.
 - **Ledger test.** `test_real_flag_does_not_exist` now fails, by design, because `UNBLIND.json` exists.
 - **Privacy.** Pushed commit c3b4e70 contains your local user name inside encoded folder paths in `labels2_canary.py`. It is
   fixed in later commits; the history is not rewritten.
@@ -60,8 +66,10 @@ Code locks, written before the first label session: `LOCK_labelcode_v2.json` (31
 p = 0.0035.
 
 **Leg coupling.** The paper says phase coupling was absent across the six leg CPGs (Extended Data Fig. 9b). That is a verbal
-claim, and our notes record no statistic for it. Its own front-leg analysis compared left and right coxa promotor neurons.
-Under our test (consistency of phase offsets across replicates), the authors' own traces show:
+claim. Searching the whole notes file finds the paper's statistic: phase from the cross-correlation peak within one period,
+normalised to the period, against a replicate-shuffled control. That is essentially our test. The paper's supporting statements
+are about left and right legs ("insufficient to couple the phase of the left and right legs", no tripod pattern), and its
+front-leg analysis compared left and right coxa promotor neurons. Under our test, the authors' own traces show:
 - the left-right pairs uncoupled;
 - the right ipsilateral pairs coupled (T1R-T2R R 0.60, T2R-T3R R 0.75, p 0.001).
 
@@ -86,8 +94,8 @@ were dropped. No session contributing a record breached.
 - 95 went to readers (the atlas went to its own sessions). 14 of them could not be read in full, even with web fetching.
 
 **Records.**
-- First readings: 531, including 240 from the atlas coders.
-- Second readings: 286. Adjudications: 144.
+- First readings: 411 (291 from readers, 120 from atlas coder A).
+- Second readings: 406 (286 from second readers, 120 from atlas coder B). Adjudications: 144.
 - Final: 416 (273 agreed, 143 adjudicated, 11 dropped).
 
 **Types with a clear front-leg label: 66 (39 yes, 27 no).**
