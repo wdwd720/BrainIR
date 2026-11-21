@@ -86,9 +86,13 @@ def main() -> None:
             obs[i, j] = 1.0 if v == "yes" else (0.0 if v == "no" else np.nan)
     fig, axes = plt.subplots(1, 2, figsize=(11, 11), sharey=True)
     im = axes[0].imshow(Z[DIMS].to_numpy(), aspect="auto", cmap="RdBu_r", vmin=-3, vmax=3)
-    axes[0].set_title("predicted (H-M, standardised per dimension)")
-    axes[1].imshow(np.ma.masked_invalid(obs), aspect="auto", cmap="Greys", vmin=0, vmax=1)
-    axes[1].set_title("observed consensus (black = yes, white = no, blank = not coded)")
+    axes[0].set_title("predicted (H-M)\nstandardised per dimension")
+    from matplotlib.colors import ListedColormap
+
+    cm = ListedColormap(["#6baed6", "#252525"])  # 0 = no (blue), 1 = yes (black)
+    cm.set_bad("#f2f2f2")  # not coded (light grey)
+    axes[1].imshow(np.ma.masked_invalid(obs), aspect="auto", cmap=cm, vmin=0, vmax=1)
+    axes[1].set_title("observed consensus\n(black = yes, blue = no, grey = not coded)")
     for ax in axes:
         ax.set_xticks(range(len(DIMS)))
         ax.set_xticklabels([NAMES[d] for d in DIMS], rotation=60, ha="right", fontsize=8)
