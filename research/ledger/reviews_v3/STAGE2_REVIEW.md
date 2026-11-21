@@ -1,76 +1,83 @@
 # Stage 2 review (PREREG v3 P9.5): group builder, motor map, prediction rules, gates, run registry
 
-Verdict: pending (H-M tables not yet present)
+Verdict: pass with notes
 
-Fresh reviewer, 2026-11-21, `ledger/v1` at b40814f. Items 1-5: **no blocker, no major**. Open: P9.3
-(`gates_v3/DETERMINISM_hmdet-run3.json` absent; `hmdet-run3` queued), `hm-run3` still running (no `arms_h1` results here), and the
-H-M spot check (item 6). No predicted value is quoted here.
+Fresh reviewer, 2026-11-21. First pass (items 1-5) at b40814f, second pass (item 6 and P9.3) at 637ec9e, with the tree clean
+after it. **No blocker and no major finding.** The minors below do not touch any prediction. No predicted value is quoted here.
 
 ## Findings
 
-1. **minor (documentation).** LOG L79 says every campaign tag points at d636200. The tags point at three commits, and each
-   manifest was packed at the same commit: d636200 (hm, hmdet, hc-101..103), 5a87662 (hc-104..205, hsens), b40814f (hd, R3, R4).
-   Every runner-side file is identical from a175625 to HEAD, so this has no effect. Correct the LOG line.
-2. **minor.** P9.1 names `g3v2_evaluate.py`, but the gate was computed by `p9_full_cord.py`, which was added after the tag. It
-   imports the evaluator's loader and reference values, and its item 1-3 and 5 thresholds are the same (I compared them). The
-   gate records no build identity, so I checked it myself: W (1,372,404 pairs) and sizes are identical in run 2's `g3v2` payload,
-   the P7 payload and the H-M payload.
-3. **minor.** No script under `ledger/` or `scripts/` writes `REGISTRY_BEFORE_FREEZE.json`. My scan reproduces every count in it (55 files, 129,854
-   keys, 9 manifests, 11,558 keys, 0 hemilineage). Record the method with the Stage 2 gates.
-4. **minor.** The H-S `provenance.json` files hold no input hashes (unit list, motor map, W digest, git head). The tables are
-   reproducible (below), but the provenance should stand alone. Nit: `predict_h1.py`'s usage line says "seven" wiring baselines;
-   it writes eight.
+1. **minor (documentation; resolved in LOG L80).** LOG L79 said every campaign tag points at d636200. They point at three
+   commits, d636200, 5a87662 and b40814f, each with identical runner-side code, so this had no effect.
+2. **minor (explained in L80).** P9.1 names `g3v2_evaluate.py`, but the gate was computed by `p9_full_cord.py`, added after the
+   tag. It imports the evaluator's loader and reference values, and its item 1-3 and 5 thresholds are the same (I compared them).
+   I checked build identity myself: W (1,372,404 pairs) and sizes are identical in run 2's `g3v2` payload, the P7 payload and the
+   H-M payload.
+3. **minor (addressed in L80).** `REGISTRY_BEFORE_FREEZE.json` had no committed script. One now exists,
+   `ledger/scripts/posthoc/registry_scan.py`, which I did not run because it writes a gate file. My own scan reproduces every count
+   in the gate.
+4. **minor (addressed).** The H-S provenance files held no input hashes. `gates_v3/HS_INPUTS.json` now records them, and its
+   eight table hashes match the files I recomputed. Nit: `predict_h1.py`'s usage line says "seven" wiring baselines; it writes
+   eight.
 5. **note.** In the signed and linear H-S arms, d1 is the maximum of signed pool values, so for an inhibitory unit it is the
    least negative pool. This is M4 as written.
 6. **note.** The primary groups also hold 7 `efferent ascending` and 6 `Interneuron TBD` neurons, which U3's "every class" covers.
    Birthtime is read from the v1.2.1 annotations while the network is v1.2.3; the two agree on all 13,064 thoracic members.
-7. **limit.** A file scan cannot exclude a local run that wrote nothing under `data/ledger`. Other evidence covers this: by code
-   reading, the Stage 0 diagnosis stimulates DNg100 only (`diag_v3_tolerance.py`) or nothing (`diag_v3_coupling.py`,
-   `diag_v3_linear.py`), and `build_hm` has the freeze guard in every committed version.
+7. **note.** The H-M chunk 16 was re-run as attempt 2 of the same run (L82-L83). Its 36 records are complete and internally
+   consistent, and one of them is in the determinism sample, where its digest is identical.
+8. **limit.** A file scan cannot exclude a local run that wrote nothing under `data/ledger`. By code reading, the Stage 0
+   diagnosis stimulates DNg100 only or nothing, and `build_hm` has had the freeze guard in every committed version.
 
 ## What I checked
 
-- **Units.** I recomputed `UNITS_v1.csv` from `full_cord().table` and the birthtime: 43 units (44 thoracic labels minus `TBD`),
-  all 16 columns equal. The rulebook's U2 table equals the CSV.
-- **Groups.** My own member lists equal `groups_h1.members` for 8 variants x 43 units, and the sizes equal the CSV.
-- **H-M jobs.** 688 = 43 x seeds 0..15, and the keys equal the manifest. Every `members` equals `members(..., "primary")`.
-  - The jobs match P1: kind `group_v3`, T = 1.0 s, the screen (128, 10 runs, 100/7667/1022, 100 Hz, 0.01 Hz after 0.25 s,
-    prominence 0.05), and extras `legs` + `mn` only.
-  - The payload's W, sizes, readout, leg masks, E1 and `mn` order equal `full_cord()`, `leg_setup` and the motor-map order.
-- **Sensitivity jobs.** 1,072 = 268 groups x seeds 0..3. These are exactly the `run` groups of `gha3.sens_plan` and of my
-  independent plan (empty: post 5, T1 1, T2 1, T3 3, L 2, R 2). Every member list is equal.
-- **Determinism sample.** The 50 keys equal `default_rng(20261312).choice(sorted H-M keys, 50, replace=False)`, and the specs
-  equal H-M's. The members of the H-D (1,376) and H-C (10 x 172) jobs equal the primary groups too.
+- **Units and groups.** I recomputed `UNITS_v1.csv` from `full_cord().table` and the birthtime: 43 units, all 16 columns equal,
+  and the rulebook's U2 table equals the CSV. My own member lists equal `groups_h1.members` for 8 variants x 43 units.
+- **Job specs.**
+  - H-M: 688 jobs = 43 x seeds 0..15. Every `members` equals `members(..., "primary")`, and the config is P1's (kind `group_v3`,
+    T = 1 s, screen 128/10 runs/100/7667/1022/100 Hz/0.01 Hz after 0.25 s, extras `legs` + `mn` only). The payload's W, sizes,
+    readout, leg masks and `mn` order equal `full_cord()`, `leg_setup` and the motor map.
+  - Sensitivity: 1,072 jobs = exactly the `run` groups of `gha3.sens_plan` and of my independent plan, with equal members.
+  - The H-D and H-C members also equal the primary groups.
+  - The 50 determinism keys equal `default_rng(20261312).choice(sorted H-M keys, 50, replace=False)`, with the same specs.
 - **Motor map.**
-  - The 732 rows are every motor neuron (bodyId and subclass match); the jump MNs (TTMn 2, STTMm 4) are in `middle_leg` and
-    `jump`; neck and `xm` MNs are in no pool.
-  - I rebuilt the pools from body part, type and the authors' `motor module` column: 702/141/125/131/6/60/24/16/229, and per-leg
-    flexor/extensor 26/10, 25/10, 21/7, 20/7, 19/8, 20/8. These equal both `pool_masks` and the `pools` column.
-  - Leg MNs sit in their leg's segment on the soma side; the per-leg rhythm masks equal the map's 329 module-labelled MNs.
-- **Rules.** `replicate_readout`, `replicate_dims`, `arm_tables`, `hs_values`, `hs_linear_values` and the `predict_h1.py`
-  commands follow U4, M2-M4, P3 and P10 as written (`mn_active` = peak > 0.01 Hz after 0.25 s; never accepted ->
-  `final_run_extras`; leg score 0 with no active MN). My own M2-M3 code reproduces `arm_tables` exactly on the P7 allowed groups,
-  including 2 saturating and 1 too-weak replicate.
+  - The 732 rows are every motor neuron (bodyId and subclass match); the jump MNs are in `middle_leg` and `jump`.
+  - Pools rebuilt from body part, type and the authors' `motor module` column (702/141/125/131/6/60/24/16/229; per-leg
+    flexor/extensor 26/10, 25/10, 21/7, 20/7, 19/8, 20/8) equal `pool_masks` and the `pools` column.
+  - Leg MNs sit in their leg's segment on the soma side, and the rhythm masks equal the 329 module MNs.
+- **Rules.** `replicate_readout`, `replicate_dims`, `arm_tables`, `hs_values`, `hs_linear_values` and `predict_h1.py` follow U4,
+  M2-M4, P3 and P10 as written.
 - **H-S tables.**
-  - I recomputed the 7 matrix-power arms for all 43 units from W or |W| with my own pools. The largest relative difference is
-    5e-10 (the CSV's precision). I also worked 09A and 15B for k1-signed by hand.
-  - H-S-lin: my own gains (equal to `mean_neuron_params`), Wb = 0.03 W, and a different LU ordering (MMD_AT_PLUS_A) plus one
-    refinement step. The largest difference is 4e-10 (03A, 09A and 15B inspected) and the residual 2e-13.
-  - Unit order and `n_members` are correct, and d5, d6 and d7' are 0.
-- **Gates.**
-  - Trust: I re-checked 100/100 digests against their origin logs.
-  - P7: I re-checked 16/16 digests (`g3v2item5` = `p7reg`); 54/54 jobs returned, 0 errors. Between the P7 commit and the H-M
-    tags, the runner-side code changed only in `groups_h1`, `labels_h1` and `scoring_h1`, none of which the job path imports.
-    The runner, workflow, jobs, screens, legs, `src/brainir` and the pins are unchanged, so the regression covers the H-M code.
-  - P9.1: items 1-3 and 5 pass.
+  - The 7 matrix-power arms, recomputed for all 43 units with my own pools: largest relative difference 5e-10, the CSV's
+    precision. I also worked 09A and 15B for k1-signed by hand.
+  - H-S-lin: my own gains, Wb = 0.03 W, and a different LU ordering plus one refinement step: largest difference 4e-10,
+    residual 2e-13.
+- **Gates.** Trust: 100/100 digests re-checked. P7: 16/16 re-checked, and the job path is unchanged between P7 and the H-M tags.
+  P9.1: items 1-3 and 5 pass.
 - **Freeze.**
-  - `ledger-prereg-v3` (lightweight, on origin) is a175625, committed 10:23:18Z. The 14 hemilineage campaigns were packed
-    10:24:42-10:28:57Z at its descendants, and the first hemilineage Actions run was created at 10:24:52Z.
-  - The 9 pre-freeze manifests and the 55 `results.pkl` files (`sources*` skipped, keys only) hold no hemilineage-like key
-    (unit names, components, `NN[ABX]` tokens, `H-` prefixes), and no log was modified after the freeze.
-  - The largest single-unit share in a P7 random group is 0.10, and none equals a unit group. No commit holds a
-    `predictions_h1` or `arms_h1` path.
-  - Prediction code, units, motor map and rulebook are identical a175625..HEAD; `lock3.py check` on the prereg lock: 142 files,
-    0 changed.
-- **Not opened.** Nothing under `labels*`, `sources*`, `research/literature/`, `results/` or an HL_OUTCOME_LOCATIONS entry; no
-  hemilineage result.
+  - The freeze tag is a175625, committed 10:23:18Z. The 14 hemilineage campaigns were packed 10:24:42-10:28:57Z at its
+    descendants, and the first hemilineage Actions run was created at 10:24:52Z.
+  - The 9 pre-freeze manifests and the 55 pre-freeze `results.pkl` files (keys only) hold no hemilineage-like key.
+  - No P7 random group equals a unit group; the largest single-unit share is 0.10.
+  - Prediction tables are first committed in 637ec9e, after the freeze and local only.
+  - Prediction code, units, motor map and rulebook are identical a175625..637ec9e, and `lock3.py check` on the prereg lock reports
+    142 files, 0 changed.
+- **P9.3.**
+  - `DETERMINISM_hmdet-run3.json` says 50/50 identical. I recomputed this from the raw logs, reading keys and `digest_v3` only:
+    50 records, keys equal to the RNG pick, 0 errors, 50/50 identical.
+  - In 49 of the 50 pairs the two runs were on different CPU models.
+  - Every `digest_v3` (688 H-M, 50 det) recomputes from its record's content.
+- **Item 6 (H-M tables).**
+  - Provenance: the `results_sha256`, `keys_sha256` and `digest_v3_sha256` match. The file holds 688 records with unique keys
+    equal to the manifest's, 0 errors, and members and seeds equal to the job specs. The motor-neuron order is the map's.
+  - Last-run path, for every non-accepted replicate: `final_verdict` agrees with the tuner's thresholds applied to the stored
+    `n_active_all`/`n_high_fr`, 10 tuning runs, and the read-out in `final_run_extras`.
+  - Read-out consistency, for all 688 records: `mn_active` = peak > 0.01, the active module MNs equal `active_readout_positions`,
+    and the per-leg `n_active` agrees.
+  - Tables: my independent M2-M3 recomputation reproduces both tables for **all 43 units** (12 dimensions, maximum difference
+    5e-11, the CSV's precision) with identical `n_members`, `n_replicates` and outcome counts. It also reproduces all 18,576
+    `pools.csv` rows.
+  - Named spot units, inspected per replicate: **07B** (too-weak and saturating replicates, so the last-run path is exercised),
+    **15B** (a motor unit) and **12A** (drawn with `default_rng(1)`). Each matches all twelve dimensions and the outcome counts.
+  - The outcome totals in LOG L84 reproduce for both arms.
+- **Not opened.** Nothing under `labels*`, `sources*`, `research/literature/`, `results/` or an HL_OUTCOME_LOCATIONS entry. No
+  real-fly hemilineage outcome was read.
