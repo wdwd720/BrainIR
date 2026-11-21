@@ -19,14 +19,18 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
       Descriptive arms (H-C x10, hsens, H-D) via the FEEDER (publish log data/cache/ledger_logs/feeder_run3.log): collect3 each,
       predict_h1.py hc --campaign hc-<k>-run3 / hsens --campaign hsens-run3 --primary hm-run3 / hd --campaign hd-run3, then
       lock3.py predictions-b <arms> [ARM=reason] --platform ... BEFORE the labels lock (LOCK_predictions_h1b.json must exist).
-- [~] Stage 3: 12 label specs enqueued; scheduler RUNNING (nohup; log data/cache/ledger_logs/labels2_scheduler.log; status:
-      `labels3_rooms.py status`). NEVER open room outputs. After sessions end: `labels3_assemble.py collect` -> `labels3_audit.py`
-      -> repair invalid sessions (`labels3_rooms.py repair --session S`, once) -> `labels3_leads.py` -> download new sources ->
-      reader specs for them (plan.json readings) -> `labels3_assemble.py disputes <slug>` per source -> adjudication specs
-      (inputs disputes.jsonl = work/disputes_<slug>_room.jsonl; plan.json adjudication) -> collect/audit -> `finalize` ->
-      `verify-sample` -> verify spec (inputs to_verify.jsonl = work/to_verify_room.jsonl; sources = sampled slugs) -> collect/audit
-      --verify -> `verify-score` -> label review (brief in scratch) -> h1b lock -> commit -> lock3.py labels -> tag ledger-labels-h1.
-      NO PUSH until LOCK_labels_h1 is committed; then push branch + tags ledger-predictions-h1, ledger-labels-h1.
+- [x] Stage 3 (labels FINAL, NOT LOCKED yet): 14 sessions + verify-2 (verify-1 blocked by a safety classifier), no breach;
+      79 final records, 27 units >= 3 coded, kappa 0.975, verification 4.1 %, review "usable with caveats" (L91-L92);
+      sensitivity input labels_h1/consensus_sensitivity.csv (exploratory). Gate conditions 2-5 dry-run: pass.
+- NEXT (in order): wait for the descriptive arms (CUTOFF 12:00 PST, L93) -> predict_h1.py hc/hsens/hd tables -> commit ->
+      lock3.py predictions-b <arms> [ARM=reason] -> commit -> (>= 1 s later) lock3.py labels -> commit -> tag ledger-labels-h1 ->
+      push branch + tags (hook allows once the labels lock is in HEAD) -> OTS. Then GATE: python -c gate_h1.evaluate() dry-run ->
+      gate_h1.py (run 1) -> commit ONLY the report -> checklist reviewer (scratch gate_checklist_brief.md) -> commit ONLY the
+      checklist -> gate_h1.py (run 2) -> commit. Do NOT write the reliability lock or amendment rows between gate runs.
+      Then UNBLIND: research/ledger/UNBLIND_h1.json naming the three locks + sha256 -> commit -> score_h1.py --run primary ->
+      --run secondary -> independent recompute (scratch recompute_brief.md) -> posthoc/results_h1.py (--with matplotlib) ->
+      RESULTS_2.md -> retire flag to results/run3/UNBLIND_h1_used.json -> tag ledger-scorecard-h1 -> push -> OTS.
+      R3/R4: feeder publishes r4, r3-51 early -> run reliability_v1.py r4/r3 on the first finished before the flag.
 - [~] Stage 4: R1 done (cross-fly 0.37; split-half 0.86/0.93), R2 done (wiring cross-fly 0.78-0.97) -> reliability_v1/R1.json, R2.json.
       R3 (r3-<k>-run3) and R4 (r4-run3) published; after they finish: `reliability_v1.py r3` / `r4` -> LOCK_reliability_v1
       (lock3.py reliability), tag ledger-reliability-v1 (local until labels lock: the reliability lock hashes code incl. predictions? no -
