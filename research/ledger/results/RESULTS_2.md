@@ -1,4 +1,4 @@
-**Pre-registered verdict: the model predicts, but it adds nothing beyond wiring.** Its predicted movements identify the hemilineage that was switched on better than chance (mean percentile rank 0.633, 95 % interval 0.533 to 0.724, one-sided permutation p = 0.0076, 27 hemilineages), and a plain synapse count from the stimulated group to each motor pool does as well (best wiring baseline, two-hop signed: 0.638; model minus baseline -0.006, 95 % interval -0.172 to +0.166).
+**Pre-registered verdict: the model predicts, but it adds nothing beyond wiring.** Its predicted movements identify the hemilineage that was switched on better than chance (mean percentile rank 0.633, 95 % interval 0.533 to 0.724, one-sided permutation p = 0.0076, 27 hemilineages), and a wiring count with no simulation, the signed two-step synapse paths from the stimulated group to each motor pool, does as well (0.638; model minus it -0.006, 95 % interval -0.172 to +0.166).
 
 # BrainIR prediction ledger, results 2 (run 3): exam 2, hemilineages
 
@@ -25,7 +25,7 @@ Decision rules (S3). Not underpowered (27 >= 20). "Predicts" holds: p < 0.05, an
 | Soffers 2025 | Harris 2015 | 10 | 0.481 |
 | Harris 2015 | Soffers 2025 | 10 | 0.692 |
 
-Only 10 hemilineages are coded on at least 3 primary dimensions by both labs, and where both code the same cell they agree on 79 % of 33 cells, a Cohen's kappa of only 0.24 (most cells are 'yes', so chance agreement is high). The ceiling is therefore low and unstable: 0.481 one way, 0.692 the other. The model's 0.633 lies between them. Each lab separately as truth (S4.2): Harris 2015 0.662 (19 hemilineages), Soffers 2025 0.556 (18 hemilineages).
+Only 10 hemilineages are coded on at least 3 primary dimensions by both labs, and where both code the same cell they agree on 79 % of 33 cells, a Cohen's kappa of only 0.24 (chance agreement is 0.72). The ceiling is therefore low and unstable: 0.481 one way, 0.692 the other. The model's 0.633 lies between them. Each lab separately as truth (S4.2): Harris 2015 0.662 (19 hemilineages), Soffers 2025 0.556 (18 hemilineages).
 
 ## Wiring: each baseline (no simulation) and the paired comparison
 
@@ -70,7 +70,7 @@ Degree-preserving rewiring keeps each neuron's number of inputs and outputs and 
 | inhibitory | 15 | 0.432 |
 | motor | 1 | 0.500 (one hemilineage: nothing to compare within the class, 0.5 by construction) |
 
-Within a class the model tells excitatory hemilineages apart moderately and inhibitory ones not at all. As declared before the predictions (M6), the model is silent at rest and inhibitory neurons can only lower activity, so 18 of the 43 hemilineages (every one inhibitory except 08B) are predicted to move nothing. These 18 share one predicted pattern and tie with one another in every comparison; 11 of them are among the 27 scored.
+Within a class the model tells excitatory hemilineages apart moderately and inhibitory ones not at all. 18 of the 43 hemilineages are predicted to move nothing; they share one predicted pattern and tie with one another in every comparison, and 11 of them are among the 27 scored. 17 of the 18 are classed inhibitory, as anticipated before the predictions (M6: the model is silent at rest and inhibitory neurons can only lower activity). For 12 of these the tuner accepts a current (enough neurons become active) but no motor neuron in the read-out responds; the other 5 (00B, 14B, 17B, 21X, 26X; 4 to 39 thoracic members) stay too weak at every current. The last one, 08B, is classed excitatory (474 of its 488 thoracic members cholinergic): the tuner accepts it in every seed, yet no motor neuron in the read-out responds.
 
 ## Per dimension (S4.3: AUROC of the predicted value against the coded cells)
 
@@ -155,7 +155,7 @@ Every predicted value and observed cell for all 43 hemilineages: `results/run3/s
 ## The three biggest caveats
 
 1. **Wiring does as well, and what is identified is coarse.** The best synapse count matches the simulation, the class-shuffled networks keep most of the score, and the hemilineages ranked well are mostly excitatory ones predicted to move many body parts (exploratory split below). The simulated dynamics add nothing measurable on this test.
-2. **The truth is thin, and the two labs disagree.** 27 hemilineages qualify, only 10 are coded well by both labs, and those agree at a kappa of 0.24. The label review (verdict: usable with caveats) found that a de-duplication step dropped 5 distinct Soffers experiments and that one Harris summary figure was read at low resolution. With the 15 affected coded cells removed (exploratory below), the result falls to 0.595 and its interval reaches below 0.5.
+2. **The truth is thin, and the two labs disagree.** 27 hemilineages qualify, only 10 are coded on at least 3 dimensions by both labs, and on the 33 cells both labs code they agree at a kappa of 0.24. The label review (verdict: usable with caveats) found that a de-duplication step dropped 5 distinct Soffers experiments and that one Harris summary figure was read at low resolution. With the 15 affected coded cells removed (exploratory below), the result falls to 0.595 and its interval reaches below 0.5.
 3. **It never names the right hemilineage.** Top-1 is 0 of 27 and top-3 is 2 of 27, both at chance. The predictions move the true hemilineage up the list without singling it out, and 18 of the 43 hemilineages have the same (silent) prediction.
 
 ## EXPLORATORY (after the unblinding; not pre-registered; none of this changes the verdict)

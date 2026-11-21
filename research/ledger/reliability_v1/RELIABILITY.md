@@ -18,12 +18,17 @@ Type score = run 2's `primary_score` (mean of usable replicate scores, 0 if none
 R1 also: band agreement 0.63 (kappa 0.26); top-10 overlap 0.10, top-30 overlap 0.27. R4: top-10 overlap 0.20, top-30 0.37.
 Noise level at which agreement equals the cross-fly 0.37: above 20 % (interpolation impossible; every level agrees more).
 
-**Reading (descriptive).** The two flies' wiring summaries agree closely (0.78-0.97), and the simulation reproduces itself across
-seeds (0.86-0.93) and under up to 20 % random weight noise (0.65 or more). Yet the two flies' simulated type scores agree only at
-0.37, and the two sides of ONE fly at 0.43. So most of the cross-fly disagreement is not a difference between animals: the screen
-gives different answers for two near-copies of the same circuit built from one genome. The simulation amplifies structured
-differences between the copies (which neurons a type contacts, not random count noise) into different rhythm calls; reconstruction
-noise of the size random weight noise represents is too small to explain it.
+**Reading (descriptive).** The two flies' wiring summaries agree closely (0.78-0.97). The simulated screen reproduces itself
+across seeds (0.86-0.93, seeds 0-7 against 8-15) and averages 0.65 or more under up to 20 % random multiplicative weight noise
+(lowest single noise seed 0.59; 4-seed means against the unperturbed seeds 0-3). Yet the two flies' simulated type scores agree only at 0.37, and the left and right
+members of the same types in one fly, each side read out on its own front-leg motor neurons (seeds 0-3), agree only at 0.43.
+
+Two limits. R4 has no matched ceiling: no split-half of the one-sided screen was run, and halving both the stimulated group and the
+read-out may by itself lower agreement. R3 tests only independent noise on existing synapse counts, not missing or extra synapses or
+neurons. Within those limits: a difference between animals is not needed to produce disagreement as low as the cross-fly one, since
+the two sides of one fly disagree almost as much; random count noise of up to 20 % is too small to produce it; and wiring summaries
+that agree closely across the flies go with simulated scores that do not. One hypothesis, not tested here, is that the screen
+amplifies structured differences between near-copies of a circuit (which partners a type contacts) into different rhythm calls.
 
 Files: `R1.json`, `R2.json`, `R3.json`, `R4.json`; code `ledger/scripts/reliability_v1.py` (one recorded amendment, LOG L94),
 campaigns `r3-<k>-run3`, `r4-run3` (GitHub, run 3 runner).

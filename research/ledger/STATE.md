@@ -8,6 +8,17 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
 - I never author labels and never read the hemilineage papers' results. Frozen locks/BrainIR/main untouched. No Modal; GitHub
   first (<= 300 runner-hours), Mac second. Push branch + tags only; no force push. After unblinding nothing moves.
 
+## NOW (2026-11-21 ~11:30 PST): EXAM 2 UNBLINDED AND SCORED. NEVER RE-RUN score_h1.py (flag retired).
+- Gate run 2: all six conditions hold. Flag committed (ebf0f01), primary + secondary run once, recompute agrees, flag retired to
+  results/run3/UNBLIND_h1_used.json. Verdict: PREDICTS (0.633, 0.533-0.724, p 0.0076, 27 units) but NOT beyond wiring
+  (H-S-k2-signed 0.638; diff -0.006, -0.172..+0.166). RESULTS_2.md written; results commit 3dd9746 (+ wording fix commit).
+- Remaining, in order: commit wording fixes -> tag ledger-scorecard-h1 -> push branch + tag, verify ls-remote == HEAD and origin
+  main unchanged -> OTS stamp RESULTS_2.md (commit .ots, push) -> lock3.py reliability (commit ALONE) -> tag ledger-reliability-v1
+  -> push -> OTS stamp -> baseline checks (BrainIR `uv run pytest -m "not real_data"`: expect 532 passed + known arm64 failure;
+  benchmarks/dng100/freeze.py --check; scripts/method_lock.py --check; scripts/p3/method_lock_p3.py --check) -> OTS upgrades
+  (re-check every <= 10 min) -> HANDOFF_3.md (<= 2,000 words, 13 sections; draft scratch handoff_draft.md; compact scorecard)
+  -> commit, push, print as final message.
+
 ## Checklist
 - [x] Stage 0: caffeinate (running); RUN3_PROMPT saved; tree clean, 9 locks verify, baseline identical (532 + arm64 failure;
       ledger 133). Trust gate run 3 PASSED (100/100, gates_v3/TRUST_GATE_v3.json). Diagnosis: no build error (active MNs match);
