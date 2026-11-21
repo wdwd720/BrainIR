@@ -31,15 +31,18 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
 - [x] Stage 2: predictions v2 LOCKED LOCALLY (LOCK_predictions_v2.json 2664143f..., tag ledger-predictions-v2, OTS):
       B1r, B2r, B4v2; B3, B6 not locked (G3 v2 fails). NO PUSH of ledger/v1 until LOCK_labels_v2 exists (pre-push hook refuses).
 - [x] Code locks: LOCK_labelcode_v2 (31f0d6b6...), LOCK_scoring_v2 (f116914a...), 00:04 UTC, pushed + OTS (44cb024).
-- [~] Stage 3 wave 1 RUNNING since 16:05 PST: atlas-map, atlas-codeA, atlas-codeB + 21 readers (scheduler, max 8, background;
-      log data/cache/ledger_logs/labels2_scheduler.log). Procedure per wave: wait for all sessions; `labels2_rooms.py status`
-      (writes _status.json); `labels2_audit.py`; `labels2_collect.py collect`; `reassign`; `redo-breaching`; enqueue new specs.
-      Atlas: when atlas-codeA is done and audited: `atlas-quotes`, then `labels2_rooms.py phaseb --session atlas-codeB --quotes
-      research/ledger/labels_v2/work/atlas/quotes_to_verify_B.csv`. After the first complete reading: `searches --round 1`;
-      then `leads --round 1` (new DOIs: download, `readers --round 1`); rounds until < 10 % new units or 3 rounds. Then `second`
-      (+ Phase B per pass-2 session with its `quotes` file), `adjudication`, `finalize`, label review (fresh, verdict line
-      exactly `Verdict: usable|usable with caveats|blocked`), redact home paths, `git add -f`, `lock2.py labels`, push (hook
-      allows it then), verification (`verify-sample`, session, `labels2_audit.py --verify`, `verify-score`), gate run 1.
+- [x] Stage 3 collection COMPLETE 18:23 PST: 62 sessions (all success; 1 breach: search-bydriverline-r2, leads dropped);
+      searches stopped after round 2 (9.6 % < 10 %); finalize: 416 records, kappa 0.932 (422 pairs); v1_vs_v2 done; home paths
+      redacted; committed locally (a04519e). Movies: metadata-only inventory (download needs an account).
+- [~] Label review RUNNING (fresh blind agent -> ~/ledger_rooms_review_labels2/REVIEW_labels_v2.md; copy to reviews_v2/ as a NEW
+      file). If 'usable' / 'usable with caveats': `git add -f` anything ignored; `lock2.py labels` (refuses if it exists);
+      commit; tag `ledger-labels-v2`; then push ledger/v1 and tags ledger-predictions-v2 + ledger-labels-v2 (hook allows once
+      LOCK_labels_v2 is in HEAD); OTS. Then verification: `labels2_collect.py verify-sample` -> enqueue
+      labels_v2/verify/specs/verify-01.json (restart the scheduler with nohup if it exited) -> `labels2_audit.py --verify` ->
+      `verify-score` -> redact home paths in labels_v2/verify -> commit. Then gate run 1 (`gate_v2.py`, clean tree) -> commit
+      -> fresh reviewer writes reviews_v2/GATE_CHECKLIST.md (one line `Verdict: confirmed`) -> commit -> gate run 2.
+      If all hold: UNBLIND.json (one entry per run) -> score_v2 P, then S-a, S-b, S-c -> RESULTS_1.md -> tag ledger-scorecard-v1.
+      If any fails: stop without unblinding; RESULTS_1.md says so.
 - Quota: 40 % at 13:51 (run 2 start ~34 %). Helper agents are expensive (~0.5-1 % each): keep them few.
 - [ ] Stage 2 (after freeze): G3 v2 incl. DNg100-only calibration BEFORE the first label session; tuner v2 K on DNg100
       (MANC + MaleCNS); tuner regression (K off = B1 on 30 types x 16 seeds); B1r, B2r, B3 (B6 only if budget); B4 v2
