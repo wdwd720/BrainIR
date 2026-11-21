@@ -102,6 +102,10 @@ def world(tmp_path, monkeypatch):
     (res / "labels_h1").mkdir()
     cons.rename_axis("unit").reset_index().to_csv(res / "labels_h1" / "consensus.csv", index=False)
     pd.DataFrame({"record_id": ["r1"]}).to_csv(res / "labels_h1" / "records.csv", index=False)
+    for n in ("pairs.csv", "agreement.json", "verification.json", "transcript_audit.json"):
+        (res / "labels_h1" / n).write_text("{}\n" if n.endswith(".json") else "a\n")
+    (res / "reviews_v3").mkdir()
+    (res / "reviews_v3" / "LABEL_REVIEW_h1.md").write_text("Verdict: usable\n")
     (res / "LOCK_prereg_v3.json").write_text("{}\n")
     (res / "LOCK_labelcode_h1.json").write_text("{}\n")
     _git(repo, "add", "-A")

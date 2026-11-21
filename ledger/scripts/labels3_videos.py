@@ -31,8 +31,12 @@ XLINK = "{http://www.w3.org/1999/xlink}href"
 
 
 def stem_of(name: str) -> str:
-    s = Path(name).stem
-    return re.sub(r"^[0-9a-f]{10}_", "", s)  # the downloader prefixes a content hash
+    """The video's own name: PMC's web transcode `<stem>-pmcvs_normal.mp4` and the original `<stem>.<ext>` share it."""
+    s = re.sub(r"^[0-9a-f]{10}_", "", Path(name).stem)  # a content-hash prefix, if any
+    return re.sub(r"-pmcvs_normal$", "", s)
+
+
+MAX_ORIGINAL_BYTES = 40_000_000  # larger originals are replaced by PMC's web transcode of the same video
 
 
 def legends(xml_path: Path) -> dict[str, str]:
@@ -106,9 +110,13 @@ def montage(video: Path, outdir: Path, stem: str) -> list[str]:
 def process(src: Path) -> dict:
     meta = json.loads((src / "meta.json").read_text())
     vids = [s for s in meta.get("skipped", []) if s.get("reason") == "video or audio"]
-    by_stem: dict[str, dict] = {}
-    for s in sorted(vids, key=lambda s: (Path(s["name"]).suffix.lower() != ".mp4", int(s.get("bytes") or 0))):
-        by_stem.setdefault(stem_of(s["name"]).lower(), s)
+    by_stem: dict[str, list[dict]] = {}
+    for s in vids:
+        by_stem.setdefault(stem_of(s["name"]).lower(), []).append(s)
+    for k, opts in by_stem.items():  # the original if small enough, else the web transcode, else the smallest
+        orig = [s for s in opts if "-pmcvs_normal" not in s["name"] and int(s.get("bytes") or 0) <= MAX_ORIGINAL_BYTES]
+        web = [s for s in opts if "-pmcvs_normal" in s["name"]]
+        by_stem[k] = (orig or web or sorted(opts, key=lambda s: int(s.get("bytes") or 0)))[0]
     leg = legends(src / "fulltext.xml")
     outdir = src / "videos"
     outdir.mkdir(exist_ok=True)

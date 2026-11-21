@@ -98,11 +98,18 @@ def lock_labels() -> None:
     rec = L2.base("labels_h1")
     lab = RES / "labels_h1"
     rec["labels"] = _section(lab.glob("*"))
-    for need in ("consensus.csv", "records.csv"):
+    for need in ("consensus.csv", "records.csv", "pairs.csv", "agreement.json", "verification.json", "transcript_audit.json"):
         if f"research/ledger/labels_h1/{need}" not in rec["labels"]:
-            raise SystemExit(f"labels_h1/{need} missing; nothing written")
+            raise SystemExit(f"labels_h1/{need} missing; nothing written (PREREG v3 T8-T9: assembly, verification and audit first)")
     rec["raw"] = _section(lab.glob("raw/**/*"))
     rec["sessions"] = _section(lab.glob("sessions/*"))
+    rec["work"] = _section(lab.glob("work/**/*"))
+    rec["specs"] = _section(lab.glob("specs/*"))
+    rec["verify"] = _section(lab.glob("verify/**/*"))
+    review = RES / "reviews_v3" / "LABEL_REVIEW_h1.md"
+    if not review.is_file():
+        raise SystemExit("reviews_v3/LABEL_REVIEW_h1.md missing: the label review precedes the labels lock; nothing written")
+    rec["label_review"] = _section([review])
     rec["kit_v3"] = _section((RES / "kit_v3").glob("*"))
     rec["chained"] = _chain("LOCK_prereg_v3.json", "LOCK_labelcode_h1.json")
     L2.write("LOCK_labels_h1.json", rec)
