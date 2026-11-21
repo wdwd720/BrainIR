@@ -205,11 +205,21 @@ def _session_id(session: str) -> str | None:
 
 
 def _alive(pid: int) -> bool:
+    """Running, not merely existing: a finished session spawned by this process stays a zombie until reaped, and `kill(pid, 0)`
+    succeeds on a zombie, so the scheduler counted finished sessions as alive and stopped launching (LOG L58). Reap our own
+    finished children; for other processes, a zombie state counts as finished."""
+    try:
+        wpid, _ = os.waitpid(pid, os.WNOHANG)
+        if wpid == pid:
+            return False
+    except ChildProcessError:
+        pass
     try:
         os.kill(pid, 0)
-        return True
     except OSError:
         return False
+    st = subprocess.run(["ps", "-o", "stat=", "-p", str(pid)], capture_output=True, text=True).stdout.strip()
+    return bool(st) and not st.startswith("Z")
 
 
 def resume(session: str, tag: str, prompt: str, extra_files: dict[str, Path] | None = None) -> dict:
