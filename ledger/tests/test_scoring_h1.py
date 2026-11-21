@@ -82,8 +82,13 @@ def test_decision_rules():
     ci_hi = {"lo": 0.6}
     assert decide({}, 0.01, ci_hi, 19, None)["underpowered"] is True
     d = decide({}, 0.01, ci_hi, 25, {"lo": 0.02})
-    assert d == {"underpowered": False, "model_predicts": True, "adds_value_beyond_wiring": True}
+    assert d == {"underpowered": False, "model_predicts": True, "adds_value_beyond_wiring": True, "hm_ranks_above_best_wiring_descriptive": True}
     assert decide({}, 0.2, ci_hi, 25, {"lo": -0.1})["model_predicts"] is False
+    # the interval must clear the permutation-null mean too (audit 5)
+    assert decide({}, 0.01, {"lo": 0.58}, 25, None, null_mean=0.6)["model_predicts"] is False
+    # "beyond wiring" needs "predicts" (audit 4)
+    d = decide({}, 0.40, {"lo": 0.31}, 25, {"lo": 0.02})
+    assert d["adds_value_beyond_wiring"] is False and d["hm_ranks_above_best_wiring_descriptive"] is True
 
 
 # ---------------------------------------------------------------------------------------------------- pipeline
@@ -98,24 +103,32 @@ def _world(tmp_path):
     (research / "hl_units").mkdir(parents=True)
     pd.DataFrame({"unit": units, "nt_class": ["excitatory"] * 12 + ["inhibitory"] * 12}).to_csv(research / "hl_units" / "UNITS_v1.csv", index=False)
     arms = {}
-    for arm, M in (("H-M", P), ("H-S-k1-signed", P * 0.0), ("H-S-k2-signed", -P)):
+    hs_zero = [a for a in PL.HS_ARMS if a not in ("H-S-k2-signed",)]
+    for arm, M in [("H-M", P), ("H-S-k2-signed", -P)] + [(a, P * 0.0) for a in hs_zero]:
         d = research / "predictions_h1" / arm
         d.mkdir(parents=True)
         M.rename_axis("unit").reset_index().to_csv(d / "predicted.csv", index=False)
         rel = f"research/ledger/predictions_h1/{arm}/predicted.csv"
         arms[arm] = {rel: _sha(repo / rel)}
     (research / "labels_h1").mkdir(parents=True)
-    cons = O.replace({1.0: "yes", 0.0: "no"}).rename_axis("unit").reset_index()
+    cons = O.replace({1.0: "yes", 0.0: "no"}).astype(object)
+    for d in ("d7", "d8", "d9", "d12"):  # the consensus carries every V1 dimension (S7)
+        cons[d] = "not_assessed"
+    cons = cons.rename_axis("unit").reset_index()
     cons.to_csv(research / "labels_h1" / "consensus.csv", index=False)
     rel = "research/ledger/labels_h1/consensus.csv"
     (research / "LOCK_predictions_h1.json").write_text(json.dumps({"arms_locked": arms}))
+    (research / "LOCK_predictions_h1b.json").write_text(json.dumps({"arms_locked": {}}))
     (research / "LOCK_labels_h1.json").write_text(json.dumps({"labels": {rel: _sha(repo / rel)}}))
     (research / "gates_v3").mkdir(parents=True)
-    (research / "gates_v3" / "UNBLINDING_GATE_h1_run2.json").write_text(json.dumps({"all_conditions_hold": True}))
+    names = {"predictions": "LOCK_predictions_h1.json", "predictions_b": "LOCK_predictions_h1b.json", "labels": "LOCK_labels_h1.json"}
+    (research / "gates_v3" / "UNBLINDING_GATE_h1_run2.json").write_text(json.dumps(
+        {"all_conditions_hold": True, "conditions": {"1_locks": {"inputs_sha256": {f"research/ledger/{n}": _sha(research / n) for n in names.values()}}}}))
     flag = research / "UNBLIND_h1.json"
-    flag.write_text(json.dumps({"authorised_by": "test", "utc": "t", "predictions_lock": "LOCK_predictions_h1.json",
-                                "predictions_lock_sha256": _sha(research / "LOCK_predictions_h1.json"),
-                                "labels_lock": "LOCK_labels_h1.json", "labels_lock_sha256": _sha(research / "LOCK_labels_h1.json")}))
+    f = {"authorised_by": "test", "utc": "t"}
+    for k, n in names.items():
+        f[f"{k}_lock"], f[f"{k}_lock_sha256"] = n, _sha(research / n)
+    flag.write_text(json.dumps(f))
     return research, flag
 
 
@@ -144,8 +157,9 @@ def test_pipeline_primary_then_once(tmp_path):
     research, flag = _world(tmp_path)
     res = PL.run("primary", research, flag)
     assert res["H-M"]["mean_pr"] == 1.0 and res["n_units_ge3_coded"] == 24
-    assert res["best_H-S"] == "H-S-k1-signed"  # 0.5 (all ties) beats the reversed baseline (0.0)
-    assert res["decision"] == {"underpowered": False, "model_predicts": True, "adds_value_beyond_wiring": True}
+    assert res["best_H-S"] == "H-S-k0"  # all-ties baselines (0.5) beat the reversed one (0.0); ties go to the first in HS_ARMS
+    assert res["decision"]["model_predicts"] and res["decision"]["adds_value_beyond_wiring"]
+    assert res["chance"]["null_mean_pr"]["mean"] < 0.6 and len(res["scoring_code_sha256"]) == 2
     with pytest.raises(BlindErrorH1):
         PL.run("primary", research, flag)
     sec = PL.run("secondary", research, flag)["secondary"]
@@ -170,6 +184,36 @@ def test_pipeline_refuses_consensus_without_d7p(tmp_path):
         PL.run("primary", research, flag)
 
 
+def test_pipeline_refuses_missing_wiring_arm(tmp_path):
+    research, flag = _world(tmp_path)
+    lock = json.loads((research / "LOCK_predictions_h1.json").read_text())
+    del lock["arms_locked"]["H-S-lin"]
+    _relock_predictions(research, flag, lock)
+    with pytest.raises(BlindErrorH1, match="H-S-lin is not locked"):
+        PL.run("primary", research, flag)
+
+
+def test_pipeline_refuses_gate_report_of_other_locks(tmp_path):
+    research, flag = _world(tmp_path)
+    g = research / "gates_v3" / "UNBLINDING_GATE_h1_run2.json"
+    rep = json.loads(g.read_text())
+    rep["conditions"]["1_locks"]["inputs_sha256"]["research/ledger/LOCK_labels_h1.json"] = "0" * 64
+    g.write_text(json.dumps(rep))
+    with pytest.raises(BlindErrorH1, match="gate report checked another"):
+        PL.run("primary", research, flag)
+
+
+def _relock_predictions(research, flag, lock):
+    (research / "LOCK_predictions_h1.json").write_text(json.dumps(lock))
+    f = json.loads(flag.read_text())
+    f["predictions_lock_sha256"] = _sha(research / "LOCK_predictions_h1.json")
+    flag.write_text(json.dumps(f))
+    g = research / "gates_v3" / "UNBLINDING_GATE_h1_run2.json"
+    rep = json.loads(g.read_text())
+    rep["conditions"]["1_locks"]["inputs_sha256"]["research/ledger/LOCK_predictions_h1.json"] = f["predictions_lock_sha256"]
+    g.write_text(json.dumps(rep))
+
+
 def test_pipeline_refuses_prediction_table_missing_a_unit(tmp_path):
     research, flag = _world(tmp_path)
     repo = research.parents[1]
@@ -177,10 +221,7 @@ def test_pipeline_refuses_prediction_table_missing_a_unit(tmp_path):
     pd.read_csv(d, dtype={"unit": str}).iloc[1:].to_csv(d, index=False)
     lock = json.loads((research / "LOCK_predictions_h1.json").read_text())
     lock["arms_locked"]["H-M"] = {"research/ledger/predictions_h1/H-M/predicted.csv": _sha(d)}
-    (research / "LOCK_predictions_h1.json").write_text(json.dumps(lock))
-    f = json.loads(flag.read_text())
-    f["predictions_lock_sha256"] = _sha(research / "LOCK_predictions_h1.json")
-    flag.write_text(json.dumps(f))
+    _relock_predictions(research, flag, lock)
     assert repo.exists()
     with pytest.raises(BlindErrorH1, match="exactly"):
         PL.run("primary", research, flag)
@@ -193,3 +234,7 @@ def _relock_labels(research, flag, c):
     f = json.loads(flag.read_text())
     f["labels_lock_sha256"] = _sha(research / "LOCK_labels_h1.json")
     flag.write_text(json.dumps(f))
+    g = research / "gates_v3" / "UNBLINDING_GATE_h1_run2.json"
+    rep = json.loads(g.read_text())
+    rep["conditions"]["1_locks"]["inputs_sha256"]["research/ledger/LOCK_labels_h1.json"] = f["labels_lock_sha256"]
+    g.write_text(json.dumps(rep))

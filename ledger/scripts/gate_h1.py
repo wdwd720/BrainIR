@@ -11,8 +11,9 @@ overwritten; run 2 requires run 1's conditions 1-5 to pass with condition 6 pend
 Exit 0: all six hold (run 2). Exit 1: a condition fails or is pending. Exit 2: refused.
 
 1. Locks: run 2's condition 1 (every v1 and v2 lock, both checkers for v1, archive members, locks before the v2 sessions) plus
-   `lock2.py check` on every run 3 lock (prereg v3, label code h1, predictions h1, labels h1; reliability v1 if present), and
-   `LOCK_labelcode_h1.json` committed before the first h1 label session started (session manifests in labels_h1/sessions/).
+   `lock3.py check` (run 3's amendment rows only) on every run 3 lock (prereg v3, label code h1, predictions h1 and h1b, labels h1;
+   reliability v1 if present); from commit times only: `LOCK_labelcode_h1.json` and `LOCK_predictions_h1.json` committed before the
+   first h1 label session started (session manifests in labels_h1/sessions/), `LOCK_predictions_h1b.json` before `LOCK_labels_h1.json`.
 2. Breaches: every session that contributed a final record (`records.csv` column `source_sessions`) is in the transcript audit and
    did not breach; no final record from a breaching session (T7).
 3. Label review (`reviews_v3/LABEL_REVIEW_h1.md`, exactly one line `Verdict: usable` or `Verdict: usable with caveats`) and the
@@ -45,7 +46,7 @@ GATES = "gates_v3"
 REPORTS = {1: f"{GATES}/UNBLINDING_GATE_h1_run1.json", 2: f"{GATES}/UNBLINDING_GATE_h1_run2.json"}
 CHECKLIST_REL = "reviews_v3/GATE_CHECKLIST_h1.md"
 REVIEW_REL = "reviews_v3/LABEL_REVIEW_h1.md"
-LOCKS_H1 = ("LOCK_prereg_v3.json", "LOCK_labelcode_h1.json", "LOCK_predictions_h1.json", "LOCK_labels_h1.json")
+LOCKS_H1 = ("LOCK_prereg_v3.json", "LOCK_labelcode_h1.json", "LOCK_predictions_h1.json", "LOCK_predictions_h1b.json", "LOCK_labels_h1.json")
 LOCKS_H1_IF_PRESENT = ("LOCK_reliability_v1.json",)
 KAPPA_MIN, MAX_ERROR, MIN_UNITS = 0.7, 0.10, 20
 CONDITIONS = GV.CONDITIONS
@@ -66,8 +67,11 @@ def cond1(wt: Path, python: str, data_root: Path | None) -> dict:
             h1[name] = {"present": False, "pass": name in LOCKS_H1_IF_PRESENT}
             continue
         GV._note(inputs, research, p)
-        h1[name] = {"present": True, **GV._run_checker(wt, "lock2.py", name, python)}
+        h1[name] = {"present": True, **GV._run_checker(wt, "lock3.py", name, python)}  # run 3's checker: v3 amendment rows only
     lock_t = _first_commit_utc(wt, "research/ledger/LOCK_labelcode_h1.json")
+    pred_t = _first_commit_utc(wt, "research/ledger/LOCK_predictions_h1.json")
+    predb_t = _first_commit_utc(wt, "research/ledger/LOCK_predictions_h1b.json")
+    labels_t = _first_commit_utc(wt, "research/ledger/LOCK_labels_h1.json")
     starts = []
     for m in sorted((research / "labels_h1" / "sessions").glob("*.json")):
         GV._note(inputs, research, m)
@@ -75,8 +79,13 @@ def cond1(wt: Path, python: str, data_root: Path | None) -> dict:
             t = GV._utc(run.get("start_utc"))
             if t is not None:
                 starts.append(t)
-    before = {"labelcode_h1_first_commit_utc": lock_t, "first_h1_session_start_utc": min(starts) if starts else None,
-              "pass": bool(lock_t and starts and lock_t < min(starts))}
+    first = min(starts) if starts else None
+    before = {"labelcode_h1_first_commit_utc": lock_t, "predictions_h1_first_commit_utc": pred_t, "first_h1_session_start_utc": first,
+              "predictions_h1b_first_commit_utc": predb_t, "labels_h1_first_commit_utc": labels_t,
+              "labelcode_before_sessions": bool(lock_t and first and lock_t < first),
+              "predictions_before_sessions": bool(pred_t and first and pred_t < first),
+              "predictions_b_before_labels_lock": bool(predb_t and labels_t and predb_t < labels_t)}
+    before["pass"] = before["labelcode_before_sessions"] and before["predictions_before_sessions"] and before["predictions_b_before_labels_lock"]
     return {"v1_v2": base, "h1_locks": h1, "labelcode_h1_before_sessions": before, "inputs_sha256": {**base.get("inputs_sha256", {}), **inputs},
             "pass": base.get("pass") is True and all(v["pass"] for v in h1.values()) and before["pass"]}
 

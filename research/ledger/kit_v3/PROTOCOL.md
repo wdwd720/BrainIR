@@ -8,7 +8,9 @@ Nothing here asks you to judge whether a result is plausible.
 ## 1. What counts as a record
 
 One record = one experiment: (source, hemilineage as the source names it, driver or clone method, preparation, effector). Code
-an experiment when **neurons of a named hemilineage (or of a named set of hemilineages) were activated** (thermogenetic, e.g.
+only experiments **the source itself performed and reports**: an outcome the source cites or restates from another study (for
+example in its introduction or discussion) gives no record. Code an experiment when **neurons of a named hemilineage (or of a named
+set of hemilineages) were activated** (thermogenetic, e.g.
 TrpA1 or dTrpA1 with heat; optogenetic, e.g. CsChrimson with light; or another activation method) **in adult flies** and the
 source reports what the flies did (or that they did nothing visible). Write a record also when the source says activation had no
 visible effect. Silencing, ablation, anatomy-only or larval experiments are not records. A screen of many lines gives one record
@@ -88,7 +90,8 @@ needed. Most sessions have no web tools: if something you need is missing, say s
 - Do not open, search for or read any computational model, network simulation, connectome-simulation result or prediction of what
   activating a neuron population does. Do not visit GitHub, Zenodo or any code host. Do not open Pugliese et al. 2026 (Nature,
   doi 10.1038/s41586-026-11195-y; bioRxiv 10.1101/2025.09.12.675944) or Sapkal et al. 2026 (bioRxiv 10.64898/2026.04.29.721658).
-- **Sighting.** If you see any model or simulation prediction for a hemilineage by accident, stop reading that part, set
+- **Sighting.** A sighting is seeing a network-simulation prediction of what activating a hemilineage does (a description of
+  connectivity is not a sighting). If you see one by accident, stop reading that part, set
   `saw_model_prediction` = `true` on every record of that hemilineage you write, and add a row to `out/sightings.csv` (header
   `doi,locator,what_was_seen,hemilineages_as_printed`).
 - Do not use your own memory of what a hemilineage does as evidence, and do not let it guide what you record. Every record must

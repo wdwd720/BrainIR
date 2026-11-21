@@ -55,6 +55,14 @@ def _tagged() -> bool:
 
 
 def require_freeze(what: str) -> None:
+    """Hard limit 2: the tag must exist, be an ancestor of HEAD, and the prereg lock must verify (audit 13a)."""
+    if _tagged():
+        anc = subprocess.run(["git", "merge-base", "--is-ancestor", FREEZE_TAG, "HEAD"], cwd=G.REPO, capture_output=True).returncode == 0
+        ok = subprocess.run([sys.executable, str(HERE / "lock3.py"), "check", str(RESEARCH / "LOCK_prereg_v3.json")], cwd=G.REPO,
+                            capture_output=True).returncode == 0
+        if not (anc and ok):
+            raise SystemExit(f"{what}: the tag {FREEZE_TAG} is not an ancestor of HEAD or LOCK_prereg_v3.json does not verify; refused")
+        return
     if not _tagged():
         raise SystemExit(f"{what}: before the tag {FREEZE_TAG} only DNg100, DNb08 and random synthetic groups may be simulated "
                          "(RUN3_PROMPT hard limit 2); refused, nothing built")
@@ -187,6 +195,11 @@ def publish3(name: str, attempt: int) -> None:
         raise SystemExit(f"{name}: not a run 3 campaign")
     man = json.loads((G.GHA / name / "manifest.json").read_text())
     head = G.sh("git", "rev-parse", "HEAD")
+    tree = G.sh("git", "ls-tree", "-r", "--name-only", "HEAD", "--", "research/ledger/predictions_h1", "research/ledger/LOCK_predictions_h1.json",
+                "research/ledger/LOCK_predictions_h1b.json")
+    if tree.strip() and not (RESEARCH / "LOCK_labels_h1.json").exists():
+        raise SystemExit("HEAD contains exam 2 predictions and LOCK_labels_h1.json does not exist: publishing would push them "
+                         "(PREREG v3 P10); publish every campaign before committing predictions; refused")
     if G.sh("git", "rev-parse", "origin/ledger/v1") != head:
         raise SystemExit("push the branch first: the workflow code at HEAD must be on origin")
     if not (G.REPO / ".github" / "workflows" / "ledger-gha3.yml").is_file():
@@ -216,6 +229,13 @@ def collect3(name: str, wait: bool) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ checks
+def _write_once(path: Path, obj: dict) -> None:
+    """Gate files are written once (the prereg lock hashes those present at the freeze; audit 13d)."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "x", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(obj, indent=1) + "\n")
+
+
 def results(name: str) -> dict[str, dict]:
     man = json.loads((G.GHA / name / "manifest.json").read_text())
     return {r["key"]: r for r in read_log(data_dir() / man["area"] / f"GHA_{name}" / "results.pkl")}
@@ -234,8 +254,7 @@ def p7_check(name: str) -> dict:
            "regression_identical": sum(a is not None and a == b for a, b in reg.values()), "regression_n": len(reg),
            "regression_different": [s for s, (a, b) in reg.items() if a is None or a != b], "readout_present_in_all": readout_ok,
            "verdict": "pass" if (not missing and all(a is not None and a == b for a, b in reg.values()) and readout_ok) else "fail"}
-    GATES3.mkdir(parents=True, exist_ok=True)
-    (GATES3 / "P7_REGRESSION.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    _write_once(GATES3 / "P7_REGRESSION.json", out)
     print(json.dumps(out))
     return out
 
@@ -247,8 +266,7 @@ def det_compare(name: str, against: str) -> dict:
     same = [k for k in man["keys"] if k in a and k in b and a[k].get("digest_v3") == b[k].get("digest_v3") and a[k].get("digest_v3")]
     out = {"campaign": name, "against": against, "n": len(man["keys"]), "identical": len(same),
            "different_or_missing": sorted(set(man["keys"]) - set(same)), "verdict": "identical" if len(same) == len(man["keys"]) else "fail"}
-    GATES3.mkdir(parents=True, exist_ok=True)
-    (GATES3 / f"DETERMINISM_{name}.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    _write_once(GATES3 / f"DETERMINISM_{name}.json", out)
     print(json.dumps(out))
     return out
 
@@ -278,8 +296,7 @@ def trust_compare(name: str) -> dict:
            "numerics_digests": sorted({m["probe"]["numerics_digest"][:12] for m in meta}),
            "cpu_models": sorted({m["probe"]["host"]["cpu"]["cpu_model"] for m in meta}),
            "verdict": "identical" if ident == len(man["keys"]) else "fail"}
-    GATES3.mkdir(parents=True, exist_ok=True)
-    (GATES3 / "TRUST_GATE_v3.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    _write_once(GATES3 / f"TRUST_GATE_v3{'' if name == 'trust-run3' else '_' + name}.json", out)
     print(json.dumps({k: v for k, v in out.items() if k != "different_keys"}, indent=1))
     return out
 

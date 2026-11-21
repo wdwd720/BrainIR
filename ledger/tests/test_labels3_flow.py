@@ -63,6 +63,40 @@ def world(tmp_path, monkeypatch):
     return research, lab, LA3, GH1
 
 
+def _run_flow(lab, LA3):
+    LA3.disputes("srcA")
+    disp = [json.loads(x) for x in (lab / "work" / "disputes_srcA.jsonl").read_text().splitlines()]
+    adj = []
+    for d in disp:
+        if d["kind"] == "cells":
+            adj.append({"dispute_id": d["dispute_id"], "cells": {"d3": "yes"}, "locator": "Fig 1", "quote": "x", "reason": "r"})
+        else:
+            adj.append({"dispute_id": d["dispute_id"], "exists": False, "record": None, "reason": "not in source"})
+    a = lab / "raw" / "adjudication" / "ADJ1"
+    a.mkdir(parents=True, exist_ok=True)
+    (a / "adjudications.jsonl").write_text("".join(json.dumps(x) + "\n" for x in adj))
+    LA3.finalize()
+
+
+def test_assembled_labels_load_in_the_scorer(world):
+    """Audit 10: the files the assembly writes are the files the scorer reads (formats, columns, unit names)."""
+    import hashlib
+
+    from brainir_ledger.scoring_h1 import pipeline_h1 as PL
+
+    research, lab, LA3, GH1 = world
+    _run_flow(lab, LA3)
+    repo = research.parents[1]
+    rels = ["research/ledger/labels_h1/consensus.csv", "research/ledger/labels_h1/lab_srcA.csv",
+            "research/ledger/labels_h1/consensus_secondary.csv"]
+    locks = {"labels": {"labels": {r: hashlib.sha256((repo / r).read_bytes()).hexdigest() for r in rels}}}
+    for r in rels:
+        c = PL._cons(repo, locks, r, UNITS)
+        assert list(c.index) == UNITS
+    O = PL.observed(PL._cons(repo, locks, rels[0], UNITS))
+    assert int(O.notna().sum(axis=1).ge(3).sum()) == 24
+
+
 def test_flow(world):
     research, lab, LA3, GH1 = world
     LA3.disputes("srcA")

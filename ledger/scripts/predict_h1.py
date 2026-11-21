@@ -175,10 +175,12 @@ def cmd_hs(a) -> None:
     fc = N.full_cord()
     mm = GH.load_motor_map()
     groups = gha3._unit_groups(fc, "primary")
-    tabs = GH.hs_tables(fc.W, groups, GH.mn_positions(mm), GH.pool_masks(mm))
+    tabs = GH.hs_tables(fc.W, groups, GH.mn_positions(mm), GH.pool_masks(mm), sizes=fc.sizes)
     for arm, df in tabs.items():
-        _write(arm, df, None, {"what": "wiring only: pool mean of (W^k s), full-cord signed count matrix (post x pre); k = 0 is "
-                                       "the share of the pool inside the group; dims 5, 6, 7' constant 0 (PREREG v3 P3, M4)",
+        _write(arm, df, None, {"what": ("linearised model: pool mean of (I - A)^-1 (a * s), A = diag(a) Wb (mean size-scaled gains, "
+                                        "the model's coupling); dims 5, 6, 7' constant 0" if arm == "H-S-lin" else
+                                        "wiring only: pool mean of (W^k s), full-cord signed count matrix (post x pre); k = 0 is the "
+                                        "share of the pool inside the group; dims 5, 6, 7' constant 0") + " (PREREG v3 P3, M4)",
                                "network": fc.name, "W_nnz": int(fc.W.nnz)})
 
 

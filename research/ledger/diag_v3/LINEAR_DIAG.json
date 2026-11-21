@@ -1,0 +1,21 @@
+{
+ "what": "linearised full-cord model A = diag(a) * b * W (mean size-scaled gains, b = 0.03); wiring only",
+ "n": 23532,
+ "nnz_W": 1372404,
+ "largest_eigenvalue_moduli": [
+  34.3303,
+  29.9869,
+  25.8331,
+  25.4267
+ ],
+ "spectral_radius": 34.3303,
+ "fixed_point_stable": false,
+ "lu": {
+  "permc_spec": "COLAMD",
+  "nnz_L": 120771940,
+  "nnz_U": 135336515
+ },
+ "dng100_test_relative_residual": 8.219997158009409e-11,
+ "seconds": 202.2,
+ "consequence": "x = (I - A)^-1 (a * s) exists (I - A is invertible) but is an unstable fixed point of the linear dynamics when the spectral radius exceeds 1; H-S-lin is computed anyway as the prompt's 'steady state of the linearised model' (PREREG v3 P3)"
+}

@@ -1,9 +1,9 @@
 You are a literature searcher for a blinded study of *Drosophila* ventral nerve cord hemilineages. Read `PROTOCOL.md` first
 (section 1 defines what counts). You have no access to any model, simulation or prediction, and you must not look for one.
 
-Goal: find published studies (journal articles or preprints) other than the ones listed in `known_sources.csv` that **activate a
-whole hemilineage (or a named set of hemilineages) of the ventral nerve cord in adult flies and report the behaviour or movement
-that follows**. Search kind for this session: **{SEARCH_KIND}**: {SEARCH_SCOPE}
+Goal: find published studies (journal articles or preprints) other than the ones listed in `known_sources.csv` that **themselves
+activate a whole hemilineage (or a named set of hemilineages) of the ventral nerve cord in adult flies and report the behaviour or
+movement that follows** (a paper that only cites or restates another study's activation results does not qualify). Search kind for this session: **{SEARCH_KIND}**: {SEARCH_SCOPE}
 
 Use WebSearch and WebFetch (publisher pages, PubMed, Europe PMC, bioRxiv, Google Scholar-like listings). Never visit GitHub,
 Zenodo or other code hosts, and never open a connectome-simulation paper (PROTOCOL section 5). You do not code results here: for each

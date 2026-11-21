@@ -78,6 +78,8 @@ def world(tmp_path, monkeypatch):
     monkeypatch.setattr(L2, "REPO", repo)
     monkeypatch.setattr(L2, "RES", res)
     monkeypatch.setattr(L3, "RES", res)
+    monkeypatch.setattr(L3, "REPO", repo)
+    monkeypatch.setattr(L3, "H1_MANIFESTS", tmp_path / "no_sessions")
     units = [f"U{i:02d}" for i in range(43)]
     pd.DataFrame({"unit": units, "nt_class": ["excitatory"] * 20 + ["inhibitory"] * 20 + ["motor"] * 3}).to_csv(
         res / "UNITS_tmp.csv", index=False)
@@ -90,9 +92,11 @@ def world(tmp_path, monkeypatch):
     pred, pools = GH.arm_tables(results, units, masks, {u: 10 for u in units})
     out = res / "predictions_h1"
     PH._write("H-M", pred, pools, {"campaign": "synthetic"}, out=out)
+    PH._write("H-M-s0-3", pred, pools, {"campaign": "synthetic"}, out=out)
     hs = pred.copy()
     hs[DIMS] = hs[DIMS].to_numpy()[::-1]  # an unrelated baseline: another unit's pattern
-    PH._write("H-S-k1-signed", hs, None, {"what": "synthetic"}, out=out)
+    for arm in PL.HS_ARMS:
+        PH._write(arm, hs, None, {"what": "synthetic"}, out=out)
     # labels: the predicted pattern of each unit, thresholded at its column median (so H-M identifies well), as consensus cells
     P = pred.set_index("unit")[DIMS]
     cons = (P > P.median()).replace({True: "yes", False: "no"}).astype(object)
@@ -115,22 +119,34 @@ def world(tmp_path, monkeypatch):
 
 def test_writers_locks_and_scorer_agree(world):
     repo, res, L3 = world
-    L3.lock_predictions(["H-M", "H-S-k1-signed"], {"H-D-128": "not run (synthetic)"}, "synthetic")
+    with pytest.raises(SystemExit, match="no predicted.csv"):  # every primary arm is required (audit 3)
+        (res / "predictions_h1" / "H-S-lin" / "predicted.csv").rename(res / "x.csv")
+        try:
+            L3.lock_predictions("synthetic")
+        finally:
+            (res / "x.csv").rename(res / "predictions_h1" / "H-S-lin" / "predicted.csv")
+    L3.lock_predictions("synthetic")
+    with pytest.raises(SystemExit, match="neither locked nor explained"):
+        L3.lock_predictions_b([], {"H-D-128": "x"}, "synthetic")
+    L3.lock_predictions_b([], {a: "not run (synthetic)" for a in L3.SECONDARY_ARMS}, "synthetic")
     L3.lock_labels()
-    lp, ll = res / "LOCK_predictions_h1.json", res / "LOCK_labels_h1.json"
-    lock = json.loads(lp.read_text())
-    assert "research/ledger/predictions_h1/H-M/predicted.csv" in lock["arms_locked"]["H-M"]
-    (res / "gates_v3").mkdir()
-    (res / "gates_v3" / "UNBLINDING_GATE_h1_run2.json").write_text(json.dumps({"all_conditions_hold": True}))
+    names = {"predictions": "LOCK_predictions_h1.json", "predictions_b": "LOCK_predictions_h1b.json", "labels": "LOCK_labels_h1.json"}
+    lock = json.loads((res / names["predictions"]).read_text())
+    assert "research/ledger/predictions_h1/H-M/predicted.csv" in lock["arms_locked"]["H-M"] and len(lock["arms_locked"]) == 10
+    (res / "gates_v3").mkdir(exist_ok=True)
+    (res / "gates_v3" / "UNBLINDING_GATE_h1_run2.json").write_text(json.dumps(
+        {"all_conditions_hold": True, "conditions": {"1_locks": {"inputs_sha256": {f"research/ledger/{n}": _sha(res / n) for n in names.values()}}}}))
     flag = res / "UNBLIND_h1.json"
-    flag.write_text(json.dumps({"authorised_by": "test", "utc": "t", "predictions_lock": lp.name, "predictions_lock_sha256": _sha(lp),
-                                "labels_lock": ll.name, "labels_lock_sha256": _sha(ll)}))
+    f = {"authorised_by": "test", "utc": "t"}
+    for k, n in names.items():
+        f[f"{k}_lock"], f[f"{k}_lock_sha256"] = n, _sha(res / n)
+    flag.write_text(json.dumps(f))
     r = PL.run("primary", res, flag)
     assert r["n_units_ge3_coded"] == 43 and r["H-M"]["n"] == 43
-    assert r["H-M"]["mean_pr"] > 0.8 and r["p"] < 0.01 and r["best_H-S"] == "H-S-k1-signed"
+    assert r["H-M"]["mean_pr"] > 0.8 and r["p"] < 0.01 and r["best_H-S"] in PL.HS_ARMS
     assert r["decision"]["model_predicts"] is True
     s = PL.run("secondary", res, flag)["secondary"]
-    assert s["H-D-128"] == {"status": "not_locked"} and s["by_class"]["motor"]["n"] == 3
+    assert s["H-D-128"] == {"status": "not_locked"} and s["by_class"]["motor"]["n"] == 3 and s["H-M-s0-3"]["n"] == 43
     assert (res / "results" / "run3" / "primary.json").exists()
 
 
@@ -138,8 +154,8 @@ def test_lock_refuses_untracked_and_second_write(world):
     repo, res, L3 = world
     (res / "predictions_h1" / "H-M" / "extra.csv").write_text("x\n")  # untracked file in a locked arm folder
     with pytest.raises(SystemExit, match="not tracked"):
-        L3.lock_predictions(["H-M"], {}, "synthetic")
+        L3.lock_predictions("synthetic")
     (res / "predictions_h1" / "H-M" / "extra.csv").unlink()
-    L3.lock_predictions(["H-M"], {}, "synthetic")
+    L3.lock_predictions("synthetic")
     with pytest.raises(SystemExit, match="written once"):
-        L3.lock_predictions(["H-M"], {}, "synthetic")
+        L3.lock_predictions("synthetic")

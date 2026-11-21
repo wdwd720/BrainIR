@@ -40,7 +40,7 @@ def test_held_flexion_and_rhythm():
     m = GH.pool_masks(_mm())
     # every leg's flexor active, no extensor, no rhythm: d5 = 1, d6 = 0
     act, rhy, d = GH.replicate_dims(_ex({0, 2, 4, 6, 8, 10}), m)
-    assert d["d5"] == 1.0 and d["d6"] == 0.0 and d["d7p"] == 0.0 and d["d2"] == 0.5 and d["d1"] == 6 / 16
+    assert d["d5"] == 1.0 and d["d6"] == 0.0 and d["d7p"] == 0.0 and d["d2"] == 0.5 and d["d1"] == 0.5  # max over body-part pools
     # same, but T1L fully rhythmic: its held flexion vanishes; d7' = the most rhythmic leg
     act, rhy, d = GH.replicate_dims(_ex({0, 2, 4, 6, 8, 10}, {"T1L": 1.0, "T2R": 0.4}), m)
     assert d["d5"] == pytest.approx((0 + 1 + 1 + 0.6 + 1 + 1) / 6) and d["d7p"] == 1.0
@@ -88,7 +88,12 @@ def test_wiring_baselines():
     k0 = GH.hs_values(W, [0, 1, 12], np.array(mn), m, 0, True)
     assert k0["d2"] == 0.5 and k0["d10"] == 1.0
     tabs = GH.hs_tables(W, {"A": [17], "B": [19]}, mn, m)
-    assert sorted(tabs) == sorted(GH.HS_ARMS) and len(GH.HS_ARMS) == 7 and list(tabs["H-S-k0"]["unit"]) == ["A", "B"]
+    assert sorted(tabs) == sorted(a for a in GH.HS_ARMS if a != "H-S-lin")  # no sizes: no linear arm
+    tabs = GH.hs_tables(W, {"A": [17], "B": [19]}, mn, m, sizes=np.ones(n))
+    assert sorted(tabs) == sorted(GH.HS_ARMS) and len(GH.HS_ARMS) == 8 and list(tabs["H-S-k0"]["unit"]) == ["A", "B"]
+    lin = tabs["H-S-lin"].set_index("unit")
+    # A = 0.03 W (gain 1): x = (I - A)^-1 s; for group B (neuron 19): x19 = 1, x17 = 0.03*2, x0 = 0.03*10*x17 -> T1L flexor
+    assert lin.loc["B", "d2"] == pytest.approx(0.03 * 10 * 0.03 * 2 / 4, rel=1e-6) and lin.loc["B", "d5"] == 0.0
 
 
 def test_members_variants():

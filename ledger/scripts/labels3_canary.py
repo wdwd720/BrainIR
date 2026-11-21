@@ -84,7 +84,8 @@ def main() -> None:
         out = C2.check(a.room)
         out["verdict"] = verdict(out)
         GATES3.mkdir(parents=True, exist_ok=True)
-        (GATES3 / f"CANARY_v3_{a.room}.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+        with open(GATES3 / f"CANARY_v3_{a.room}.json", "x", encoding="utf-8", newline="\n") as fh:  # written once
+            fh.write(json.dumps(out, indent=1) + "\n")
         print(json.dumps(out["verdict"]))
 
 

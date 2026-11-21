@@ -3,9 +3,11 @@ the primary analysis (`primary`) or the secondary analyses (`secondary`), each o
 
 Flag `research/ledger/UNBLIND_h1.json` (exam 1's flag is retired and never read):
     {"authorised_by": "...", "utc": "...", "predictions_lock": "LOCK_predictions_h1.json", "predictions_lock_sha256": "...",
+     "predictions_b_lock": "LOCK_predictions_h1b.json", "predictions_b_lock_sha256": "...",
      "labels_lock": "LOCK_labels_h1.json", "labels_lock_sha256": "..."}
-Locks: `LOCK_predictions_h1.json` section `arms_locked` -> {arm: {repo path: sha256}}; `LOCK_labels_h1.json` section `labels`
--> {repo path: sha256}.
+Locks: `LOCK_predictions_h1.json` (primary arms) and `LOCK_predictions_h1b.json` (descriptive arms), section `arms_locked` ->
+{arm: {repo path: sha256}}; `LOCK_labels_h1.json` section `labels` -> {repo path: sha256}. The gate's second report must carry the
+same lock hashes (its condition 1 inputs) as the flag.
 """
 
 from __future__ import annotations
@@ -16,11 +18,11 @@ from pathlib import Path
 
 import pandas as pd
 
-from . import (DIMS, BlindErrorH1, bootstrap_ci, decide, identification, lab_as_prediction, observed, paired_bootstrap,
-               per_dim_auroc, permutation_p, standardise)
+from . import (ALL_DIMS, DIMS, BlindErrorH1, bootstrap_ci, decide, identification, lab_as_prediction, observed, paired_bootstrap,
+               per_dim_auroc, permutation_null, standardise)
 
 RUNS = ("primary", "secondary")
-HS_ARMS = ["H-S-k0"] + [f"H-S-k{k}-{s}" for k in (1, 2, 3) for s in ("signed", "unsigned")]  # PREREG v3 P3
+HS_ARMS = ["H-S-k0"] + [f"H-S-k{k}-{s}" for k in (1, 2, 3) for s in ("signed", "unsigned")] + ["H-S-lin"]  # PREREG v3 P3
 HD_ARMS = [f"H-D-{c}" for c in (128, 256, 384, 512)]
 HC_ARMS = [f"H-C-rewire-{s}" for s in (101, 102, 103, 104, 105)] + [f"H-C-classshuffle-{s}" for s in (201, 202, 203, 204, 205)]
 SENS_ARMS = [f"H-M-S-{g}" for g in ("all", "post", "T1", "T2", "T3", "L", "R")]
@@ -31,19 +33,27 @@ def _sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+LOCK_NAMES = {"predictions": "LOCK_predictions_h1.json", "predictions_b": "LOCK_predictions_h1b.json", "labels": "LOCK_labels_h1.json"}
+
+
 def preconditions(research: Path, flag_path: Path) -> dict:
     if not flag_path.exists():
         raise BlindErrorH1("no UNBLIND_h1.json: exam 2 is not unblinded")
     flag = json.loads(flag_path.read_text())
     gate = research / "gates_v3" / "UNBLINDING_GATE_h1_run2.json"
-    if not gate.exists() or not json.loads(gate.read_text()).get("all_conditions_hold"):
+    if not gate.exists():
+        raise BlindErrorH1("the gate's second run does not exist")
+    grep = json.loads(gate.read_text())
+    if not grep.get("all_conditions_hold"):
         raise BlindErrorH1("the gate's second run does not report that all conditions hold")
+    gate_inputs = ((grep.get("conditions") or {}).get("1_locks") or {}).get("inputs_sha256") or {}
     locks = {}
-    for k in ("predictions", "labels"):
-        name = flag.get(f"{k}_lock")
-        lp = research / str(name)
-        if name not in (f"LOCK_{k}_h1.json",) or not lp.exists() or _sha(lp) != flag.get(f"{k}_lock_sha256"):
+    for k, name in LOCK_NAMES.items():
+        lp = research / name
+        if flag.get(f"{k}_lock") != name or not lp.exists() or _sha(lp) != flag.get(f"{k}_lock_sha256"):
             raise BlindErrorH1(f"flag names a wrong or changed {k} lock")
+        if gate_inputs and gate_inputs.get(f"research/ledger/{name}") != flag[f"{k}_lock_sha256"]:
+            raise BlindErrorH1(f"the gate report checked another {name} than the flag names")
         locks[k] = json.loads(lp.read_text())
     return {"flag": flag, "locks": locks, "gate_sha256": _sha(gate)}
 
@@ -57,7 +67,7 @@ def _read_locked(repo: Path, rel: str, section: dict) -> pd.DataFrame:
 
 def _pred(repo: Path, locks: dict, arm: str, units: list[str]) -> pd.DataFrame | None:
     """A locked arm's standardised predictions; its table must hold exactly the unit list (no silent filling: PREREG v3 S7)."""
-    sec = (locks["predictions"].get("arms_locked") or {}).get(arm)
+    sec = (locks["predictions"].get("arms_locked") or {}).get(arm) or (locks.get("predictions_b", {}).get("arms_locked") or {}).get(arm)
     if sec is None:
         return None
     P = _read_locked(repo, f"research/ledger/predictions_h1/{arm}/predicted.csv", sec).set_index("unit")
@@ -72,13 +82,13 @@ def _cons(repo: Path, locks: dict, rel: str, units: list[str]) -> pd.DataFrame:
     """A locked consensus table. `d7p` is derived per final record before the consensus (PREREG v3 V2), so it must be present;
     every unit named must be in the unit list (a label for an unknown name is an assembly error, never dropped here)."""
     c = _read_locked(repo, rel, locks["labels"].get("labels") or {}).set_index("unit")
-    missing = [d for d in DIMS if d not in c.columns]
+    missing = [d for d in ALL_DIMS if d not in c.columns]  # d1-d15 and d7p (PREREG v3 S7)
     if missing:
         raise BlindErrorH1(f"{rel}: columns missing {missing}")
     unknown = sorted(set(c.index) - set(units))
     if unknown or c.index.duplicated().any():
         raise BlindErrorH1(f"{rel}: units not in the unit list or repeated: {unknown}")
-    bad = set(c[DIMS].stack().unique()) - {"yes", "no", "unclear", "not_assessed", "conflicting"}
+    bad = set(c[ALL_DIMS].stack().unique()) - {"yes", "no", "unclear", "not_assessed", "conflicting"}
     if bad:
         raise BlindErrorH1(f"{rel}: values outside the cell vocabulary: {sorted(bad)}")
     return c.reindex(units)
@@ -110,18 +120,22 @@ def run(name: str, research: Path, flag_path: Path) -> dict:
         raise BlindErrorH1("H-M is not locked")
     if name == "primary":
         r = identification(ZM, O)
-        p = permutation_p(r) if r["n"] else None
+        null = permutation_null(r) if r["n"] else None
+        p = null["p"] if null else None
         ci = bootstrap_ci(r["pr"].values()) if r["n"] else None
         hs = {}
         for arm in HS_ARMS:
             Z = _pred(repo, locks, arm, U)
-            if Z is not None:
-                hs[arm] = identification(Z, O)
-        best = max(hs, key=lambda a: hs[a]["mean_pr"] or -1) if hs else None
-        vs = paired_bootstrap(r["pr"], hs[best]["pr"]) if best and r["n"] else None
-        res.update({"H-M": {k: v for k, v in r.items() if not k.startswith("_")}, "p": p, "ci": ci,
+            if Z is None:
+                raise BlindErrorH1(f"{arm} is not locked: the best wiring baseline is taken over all eight (PREREG v3 S3)")
+            hs[arm] = identification(Z, O)
+        best = max(HS_ARMS, key=lambda a: hs[a]["mean_pr"] if hs[a]["mean_pr"] is not None else -1)  # ties: first in HS_ARMS order
+        vs = paired_bootstrap(r["pr"], hs[best]["pr"]) if r["n"] else None
+        res.update({"H-M": {k: v for k, v in r.items() if not k.startswith("_")}, "p": p, "ci": ci, "chance": null,
                     "H-S": {a: {k: v for k, v in x.items() if not k.startswith("_")} for a, x in hs.items()},
-                    "best_H-S": best, "vs_best_H-S": vs, "decision": decide(r, p if p is not None else 1.0, ci or {"lo": 0}, n_ge3, vs)})
+                    "best_H-S": best, "vs_best_H-S": vs,
+                    "decision": decide(r, p if p is not None else 1.0, ci or {"lo": 0}, n_ge3, vs,
+                                       null["null_mean_pr"]["mean"] if null else 0.5)})
     else:
         sec: dict = {}
         labs = sorted(r for r in (locks["labels"].get("labels") or {}) if r.startswith("research/ledger/labels_h1/lab_"))
@@ -144,6 +158,14 @@ def run(name: str, research: Path, flag_path: Path) -> dict:
         if rel2 in (locks["labels"].get("labels") or {}):
             sec["secondary_record_types"] = _ident(ZM, observed(_cons(repo, locks, rel2, U)))
         res["secondary"] = sec
+    here = Path(__file__).resolve().parent
+    res["scoring_code_sha256"] = {f.name: _sha(f) for f in sorted(here.glob("*.py"))}
+    try:
+        import subprocess  # noqa: PLC0415
+
+        res["git_head"] = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, capture_output=True, text=True).stdout.strip()
+    except OSError:
+        res["git_head"] = None
     out_p.parent.mkdir(parents=True, exist_ok=True)
     out_p.write_text(json.dumps(res, indent=1, default=str) + "\n", encoding="utf-8", newline="\n")
     return res

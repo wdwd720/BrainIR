@@ -227,7 +227,19 @@ def finalize() -> None:
     for s in plan().get("cheong", []):
         if not aud.get(s, {}).get("breach"):
             ext += [r for r in _jsonl(LAB / "raw" / "cheong" / s / "records.jsonl") if not C.validate(r)]
-    agreement = {"readings": C.readings_kappa([(r1, r2) for r1, r2 in _pairs_records(pair_rows)]), "n_final_records": len(df),
+    prs = list(_pairs_records(pair_rows))
+    full: list[bool] = []
+    for a, b in prs:
+        a2, b2 = {**a, "d7p": C.d7p(a)}, {**b, "d7p": C.d7p(b)}
+        full += [a2[d] == b2[d] for d in C.PRIMARY]
+    match = {}
+    for slug in sorted(plan()["readings"]):
+        pj = json.loads((LAB / "work" / f"pairing_{slug}.json").read_text())
+        n = len(pj["pairs"]) + len(pj["unmatched_1"]) + len(pj["unmatched_2"])
+        match[slug] = {"pairs": len(pj["pairs"]), "unmatched_1": len(pj["unmatched_1"]), "unmatched_2": len(pj["unmatched_2"]),
+                       "match_rate": (len(pj["pairs"]) / n) if n else None}
+    agreement = {"readings": C.readings_kappa(prs), "n_final_records": len(df),
+                 "readings_full_vocabulary_agreement": (sum(full) / len(full)) if full else None, "record_match": match,
                  "n_eligible_whole_two_sided": int((df["eligible"] & (df["record_type"] == "whole_two_sided")).sum()),
                  "n_units_ge3_coded_primary": C.n_units_ge3(cons)}
     if ext:

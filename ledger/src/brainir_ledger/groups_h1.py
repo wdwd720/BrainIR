@@ -29,7 +29,8 @@ LEG_BODY = {"T1": "front_leg", "T2": "middle_leg", "T3": "hind_leg"}
 FLEX = ("tibia_flexor", "femur_trochanter_flexor")
 EXT = ("tibia_extensor", "femur_trochanter_extensor")
 POOLS = ("any_body", "front_leg", "middle_leg", "hind_leg", "jump", "wing_any", "wing_power", "haltere", "abdomen")
-HS_ARMS = ["H-S-k0"] + [f"H-S-k{k}-{s}" for k in (1, 2, 3) for s in ("signed", "unsigned")]
+BODY_POOLS = ("front_leg", "middle_leg", "hind_leg", "wing_any", "haltere", "abdomen")  # d1: any body part moves (max over these)
+HS_ARMS = ["H-S-k0"] + [f"H-S-k{k}-{s}" for k in (1, 2, 3) for s in ("signed", "unsigned")] + ["H-S-lin"]
 OUTCOMES = ("accepted", "too_weak", "saturating")
 
 
@@ -107,7 +108,7 @@ def replicate_dims(ex: dict, masks: dict[str, np.ndarray]) -> tuple[dict, dict, 
     rhy = {leg: float(ex["legs"][leg]["score"]) for leg in LEGS}
     d5 = float(np.mean([max(0.0, act[f"{g}_flexor"] - act[f"{g}_extensor"]) * (1.0 - rhy[g]) for g in LEGS]))
     d6 = float(np.mean([max(0.0, act[f"{g}_extensor"] - act[f"{g}_flexor"]) * (1.0 - rhy[g]) for g in LEGS]))
-    dims = {"d1": act["any_body"], "d2": act["front_leg"], "d3": act["middle_leg"], "d4": act["hind_leg"], "d5": d5, "d6": d6,
+    dims = {"d1": max(act[b] for b in BODY_POOLS), "d2": act["front_leg"], "d3": act["middle_leg"], "d4": act["hind_leg"], "d5": d5, "d6": d6,
             "d7p": max(rhy.values()), "d10": act["jump"], "d11": act["wing_any"], "d13": act["wing_power"], "d14": act["haltere"],
             "d15": act["abdomen"]}
     return act, rhy, dims
@@ -154,20 +155,62 @@ def hs_values(W: sp.csr_matrix, group: list[int], mn: np.ndarray, masks: dict[st
         x = A @ x
     v = x[mn]
     pool = {p: (float(v[masks[p]].mean()) if masks[p].any() else 0.0) for p in POOLS}
-    return {"d1": pool["any_body"], "d2": pool["front_leg"], "d3": pool["middle_leg"], "d4": pool["hind_leg"], "d5": 0.0, "d6": 0.0,
+    return {"d1": max(pool[b] for b in BODY_POOLS), "d2": pool["front_leg"], "d3": pool["middle_leg"], "d4": pool["hind_leg"], "d5": 0.0, "d6": 0.0,
             "d7p": 0.0, "d10": pool["jump"], "d11": pool["wing_any"], "d13": pool["wing_power"], "d14": pool["haltere"],
             "d15": pool["abdomen"]}
 
 
-def hs_tables(W: sp.csr_matrix, groups: dict[str, list[int]], mn: list[int], masks: dict[str, np.ndarray]) -> dict[str, pd.DataFrame]:
+def linear_operator(W, sizes) -> sp.csr_matrix:
+    """A = diag(a) Wb: the model's mean size-scaled gains and its own coupling (`scaled_weights`), the linearisation of
+    tau dr/dt = f(I + Wb r - theta) - r in the active range (f'(0) = a)."""
+    from brainir.sim.model import ModelConfig, mean_neuron_params, scaled_weights  # noqa: PLC0415
+
+    cfg = ModelConfig()
+    a = mean_neuron_params(cfg, W.shape[0], sizes).a
+    return (sp.diags(a) @ scaled_weights(sp.csr_matrix(W, dtype=np.float64), cfg)).tocsr()
+
+
+def linear_factor(W, sizes):
+    """Sparse LU of (I - A) (scipy `splu`, column order COLAMD), and a record of it."""
+    from scipy.sparse.linalg import splu  # noqa: PLC0415
+
+    A = linear_operator(W, sizes)
+    M = (sp.identity(A.shape[0], format="csc") - A.tocsc()).tocsc()
+    lu = splu(M, permc_spec="COLAMD")
+    return lu, {"permc_spec": "COLAMD", "nnz_L": int(lu.L.nnz), "nnz_U": int(lu.U.nnz)}
+
+
+def hs_linear_values(lu, a: np.ndarray, group: list[int], mn: np.ndarray, masks: dict[str, np.ndarray]) -> dict:
+    """P3 H-S-lin: x = (I - A)^-1 (a * s); pool value = mean over the pool's motor neurons of x; dims 5, 6, 7' = 0."""
+    s = np.zeros(len(a))
+    s[np.asarray(group, dtype=np.int64)] = 1.0
+    x = lu.solve(a * s)
+    v = x[mn]
+    pool = {p: (float(v[masks[p]].mean()) if masks[p].any() else 0.0) for p in POOLS}
+    return {"d1": max(pool[b] for b in BODY_POOLS), "d2": pool["front_leg"], "d3": pool["middle_leg"], "d4": pool["hind_leg"], "d5": 0.0, "d6": 0.0,
+            "d7p": 0.0, "d10": pool["jump"], "d11": pool["wing_any"], "d13": pool["wing_power"], "d14": pool["haltere"],
+            "d15": pool["abdomen"]}
+
+
+def hs_tables(W: sp.csr_matrix, groups: dict[str, list[int]], mn: list[int], masks: dict[str, np.ndarray],
+              sizes: np.ndarray | None = None) -> dict[str, pd.DataFrame]:
     W = sp.csr_matrix(W, dtype=np.float64)
     mn = np.asarray(mn, dtype=np.int64)
     out = {}
     for arm in HS_ARMS:
+        if arm == "H-S-lin":
+            continue
         parts = arm.split("-")
         k = int(parts[2][1:])
         signed = k == 0 or parts[3] == "signed"
         out[arm] = pd.DataFrame([{"unit": u, **hs_values(W, g, mn, masks, k, signed), "n_members": len(g)} for u, g in groups.items()])
+    if sizes is not None:
+        from brainir.sim.model import ModelConfig, mean_neuron_params  # noqa: PLC0415
+
+        lu, _ = linear_factor(W, sizes)
+        a = mean_neuron_params(ModelConfig(), W.shape[0], sizes).a
+        out["H-S-lin"] = pd.DataFrame([{"unit": u, **hs_linear_values(lu, a, g, mn, masks), "n_members": len(g)}
+                                       for u, g in groups.items()])
     return out
 
 

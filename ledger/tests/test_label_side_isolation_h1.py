@@ -13,13 +13,18 @@ REPO = Path(__file__).resolve().parents[2]
 LABEL_SIDE = ["ledger/scripts/labels3_*.py", "ledger/scripts/gate_h1.py", "ledger/src/brainir_ledger/labels_h1/**/*.py",
               "research/ledger/kit_v3/*", "ledger/scripts/labels2_*.py", "ledger/scripts/labels_*.py",
               "ledger/src/brainir_ledger/labels/*.py"]
-FORBIDDEN = re.compile(r"predictions(_h1|_v2)?[/\\\"']|LOCK_predictions|predicted\.csv|data/ledger/arms|scoring_h1|score_h1", re.I)
+# the two exam 2 prediction lock files may be named (the gate verifies locks and their commit times; it never opens a prediction table)
+FORBIDDEN = re.compile(r"predictions(_h1|_v2)?[/\\\"']|LOCK_predictions(?!_h1b?\.json)|predicted\.csv|data/ledger/arms|scoring_h1|score_h1|groups_h1|"
+                       r"predict_h1|\bgha3|jobs_v3|typescreen_v3|arms_h1|results\.pkl", re.I)
+# the reverse direction: prediction-side code never names a label location (the scoring code reads labels by design, after the flag)
+PREDICTION_SIDE = ["ledger/src/brainir_ledger/groups_h1.py", "ledger/scripts/predict_h1.py", "ledger/scripts/gha3.py", "ledger/scripts/gha3r.py",
+                   "ledger/src/brainir_ledger/jobs_v3.py", "ledger/src/brainir_ledger/typescreen_v3.py", "ledger/scripts/gha_runner3.py",
+                   "ledger/scripts/hl_units_v3.py", "ledger/scripts/motor_map_v3.py", "ledger/scripts/diag_v3_linear.py"]
+LABEL_WORDS = re.compile(r"(?<!LOCK_)labels_h1|kit_v3|sources_h1|consensus", re.I)  # the labels lock file may be tested for existence
 # lines that name a prediction location in order to deny it (deny rules, planted canary files), never to read it
 ALLOWED = {("ledger/scripts/labels2_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),'),
            ("ledger/scripts/labels3_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),'),
-           # the gate's condition 1 runs the lock checker on every lock (it hashes files without parsing them; PREREG v3 S5.1)
-           ("ledger/scripts/gate_h1.py",
-            'LOCKS_H1 = ("LOCK_prereg_v3.json", "LOCK_labelcode_h1.json", "LOCK_predictions_h1.json", "LOCK_labels_h1.json")')}
+}
 
 
 def label_side_files() -> list[Path]:
@@ -48,3 +53,14 @@ def test_allow_list_is_current_and_scan_is_not_empty():
     assert "ledger/scripts/labels2_rooms.py" in files and "ledger/scripts/labels2_collect.py" in files
     for f, line in ALLOWED:
         assert line in [x.strip() for x in (REPO / f).read_text().splitlines()], f"stale allow-list entry in {f}"
+
+
+def test_prediction_side_code_never_names_labels():
+    hits = []
+    for rel in PREDICTION_SIDE:
+        p = REPO / rel
+        assert p.is_file(), rel
+        for i, line in enumerate(p.read_text(errors="replace").splitlines(), 1):
+            if LABEL_WORDS.search(line):
+                hits.append(f"{rel}:{i}: {line.strip()[:120]}")
+    assert not hits, "prediction-side code names a label location:\n" + "\n".join(hits)

@@ -78,17 +78,25 @@ def identification(Z: pd.DataFrame, O: pd.DataFrame, *, min_coded: int = 3) -> d
             "_S": S, "_true": true_col}
 
 
-def permutation_p(res: dict, *, n_perm: int = 10_000, seed: int = SEEDS["perm"]) -> float:
-    """One-sided p of the mean percentile rank: observed rows permuted among the labelled units (candidates unchanged)."""
+def permutation_null(res: dict, *, n_perm: int = 10_000, seed: int = SEEDS["perm"]) -> dict:
+    """PREREG v3 S2: observed rows permuted among the labelled units (candidates unchanged). Returns the one-sided p of the mean
+    percentile rank and the null distribution's mean and 2.5-97.5 % range for the mean rank, top-1 and top-3 ("chance")."""
     S, true_col = res["_S"], res["_true"]
     obs = res["mean_pr"]
     rng = np.random.default_rng(seed)
-    ge = 0
-    for _ in range(n_perm):
+    ge, m, t1, t3 = 0, np.empty(n_perm), np.empty(n_perm), np.empty(n_perm)
+    for i in range(n_perm):
         perm = rng.permutation(S.shape[0])
-        pr, _ = _ranks(S[perm], true_col)
-        ge += pr.mean() >= obs - TIE
-    return (1 + ge) / (n_perm + 1)
+        pr, pos = _ranks(S[perm], true_col)
+        m[i], t1[i], t3[i] = pr.mean(), (pos <= 1).mean(), (pos <= 3).mean()
+        ge += m[i] >= obs - TIE
+    band = lambda x: {"mean": float(x.mean()), "lo": float(np.percentile(x, 2.5)), "hi": float(np.percentile(x, 97.5))}  # noqa: E731
+    return {"p": (1 + ge) / (n_perm + 1), "null_mean_pr": band(m), "null_top1": band(t1), "null_top3": band(t3), "n_perm": n_perm,
+            "seed": seed}
+
+
+def permutation_p(res: dict, *, n_perm: int = 10_000, seed: int = SEEDS["perm"]) -> float:
+    return permutation_null(res, n_perm=n_perm, seed=seed)["p"]
 
 
 def bootstrap_ci(values, *, n_boot: int = 10_000, seed: int = SEEDS["boot"]) -> dict:
@@ -108,12 +116,14 @@ def paired_bootstrap(pr_a: dict, pr_b: dict, *, n_boot: int = 10_000, seed: int 
             "n_boot": n_boot, "seed": seed}
 
 
-def decide(res: dict, p: float, ci: dict, n_units_ge3: int, value_vs_wiring: dict | None) -> dict:
-    """PREREG v3 S3."""
+def decide(res: dict, p: float, ci: dict, n_units_ge3: int, value_vs_wiring: dict | None, null_mean: float = 0.5) -> dict:
+    """PREREG v3 S3: "predicts" needs p < 0.05 and the interval's lower bound above both 0.5 and the permutation-null mean;
+    "adds value beyond wiring" additionally needs "predicts" and the paired interval above 0."""
     under = n_units_ge3 < 20
-    return {"underpowered": bool(under),
-            "model_predicts": bool((not under) and p < 0.05 and ci["lo"] > 0.5),
-            "adds_value_beyond_wiring": bool((not under) and value_vs_wiring is not None and value_vs_wiring["lo"] > 0)}
+    predicts = bool((not under) and p < 0.05 and ci["lo"] > max(0.5, null_mean))
+    above = bool(value_vs_wiring is not None and value_vs_wiring["lo"] > 0)
+    return {"underpowered": bool(under), "model_predicts": predicts, "adds_value_beyond_wiring": bool(predicts and above),
+            "hm_ranks_above_best_wiring_descriptive": above}
 
 
 def lab_as_prediction(O_lab: pd.DataFrame, units: list[str]) -> pd.DataFrame:

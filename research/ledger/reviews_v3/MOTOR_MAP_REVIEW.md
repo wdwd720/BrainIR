@@ -73,3 +73,21 @@ No blocker. One major issue changes pool membership; the rest are labels, docume
 - **MANC premotor preprint.** eLife RP 96084v2 appeared in search results; not opened.
 
 No hemilineage activation or silencing outcome was seen. F3's FBbt:00047365 citation was reached through the same search as the copulation content; only its anatomical sentence was read. Nothing else here informed a finding.
+
+## Confirmation of applied changes
+
+Confirmation: confirmed
+
+Checked on 2026-11-21 against the version I reviewed (commit 0a0def8) and the annotation table. The map files on disk equal HEAD (8735f04). No new sources were consulted.
+- **What changed.** Exactly 16 rows changed:
+  - TTMn (2) and STTMm (4): body part `middle_leg`, actions `jump_TTM` / `jump_STTM`, pools `any_body;middle_leg;jump`.
+  - ps1, ps2, tp1, tp2, tpn (10): action `wing_tension`, pools `any_body;wing_any`.
+
+  Nothing else changed.
+- **F1 resolved.** `jump` = 6 and `middle_leg` = 125. None of the six TTM MNs is in a flexor or extensor pool, so all six are treated alike.
+- **Counts.** The JSON counts equal the CSV. The CSV equals the table for 732/732 rows.
+- **Soma side and segment.** All 397 leg MNs, including the six TTM MNs, have their soma in their leg's segment and on its side. The JSON note claiming this holds.
+- **F2, F4, F6.** The JSON notes document them.
+- **F3.** Scoring as the fraction of all 229 MNs keeps it minor. The terminal-segment MNs alone can reach at most 65/229 (28%).
+- **Nit (no pool effect).** The `wing_tension` basis still says "direct flight muscle", but FBbt_00003393 (summary) classes the pleurosternal muscle as indirect. Suggest "flight control (tension) muscle".
+- **Open usage point (outside the map).** If `any_body` is also scored as a fraction of 702 MNs, wing and haltere activity is diluted (F4).
