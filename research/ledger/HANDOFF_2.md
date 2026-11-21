@@ -13,7 +13,7 @@ All pushed to `origin` on branch `ledger/v1`; `main` untouched. Every lock has a
 
 Code locks, written before the first label session: `LOCK_labelcode_v2.json` (31f0d6b6...) and `LOCK_scoring_v2.json`
 (f116914a...). Predictions v2 stayed local until the labels lock, as P5 requires. A local pre-push hook enforced this.
-The `.ots` proofs are still pending at the calendars; run `ots upgrade` on them in a few hours to complete them.
+All 12 `.ots` proofs (run 1 and run 2) are upgraded and complete: each carries a Bitcoin block-header attestation.
 
 ## 2. Departures from the prompt
 
@@ -42,7 +42,8 @@ The `.ots` proofs are still pending at the calendars; run `ots upgrade` on them 
   web-read records were dropped as quote-unverified.
 - **Deny rules.** The launcher's deny rules were extended after canary v2c and were not re-canaried. The changes only add
   blocks, and neither the audit nor the label reviewer's own transcript scan found any outside access.
-- **Ledger test.** `test_real_flag_does_not_exist` now fails, by design, because `UNBLIND.json` exists.
+- **Unblinding flag retired.** After the four runs, `UNBLIND.json` was moved, unchanged, to `results/run2/UNBLIND_used.json`.
+  The run-1 guard test `test_real_flag_does_not_exist` then passes again (ledger suite 133 passed), and no further scoring can run.
 - **Privacy.** Pushed commit c3b4e70 contains your local user name inside encoded folder paths in `labels2_canary.py`. It is
   fixed in later commits; the history is not rewritten.
 
