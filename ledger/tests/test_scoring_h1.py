@@ -150,3 +150,46 @@ def test_pipeline_primary_then_once(tmp_path):
         PL.run("primary", research, flag)
     sec = PL.run("secondary", research, flag)["secondary"]
     assert sec["by_class"]["excitatory"]["n"] == 12 and sec["H-D-128"] == {"status": "not_locked"}
+
+
+def test_pipeline_refuses_unknown_unit_in_consensus(tmp_path):
+    research, flag = _world(tmp_path)
+    p = research / "labels_h1" / "consensus.csv"
+    c = pd.read_csv(p, dtype={"unit": str})
+    c.loc[0, "unit"] = "9A"  # not the unit list's spelling
+    _relock_labels(research, flag, c)
+    with pytest.raises(BlindErrorH1, match="not in the unit list"):
+        PL.run("primary", research, flag)
+
+
+def test_pipeline_refuses_consensus_without_d7p(tmp_path):
+    research, flag = _world(tmp_path)
+    c = pd.read_csv(research / "labels_h1" / "consensus.csv", dtype={"unit": str}).drop(columns=["d7p"])
+    _relock_labels(research, flag, c)
+    with pytest.raises(BlindErrorH1, match="columns missing"):
+        PL.run("primary", research, flag)
+
+
+def test_pipeline_refuses_prediction_table_missing_a_unit(tmp_path):
+    research, flag = _world(tmp_path)
+    repo = research.parents[1]
+    d = research / "predictions_h1" / "H-M" / "predicted.csv"
+    pd.read_csv(d, dtype={"unit": str}).iloc[1:].to_csv(d, index=False)
+    lock = json.loads((research / "LOCK_predictions_h1.json").read_text())
+    lock["arms_locked"]["H-M"] = {"research/ledger/predictions_h1/H-M/predicted.csv": _sha(d)}
+    (research / "LOCK_predictions_h1.json").write_text(json.dumps(lock))
+    f = json.loads(flag.read_text())
+    f["predictions_lock_sha256"] = _sha(research / "LOCK_predictions_h1.json")
+    flag.write_text(json.dumps(f))
+    assert repo.exists()
+    with pytest.raises(BlindErrorH1, match="exactly"):
+        PL.run("primary", research, flag)
+
+
+def _relock_labels(research, flag, c):
+    p = research / "labels_h1" / "consensus.csv"
+    c.to_csv(p, index=False)
+    (research / "LOCK_labels_h1.json").write_text(json.dumps({"labels": {"research/ledger/labels_h1/consensus.csv": _sha(p)}}))
+    f = json.loads(flag.read_text())
+    f["labels_lock_sha256"] = _sha(research / "LOCK_labels_h1.json")
+    flag.write_text(json.dumps(f))

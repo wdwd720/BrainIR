@@ -1,0 +1,103 @@
+# BrainIR prediction ledger, run 3 (research/ledger/RUN3_PROMPT.md; LOG L71): a copy of run 2's frozen ledger-gha.yml whose only
+# changes are the tag prefix (gha3-*, which the frozen gha-* trigger does not match) and the runner script (gha_runner3.py, run 3's
+# job kinds). Free hosted runners for this public repository. Lives on branch ledger/v1 only (never main, no manual trigger). Logs print progress only,
+# never a per-type score; result files are encrypted to a public key before upload (the private key never leaves the Mac).
+# Campaign inputs (public connectome matrices and job specs, no results) are the assets of the release ledgerdata-<name>;
+# pushing the tag gha3-run-<name>[-r<n>] runs one matrix job per chunk (ledger/scripts/gha3.py, gha_runner3.py; LOG L50, L71).
+name: ledger-gha3
+on:
+  push:
+    tags: ["gha3-*"]
+permissions:
+  contents: read
+env:
+  OPENBLAS_NUM_THREADS: "1"
+  OMP_NUM_THREADS: "1"
+  MKL_NUM_THREADS: "1"
+  OPENBLAS_CORETYPE: "Haswell"
+  NPY_DISABLE_CPU_FEATURES: "AVX512F AVX512CD AVX512_KNL AVX512_KNM AVX512_SKX AVX512_CLX AVX512_CNL AVX512_ICL AVX512_SPR"
+jobs:
+  probe:
+    if: startsWith(github.ref_name, 'gha3-probe')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: uv 0.13.7 and Python 3.12.10 with the run 1 image pins
+        run: |
+          curl -LsSf https://astral.sh/uv/0.13.7/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv python install 3.12.10
+          uv venv -p 3.12.10 .venv-gha
+          uv pip install -p .venv-gha/bin/python numpy==2.5.3 scipy==1.18.1 pandas==3.0.6 pyarrow==25.0.1 pydantic==2.13.5 networkx==3.7 duckdb==1.5.5 google-crc32c==1.8.0 requests==2.34.2
+      - name: Host and numerics probe
+        run: |
+          nproc; lscpu | grep -m1 'Model name' || true; free -g | head -2
+          PYTHONPATH=src:ledger/src .venv-gha/bin/python - <<'PY'
+          import json
+          from brainir_ledger.jobs import probe
+          r = probe({"key": "gha-probe"})
+          print("numerics_digest12", r["numerics_digest"][:12])
+          print(json.dumps({k: r["host"][k] for k in ("python", "platform", "numpy", "scipy", "env")}))
+          PY
+
+  plan:
+    if: startsWith(github.ref_name, 'gha3-run-')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      chunks: ${{ steps.p.outputs.chunks }}
+      name: ${{ steps.p.outputs.name }}
+    steps:
+      - id: p
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ref="${GITHUB_REF_NAME#gha3-run-}"
+          name="$(echo "$ref" | sed -E 's/-r[0-9]+$//')"
+          for i in $(seq 1 30); do gh release download "ledgerdata-$name" -R "$GITHUB_REPOSITORY" -p manifest.json -D m && break; sleep 10; done
+          python3 - "$name" <<'PY' >> "$GITHUB_OUTPUT"
+          import json, sys
+          m = json.load(open("m/manifest.json"))
+          print("chunks=" + json.dumps(list(range(m["n_chunks"]))))
+          print("name=" + sys.argv[1])
+          PY
+
+  run:
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 170
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        chunk: ${{ fromJSON(needs.plan.outputs.chunks) }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: uv 0.13.7 and Python 3.12.10 with the run 1 image pins
+        run: |
+          curl -LsSf https://astral.sh/uv/0.13.7/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          uv python install 3.12.10
+          uv venv -p 3.12.10 .venv-gha
+          uv pip install -p .venv-gha/bin/python numpy==2.5.3 scipy==1.18.1 pandas==3.0.6 pyarrow==25.0.1 pydantic==2.13.5 networkx==3.7 duckdb==1.5.5 google-crc32c==1.8.0 requests==2.34.2
+      - name: Inputs (release assets, hashes checked by the runner script)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download "ledgerdata-${{ needs.plan.outputs.name }}" -R "$GITHUB_REPOSITORY" -p manifest.json -p "chunk_${{ matrix.chunk }}.pkl" -p 'payload_*.bin' -D in
+      - name: Run the chunk (progress only)
+        run: .venv-gha/bin/python ledger/scripts/gha_runner3.py run --data in --chunk ${{ matrix.chunk }} --out res.pkl --workers 4
+      - name: Encrypt the results
+        run: |
+          openssl rand -out k.bin 32
+          openssl enc -aes-256-cbc -md sha256 -pbkdf2 -iter 200000 -salt -in res.pkl -out res.pkl.enc -pass file:k.bin
+          openssl pkeyutl -encrypt -pubin -inkey .github/ledger_gha_pub.pem -pkeyopt rsa_padding_mode:oaep -pkeyopt rsa_oaep_md:sha256 -in k.bin -out k.bin.enc
+          rm -f res.pkl k.bin
+      - uses: actions/upload-artifact@v4
+        with:
+          name: res-${{ matrix.chunk }}
+          path: |
+            res.pkl.enc
+            k.bin.enc
+          retention-days: 30
+          if-no-files-found: error
