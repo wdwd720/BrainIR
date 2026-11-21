@@ -15,14 +15,18 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
       list: reviews_v3/HL_OUTCOME_LOCATIONS.md (29 locations, none opened).
 - [x] Stage 1: FROZEN 02:23 PST. Tag ledger-prereg-v3 = a175625 (pushed). LOCK_prereg_v3 8c674fd0..., LOCK_labelcode_h1 c4437386...
       (both verified in a clean worktree). OTS pending (upgrade later). Audit + re-check resolved (reviews_v3/).
-- [~] Stage 2: H-M 652/688 collected (chunk 16 lost to the workflow's 1/256 key bug; re-run attempt 2 of run 44894229960 RUNNING).
-      hmdet-run3 RUNNING. GitHub stalled with ~270 queued jobs -> cancelled 22 queued runs; FEEDER (scratch feeder.sh, log
-      data/cache/ledger_logs/feeder_run3.log, nohup) re-publishes H-C x10, hsens, r4, hd, r3 x9 with --attempt n, max 3 active runs.
-      If a chunk fails at "Encrypt the results": `gh run rerun <run id> --failed`, then collect3 again.
-      NEXT: collect3 hm-run3 -> predict_h1.py hm --campaign hm-run3 -> collect3 hmdet-run3 -> gha3.py det-compare hmdet-run3 hm-run3
-      -> resume Stage 2 reviewer (spot-check H-M) -> git add -f predictions_h1 (LOCAL ONLY; pre-push hook blocks pushes) ->
-      lock3.py predictions --platform ... -> commit -> tag ledger-predictions-h1 (local) -> OTS -> enqueue label specs + schedule.
-      H-S tables done (predictions_h1/H-S-*; inputs hashed gates_v3/HS_INPUTS.json).
+- [x] Stage 2 (primary): LOCK_predictions_h1.json 732aca14... committed 04:49:14 (LOCAL; tag ledger-predictions-h1 LOCAL; OTS pending).
+      Descriptive arms (H-C x10, hsens, H-D) via the FEEDER (publish log data/cache/ledger_logs/feeder_run3.log): collect3 each,
+      predict_h1.py hc --campaign hc-<k>-run3 / hsens --campaign hsens-run3 --primary hm-run3 / hd --campaign hd-run3, then
+      lock3.py predictions-b <arms> [ARM=reason] --platform ... BEFORE the labels lock (LOCK_predictions_h1b.json must exist).
+- [~] Stage 3: 12 label specs enqueued; scheduler RUNNING (nohup; log data/cache/ledger_logs/labels2_scheduler.log; status:
+      `labels3_rooms.py status`). NEVER open room outputs. After sessions end: `labels3_assemble.py collect` -> `labels3_audit.py`
+      -> repair invalid sessions (`labels3_rooms.py repair --session S`, once) -> `labels3_leads.py` -> download new sources ->
+      reader specs for them (plan.json readings) -> `labels3_assemble.py disputes <slug>` per source -> adjudication specs
+      (inputs disputes.jsonl = work/disputes_<slug>_room.jsonl; plan.json adjudication) -> collect/audit -> `finalize` ->
+      `verify-sample` -> verify spec (inputs to_verify.jsonl = work/to_verify_room.jsonl; sources = sampled slugs) -> collect/audit
+      --verify -> `verify-score` -> label review (brief in scratch) -> h1b lock -> commit -> lock3.py labels -> tag ledger-labels-h1.
+      NO PUSH until LOCK_labels_h1 is committed; then push branch + tags ledger-predictions-h1, ledger-labels-h1.
 - [~] Stage 4: R1 done (cross-fly 0.37; split-half 0.86/0.93), R2 done (wiring cross-fly 0.78-0.97) -> reliability_v1/R1.json, R2.json.
       R3 (r3-<k>-run3) and R4 (r4-run3) published; after they finish: `reliability_v1.py r3` / `r4` -> LOCK_reliability_v1
       (lock3.py reliability), tag ledger-reliability-v1 (local until labels lock: the reliability lock hashes code incl. predictions? no -
