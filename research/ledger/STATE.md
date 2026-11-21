@@ -28,18 +28,18 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
       2fa40cf8...51b0, OTS proof committed (564809a). Reviews: REVIEW, RECHECK, NARROW + resolutions in reviews_v2/ (L52-L54).
       From now on: files hashed by the prereg lock change only via `lock2.py amend` (L12/P4b); new evidence = new files.
 - Item 4' decided by `gates_v2/G3v2_PREVIEW.json` (fails): B3, B6 not locked in run 2.
-- [~] Stage 2: ALL P1 gates pass: K = 1 (CALIBK.json), regression 480/480 (REGRESSION_v2.json), determinism 200/200
-      (DETERMINISM_v2.json), positive control DNg100 16/16 (B1r), 13/16 (B2r); DNb08 reported (B12R_CONTROLS.json, committed with the predictions);
-      baseline identical (BASELINE_v2_predlock.json). G3 v2: 4' fails -> B3, B6 not locked. Tables written (NOT committed):
-      predictions_v2/B1r (321 types), B2r (328), B4v2. Independent prediction review running (-> ~/ledger_rooms_review_pred2/).
-      Then: fixes; `git add -f` the parquets; `lock2.py predictions B1r B2r B4v2 B3="G3 v2 fails (item 4', P2)" B6="G3 v2 fails
-      (item 4', P2)" --platform "<PLATFORM of b12r_gates.py>"`; commit LOCALLY; tag `ledger-predictions-v2` locally; OTS stamp
-      (hash only). **From that commit on, do NOT push ledger/v1 until LOCK_labels_v2 exists (P5).**
-- [~] Stage 3: label-side review fixes committed + pushed (a1c0bce; 9 synthetic collector tests). Scoring/gate/lock2 fixes:
-      helper agent working (scoring review B1, B2, M1-M3). Then: commit + push; `lock2.py labelcode` and `lock2.py scoring`
-      (commit first; both refuse if they exist); commit + push + OTS; THEN first sessions: enqueue atlas-map, atlas-codeA,
-      atlas-codeB and `readers --round 0` specs; `labels2_rooms.py schedule --max 8` in the background.
-      Downloads: 70/75 at 15:43 (56 full text, 14 abstract only -> reader_web); no banned host or token in the download log.
+- [x] Stage 2: predictions v2 LOCKED LOCALLY (LOCK_predictions_v2.json 2664143f..., tag ledger-predictions-v2, OTS):
+      B1r, B2r, B4v2; B3, B6 not locked (G3 v2 fails). NO PUSH of ledger/v1 until LOCK_labels_v2 exists (pre-push hook refuses).
+- [x] Code locks: LOCK_labelcode_v2 (31f0d6b6...), LOCK_scoring_v2 (f116914a...), 00:04 UTC, pushed + OTS (44cb024).
+- [~] Stage 3 wave 1 RUNNING since 16:05 PST: atlas-map, atlas-codeA, atlas-codeB + 21 readers (scheduler, max 8, background;
+      log data/cache/ledger_logs/labels2_scheduler.log). Procedure per wave: wait for all sessions; `labels2_rooms.py status`
+      (writes _status.json); `labels2_audit.py`; `labels2_collect.py collect`; `reassign`; `redo-breaching`; enqueue new specs.
+      Atlas: when atlas-codeA is done and audited: `atlas-quotes`, then `labels2_rooms.py phaseb --session atlas-codeB --quotes
+      research/ledger/labels_v2/work/atlas/quotes_to_verify_B.csv`. After the first complete reading: `searches --round 1`;
+      then `leads --round 1` (new DOIs: download, `readers --round 1`); rounds until < 10 % new units or 3 rounds. Then `second`
+      (+ Phase B per pass-2 session with its `quotes` file), `adjudication`, `finalize`, label review (fresh, verdict line
+      exactly `Verdict: usable|usable with caveats|blocked`), redact home paths, `git add -f`, `lock2.py labels`, push (hook
+      allows it then), verification (`verify-sample`, session, `labels2_audit.py --verify`, `verify-score`), gate run 1.
 - Quota: 40 % at 13:51 (run 2 start ~34 %). Helper agents are expensive (~0.5-1 % each): keep them few.
 - [ ] Stage 2 (after freeze): G3 v2 incl. DNg100-only calibration BEFORE the first label session; tuner v2 K on DNg100
       (MANC + MaleCNS); tuner regression (K off = B1 on 30 types x 16 seeds); B1r, B2r, B3 (B6 only if budget); B4 v2
