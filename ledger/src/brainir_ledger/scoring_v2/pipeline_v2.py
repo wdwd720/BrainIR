@@ -20,15 +20,28 @@ one entry per run. As in PREREG v1 section 1 each entry names its two locks by p
 | S-b | LOCK_predictions_v1.json | LOCK_labels_v2.json   | v2 set                                 | frozen `secondary` (PREREG v1 section 8, 1-14) |
 | S-c | LOCK_predictions_v2.json | LOCK_labels_v2.json   | v2 set                                 | PREREG v2 S3 (`analyses_s3`) |
 
-Order of operations, each enforced in code:
+Order of operations, each enforced in code (every refusal is the frozen `BlindError`: nothing computed, nothing written):
 1. the flag file exists (the first statement of `run`); it lists the run; the run names exactly its S4 locks, as plain file
-   names whose SHA-256 match; a run whose result file already exists is refused (S4: each run once);
-2. every file read is verified against the locks: the frozen `verify_inputs` (P, S-a, S-b; S-c see below);
-3. the exposed set is formed from its files, never from the table's own column; the kit list must be hashed by the labels
+   names whose SHA-256 match;
+2. preconditions (`preconditions`), before any prediction or label file is opened:
+   - the research folder is `<repository>/research/ledger` (the scoring lock's paths are relative to the repository);
+   - the gate's second run (`gates_v2/UNBLINDING_GATE_run2.json`, PREREG v2 S5.6) states `all_conditions_hold` (S5: "If any
+     condition fails, nothing is unblinded"); its SHA-256 is recorded in the result;
+   - `lock2.check(LOCK_scoring_v2.json)` passes (L12: the scoring code is bound by its lock; called in-process, its output is
+     recorded in the result);
+   - S-a, S-b and S-c run only after run P has ended (RUN2_PROMPT Stage 4: the primary analysis first): `results/run2/P.json`
+     exists, or P crashed twice (`P.crashed-1.json` and a `P.started.json` that records an exception, see score_v2.py);
+   a run whose result file already exists is refused (S4: each run once);
+3. every file read is verified against the locks: the frozen `verify_inputs` (P, S-a, S-b; S-c see below);
+4. the exposed set is formed from its files, never from the table's own column; the kit list must be hashed by the labels
    lock (`kit_v2` / `kit` section) and `exposed_v2.csv` by its `labels` section; the frozen `check_type_labels` recomputes
    `type_labels` from `records.jsonl` with that set and requires it to equal `type_labels.csv`;
-4. the analyses run; each reports a status (ok / not_locked / input_missing / error); one failure never stops another;
-5. one JSON per run, research/ledger/results/run2/<run>.json (the folder is created then).
+5. the analyses run. PREREG v2 S4: "A crash is an uncaught exception that stops a run; the run is repeated once after the fix
+   (L12) ... An analysis ending with status `error` is a result, not a crash." So an exception in the primary analysis (P, S-a)
+   or escaping the frozen `secondary` (S-b) is not caught: it stops the run (a crash). Each secondary analysis (inside the
+   frozen `secondary`) and each S3 analysis (S-c) reports a status (ok / not_locked / input_missing / error), and one ending
+   with `error` does not stop the others;
+6. one JSON per run, research/ledger/results/run2/<run>.json (the folder is created then).
 
 S-c and the two prediction locks. `LOCK_predictions_v2.json` is additive and holds no A1, which the frozen `verify_inputs`
 requires, while the primary set is defined on A1's types (S1). So S-c (a) requires the SHA-256 of `LOCK_predictions_v1.json`
@@ -36,17 +49,20 @@ to equal the one recorded in `LOCK_predictions_v2.json` (`v1_locks`), (b) runs t
 `LOCK_predictions_v1.json` + `LOCK_labels_v2.json`, (c) verifies every v2 arm file with the frozen rules (each listed file
 exists and matches; each arm lists its `types.csv`), and (d) reads only the `manc_type` column of A1.
 
-Assumed table formats of the v2 arms (no writer exists yet for B1r/B2r/B3 tables):
+PREREG v2 S3: "B3 and B6 are not analysed in run 2 (not locked, P2)": neither is analysed even if a lock lists it
+(`NOT_ANALYSED_S3`, recorded as `not_analysed` in the S-c result).
+
+Assumed table formats of the v2 arms:
 - B1r, B2r: `types.csv` with `manc_type`, `primary_score`, `band` (PREREG v1 section 11, `tables.TYPES_COLUMNS`);
-- B3: `legs.csv` in the long format of PREREG v1 section 11 (`manc_type`, `leg`, `score`, ...); the rows with `leg` in
-  front / middle / hind are the segment-pair scores; the file must be listed in the lock; a non-finite score drops the type
-  from that segment's set (counted in `n_dropped_nonfinite`, as the frozen `evaluate` does);
 - B4v2: `types.csv` with `manc_type`, `call_128` (values of PREREG v2 P3; anything else is an error).
 """
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
+import importlib.util
+import io
 import json
 import traceback
 from pathlib import Path
@@ -80,18 +96,129 @@ PRED_DIRS = {"LOCK_predictions_v1.json": "predictions", "LOCK_predictions_v2.jso
 LABEL_DIRS = {"LOCK_labels_v2.json": "labels_v2", "LOCK_labels_v1_1.json": "labels_v1_1"}
 FLAG_KEYS = ("predictions_lock", "labels_lock", "predictions_lock_sha256", "labels_lock_sha256", "authorised_by", "utc")
 V1_PREDICTIONS_LOCK_KEY = "research/ledger/LOCK_predictions_v1.json"  # the key under which lock2.py records it (`v1_locks`)
-SEGMENTS = ("front", "middle", "hind")
 B4V2_CALLS = ("halts", "saturates", "rhythm_lost_other", "speeds_up", "slows_down", "no_effect", "no_effect_low_n",
               "background_not_rhythmic")
 B4V2_LOST = ("saturates", "rhythm_lost_other")
 B4_MODULATION = {"halts": "stops", "speeds_up": "speeds", "slows_down": "slows", "no_effect": "none"}  # PREREG v1 section 8, 12
-PREREGISTERED_S3 = ["B1r", "B2r", "B1r_vs_B2r", "B3_segment_pairs", "B4v2_stop_lost_excluded", "B4v2_stop_lost_as_non_halts",
-                    "B4v2_modulation"]
-NOT_ANALYSED_S3 = {"B6": "PREREG v2 S3: B6 is not analysed in run 2"}
+PREREGISTERED_S3 = ["B1r", "B2r", "B1r_vs_B2r", "B4v2_stop_lost_excluded", "B4v2_stop_lost_as_non_halts", "B4v2_modulation"]
+NOT_ANALYSED_S3 = {arm: "PREREG v2 S3: B3 and B6 are not analysed in run 2 (not locked, P2)" for arm in ("B3", "B6")}
+# the gate's two reports (PREREG v2 S5.6), relative to research/ledger; scoring requires run 2's
+GATE_REPORTS = {1: "gates_v2/UNBLINDING_GATE_run1.json", 2: "gates_v2/UNBLINDING_GATE_run2.json"}
+SCORING_LOCK = "LOCK_scoring_v2.json"
 
 
 def _sha(p: Path) -> str:
     return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+
+
+# ------------------------------------------------------------------------------------------------------------- run attempts
+def results_dir(research: Path) -> Path:
+    return Path(research) / "results" / "run2"
+
+
+def attempt_files(research: Path, name: str) -> dict[str, Path]:
+    """The run's result and its attempt markers (written by score_v2.py, PREREG v2 S4): `<run>.started.json` (the current or
+    last attempt; it records `utc`, and an `exception` when the attempt crashed), `<run>.crashed-1.json` (an attempt that crashed,
+    set aside when the one repeat after a crash fix began), `<run>.interrupted-1.json` (an attempt interrupted or killed without
+    an exception, set aside when the one repeat after an interruption began)."""
+    d = results_dir(research)
+    return {"result": d / f"{name}.json", "started": d / f"{name}.started.json", "crashed": d / f"{name}.crashed-1.json",
+            "interrupted": d / f"{name}.interrupted-1.json"}
+
+
+def read_marker(p: Path) -> dict | None:
+    try:
+        m = json.loads(Path(p).read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return m if isinstance(m, dict) else None
+
+
+def primary_run_state(research: Path) -> str | None:
+    """'completed' (P.json exists), 'crashed twice' (the repeat after a crash fix crashed as well), else None (P has not ended)."""
+    f = attempt_files(research, "P")
+    if f["result"].exists():
+        return "completed"
+    marker = read_marker(f["started"]) if f["started"].exists() else None
+    if f["crashed"].exists() and marker and marker.get("exception"):
+        return "crashed twice"
+    return None
+
+
+# ------------------------------------------------------------------------------------------------------------- preconditions
+_LOCK2 = None
+
+
+def load_lock2():
+    """The repository's lock tool `ledger/scripts/lock2.py` (its `check` is called in-process, never as a subprocess)."""
+    global _LOCK2
+    if _LOCK2 is None:
+        p = Path(__file__).resolve().parents[3] / "scripts" / "lock2.py"
+        spec = importlib.util.spec_from_file_location("brainir_ledger_lock2_tool", p)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        _LOCK2 = mod
+    return _LOCK2
+
+
+def repo_of(research: Path) -> Path:
+    r = Path(research).resolve()
+    if r.name != "ledger" or r.parent.name != "research":
+        raise BlindError("scoring refused: the research folder must be <repository>/research/ledger (the scoring lock's paths are "
+                         "relative to the repository)")
+    return r.parents[1]
+
+
+def require_gate(research: Path) -> dict:
+    """PREREG v2 S5: the gate's second run (S5.6) must state that all six conditions hold."""
+    p = Path(research) / GATE_REPORTS[2]
+    if not p.is_file():
+        raise BlindError(f"scoring refused: {GATE_REPORTS[2]} does not exist; the unblinding gate's second run (PREREG v2 S5.6) must "
+                         "hold all six conditions first (S5: if any condition fails, nothing is unblinded)")
+    try:
+        rep = json.loads(p.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        rep = None
+    if not isinstance(rep, dict) or rep.get("gate_run") != 2 or rep.get("all_conditions_hold") is not True:
+        raise BlindError(f"scoring refused: {GATE_REPORTS[2]} does not state gate_run 2 with all_conditions_hold true (PREREG v2 S5)")
+    return {"path": f"research/ledger/{GATE_REPORTS[2]}", "sha256": _sha(p), "git_head": rep.get("git_head")}
+
+
+def require_scoring_lock(research: Path, repo: Path) -> dict:
+    """PREREG v2 L12: `lock2.check(LOCK_scoring_v2.json)` must pass (amendments recorded by `lock2.py amend` count)."""
+    p = Path(research) / SCORING_LOCK
+    if not p.is_file():
+        raise BlindError(f"scoring refused: {SCORING_LOCK} is missing (PREREG v2 L12: the scoring code is locked before the first "
+                         "v2 label session)")
+    buf = io.StringIO()
+    try:
+        tool = load_lock2()
+        with contextlib.redirect_stdout(buf):
+            rc = tool.check(p, repo=repo)
+    except Exception as e:  # noqa: BLE001 - a check that cannot run is a refusal, not a pass
+        raise BlindError(f"scoring refused: lock2.check({SCORING_LOCK}) could not run ({type(e).__name__}: {e})"[:600]) from None
+    lines = buf.getvalue().strip().splitlines()
+    try:
+        rec = json.loads(lines[-1])
+    except (IndexError, ValueError):
+        rec = {"unparsed_output": buf.getvalue()[-500:]}
+    if rc != 0:
+        raise BlindError(f"scoring refused: lock2.check({SCORING_LOCK}) fails ({len(rec.get('changed') or [])} changed, "
+                         f"{len(rec.get('missing') or [])} missing; PREREG v2 L12)")
+    return {"lock": SCORING_LOCK, "lock_sha256": _sha(p), "check": rec}
+
+
+def preconditions(name: str, research: Path) -> dict:
+    """Checked after the flag entry and before any prediction or label file is opened; each failure is a BlindError."""
+    repo = repo_of(research)
+    out = {"gate_report": require_gate(research), "scoring_lock_check": require_scoring_lock(research, repo)}
+    if name != "P":
+        state = primary_run_state(research)
+        if state is None:
+            raise BlindError(f"scoring refused: run P (the primary analysis) has not ended (no results/run2/P.json and no second "
+                             f"crash); {name} runs after it (RUN2_PROMPT Stage 4: the primary analysis first)")
+        out["primary_run_P"] = state
+    return out
 
 
 # ------------------------------------------------------------------------------------------------------------- the flag
@@ -223,7 +350,7 @@ def _run_v2(name: str, fn, results: dict, not_locked: dict[str, str]) -> None:
         results[name] = {"status": "not_locked", "arm": arm, "reason": not_locked.get(arm, "arm not in the predictions lock")}
     except FileNotFoundError as e:
         results[name] = {"status": "input_missing", "detail": str(e)}
-    except Exception as e:  # noqa: BLE001 - one analysis never stops the others
+    except Exception as e:  # noqa: BLE001 - PREREG v2 S4: an analysis ending with status `error` is a result, not a crash
         results[name] = {"status": "error", "error": f"{type(e).__name__}: {e}", "traceback": traceback.format_exc()[-2000:]}
 
 
@@ -256,7 +383,7 @@ def _agreement(pred: list[str], true: list[str]) -> dict:
 def analyses_s3(research: Path, pred_dir: Path, tl: pd.DataFrame, ver: dict, *, n_boot: int, n_perm: int) -> dict:
     """PREREG v2 S3 on labels v2 (run S-c)."""
     R: dict = {}
-    locked, files, reasons = ver["arms_locked"], ver.get("arm_files") or {}, ver.get("arms_not_locked") or {}
+    locked, reasons = ver["arms_locked"], ver.get("arms_not_locked") or {}
     exposed = set(tl.loc[tl["exposed"].astype(bool), "manc_type"])  # = the v2 set (checked by check_type_labels)
     a1_types = set(pd.read_csv(research / PRED_DIRS["LOCK_predictions_v1.json"] / "A1" / "types.csv", usecols=["manc_type"])["manc_type"])
     y_front = labeled_set(tl)
@@ -293,27 +420,7 @@ def analyses_s3(research: Path, pred_dir: Path, tl: pd.DataFrame, ver: dict, *, 
                 "definition": "all types in both arms (no labels); primary_score; top 10 by score, ties broken by type name; "
                               "band = the arms' own band column"}
     _run_v2("B1r_vs_B2r", two_fly, R, reasons)
-
-    def b3_segments() -> dict:
-        if "B3" not in locked:
-            raise NotLocked("B3")
-        if "legs.csv" not in files.get("B3", []):
-            raise FileNotFoundError("B3/legs.csv is not in the predictions lock")
-        legs = pd.read_csv(pred_dir / "B3" / "legs.csv")
-        seg = legs[legs["leg"].astype(str).isin(SEGMENTS)]
-        if seg.duplicated(["manc_type", "leg"]).any():
-            raise ValueError("B3/legs.csv has more than one row per (manc_type, segment pair)")
-        wide = seg.pivot(index="manc_type", columns="leg", values="score")
-        out = {}
-        for s in SEGMENTS:
-            if s not in wide.columns:
-                raise ValueError(f"B3/legs.csv has no '{s}' rows")
-            ys = labeled_set(tl, field=s)
-            r = evaluate(pd.to_numeric(wide[s], errors="coerce"), ys[ys.index.isin(wide.index)], n_boot=n_boot, n_perm=n_perm)
-            r["set_definition"] = f"{s} leg-pair consensus yes/no, not in the v2 exposed set, covered by B3, finite {s} score"
-            out[s] = r
-        return out
-    _run_v2("B3_segment_pairs", b3_segments, R, reasons)
+    # PREREG v2 S3: B3 and B6 are not analysed in run 2 (NOT_ANALYSED_S3), whatever a lock lists
 
     def b4v2_calls() -> pd.Series:
         b4 = _load_v2(pred_dir, "B4v2", locked)
@@ -357,16 +464,19 @@ def analyses_s3(research: Path, pred_dir: Path, tl: pd.DataFrame, ver: dict, *, 
 
 
 # ------------------------------------------------------------------------------------------------------------- one run
-def run(name: str, research_dir: Path, flags_file: Path, *, n_boot: int = 10_000, n_perm: int = 10_000) -> dict:
+def run(name: str, research_dir: Path, flags_file: Path, *, n_boot: int = 10_000, n_perm: int = 10_000,
+        prior_attempts: list[dict] | None = None) -> dict:
     """One pre-declared run of PREREG v2 S4 -> research_dir/results/run2/<name>.json. Raises the frozen `BlindError` (nothing
-    computed, nothing written) when the flag file is missing, does not list the run, names other locks than S4, or when any
-    input differs from its lock."""
+    computed, nothing written) when the flag file is missing, does not list the run, names other locks than S4, when a
+    precondition fails (`preconditions`: the gate's run-2 report, the scoring lock, run P first) or when any input differs from
+    its lock. `prior_attempts` (the markers of earlier crashed or interrupted attempts, from score_v2.py) is logged in the result."""
     if not Path(flags_file).exists():  # first: nothing is opened before the flag file is known to exist
         raise BlindError(f"scoring refused: {Path(flags_file).name} does not exist (predictions and labels stay blind until it is "
                          "created by the person who authorises unblinding)")
     research = Path(research_dir)
     flag = run_flag(name, research, Path(flags_file))
-    out = research / "results" / "run2" / f"{name}.json"
+    pre = preconditions(name, research)
+    out = attempt_files(research, name)["result"]
     if out.exists():
         raise BlindError(f"scoring refused: {out.name} exists in results/run2; PREREG v2 S4 runs each analysis once")
     ver, pred_dir, labels_dir, llock = verify_run(flag, research)
@@ -374,7 +484,9 @@ def run(name: str, research_dir: Path, flags_file: Path, *, n_boot: int = 10_000
     tl = check_type_labels(labels_dir, exposed)
     here = Path(__file__).resolve().parent
     res: dict = {"prereg": "research/ledger/PREREG_v2.md Part S (S1-S4) with research/ledger/PREREG.md v1 sections 7-8", "run": name,
-                 "run_definition": dict(RUNS[name]), "unblind_flag": flag, "inputs": ver, "exposed_set": exposed_info,
+                 "run_definition": dict(RUNS[name]), "unblind_flag": flag, "preconditions": pre,
+                 "gate_report_sha256": pre["gate_report"]["sha256"], "prior_attempts": list(prior_attempts or []),
+                 "inputs": ver, "exposed_set": exposed_info,
                  "type_labels_check": "type_labels recomputed from records.jsonl with this exposed set equals type_labels.csv",
                  "n_boot": n_boot, "n_perm": n_perm,
                  "code_sha256": {f"{p.parent.name}/{p.name}": _sha(p) for p in (here / "pipeline_v2.py", here.parent / "scoring" / "pipeline.py",

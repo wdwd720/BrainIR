@@ -1,0 +1,11 @@
+# Resolution of the prediction-side review (`REVIEW_predictions_v2.md`: "lock after these fixes"), before `LOCK_predictions_v2.json`
+
+| finding | resolution |
+|---|---|
+| Major: K-rejected runs inside the bounds coded `strong` by the frozen `arms._final` | `b12r_gates._k_reasons`: for unusable replicates, weak if fewer than 10 active or inside the bounds (<= 1,500 active, <= 200 high-firing: rejected only for K, P1 "counts as too weak"), else strong; `status` recomputed with the frozen `tables.status_from`. 646 (B1r) and 576 (B2r) reason codes changed; `status` changed for 32 and 30 types; every other column byte-identical (asserted, and compared with the earlier tables). Provenance now names the runner commit (tag `gha-run-b1r`/`-b2r`, 828e669), the GitHub run IDs, the manifest key hash, the numerics digest and the CPU models. |
+| Minor 1: `regress` ran 30 non-DNg100 types (K = 0) before K was fixed; 3 local K = 0 jobs before the freeze (L51) | Disclosed in LOG L56 and in the lock's marking. No information path: K = 0 is B1's locked procedure; the results were encrypted on the runners, collected after `CALIBK.json` was written and equal B1's locked digests (480/480). |
+| Minor 2: post-freeze prediction code outside P4b | `calibk_choose.py`, `gha_det.py`, `b12r_gates.py` named as post-freeze code in LOG L56; hashed by the predictions lock. |
+| Minor: determinism record | `DETERMINISM_v2.json` now has the three log SHA-256s and the 58 reruns on another CPU model. |
+| Minor: docstrings of `typescreen_v2.py` and `gha_runner.py` | Not changed (P4b-bound files; a docstring change is not a bug fix); noted here: `typescreen_v2.py` is a copy of the frozen `screen_group` with the K condition added, and `gha_runner.py` runs `jobs_v2.run_job`. |
+| Minor: `b4v2.py` | Asserts P3's log hash and the v1 replicate hash; writes `config.json` and provenance with commit, time, `types.csv` hash and labelled crosstab axes; recorded with `lock2.py amend` (P4b). `types.csv` byte-identical. |
+| Before the lock | `predictions_v2/` tracked (`git add -f` for the parquets) with `B12R_CONTROLS.json`, `DETERMINISM_v2.json`, `BASELINE_v2_predlock.json`; from that commit on, nothing on `ledger/v1` is pushed until `LOCK_labels_v2.json` exists (P5), including GitHub campaigns. |

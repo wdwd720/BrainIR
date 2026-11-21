@@ -27,6 +27,7 @@ from brainir_ledger import arms as AR  # noqa: E402
 from brainir_ledger.backend import read_log  # noqa: E402
 
 OUT = RESEARCH / "predictions_v2" / "B4v2"
+P3_LOG_SHA256 = "94cd68fd0e313123f6dbbc02b1258e7c541d20d0e1961629982f4a0b4ce2e3c2"  # PREREG v2 P3
 
 
 def call_v2(bg: list[dict], tr: list[dict]) -> tuple[str, dict]:
@@ -52,6 +53,12 @@ def call_v2(bg: list[dict], tr: list[dict]) -> tuple[str, dict]:
 
 def main() -> None:
     log = data_dir() / "arms" / "B4" / "results.pkl"
+    if hashlib.sha256(log.read_bytes()).hexdigest() != P3_LOG_SHA256:
+        raise SystemExit("the stored B4 log is not the one named in PREREG v2 P3")
+    v1_lock = json.loads((RESEARCH / "LOCK_predictions_v1.json").read_text())
+    rp = RESEARCH / "predictions" / "B4" / "replicates.parquet"
+    if hashlib.sha256(rp.read_bytes()).hexdigest() != v1_lock["arms_locked"]["B4"]["research/ledger/predictions/B4/replicates.parquet"]:
+        raise SystemExit("predictions/B4/replicates.parquet differs from LOCK_predictions_v1.json")
     res = {r["key"]: r for r in read_log(log) if "error" not in r}
     types = pd.read_csv(RESEARCH / "predictions" / "B4" / "types.csv")
     reps_v1 = pd.read_parquet(RESEARCH / "predictions" / "B4" / "replicates.parquet")
@@ -75,10 +82,21 @@ def main() -> None:
     df = pd.DataFrame(rows)
     OUT.mkdir(parents=True, exist_ok=True)
     df.to_csv(OUT / "types.csv", index=False, lineterminator="\n")
-    cross = {"128_vs_512": pd.crosstab(df["call_128"], df["call_512"]).to_dict(), "32_vs_128": pd.crosstab(df["call_32"], df["call_128"]).to_dict()}
+    cross = {"rows_call_128_x_cols_call_512": pd.crosstab(df["call_128"], df["call_512"]).to_dict(orient="index"),
+             "rows_call_32_x_cols_call_128": pd.crosstab(df["call_32"], df["call_128"]).to_dict(orient="index")}
     counts = {f"call_{c:g}": df[f"call_{c:g}"].value_counts().to_dict() for c in AR.B4_STRENGTHS}
-    prov = {"source_log_sha256": hashlib.sha256(log.read_bytes()).hexdigest(), "n_types": len(df), "digests_checked": len(dig),
-            "rule": "PREREG v2 P3", "counts": counts, "crosstabs": cross}
+    import subprocess
+    import time
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True, cwd=RESEARCH.parents[1]).stdout.strip()
+    (OUT / "config.json").write_text(json.dumps({"rule": "PREREG v2 P3", "strengths": list(AR.B4_STRENGTHS), "seeds": list(AR.SEEDS),
+                                                 "min_background_rhythmic": AR.B4_MIN_BASE_RHYTHMIC, "lost_fraction_for_halts_branch": 0.75,
+                                                 "in_bounds": "screen verdict not 'strong' (B4's configuration)", "median_fall_for_halts": 0.25,
+                                                 "saturates": "more than half of the rhythm-losing runs out of bounds"}, indent=1) + "\n")
+    prov = {"source_log": "$DATA/ledger/arms/B4/results.pkl", "source_log_sha256": hashlib.sha256(log.read_bytes()).hexdigest(),
+            "v1_replicates_sha256": hashlib.sha256(rp.read_bytes()).hexdigest(), "n_types": len(df), "digests_checked": len(dig),
+            "rule": "PREREG v2 P3", "counts": counts, "crosstabs": cross, "code_commit": commit,
+            "written_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+            "types_csv_sha256": hashlib.sha256((OUT / "types.csv").read_bytes()).hexdigest()}
     (OUT / "provenance.json").write_text(json.dumps(prov, indent=1, default=str) + "\n")
     print(json.dumps({"counts": counts}, indent=1, default=str))
 

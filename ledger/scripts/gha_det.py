@@ -57,6 +57,11 @@ def compare() -> None:
         else:
             rows["different"].append(key)
     rows["by_arm"] = {a: sum(1 for k in det if k.startswith(f"{a}|")) for a in ("B1r", "B2r")}
+    import hashlib
+    logs = {n: data_dir() / "arms" / f"GHA_{n}" / "results.pkl" for n in ("det", "b1r", "b2r")}
+    rows["results_log_sha256"] = {n: hashlib.sha256(p.read_bytes()).hexdigest() for n, p in logs.items()}
+    cpu = lambda r: (r.get("host") or {}).get("cpu", {}).get("cpu_model")  # noqa: E731
+    rows["n_rerun_on_another_cpu_model"] = sum(1 for k, r in det.items() if k in main and cpu(r) != cpu(main[k]))
     rows["pass"] = rows["compared"] == 2 * N_PER_ARM and rows["identical"] == rows["compared"] and not rows["errors"]
     rows["rule"] = "PREREG v2 P1: 100 random jobs per arm (seed 20261205) re-run; identical digests"
     (RESEARCH / "gates_v2" / "DETERMINISM_v2.json").write_text(json.dumps(rows, indent=1) + "\n", encoding="utf-8", newline="\n")

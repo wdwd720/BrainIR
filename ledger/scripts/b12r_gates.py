@@ -15,6 +15,7 @@ import json
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 
 HERE = Path(__file__).resolve().parent
@@ -24,6 +25,7 @@ from brainir.sim.model import ModelConfig  # noqa: E402
 from brainir_ledger import RESEARCH, data_dir  # noqa: E402
 from brainir_ledger import arms as AR  # noqa: E402
 from brainir_ledger import networks as N  # noqa: E402
+from brainir_ledger import tables as TB  # noqa: E402
 from brainir_ledger.backend import read_log  # noqa: E402
 
 G = RESEARCH / "gates_v2"
@@ -67,6 +69,40 @@ def _arms():
     return (("B1r", fl, g1, "b1r"), ("B2r", net2, g2, "b2r"))
 
 
+def _k_reasons(types: pd.DataFrame, reps: pd.DataFrame, scfg) -> tuple[pd.DataFrame, pd.DataFrame, int]:
+    """P1: "a run inside the activity bounds with fewer [than K active front-leg MNs] counts as too weak". The frozen
+    `arms._final` knows only v1's reason (weak = fewer than n_active_lower active), so for a final run inside the bounds that the
+    tuner rejected only for K it writes "strong" (prediction review, major). Recompute that reason code and each type's `status`
+    (`tables.status_from`); every other column stays byte-identical (asserted)."""
+    reps = reps.copy()
+    un = ~reps["usable"].astype(bool)
+    inb = (reps["n_active_all"] >= scfg.n_active_lower) & (reps["n_active_all"] <= scfg.n_active_upper) & (reps["n_high_fr"] <= scfg.n_high_fr_upper)
+    new = np.where(reps["n_active_all"] < scfg.n_active_lower, "weak", np.where(inb, "weak", "strong"))
+    old = reps["final_verdict"].copy()
+    reps.loc[un, "final_verdict"] = new[un.to_numpy()]
+    n_changed = int((old[un] != reps.loc[un, "final_verdict"]).sum())
+    st = {}
+    for typ, g in reps.groupby("manc_type"):
+        u = g["usable"].astype(bool)
+        st[typ] = TB.status_from(int(u.sum()), int((~u & (g["final_verdict"] == "weak")).sum()), int((~u & (g["final_verdict"] != "weak")).sum()))
+    before = types.drop(columns=["status"]).copy()
+    types = types.copy()
+    types["status"] = types["manc_type"].map(st)
+    assert types.drop(columns=["status"]).equals(before)
+    return types, reps, n_changed
+
+
+def _campaign(name: str) -> dict:
+    man = json.loads((data_dir() / "gha" / name / "manifest.json").read_text())
+    meta = [json.loads(x) for x in (data_dir() / "arms" / f"GHA_{name}" / "gha_meta.jsonl").read_text().splitlines() if x.strip()]
+    tag = f"gha-run-{name}"
+    import subprocess
+    commit = subprocess.run(["git", "rev-parse", f"{tag}^{{commit}}"], capture_output=True, text=True, cwd=RESEARCH.parents[1]).stdout.strip()
+    return {"campaign": name, "runner_commit": commit, "tag": tag, "specs_packed_at": man.get("git_head"), "manifest_keys_sha256": man.get("keys_sha256"),
+            "numerics_digests": sorted({m["probe"]["numerics_digest"][:12] for m in meta}),
+            "cpu_models": sorted({m["probe"]["host"]["cpu"]["cpu_model"] for m in meta}), "n_chunks": len(meta)}
+
+
 def tables() -> None:
     k = json.loads((G / "CALIBK.json").read_text())["k_chosen"]
     if k is None:
@@ -76,12 +112,17 @@ def tables() -> None:
     for arm, net, groups, camp in _arms():
         res, p = _log(camp)
         types, reps = AR.aggregate_group_arm(arm, net.name, net, groups, res, scfg)
+        types, reps, n_changed = _k_reasons(types, reps, scfg)
+        runs = {"b1r": 44831777087, "b2r": 44831808385}
         AR.write_arm(arm, types, reps, {"model": mcfg.to_dict(), "screen": scfg.to_dict(), "seeds": AR.SEEDS, "k_min": int(k),
                                         "tuner": "tuner v2 (PREREG v2 P1): B1's procedure plus >= K active front-leg MNs in the accepted run",
                                         "groups": "B1's groups" if arm == "B1r" else "B2's groups and mapping"},
                      {"results_log_sha256": hashlib.sha256(p.read_bytes()).hexdigest(), "platform": PLATFORM, "network_meta": net.meta,
-                      "calibration": "gates_v2/CALIBK.json (DNg100 only)"})
-        print(arm, len(types), "types; usable", int((types["status"] == "ok").sum()), "; drivers", int((types["band"] == "driver").sum()))
+                      "calibration": "gates_v2/CALIBK.json (DNg100 only)", "github_run_id": runs[camp], **_campaign(camp),
+                      "k_reason_codes_recomputed": n_changed,
+                      "note": "final_verdict / status recomputed for K-rejected runs inside the bounds (P1: too weak); scores and bands untouched"})
+        print(arm, len(types), "types; usable", int((types["status"] == "ok").sum()), "; drivers", int((types["band"] == "driver").sum()),
+              "; reason codes recomputed", n_changed, "; status", types["status"].value_counts().to_dict())
 
 
 def controls() -> None:

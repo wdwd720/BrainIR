@@ -28,16 +28,18 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
       2fa40cf8...51b0, OTS proof committed (564809a). Reviews: REVIEW, RECHECK, NARROW + resolutions in reviews_v2/ (L52-L54).
       From now on: files hashed by the prereg lock change only via `lock2.py amend` (L12/P4b); new evidence = new files.
 - Item 4' decided by `gates_v2/G3v2_PREVIEW.json` (fails): B3, B6 not locked in run 2.
-- [~] Stage 2 (GitHub): K = 1 (CALIBK.json); regression 480/480 identical (REGRESSION_v2.json); G3 v2 formal: 1-3, 5 pass,
-      4' fails as the preview -> B3, B6 NOT locked (G3v2_REPORT.json); B4 v2 computed (predictions_v2/B4v2, digests checked;
-      NOT committed yet). Waiting: b1r, b2r, det on GitHub -> `gha.py collect b1r|b2r|det`; `b12r_gates.py tables`, `controls`;
-      `gha_det.py compare`; independent prediction-side review (code + calibration: no neuron other than DNg100 used);
-      `lock2.py predictions B1r B2r B4v2 B3="..." B6="..." --platform "..."`; commit; tag `ledger-predictions-v2` LOCALLY.
-      **From the commit of any predictions_v2 file on, do NOT push ledger/v1 until LOCK_labels_v2 exists (P5).**
-- [~] Stage 3: registry 75 DOIs; downloads running (background; log data/cache/ledger_logs/download_v2.*); atlas specs
-      written (120 line IDs). Implementation reviews running (label side -> ~/ledger_rooms_review_impl_a/, scoring/gate ->
-      ~/ledger_rooms_review_impl_b/). Then: fixes; `lock2.py labelcode`, `lock2.py scoring` (commit first); G3 v2 evaluated;
-      `readers --round 0`; enqueue atlas + readers; start `labels2_rooms.py schedule` in the background.
+- [~] Stage 2: ALL P1 gates pass: K = 1 (CALIBK.json), regression 480/480 (REGRESSION_v2.json), determinism 200/200
+      (DETERMINISM_v2.json), positive control DNg100 16/16 (B1r), 13/16 (B2r); DNb08 reported (B12R_CONTROLS.json, committed with the predictions);
+      baseline identical (BASELINE_v2_predlock.json). G3 v2: 4' fails -> B3, B6 not locked. Tables written (NOT committed):
+      predictions_v2/B1r (321 types), B2r (328), B4v2. Independent prediction review running (-> ~/ledger_rooms_review_pred2/).
+      Then: fixes; `git add -f` the parquets; `lock2.py predictions B1r B2r B4v2 B3="G3 v2 fails (item 4', P2)" B6="G3 v2 fails
+      (item 4', P2)" --platform "<PLATFORM of b12r_gates.py>"`; commit LOCALLY; tag `ledger-predictions-v2` locally; OTS stamp
+      (hash only). **From that commit on, do NOT push ledger/v1 until LOCK_labels_v2 exists (P5).**
+- [~] Stage 3: label-side review fixes committed + pushed (a1c0bce; 9 synthetic collector tests). Scoring/gate/lock2 fixes:
+      helper agent working (scoring review B1, B2, M1-M3). Then: commit + push; `lock2.py labelcode` and `lock2.py scoring`
+      (commit first; both refuse if they exist); commit + push + OTS; THEN first sessions: enqueue atlas-map, atlas-codeA,
+      atlas-codeB and `readers --round 0` specs; `labels2_rooms.py schedule --max 8` in the background.
+      Downloads: 70/75 at 15:43 (56 full text, 14 abstract only -> reader_web); no banned host or token in the download log.
 - Quota: 40 % at 13:51 (run 2 start ~34 %). Helper agents are expensive (~0.5-1 % each): keep them few.
 - [ ] Stage 2 (after freeze): G3 v2 incl. DNg100-only calibration BEFORE the first label session; tuner v2 K on DNg100
       (MANC + MaleCNS); tuner regression (K off = B1 on 30 types x 16 seeds); B1r, B2r, B3 (B6 only if budget); B4 v2
