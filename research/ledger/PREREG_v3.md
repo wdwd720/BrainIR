@@ -406,7 +406,8 @@ predictions, labels) and their tags are pushed.
 **S1. Matrices.** Predicted matrix P (43 units x 12 primary dimensions) from an arm (M3, M4); each column standardised across the 43
 units (mean 0, population sd 1; a column with sd 0 becomes 0). Observed matrix O: consensus cells, yes = 1, no = 0, missing
 otherwise; each column centred over the units where that column is coded **within the set analysed** (the primary analysis: all units
-with at least 3 coded primary dimensions; by class, the ceiling and each source: the units of that subset or source).
+with at least 3 coded primary dimensions; by class, the ceiling and each source: the units of that subset or source with at least 3
+coded primary dimensions).
 
 **S2. Identification (primary statistic).** For each unit h with **at least 3 coded primary dimensions**, score every candidate k of
 the 43 units by `s_h(k) = sum over h's coded dimensions d of P[k, d] x O[h, d]`. Percentile rank
@@ -417,7 +418,11 @@ its 2.5-97.5 % range (for the mean rank, top-1 and top-3), not as 0.5: when the 
 - p-value: 10,000 permutations (`default_rng(20261301)`) of the hemilineage labels among those units (each permutation gives every
   such unit the observed vector of another; candidates and P unchanged); one-sided, p = (1 + #{perm >= observed}) / 10,001.
 - 95 % interval: 10,000 bootstrap resamples (`default_rng(20261302)`) of those units, percentile interval of the mean.
-- Top-1 and top-3: the true match's rank position `1 + #{k: s_h(k) > s_h(h)} + 0.5 x #{ties}` is at most 1 or at most 3.
+- Top-1 and top-3: the true match's rank position `1 + #{k: s_h(k) > s_h(h)} + 0.5 x #{k != h: s_h(k) = s_h(h)}` is at most 1 or at
+  most 3.
+- The p-value, both bootstrap intervals and the chance band depend on the random draws as the frozen code makes them (unit order,
+  draw calls, percentile method); they come only from the frozen pipeline. The independent recomputation of S6 checks the mean rank,
+  top-1 and top-3.
 
 **S3. Decision rules.**
 - **Underpowered** if fewer than 20 units have at least 3 coded primary dimensions: report descriptively, claim nothing.
@@ -425,7 +430,8 @@ its 2.5-97.5 % range (for the mean rank, top-1 and top-3), not as 0.5: when the 
   (arm H-M; stricter than the prompt's "> 0.5", for the reason in S2).
 - **"The simulation adds value beyond wiring"** only if "the model predicts" holds **and** H-M beats the best H-S baseline on a paired
   bootstrap: the best baseline is the one of the eight with the highest statistic on the same units (chosen after seeing it, which
-  favours wiring; a tie goes to the first in the order k0, k1 signed, k1 unsigned, ..., k3 unsigned, lin); 10,000 paired resamples
+  favours wiring; values within 1e-12 of the best count as tied, and a tie goes to the first in the order k0, k1 signed, k1 unsigned,
+  ..., k3 unsigned, lin); 10,000 paired resamples
   (`default_rng(20261303)`) of those units; the 95 % percentile interval of (H-M minus best H-S) has a lower bound > 0. Without
   "predicts", a positive interval is reported only as "H-M ranks above the best wiring baseline". The scorer refuses unless all eight
   H-S arms are locked.
@@ -454,7 +460,8 @@ its 2.5-97.5 % range (for the mean rank, top-1 and top-3), not as 0.5: when the 
    cells that both readings code `yes` or `no`, over all matched pairs of non-breaching sessions.
 5. At least 20 units have at least 3 coded primary dimensions.
 6. A fresh reviewer signs a checklist confirming 1-5, that nothing has been joined (no prediction file was read by label-side code
-   or put next to a label), and that no hemilineage simulation predates the freeze.
+   or put next to a label), that no hemilineage simulation predates the freeze, and that every honoured row of `AMENDMENTS_v3.jsonl`
+   is a code bug fix.
 **If any condition fails, nothing is unblinded**; the handoff reports label-only numbers. The gate runs twice (first run, then the
 reviewer's check, then the second run whose file `gates_v3/UNBLINDING_GATE_h1_run2.json` the scoring requires).
 
@@ -510,7 +517,11 @@ Question: when the same procedure gives different answers for two flies, is that
   fixes only, recorded before the commit; never rules, labels or predictions; never a file a v1 or v2 lock hashes; once
   `LOCK_predictions_h1.json` exists, never the prediction-side or scoring code; once the first h1 label session has started, never the
   label code or the kit; after `UNBLIND_h1.json` exists, only the crash fix of S6. `lock3.py check` honours a row only if it obeys these
-  rules both with the flags it recorded and with the commit times of the predictions lock, the flag and the first session.
+  rules both with the flags it recorded and with the commit times of the predictions lock, the flag and the first session; a row is
+  timed by the later of its own time and the commit that first holds it, an uncommitted row never counts, a recorded unblinding counts
+  only after the flag was committed, and the lock tool and its tests are never amended (a change to them is a new version).
+- **Locks** are written once and never edited (exactly one commit touches each lock file; gate condition 1 checks it); lock commits
+  are never rebased (their commit times are evidence).
 - **Gate files** (`gates_v3/`) are written once; a later check writes a new file.
 - **Pre-mortems** in the LOG before each irreversible step (this freeze, each lock, the unblinding).
 - **Drop order if time runs short** (RUN3_PROMPT section 11): H-X (already not run), R3, H-D, R4, H-C, the post-mortem, R2. Never

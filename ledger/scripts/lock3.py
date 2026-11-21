@@ -39,7 +39,11 @@ LABEL_CODE_H1 = ["ledger/scripts/labels3_*.py", "ledger/scripts/gate_h1.py", "le
                  "ledger/src/brainir_ledger/labels_h1/*.py", "ledger/tests/test_labels3*.py", "ledger/tests/test_gate_h1*.py"]
 KIT_V3 = ["research/ledger/kit_v3/*"]
 SCORING_H1 = ["ledger/src/brainir_ledger/scoring_h1/*.py", "ledger/scripts/score_h1.py"]
-PREDICTION_SIDE = SCORING_H1 + ["ledger/src/brainir_ledger/groups_h1.py", "ledger/scripts/predict_h1.py",
+SCORING_TESTS = ["ledger/tests/test_scoring_h1*.py", "ledger/tests/test_h1_end_to_end.py", "ledger/tests/test_label_side_isolation_h1.py",
+                 "ledger/tests/test_predict_h1_cmds.py", "ledger/tests/test_groups_h1.py", "ledger/tests/test_typescreen_v3.py"]
+# never amended: the checker and its tests (a checker change is a new version; re-check finding 2)
+NEVER_AMEND = ["ledger/scripts/lock3.py", "ledger/tests/test_lock3_amend.py"]
+PREDICTION_SIDE = SCORING_H1 + SCORING_TESTS + ["ledger/src/brainir_ledger/groups_h1.py", "ledger/scripts/predict_h1.py",
                                 "ledger/src/brainir_ledger/typescreen_v3.py", "ledger/src/brainir_ledger/jobs_v3.py", "ledger/scripts/gha3.py",
                                 "ledger/scripts/gha_runner3.py", ".github/workflows/ledger-gha3.yml", "ledger/scripts/gha3r.py"]
 EARLIER = ["LOCK_prereg_v1.json", "LOCK_predictions_v1.json", "LOCK_labels_v1.json", "LOCK_labels_v1_1.json", "LOCK_prereg_v2.json",
@@ -89,8 +93,9 @@ def _code(globs, exclude=()) -> dict[str, str]:
 
 
 # ------------------------------------------------------------------------------------------------ amendments (v3)
-def _earlier_hashed(repo: Path = REPO) -> set[str] | None:
+def _earlier_hashed(repo: Path | None = None) -> set[str] | None:
     """Every path a v1 or v2 lock hashes: never amended by a v3 row (frozen things stay frozen)."""
+    repo = REPO if repo is None else Path(repo)
     out: set[str] = set()
 
     def walk(d):
@@ -129,6 +134,8 @@ def row_problem3(row, earlier: set[str] | None, times: dict | None = None) -> st
         return "an earlier lock is missing or unreadable: no amendment counts"
     if path in earlier:
         return "hashed by a v1 or v2 lock: never amended"
+    if _matches(path, NEVER_AMEND):
+        return "the lock tool and its tests are never amended (a change is a new version)"
     if not (L2._is_sha(row.get("old")) and L2._is_sha(row.get("new"))):
         return "old / new are not SHA-256 values"
     if not all(isinstance(row.get(k), bool) for k in FLAGS3):
@@ -136,10 +143,13 @@ def row_problem3(row, earlier: set[str] | None, times: dict | None = None) -> st
     if times:
         t = times.get("row_utc")
         if t is None:
-            return "the row has no valid utc"
+            return "the row is not committed (or has no valid time): not honoured"
         for flag, key in (("predictions_locked", "predictions_lock"), ("unblinded", "unblind"), ("h1_sessions_started", "first_session")):
             if times.get(key) is not None and t >= times[key] and not row[flag]:
                 return f"recorded {flag}=false although the row is later than the {key.replace('_', ' ')}"
+        # a recorded unblinding only counts after the flag was committed (re-check finding 1)
+        if row["unblinded"] and (times.get("unblind") is None or t < times["unblind"]):
+            return "recorded unblinded=true without a committed unblinding flag before the row"
     scoring = _matches(path, SCORING_H1)
     if row["unblinded"]:
         return None if (row["crash_fix"] and scoring) else "after unblinding only a crash fix of the h1 scoring code"
@@ -150,39 +160,53 @@ def row_problem3(row, earlier: set[str] | None, times: dict | None = None) -> st
     return None
 
 
-def _first_commit_utc(rel: str, repo: Path = REPO) -> int | None:
+def _first_commit_utc(rel: str, repo: Path | None = None) -> int | None:
+    repo = REPO if repo is None else Path(repo)
     out = subprocess.run(["git", "log", "--diff-filter=A", "--format=%ct", "--", rel], cwd=repo, capture_output=True, text=True).stdout
     xs = [int(x) for x in out.split()]
     return min(xs) if xs else None
 
 
-def _first_session_utc(repo: Path = REPO) -> int | None:
+def _first_session_utc(repo: Path | None = None, home: bool = True) -> int | None:
+    """Earliest h1 session start: the repository's collected manifests, and (home=True, for the writers' guards) the live rooms'
+    manifests on this machine. A run without a parseable start time is an error (re-check finding 5)."""
+    repo = REPO if repo is None else Path(repo)
     starts = []
-    for m in sorted((Path(repo) / "research" / "ledger" / "labels_h1" / "sessions").glob("*.json")):
-        for run in json.loads(m.read_text(encoding="utf-8")).get("runs", []):
-            t = _utc(run.get("start_utc"))
-            if t is not None:
-                starts.append(t)
-    if H1_MANIFESTS.exists():
-        for m in H1_MANIFESTS.glob("*.json"):
+    dirs = [Path(repo) / "research" / "ledger" / "labels_h1" / "sessions"] + ([H1_MANIFESTS] if home else [])
+    for d in dirs:
+        for m in sorted(d.glob("*.json")) if d.exists() else []:
             for run in json.loads(m.read_text(encoding="utf-8")).get("runs", []):
                 t = _utc(run.get("start_utc"))
-                if t is not None:
-                    starts.append(t)
+                if t is None:
+                    raise SystemExit(f"{m.name}: a run without a parseable start_utc")
+                starts.append(t)
     return min(starts) if starts else None
 
 
-def _times(repo: Path = REPO) -> dict:
+def _times(repo: Path | None = None, home: bool = True) -> dict:
+    repo = REPO if repo is None else Path(repo)
     unb = [t for t in (_first_commit_utc(r, repo) for r in UNBLIND_FILES) if t is not None]
     return {"predictions_lock": _first_commit_utc("research/ledger/LOCK_predictions_h1.json", repo), "unblind": min(unb) if unb else None,
-            "first_session": _first_session_utc(repo)}
+            "first_session": _first_session_utc(repo, home=home)}
 
 
-def rows3(repo: Path = REPO) -> list[tuple[int, object, str | None]]:
+def _row_commit_utc(row: dict, repo: Path | None = None) -> int | None:
+    """Commit time of the first commit whose AMENDMENTS_v3.jsonl contains this row's line (None if never committed)."""
+    repo = REPO if repo is None else Path(repo)
+    if not isinstance(row, dict) or not L2._is_sha(row.get("new")):
+        return None
+    out = subprocess.run(["git", "log", "--format=%ct", "-S", row["new"], "--", "research/ledger/AMENDMENTS_v3.jsonl"], cwd=repo,
+                         capture_output=True, text=True).stdout.split()
+    return min(int(x) for x in out) if out else None
+
+
+def rows3(repo: Path | None = None) -> list[tuple[int, object, str | None]]:
+    """Rows are timed by max(their own utc, the commit that first holds them); uncommitted rows are not honoured (re-check 3)."""
+    repo = REPO if repo is None else Path(repo)
     p = Path(repo) / "research" / "ledger" / "AMENDMENTS_v3.jsonl"
     if not p.exists():
         return []
-    earlier, base, out = _earlier_hashed(repo), _times(repo), []
+    earlier, base, out = _earlier_hashed(repo), _times(repo, home=False), []
     for i, line in enumerate(p.read_text(encoding="utf-8").splitlines(), start=1):
         if not line.strip():
             continue
@@ -191,11 +215,15 @@ def rows3(repo: Path = REPO) -> list[tuple[int, object, str | None]]:
         except ValueError:
             out.append((i, None, "invalid JSON"))
             continue
-        out.append((i, row, row_problem3(row, earlier, {**base, "row_utc": _utc(row.get("utc")) if isinstance(row, dict) else None})))
+        ct = _row_commit_utc(row, repo)
+        own = _utc(row.get("utc")) if isinstance(row, dict) else None
+        t = None if ct is None else max(ct, own or 0)
+        out.append((i, row, row_problem3(row, earlier, {**base, "row_utc": t})))
     return out
 
 
-def _chains3(repo: Path = REPO):
+def _chains3(repo: Path | None = None):
+    repo = REPO if repo is None else Path(repo)
     chains, ignored = {}, []
     for i, row, problem in rows3(repo):
         if problem:
@@ -217,11 +245,12 @@ def amend(path: str, reason: str, old_rev: str = "HEAD", crash_fix: bool = False
     old, new = hashlib.sha256(shown.stdout).hexdigest(), L2.sha(p)
     if old == new:
         raise SystemExit(f"{path} is unchanged relative to {old_rev}")
+    times = _times()
     row = {"utc": time.strftime(UTC, time.gmtime()), "path": path, "old": old, "new": new, "reason": reason,
            "old_rev": L2.git("rev-parse", old_rev), "predictions_locked": (RES / "LOCK_predictions_h1.json").exists(),
-           "h1_sessions_started": H1_MANIFESTS.exists() and any(H1_MANIFESTS.glob("*.json")),
-           "unblinded": any((REPO / r).exists() for r in UNBLIND_FILES), "crash_fix": bool(crash_fix)}
-    problem = row_problem3(row, _earlier_hashed(), {**_times(), "row_utc": _utc(row["utc"])})
+           "h1_sessions_started": times["first_session"] is not None,
+           "unblinded": times["unblind"] is not None, "crash_fix": bool(crash_fix)}  # unblinded = the flag was COMMITTED
+    problem = row_problem3(row, _earlier_hashed(), {**times, "row_utc": _utc(row["utc"])})
     if problem:
         raise SystemExit(f"refused: {problem} (PREREG v3 Part X)")
     with AMEND3.open("a", encoding="utf-8", newline="\n") as fh:
@@ -229,8 +258,9 @@ def amend(path: str, reason: str, old_rev: str = "HEAD", crash_fix: bool = False
     print(json.dumps(row))
 
 
-def check(path: Path, repo: Path = REPO) -> int:
+def check(path: Path, repo: Path | None = None) -> int:
     """v3 locks: run 2's walk with v3 amendment rows only; any other lock: run 2's check unchanged."""
+    repo = REPO if repo is None else Path(repo)
     if Path(path).name not in V3_LOCKS:
         return L2.check(Path(path), repo)
     orig = L2._chains
@@ -319,6 +349,9 @@ def lock_predictions_b(arms: list[str], not_locked: dict[str, str], platform: st
 
 def lock_labels() -> None:
     L2._require_absent("LOCK_labels_h1.json")
+    for n in ("LOCK_predictions_h1.json", "LOCK_predictions_h1b.json"):  # re-check finding 8: both prediction locks first, committed
+        if _first_commit_utc(f"research/ledger/{n}") is None:
+            raise SystemExit(f"{n} is not committed: both prediction locks precede the labels lock; nothing written")
     rec = L2.base("labels_h1")
     lab = RES / "labels_h1"
     rec["labels"] = _section(lab.glob("*"))

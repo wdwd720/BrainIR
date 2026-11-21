@@ -129,7 +129,9 @@ def run(name: str, research: Path, flag_path: Path) -> dict:
             if Z is None:
                 raise BlindErrorH1(f"{arm} is not locked: the best wiring baseline is taken over all eight (PREREG v3 S3)")
             hs[arm] = identification(Z, O)
-        best = max(HS_ARMS, key=lambda a: hs[a]["mean_pr"] if hs[a]["mean_pr"] is not None else -1)  # ties: first in HS_ARMS order
+        vals = {a: (hs[a]["mean_pr"] if hs[a]["mean_pr"] is not None else -1.0) for a in HS_ARMS}
+        top = max(vals.values())
+        best = next(a for a in HS_ARMS if vals[a] >= top - 1e-12)  # ties within 1e-12: the first in HS_ARMS order (S3)
         vs = paired_bootstrap(r["pr"], hs[best]["pr"]) if r["n"] else None
         res.update({"H-M": {k: v for k, v in r.items() if not k.startswith("_")}, "p": p, "ci": ci, "chance": null,
                     "H-S": {a: {k: v for k, v in x.items() if not k.startswith("_")} for a, x in hs.items()},

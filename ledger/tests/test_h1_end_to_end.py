@@ -129,6 +129,10 @@ def test_writers_locks_and_scorer_agree(world):
     with pytest.raises(SystemExit, match="neither locked nor explained"):
         L3.lock_predictions_b([], {"H-D-128": "x"}, "synthetic")
     L3.lock_predictions_b([], {a: "not run (synthetic)" for a in L3.SECONDARY_ARMS}, "synthetic")
+    with pytest.raises(SystemExit, match="not committed"):  # both prediction locks must be committed first (re-check 8)
+        L3.lock_labels()
+    _git(repo, "add", "-A")
+    _git(repo, "commit", "-qm", "prediction locks")
     L3.lock_labels()
     names = {"predictions": "LOCK_predictions_h1.json", "predictions_b": "LOCK_predictions_h1b.json", "labels": "LOCK_labels_h1.json"}
     lock = json.loads((res / names["predictions"]).read_text())

@@ -57,7 +57,7 @@ def test_commit_times_override_recorded_flags():
     assert L3.row_problem3(r, EARLIER, {"row_utc": t_row, "predictions_lock": t_row + 60}) is None
     assert "later than the first session" in L3.row_problem3(row("ledger/scripts/labels3_assemble.py"), EARLIER,
                                                             {"row_utc": t_row, "first_session": t_row - 1})
-    assert "no valid utc" in L3.row_problem3(dict(r, utc="yesterday"), EARLIER, {"row_utc": None})
+    assert "not committed" in L3.row_problem3(dict(r, utc="yesterday"), EARLIER, {"row_utc": None})
 
 
 def test_check_uses_v3_rows_for_v3_locks_only(monkeypatch):
@@ -67,3 +67,17 @@ def test_check_uses_v3_rows_for_v3_locks_only(monkeypatch):
     L3.check(Path("research/ledger/LOCK_prereg_v3.json"))
     L3.check(Path("research/ledger/LOCK_prereg_v2.json"))
     assert seen[0] is L3._chains3 and seen[1] is orig and L3.L2._chains is orig
+
+
+def test_recheck_probes():
+    t_row = L3._utc("2026-11-21T10:00:00Z")
+    # 1: a recorded unblinding without a committed flag before the row does not unlock the scoring code
+    forged = row("ledger/src/brainir_ledger/scoring_h1/pipeline_h1.py", unblinded=True, crash_fix=True, predictions_locked=True)
+    assert "without a committed unblinding flag" in L3.row_problem3(forged, EARLIER, {"row_utc": t_row, "unblind": None})
+    assert L3.row_problem3(forged, EARLIER, {"row_utc": t_row, "unblind": t_row - 10}) is None
+    # 2: the checker and its tests are never amended; the scoring tests freeze with the prediction side
+    assert "never amended" in L3.row_problem3(row("ledger/scripts/lock3.py"), EARLIER)
+    assert "never amended" in L3.row_problem3(row("ledger/tests/test_lock3_amend.py"), EARLIER)
+    assert "frozen once LOCK_predictions_h1" in L3.row_problem3(row("ledger/tests/test_scoring_h1.py", predictions_locked=True), EARLIER)
+    # 3: an uncommitted row (no commit time) never counts
+    assert "not committed" in L3.row_problem3(row("ledger/scripts/labels3_assemble.py"), EARLIER, {"row_utc": None})

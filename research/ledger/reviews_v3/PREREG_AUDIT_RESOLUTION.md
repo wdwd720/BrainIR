@@ -22,3 +22,16 @@ applied before the freeze; the rulebook's "Departures" paragraph lists the resul
 
 Also adopted from the motor-map reviewer's confirmation: dimension 1 is the maximum over the six body-part pools (a fraction of all
 702 motor neurons diluted small pools).
+
+## Re-check of the fixes (`PREREG_RECHECK.md`, fresh agent: "freeze after fixes", 2 blockers, 2 majors, 4 minors): all applied
+
+| # | finding | resolution |
+|---|---|---|
+| 1 | a false `unblinded: true` unlocks the scoring code | a recorded unblinding counts only when the flag was committed before the row; `amend` sets `unblinded` from the flag's commit, not its existence; test |
+| 2 | the checker can amend itself; scoring tests amendable | `lock3.py` and its test are never amended (a change is a new version); the scoring and prediction-side tests freeze with the prediction side; tests |
+| 3 | a row's time is self-declared | a row is timed by max(its utc, the first commit holding its line); uncommitted rows never count; the gate notes `AMENDMENTS_v3.jsonl`'s hash; the S5.6 checklist confirms every honoured row is a bug fix |
+| 4 | run 3 locks can be edited and recommitted | gate condition 1 requires exactly one commit per run 3 lock (run 2's `_lock_commits`); Part X: locks written once, lock commits never rebased |
+| 5 | session times | a run without a parseable start time fails; every audited session needs a manifest; `check` uses only the repository's manifests |
+| 6 | S3 tie order and float noise | the first arm within 1e-12 of the best; stated in S3 |
+| 7 | recomputation from the text | S2 states that p, intervals and the chance band come only from the frozen pipeline; the recomputation checks mean rank, top-1, top-3; S1 and S2 wording fixed |
+| 8 | lock-tool traps | `lock_labels` requires both prediction locks committed; `amend` uses the first-session time from repository and room manifests |

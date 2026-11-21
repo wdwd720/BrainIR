@@ -67,25 +67,45 @@ def cond1(wt: Path, python: str, data_root: Path | None) -> dict:
             h1[name] = {"present": False, "pass": name in LOCKS_H1_IF_PRESENT}
             continue
         GV._note(inputs, research, p)
-        h1[name] = {"present": True, **GV._run_checker(wt, "lock3.py", name, python)}  # run 3's checker: v3 amendment rows only
+        rec = {"present": True, **GV._run_checker(wt, "lock3.py", name, python)}  # run 3's checker: v3 amendment rows only
+        rec["commits"] = GV._lock_commits(wt, name)  # written once: exactly one commit touches the lock file (re-check finding 4)
+        rec["pass"] = bool(rec["pass"] and rec["commits"].get("pass"))
+        h1[name] = rec
     lock_t = _first_commit_utc(wt, "research/ledger/LOCK_labelcode_h1.json")
     pred_t = _first_commit_utc(wt, "research/ledger/LOCK_predictions_h1.json")
     predb_t = _first_commit_utc(wt, "research/ledger/LOCK_predictions_h1b.json")
     labels_t = _first_commit_utc(wt, "research/ledger/LOCK_labels_h1.json")
-    starts = []
+    starts, bad_times = [], []
+    have = set()
     for m in sorted((research / "labels_h1" / "sessions").glob("*.json")):
         GV._note(inputs, research, m)
+        have.add(m.stem)
         for run in json.loads(m.read_text(encoding="utf-8")).get("runs", []):
             t = GV._utc(run.get("start_utc"))
-            if t is not None:
+            if t is None:
+                bad_times.append(m.stem)
+            else:
                 starts.append(t)
+    audited = set()
+    for rel in ("labels_h1/transcript_audit.json", "labels_h1/verify/transcript_audit_verify.json"):
+        ap = research / rel
+        if ap.is_file():
+            GV._note(inputs, research, ap)
+            audited |= {r["session"] for r in json.loads(ap.read_text(encoding="utf-8"))}
+    no_manifest = sorted(audited - have)
+    amend_p = research / "AMENDMENTS_v3.jsonl"
+    if amend_p.is_file():
+        GV._note(inputs, research, amend_p)
     first = min(starts) if starts else None
     before = {"labelcode_h1_first_commit_utc": lock_t, "predictions_h1_first_commit_utc": pred_t, "first_h1_session_start_utc": first,
               "predictions_h1b_first_commit_utc": predb_t, "labels_h1_first_commit_utc": labels_t,
               "labelcode_before_sessions": bool(lock_t and first and lock_t < first),
               "predictions_before_sessions": bool(pred_t and first and pred_t < first),
               "predictions_b_before_labels_lock": bool(predb_t and labels_t and predb_t < labels_t)}
-    before["pass"] = before["labelcode_before_sessions"] and before["predictions_before_sessions"] and before["predictions_b_before_labels_lock"]
+    before["runs_without_start_time"] = sorted(set(bad_times))
+    before["audited_sessions_without_manifest"] = no_manifest
+    before["pass"] = (before["labelcode_before_sessions"] and before["predictions_before_sessions"] and before["predictions_b_before_labels_lock"]
+                      and not bad_times and not no_manifest)
     return {"v1_v2": base, "h1_locks": h1, "labelcode_h1_before_sessions": before, "inputs_sha256": {**base.get("inputs_sha256", {}), **inputs},
             "pass": base.get("pass") is True and all(v["pass"] for v in h1.values()) and before["pass"]}
 
