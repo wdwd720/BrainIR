@@ -181,7 +181,7 @@ the gap is a hypothesis.
 
 ## 11. Compute and wall-clock
 
-- **Runner time:** about 161 runner-hours, under the 300 limit: 160.5 h for 685 GitHub jobs in 48 run 3 workflow runs.
+- **Runner time:** about 161 runner-hours, under the 300 limit: 160.5 h for the 447 jobs (of 685) that ran steps (L102).
 - **Why job timestamps sum to 368 h:** 187 jobs queued during the stall were cancelled before any step ran. Their timestamps
   include queue time, but they never ran on a runner.
 - **Other compute:** none paid, no Modal. The Mac only orchestrated, built tables, scored and checked.
@@ -197,8 +197,8 @@ the gap is a hypothesis.
   - A two-step synapse count does as well, and class shuffles keep most of the score.
   - The ranking mostly separates excitatory movers from silent inhibitory hemilineages.
   - Top-1 is 0.
-- **18 hemilineages are predicted silent.** They include 08B, which is excitatory, and 06A, which has 4 motor neurons. A 1 s
-  window with a 0.01 Hz threshold may miss slower effects.
+- **18 hemilineages are predicted silent.** They include 08B, which is excitatory, and 06A, whose member motor neurons sit in
+  the read-out pools but stay below threshold, against M6's expectation (L102). A 1 s window may miss slower effects.
 - **H-D's run classes are identical at 128, 256 and 384.** I have not examined why.
 - **The audit trail has dents:**
   - reviewers edited their reports after committing them;
