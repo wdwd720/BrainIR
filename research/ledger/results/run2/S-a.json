@@ -1,0 +1,198 @@
+{
+ "prereg": "research/ledger/PREREG_v2.md Part S (S1-S4) with research/ledger/PREREG.md v1 sections 7-8",
+ "run": "S-a",
+ "run_definition": {
+  "predictions_lock": "LOCK_predictions_v1.json",
+  "labels_lock": "LOCK_labels_v1_1.json",
+  "analysis": "primary"
+ },
+ "unblind_flag": {
+  "authorised_by": "the run-2 orchestrator (Claude), under RUN2_PROMPT Stage 4, after the unblinding gate held on all six conditions (gates_v2/UNBLINDING_GATE_run2.json, sha256 c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881)",
+  "utc": "2026-11-21T06:53:21Z",
+  "predictions_lock": "LOCK_predictions_v1.json",
+  "predictions_lock_sha256": "bfca7e8a8e2a220d3b6f89f5351aca23f1475a3af3eec830e511956b8643cb11",
+  "labels_lock": "LOCK_labels_v1_1.json",
+  "labels_lock_sha256": "0a07e1eef2aad3eef271baaca3216cea8c5954a8052f678487c42c00c3f90e7f"
+ },
+ "preconditions": {
+  "gate_report": {
+   "path": "research/ledger/gates_v2/UNBLINDING_GATE_run2.json",
+   "sha256": "c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881",
+   "git_head": "55a4942a2a291c5ad4d7179e06671eb5e881099e"
+  },
+  "scoring_lock_check": {
+   "lock": "LOCK_scoring_v2.json",
+   "lock_sha256": "f116914a9eeadc2277603a101766daf77f6f9f3f47471e3173178b795ac81b71",
+   "check": {
+    "lock": "LOCK_scoring_v2.json",
+    "n_checked": 17,
+    "changed": [],
+    "missing": [],
+    "amended": [],
+    "snapshot_changed_reported_only": [],
+    "archive_members_skipped": 0,
+    "amendment_rows_ignored": []
+   }
+  },
+  "primary_run_P": "completed"
+ },
+ "gate_report_sha256": "c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881",
+ "prior_attempts": [],
+ "inputs": {
+  "arms_locked": [
+   "A0",
+   "A1",
+   "A1-lo10",
+   "B0",
+   "B1",
+   "B1-alt",
+   "B1-ctl-classshuffle-201",
+   "B1-ctl-classshuffle-202",
+   "B1-ctl-classshuffle-203",
+   "B1-ctl-classshuffle-204",
+   "B1-ctl-classshuffle-205",
+   "B1-ctl-rewire-101",
+   "B1-ctl-rewire-102",
+   "B1-ctl-rewire-103",
+   "B1-ctl-rewire-104",
+   "B1-ctl-rewire-105",
+   "B1-lo10",
+   "B1-lo5",
+   "B2",
+   "B4",
+   "B5",
+   "S"
+  ],
+  "verified_files": 101
+ },
+ "exposed_set": {
+  "definition": "kit/exposed_types.csv, the v1 list (PREREG v2 S4, S-a)",
+  "n_types": 18
+ },
+ "type_labels_check": "type_labels recomputed from records.jsonl with this exposed set equals type_labels.csv",
+ "n_boot": 10000,
+ "n_perm": 10000,
+ "code_sha256": {
+  "scoring_v2/pipeline_v2.py": "52f40e0decd91cf5ac22799fa284e680ac4ce6a3296f5abb09b00e6b24bf2a34",
+  "scoring/pipeline.py": "702d6d63542b36c390e2a78c4907a1d42cf5cd35b1489256be33ad97acb74bca",
+  "scoring/stats.py": "46626425e4106c59848b95f93fb82617a1b6258ac4432bf0382760b5e487b90b"
+ },
+ "primary": {
+  "status": "ok",
+  "result": {
+   "n": 12,
+   "n_pos": 1,
+   "n_neg": 11,
+   "n_dropped_nonfinite": 0,
+   "auroc": 0.9090909090909091,
+   "boot": {
+    "auroc": 0.9090909090909091,
+    "lo": 0.7272727272727273,
+    "hi": 1.0,
+    "n_boot": 10000,
+    "seed": 20261120
+   },
+   "perm": {
+    "auroc": 0.9090909090909091,
+    "p": 0.1715828417158284,
+    "n_perm": 10000,
+    "seed": 20261121
+   },
+   "bands": {
+    "n_driver": 0,
+    "n_driver_yes": 0,
+    "precision_driver": NaN,
+    "n_non_driver": 10,
+    "n_non_driver_no": 10,
+    "npv_non_driver": 1.0,
+    "n_indeterminate": 2
+   },
+   "calibration": {
+    "bins": [
+     {
+      "bin": [
+       0.0,
+       0.05
+      ],
+      "n": 10,
+      "frac_yes": 0.0,
+      "mean_score": 0.0026168583133
+     },
+     {
+      "bin": [
+       0.05,
+       0.25
+      ],
+      "n": 1,
+      "frac_yes": 1.0,
+      "mean_score": 0.09782563375
+     },
+     {
+      "bin": [
+       0.25,
+       0.5
+      ],
+      "n": 1,
+      "frac_yes": 0.0,
+      "mean_score": 0.3998865476
+     },
+     {
+      "bin": [
+       0.5,
+       0.75
+      ],
+      "n": 0,
+      "frac_yes": null,
+      "mean_score": null
+     },
+     {
+      "bin": [
+       0.75,
+       1.0
+      ],
+      "n": 0,
+      "frac_yes": null,
+      "mean_score": null
+     }
+    ],
+    "brier": 0.08119331001328046
+   },
+   "set_definition": "front-leg consensus yes/no, among A1's 321 types, exposed excluded, finite A1 score",
+   "baselines_auroc": {
+    "S1_direct_mn": 0.13636363636363635,
+    "S2_twohop_signed": 0.7272727272727273,
+    "S3_twohop_abs": 0.0,
+    "S4_total_out": 0.0,
+    "S5_out_partners": 0.0,
+    "S6_premotor": 0.0,
+    "S7_n_members": 1.0
+   },
+   "best_baseline": "S7_n_members",
+   "vs_best_baseline": {
+    "auroc_a": 0.9090909090909091,
+    "auroc_b": 1.0,
+    "diff": -0.09090909090909094,
+    "lo": -0.2727272727272727,
+    "hi": 0.0,
+    "n_boot": 10000,
+    "seed": 20261122
+   },
+   "informed_auroc": 0.18181818181818182,
+   "vs_informed": {
+    "auroc_a": 0.9090909090909091,
+    "auroc_b": 0.18181818181818182,
+    "diff": 0.7272727272727273,
+    "lo": 0.4090909090909091,
+    "hi": 0.9545454545454546,
+    "n_boot": 10000,
+    "seed": 20261122
+   },
+   "baseline_comparison_status": "ok",
+   "decision": {
+    "underpowered": true,
+    "model_predicts": false,
+    "adds_value_beyond_wiring": false
+   }
+  }
+ }
+}

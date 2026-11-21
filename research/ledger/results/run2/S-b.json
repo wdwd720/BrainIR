@@ -1,0 +1,2625 @@
+{
+ "prereg": "research/ledger/PREREG_v2.md Part S (S1-S4) with research/ledger/PREREG.md v1 sections 7-8",
+ "run": "S-b",
+ "run_definition": {
+  "predictions_lock": "LOCK_predictions_v1.json",
+  "labels_lock": "LOCK_labels_v2.json",
+  "analysis": "secondary"
+ },
+ "unblind_flag": {
+  "authorised_by": "the run-2 orchestrator (Claude), under RUN2_PROMPT Stage 4, after the unblinding gate held on all six conditions (gates_v2/UNBLINDING_GATE_run2.json, sha256 c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881)",
+  "utc": "2026-11-21T06:53:21Z",
+  "predictions_lock": "LOCK_predictions_v1.json",
+  "predictions_lock_sha256": "bfca7e8a8e2a220d3b6f89f5351aca23f1475a3af3eec830e511956b8643cb11",
+  "labels_lock": "LOCK_labels_v2.json",
+  "labels_lock_sha256": "4ac03e487d9ae92844227a2eb24a37bc1ecad46513cbcbe4afeaff0ee49ee33d"
+ },
+ "preconditions": {
+  "gate_report": {
+   "path": "research/ledger/gates_v2/UNBLINDING_GATE_run2.json",
+   "sha256": "c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881",
+   "git_head": "55a4942a2a291c5ad4d7179e06671eb5e881099e"
+  },
+  "scoring_lock_check": {
+   "lock": "LOCK_scoring_v2.json",
+   "lock_sha256": "f116914a9eeadc2277603a101766daf77f6f9f3f47471e3173178b795ac81b71",
+   "check": {
+    "lock": "LOCK_scoring_v2.json",
+    "n_checked": 17,
+    "changed": [],
+    "missing": [],
+    "amended": [],
+    "snapshot_changed_reported_only": [],
+    "archive_members_skipped": 0,
+    "amendment_rows_ignored": []
+   }
+  },
+  "primary_run_P": "completed"
+ },
+ "gate_report_sha256": "c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881",
+ "prior_attempts": [],
+ "inputs": {
+  "arms_locked": [
+   "A0",
+   "A1",
+   "A1-lo10",
+   "B0",
+   "B1",
+   "B1-alt",
+   "B1-ctl-classshuffle-201",
+   "B1-ctl-classshuffle-202",
+   "B1-ctl-classshuffle-203",
+   "B1-ctl-classshuffle-204",
+   "B1-ctl-classshuffle-205",
+   "B1-ctl-rewire-101",
+   "B1-ctl-rewire-102",
+   "B1-ctl-rewire-103",
+   "B1-ctl-rewire-104",
+   "B1-ctl-rewire-105",
+   "B1-lo10",
+   "B1-lo5",
+   "B2",
+   "B4",
+   "B5",
+   "S"
+  ],
+  "verified_files": 100
+ },
+ "exposed_set": {
+  "definition": "kit_v2/exposed_types.csv + labels_v2/exposed_v2.csv (PREREG v2 L6)",
+  "n_types": 18
+ },
+ "type_labels_check": "type_labels recomputed from records.jsonl with this exposed set equals type_labels.csv",
+ "n_boot": 10000,
+ "n_perm": 10000,
+ "code_sha256": {
+  "scoring_v2/pipeline_v2.py": "52f40e0decd91cf5ac22799fa284e680ac4ce6a3296f5abb09b00e6b24bf2a34",
+  "scoring/pipeline.py": "702d6d63542b36c390e2a78c4907a1d42cf5cd35b1489256be33ad97acb74bca",
+  "scoring/stats.py": "46626425e4106c59848b95f93fb82617a1b6258ac4432bf0382760b5e487b90b"
+ },
+ "analyses": {
+  "exposed_included": {
+   "status": "ok",
+   "result": {
+    "n": 50,
+    "n_pos": 28,
+    "n_neg": 22,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5097402597402597,
+    "boot": {
+     "auroc": 0.5097402597402597,
+     "lo": 0.3628246753246753,
+     "hi": 0.6558441558441559,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5097402597402597,
+     "p": 0.45085491450854914,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 2,
+     "n_driver_yes": 1,
+     "precision_driver": 0.5,
+     "n_non_driver": 39,
+     "n_non_driver_no": 19,
+     "npv_non_driver": 0.48717948717948717,
+     "n_indeterminate": 9
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 39,
+       "frac_yes": 0.5128205128205128,
+       "mean_score": 0.005496092423692308
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 7,
+       "frac_yes": 0.8571428571428571,
+       "mean_score": 0.13712714212142854
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.33403176464999995
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.8693056237
+      }
+     ],
+     "brier": 0.517979284659109
+    }
+   }
+  },
+  "exposed_only": {
+   "status": "ok",
+   "result": {
+    "n": 11,
+    "n_pos": 3,
+    "n_neg": 8,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5833333333333334,
+    "boot": {
+     "auroc": 0.5833333333333334,
+     "lo": 0.125,
+     "hi": 1.0,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5833333333333334,
+     "p": 0.3838616138386161,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 0,
+     "precision_driver": 0.0,
+     "n_non_driver": 7,
+     "n_non_driver_no": 6,
+     "npv_non_driver": 0.8571428571428571,
+     "n_indeterminate": 3
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 7,
+       "frac_yes": 0.14285714285714285,
+       "mean_score": 0.01514535618857143
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 3,
+       "frac_yes": 0.6666666666666666,
+       "mean_score": 0.153830654
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 0.0,
+       "mean_score": 0.895871412
+      }
+     ],
+     "brier": 0.29420200597536444
+    }
+   }
+  },
+  "never_usable_excluded": {
+   "status": "ok",
+   "result": {
+    "n": 37,
+    "n_pos": 23,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5962732919254659,
+    "boot": {
+     "auroc": 0.5962732919254659,
+     "lo": 0.43167701863354035,
+     "hi": 0.7453416149068323,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5962732919254659,
+     "p": 0.1312868713128687,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 30,
+     "n_non_driver_no": 13,
+     "npv_non_driver": 0.43333333333333335,
+     "n_indeterminate": 6
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 30,
+       "frac_yes": 0.5666666666666667,
+       "mean_score": 0.0036110037068
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.12459950821249999
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.33403176464999995
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.8427398354
+      }
+     ],
+     "brier": 0.55845249100612
+    }
+   }
+  },
+  "B1": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5114285714285715,
+    "boot": {
+     "auroc": 0.5114285714285715,
+     "lo": 0.3457142857142857,
+     "hi": 0.6671428571428571,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5114285714285715,
+     "p": 0.46285371462853714,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 33,
+     "n_non_driver_no": 13,
+     "npv_non_driver": 0.3939393939393939,
+     "n_indeterminate": 5
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 33,
+       "frac_yes": 0.6060606060606061,
+       "mean_score": 0.0037305527597060605
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.14151345377
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 1,
+       "frac_yes": 0.0,
+       "mean_score": 0.3634577739
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.798826147
+      }
+     ],
+     "brier": 0.592633746367624
+    }
+   }
+  },
+  "B1-alt": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.4957142857142857,
+    "boot": {
+     "auroc": 0.4957142857142857,
+     "lo": 0.3342857142857143,
+     "hi": 0.6485714285714286,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.4957142857142857,
+     "p": 0.53004699530047,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 33,
+     "n_non_driver_no": 13,
+     "npv_non_driver": 0.3939393939393939,
+     "n_indeterminate": 5
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 33,
+       "frac_yes": 0.6060606060606061,
+       "mean_score": 0.0035457899651
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.11930985167000001
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 1,
+       "frac_yes": 0.0,
+       "mean_score": 0.3634577739
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.798826147
+      }
+     ],
+     "brier": 0.5966019008301281
+    }
+   }
+  },
+  "A1-lo10": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5771428571428572,
+    "boot": {
+     "auroc": 0.5771428571428572,
+     "lo": 0.41714285714285715,
+     "hi": 0.7242857142857143,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5771428571428572,
+     "p": 0.1820817918208179,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 32,
+     "n_non_driver_no": 13,
+     "npv_non_driver": 0.40625,
+     "n_indeterminate": 6
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 32,
+       "frac_yes": 0.59375,
+       "mean_score": 0.0033853159751250006
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.142068371375
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.33403176464999995
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.8427398354
+      }
+     ],
+     "brier": 0.5779883349150665
+    }
+   }
+  },
+  "B2": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5028571428571429,
+    "boot": {
+     "auroc": 0.5028571428571429,
+     "lo": 0.35428571428571426,
+     "hi": 0.6357142857142857,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5028571428571429,
+     "p": 0.48665133486651335,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 0,
+     "n_driver_yes": 0,
+     "precision_driver": NaN,
+     "n_non_driver": 34,
+     "n_non_driver_no": 13,
+     "npv_non_driver": 0.38235294117647056,
+     "n_indeterminate": 5
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 34,
+       "frac_yes": 0.6176470588235294,
+       "mean_score": 0.003937522872205883
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 5,
+       "frac_yes": 0.8,
+       "mean_score": 0.148943044992
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      }
+     ],
+     "brier": 0.60775569173957
+    }
+   }
+  },
+  "B5": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.3914285714285714,
+    "boot": {
+     "auroc": 0.3914285714285714,
+     "lo": 0.21714285714285714,
+     "hi": 0.5742857142857143,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.3914285714285714,
+     "p": 0.8677132286771323,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 15,
+     "n_non_driver_no": 4,
+     "npv_non_driver": 0.26666666666666666,
+     "n_indeterminate": 23
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 15,
+       "frac_yes": 0.7333333333333333,
+       "mean_score": 0.007068647135
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 20,
+       "frac_yes": 0.55,
+       "mean_score": 0.137617492608
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 3,
+       "frac_yes": 0.6666666666666666,
+       "mean_score": 0.3594769911333333
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.961311658
+      }
+     ],
+     "brier": 0.522513587110483
+    }
+   }
+  },
+  "A1_vs_B1_spearman": {
+   "status": "ok",
+   "result": {
+    "n": 321,
+    "spearman": 0.7920031711355378
+   }
+  },
+  "A0_type_max": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5771428571428572,
+    "boot": {
+     "auroc": 0.5771428571428572,
+     "lo": 0.3985714285714286,
+     "hi": 0.7428571428571429,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5771428571428572,
+     "p": 0.2074792520747925,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 2,
+     "n_driver_yes": 2,
+     "precision_driver": 1.0,
+     "n_non_driver": 29,
+     "n_non_driver_no": 12,
+     "npv_non_driver": 0.41379310344827586,
+     "n_indeterminate": 8
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 29,
+       "frac_yes": 0.5862068965517241,
+       "mean_score": 0.0034393847588931035
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.17300312545000002
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 6,
+       "frac_yes": 0.8333333333333334,
+       "mean_score": 0.32420956928333333
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 2,
+       "frac_yes": 1.0,
+       "mean_score": 0.6119385255
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      }
+     ],
+     "brier": 0.5290906545885246
+    }
+   }
+  },
+  "A0_type_mean": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.56,
+    "boot": {
+     "auroc": 0.56,
+     "lo": 0.38,
+     "hi": 0.7285714285714285,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.56,
+     "p": 0.26277372262773724,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 30,
+     "n_non_driver_no": 12,
+     "npv_non_driver": 0.4,
+     "n_indeterminate": 8
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 30,
+       "frac_yes": 0.6,
+       "mean_score": 0.0024377135835199995
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 7,
+       "frac_yes": 0.7142857142857143,
+       "mean_score": 0.13744717336714285
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.4290438758
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.6381714357
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      }
+     ],
+     "brier": 0.5710289309607227
+    }
+   }
+  },
+  "B0_type_max": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.6085714285714285,
+    "boot": {
+     "auroc": 0.6085714285714285,
+     "lo": 0.44142857142857145,
+     "hi": 0.7614285714285715,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.6085714285714285,
+     "p": 0.11288871112888711,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 2,
+     "n_driver_yes": 2,
+     "precision_driver": 1.0,
+     "n_non_driver": 30,
+     "n_non_driver_no": 12,
+     "npv_non_driver": 0.4,
+     "n_indeterminate": 7
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 30,
+       "frac_yes": 0.6,
+       "mean_score": 0.004598222098533334
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 3,
+       "frac_yes": 0.6666666666666666,
+       "mean_score": 0.17645326375
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 4,
+       "frac_yes": 0.75,
+       "mean_score": 0.314790804925
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.6274792615
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.7985904054
+      }
+     ],
+     "brier": 0.5386866307324365
+    }
+   }
+  },
+  "B0_type_mean": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5971428571428572,
+    "boot": {
+     "auroc": 0.5971428571428572,
+     "lo": 0.4285357142857143,
+     "hi": 0.7514285714285714,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5971428571428572,
+     "p": 0.1426857314268573,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 31,
+     "n_non_driver_no": 12,
+     "npv_non_driver": 0.3870967741935484,
+     "n_indeterminate": 7
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 31,
+       "frac_yes": 0.6129032258064516,
+       "mean_score": 0.0028841274828709674
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 6,
+       "frac_yes": 0.6666666666666666,
+       "mean_score": 0.13265488902333333
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.4286331289
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.7985904054
+      }
+     ],
+     "brier": 0.5730597822665784
+    }
+   }
+  },
+  "controls": {
+   "status": "ok",
+   "result": {
+    "per_control": {
+     "B1-ctl-classshuffle-201": 0.58,
+     "B1-ctl-classshuffle-202": 0.30428571428571427,
+     "B1-ctl-classshuffle-203": 0.5657142857142857,
+     "B1-ctl-classshuffle-204": 0.4085714285714286,
+     "B1-ctl-classshuffle-205": 0.41714285714285715,
+     "B1-ctl-rewire-101": 0.5542857142857143,
+     "B1-ctl-rewire-102": 0.6085714285714285,
+     "B1-ctl-rewire-103": 0.49714285714285716,
+     "B1-ctl-rewire-104": 0.5128571428571429,
+     "B1-ctl-rewire-105": 0.5014285714285714
+    },
+    "mean": 0.495,
+    "min": 0.30428571428571427,
+    "max": 0.6085714285714285
+   }
+  },
+  "baselines": {
+   "status": "ok",
+   "result": {
+    "S1_direct_mn": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.31,
+     "boot": {
+      "auroc": 0.31,
+      "lo": 0.15567857142857147,
+      "hi": 0.4700357142857137,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.31,
+      "p": 0.9928007199280072,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 11,
+      "n_driver_yes": 4,
+      "precision_driver": 0.36363636363636365,
+      "n_non_driver": 28,
+      "n_non_driver_no": 7,
+      "npv_non_driver": 0.25,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 28,
+        "frac_yes": 0.75,
+        "mean_score": 0.0
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.717948717948718
+     }
+    },
+    "S2_twohop_signed": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.6685714285714286,
+     "boot": {
+      "auroc": 0.6685714285714286,
+      "lo": 0.44285714285714284,
+      "hi": 0.8714285714285714,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.6685714285714286,
+      "p": 0.04459554044595541,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 13,
+      "n_driver_yes": 9,
+      "precision_driver": 0.6923076923076923,
+      "n_non_driver": 26,
+      "n_non_driver_no": 10,
+      "npv_non_driver": 0.38461538461538464,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.0
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.5128205128205128
+     }
+    },
+    "S3_twohop_abs": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.09142857142857143,
+     "boot": {
+      "auroc": 0.09142857142857143,
+      "lo": 0.017142857142857144,
+      "hi": 0.19714285714285715,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.09142857142857143,
+      "p": 1.0,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 38,
+      "n_driver_yes": 24,
+      "precision_driver": 0.631578947368421,
+      "n_non_driver": 1,
+      "n_non_driver_no": 0,
+      "npv_non_driver": 0.0,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.0
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.38461538461538464
+     }
+    },
+    "S4_total_out": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.11428571428571428,
+     "boot": {
+      "auroc": 0.11428571428571428,
+      "lo": 0.011428571428571429,
+      "hi": 0.24,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.11428571428571428,
+      "p": 1.0,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 39,
+      "n_driver_yes": 25,
+      "precision_driver": 0.6410256410256411,
+      "n_non_driver": 0,
+      "n_non_driver_no": 0,
+      "npv_non_driver": NaN,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.358974358974359
+     }
+    },
+    "S5_out_partners": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.09285714285714286,
+     "boot": {
+      "auroc": 0.09285714285714286,
+      "lo": 0.012857142857142857,
+      "hi": 0.20285714285714285,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.09285714285714286,
+      "p": 1.0,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 39,
+      "n_driver_yes": 25,
+      "precision_driver": 0.6410256410256411,
+      "n_non_driver": 0,
+      "n_non_driver_no": 0,
+      "npv_non_driver": NaN,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 1.0
+       }
+      ],
+      "brier": 0.358974358974359
+     }
+    },
+    "S6_premotor": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.10285714285714286,
+     "boot": {
+      "auroc": 0.10285714285714286,
+      "lo": 0.005714285714285714,
+      "hi": 0.22285714285714286,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.10285714285714286,
+      "p": 1.0,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 38,
+      "n_driver_yes": 24,
+      "precision_driver": 0.631578947368421,
+      "n_non_driver": 1,
+      "n_non_driver_no": 0,
+      "npv_non_driver": 0.0,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.0
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.38461538461538464
+     }
+    },
+    "S7_n_members": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.6342857142857142,
+     "boot": {
+      "auroc": 0.6342857142857142,
+      "lo": 0.5114285714285715,
+      "hi": 0.7542857142857143,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.6342857142857142,
+      "p": 0.0332966703329667,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 39,
+      "n_driver_yes": 25,
+      "precision_driver": 0.6410256410256411,
+      "n_non_driver": 0,
+      "n_non_driver_no": 0,
+      "npv_non_driver": NaN,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 1.0
+       }
+      ],
+      "brier": 0.358974358974359
+     }
+    },
+    "S8_informed": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.30857142857142855,
+     "boot": {
+      "auroc": 0.30857142857142855,
+      "lo": 0.16,
+      "hi": 0.45571428571428574,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.30857142857142855,
+      "p": 0.999000099990001,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 8,
+      "n_driver_yes": 2,
+      "precision_driver": 0.25,
+      "n_non_driver": 31,
+      "n_non_driver_no": 8,
+      "npv_non_driver": 0.25806451612903225,
+      "n_indeterminate": 0
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 31,
+        "frac_yes": 0.7419354838709677,
+        "mean_score": 0.0
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.7435897435897436
+     }
+    }
+   }
+  },
+  "headless_only": {
+   "status": "ok",
+   "result": {
+    "n": 3,
+    "n_pos": 0,
+    "n_neg": 3,
+    "n_dropped_nonfinite": 0,
+    "auroc": null
+   }
+  },
+  "intact_only": {
+   "status": "ok",
+   "result": {
+    "n": 38,
+    "n_pos": 26,
+    "n_neg": 12,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.5977564102564102,
+    "boot": {
+     "auroc": 0.5977564102564102,
+     "lo": 0.42948717948717946,
+     "hi": 0.75,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.5977564102564102,
+     "p": 0.137986201379862,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 31,
+     "n_non_driver_no": 11,
+     "npv_non_driver": 0.3548387096774194,
+     "n_indeterminate": 6
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 31,
+       "frac_yes": 0.6451612903225806,
+       "mean_score": 0.0034945197162580643
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.12459950821249999
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.33403176464999995
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.8427398354
+      }
+     ],
+     "brier": 0.6217337265217485
+    }
+   }
+  },
+  "clean_lines": {
+   "status": "ok",
+   "result": {
+    "n": 13,
+    "n_pos": 1,
+    "n_neg": 12,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.375,
+    "boot": {
+     "auroc": 0.375,
+     "lo": 0.25,
+     "hi": 0.5,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.375,
+     "p": 1.0,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 0,
+     "n_driver_yes": 0,
+     "precision_driver": NaN,
+     "n_non_driver": 12,
+     "n_non_driver_no": 11,
+     "npv_non_driver": 0.9166666666666666,
+     "n_indeterminate": 1
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 12,
+       "frac_yes": 0.08333333333333333,
+       "mean_score": 0.0019057670785833335
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 1,
+       "frac_yes": 0.0,
+       "mean_score": 0.3998865476
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      }
+     ],
+     "brier": 0.08925143309373693
+    }
+   }
+  },
+  "nonspecific_lines": {
+   "status": "ok",
+   "result": {
+    "n": 34,
+    "n_pos": 29,
+    "n_neg": 5,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.593103448275862,
+    "boot": {
+     "auroc": 0.593103448275862,
+     "lo": 0.4,
+     "hi": 0.7413793103448276,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.593103448275862,
+     "p": 0.2151784821517848,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 28,
+     "n_non_driver_no": 5,
+     "npv_non_driver": 0.17857142857142858,
+     "n_indeterminate": 5
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 28,
+       "frac_yes": 0.8214285714285714,
+       "mean_score": 0.003052175223607143
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.12459950821249999
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.2681769817
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.8427398354
+      }
+     ],
+     "brier": 0.7794845157943489
+    }
+   }
+  },
+  "systematic_only": {
+   "status": "ok",
+   "result": {
+    "n": 32,
+    "n_pos": 25,
+    "n_neg": 7,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.6228571428571429,
+    "boot": {
+     "auroc": 0.6228571428571429,
+     "lo": 0.4114285714285714,
+     "hi": 0.8,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.6228571428571429,
+     "p": 0.15258474152584742,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 1,
+     "n_driver_yes": 1,
+     "precision_driver": 1.0,
+     "n_non_driver": 25,
+     "n_non_driver_no": 6,
+     "npv_non_driver": 0.24,
+     "n_indeterminate": 6
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 25,
+       "frac_yes": 0.76,
+       "mean_score": 0.00272680694456
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 1.0,
+       "mean_score": 0.12459950821249999
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 2,
+       "frac_yes": 0.5,
+       "mean_score": 0.33403176464999995
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.8427398354
+      }
+     ],
+     "brier": 0.7079078894843314
+    }
+   }
+  },
+  "B3_pairs": {
+   "status": "not_locked",
+   "arm": "B3",
+   "reason": "G3 failed (PREREG 9)"
+  },
+  "B6_legs_that_move": {
+   "status": "not_locked",
+   "arm": "B6",
+   "reason": "depends on B3"
+  },
+  "B2_vs_B1_bands": {
+   "status": "ok",
+   "result": {
+    "n_matched_types": 310,
+    "n_band_disagreements": 100,
+    "types_band_disagree": [
+     "DNa06",
+     "DNa07",
+     "DNa11",
+     "DNa13",
+     "DNb06",
+     "DNd05",
+     "DNfl014",
+     "DNfl015",
+     "DNfl018",
+     "DNfl019",
+     "DNfl021",
+     "DNfl022",
+     "DNfl024",
+     "DNfl025",
+     "DNfl029",
+     "DNfl030",
+     "DNfl031",
+     "DNfl033",
+     "DNfl034",
+     "DNfl036",
+     "DNfl037",
+     "DNfl040",
+     "DNg07",
+     "DNg09",
+     "DNg100",
+     "DNg109",
+     "DNg12",
+     "DNg13",
+     "DNg15",
+     "DNg17",
+     "DNg19",
+     "DNg21",
+     "DNg36",
+     "DNg48",
+     "DNg54",
+     "DNg57",
+     "DNg63",
+     "DNg68",
+     "DNg85",
+     "DNg94",
+     "DNg95",
+     "DNit003",
+     "DNit010",
+     "DNit011",
+     "DNit013",
+     "DNlt010",
+     "DNml001",
+     "DNp02",
+     "DNp12",
+     "DNp13",
+     "DNp14",
+     "DNp21",
+     "DNp34",
+     "DNp41",
+     "DNp53",
+     "DNp57",
+     "DNp71",
+     "DNut053",
+     "DNut054",
+     "DNxl014",
+     "DNxl021",
+     "DNxl022",
+     "DNxl049",
+     "DNxl067",
+     "DNxl068",
+     "DNxl082",
+     "DNxl083",
+     "DNxl085",
+     "DNxl091",
+     "DNxl092",
+     "DNxl095",
+     "DNxl099",
+     "DNxl102",
+     "DNxl109",
+     "DNxl113",
+     "DNxl121",
+     "DNxl130",
+     "DNxl133",
+     "DNxn101",
+     "DNxn104",
+     "DNxn109",
+     "DNxn117",
+     "DNxn118",
+     "DNxn122",
+     "DNxn127",
+     "DNxn129",
+     "DNxn132",
+     "DNxn135",
+     "DNxn139",
+     "DNxn143",
+     "DNxn144",
+     "DNxn151",
+     "DNxn159",
+     "DNxn161",
+     "DNxn163",
+     "DNxn171",
+     "DNxn177",
+     "MDN",
+     "aSP22",
+     "pMP2"
+    ],
+    "spearman": 0.3108107229950383
+   }
+  },
+  "frequency": {
+   "status": "ok",
+   "result": {
+    "n": 0,
+    "spearman": null,
+    "definition": "B1 median frequency of rhythmic usable replicates vs the label-side median reported frequency"
+   }
+  },
+  "B4_stop": {
+   "status": "ok",
+   "result": {
+    "n": 52,
+    "n_excluded_non_calls": 0,
+    "raw_agreement": 0.6346153846153846,
+    "kappa": -0.0378151260504202,
+    "confusion": {
+     "no_stop": {
+      "no_stop": 33,
+      "stops": 18
+     },
+     "stops": {
+      "no_stop": 1,
+      "stops": 0
+     }
+    }
+   }
+  },
+  "B4_modulation": {
+   "status": "ok",
+   "result": {
+    "n": 43,
+    "n_excluded_non_calls": 0,
+    "n_label_turns_excluded": 3,
+    "raw_agreement": 0.046511627906976744,
+    "kappa": -0.04629080118694361
+   }
+  },
+  "B5_per_strength": {
+   "status": "ok",
+   "result": {
+    "score_I128": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.38,
+     "boot": {
+      "auroc": 0.38,
+      "lo": 0.2057142857142857,
+      "hi": 0.5628928571428566,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.38,
+      "p": 0.8995100489951005,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 1,
+      "n_driver_yes": 1,
+      "precision_driver": 1.0,
+      "n_non_driver": 21,
+      "n_non_driver_no": 6,
+      "npv_non_driver": 0.2857142857142857,
+      "n_indeterminate": 17
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 21,
+        "frac_yes": 0.7142857142857143,
+        "mean_score": 0.0016956578599999998
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 16,
+        "frac_yes": 0.5625,
+        "mean_score": 0.10900573588250001
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 1,
+        "frac_yes": 0.0,
+        "mean_score": 0.3706990919
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.798826147
+       }
+      ],
+      "brier": 0.5744630400120745
+     }
+    },
+    "score_I256": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.4142857142857143,
+     "boot": {
+      "auroc": 0.4142857142857143,
+      "lo": 0.24,
+      "hi": 0.5971428571428572,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.4142857142857143,
+      "p": 0.8104189581041896,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 1,
+      "n_driver_yes": 1,
+      "precision_driver": 1.0,
+      "n_non_driver": 18,
+      "n_non_driver_no": 6,
+      "npv_non_driver": 0.3333333333333333,
+      "n_indeterminate": 20
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 18,
+        "frac_yes": 0.6666666666666666,
+        "mean_score": 0.008809502497277778
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 20,
+        "frac_yes": 0.6,
+        "mean_score": 0.12230110173200001
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.961311658
+       }
+      ],
+      "brier": 0.5490215426660934
+     }
+    },
+    "score_I32": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.5585714285714286,
+     "boot": {
+      "auroc": 0.5585714285714286,
+      "lo": 0.4114285714285714,
+      "hi": 0.6914285714285714,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.5585714285714286,
+      "p": 0.22647735226477353,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 0,
+      "n_driver_yes": 0,
+      "precision_driver": NaN,
+      "n_non_driver": 32,
+      "n_non_driver_no": 12,
+      "npv_non_driver": 0.375,
+      "n_indeterminate": 7
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 32,
+        "frac_yes": 0.625,
+        "mean_score": 0.00121596179478125
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 6,
+        "frac_yes": 0.6666666666666666,
+        "mean_score": 0.121153963975
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.3665281291
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.6004943657317166
+     }
+    },
+    "score_I512": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.47714285714285715,
+     "boot": {
+      "auroc": 0.47714285714285715,
+      "lo": 0.29428571428571426,
+      "hi": 0.6585714285714286,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.47714285714285715,
+      "p": 0.5983401659834017,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 1,
+      "n_driver_yes": 1,
+      "precision_driver": 1.0,
+      "n_non_driver": 16,
+      "n_non_driver_no": 4,
+      "npv_non_driver": 0.25,
+      "n_indeterminate": 22
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 16,
+        "frac_yes": 0.75,
+        "mean_score": 0.00879738232125
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 21,
+        "frac_yes": 0.5238095238095238,
+        "mean_score": 0.11191134907904762
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.3412037524
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 1,
+        "frac_yes": 1.0,
+        "mean_score": 0.9365373196
+       }
+      ],
+      "brier": 0.5349387400327158
+     }
+    },
+    "score_I64": {
+     "n": 39,
+     "n_pos": 25,
+     "n_neg": 14,
+     "n_dropped_nonfinite": 0,
+     "auroc": 0.5228571428571429,
+     "boot": {
+      "auroc": 0.5228571428571429,
+      "lo": 0.35714285714285715,
+      "hi": 0.68,
+      "n_boot": 10000,
+      "seed": 20261120
+     },
+     "perm": {
+      "auroc": 0.5228571428571429,
+      "p": 0.40805919408059194,
+      "n_perm": 10000,
+      "seed": 20261121
+     },
+     "bands": {
+      "n_driver": 0,
+      "n_driver_yes": 0,
+      "precision_driver": NaN,
+      "n_non_driver": 31,
+      "n_non_driver_no": 11,
+      "npv_non_driver": 0.3548387096774194,
+      "n_indeterminate": 8
+     },
+     "calibration": {
+      "bins": [
+       {
+        "bin": [
+         0.0,
+         0.05
+        ],
+        "n": 31,
+        "frac_yes": 0.6451612903225806,
+        "mean_score": 0.0028855287754193546
+       },
+       {
+        "bin": [
+         0.05,
+         0.25
+        ],
+        "n": 8,
+        "frac_yes": 0.625,
+        "mean_score": 0.12645440133375
+       },
+       {
+        "bin": [
+         0.25,
+         0.5
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.5,
+         0.75
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       },
+       {
+        "bin": [
+         0.75,
+         1.0
+        ],
+        "n": 0,
+        "frac_yes": null,
+        "mean_score": null
+       }
+      ],
+      "brier": 0.6098246166606438
+     }
+    }
+   }
+  }
+ }
+}

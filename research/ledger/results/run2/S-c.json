@@ -1,0 +1,501 @@
+{
+ "prereg": "research/ledger/PREREG_v2.md Part S (S1-S4) with research/ledger/PREREG.md v1 sections 7-8",
+ "run": "S-c",
+ "run_definition": {
+  "predictions_lock": "LOCK_predictions_v2.json",
+  "labels_lock": "LOCK_labels_v2.json",
+  "analysis": "s3"
+ },
+ "unblind_flag": {
+  "authorised_by": "the run-2 orchestrator (Claude), under RUN2_PROMPT Stage 4, after the unblinding gate held on all six conditions (gates_v2/UNBLINDING_GATE_run2.json, sha256 c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881)",
+  "utc": "2026-11-21T06:53:21Z",
+  "predictions_lock": "LOCK_predictions_v2.json",
+  "predictions_lock_sha256": "2664143fd56a9640934d2cef88fb14d78d3e7eb2ea6a81b9ea9f9914aa57d4ba",
+  "labels_lock": "LOCK_labels_v2.json",
+  "labels_lock_sha256": "4ac03e487d9ae92844227a2eb24a37bc1ecad46513cbcbe4afeaff0ee49ee33d"
+ },
+ "preconditions": {
+  "gate_report": {
+   "path": "research/ledger/gates_v2/UNBLINDING_GATE_run2.json",
+   "sha256": "c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881",
+   "git_head": "55a4942a2a291c5ad4d7179e06671eb5e881099e"
+  },
+  "scoring_lock_check": {
+   "lock": "LOCK_scoring_v2.json",
+   "lock_sha256": "f116914a9eeadc2277603a101766daf77f6f9f3f47471e3173178b795ac81b71",
+   "check": {
+    "lock": "LOCK_scoring_v2.json",
+    "n_checked": 17,
+    "changed": [],
+    "missing": [],
+    "amended": [],
+    "snapshot_changed_reported_only": [],
+    "archive_members_skipped": 0,
+    "amendment_rows_ignored": []
+   }
+  },
+  "primary_run_P": "completed"
+ },
+ "gate_report_sha256": "c9ba5b930f317144f241200ed965ccd5d1645584dfc7dea309bde20a91722881",
+ "prior_attempts": [],
+ "inputs": {
+  "arms_locked": [
+   "B1r",
+   "B2r",
+   "B4v2"
+  ],
+  "arm_files": {
+   "B1r": [
+    "config.json",
+    "provenance.json",
+    "replicates.parquet",
+    "types.csv"
+   ],
+   "B2r": [
+    "config.json",
+    "provenance.json",
+    "replicates.parquet",
+    "types.csv"
+   ],
+   "B4v2": [
+    "config.json",
+    "provenance.json",
+    "types.csv"
+   ]
+  },
+  "arms_not_locked": {
+   "B3": "G3 v2 fails on item 4' (decided before the freeze, PREREG v2 P2)",
+   "B6": "G3 v2 fails on item 4' (decided before the freeze, PREREG v2 P2)"
+  },
+  "verified_files": 111,
+  "v1_lock_chain": "LOCK_predictions_v1.json SHA-256 equals LOCK_predictions_v2.json v1_locks; frozen verify_inputs passed on LOCK_predictions_v1.json + the labels lock",
+  "v1_arms_verified": [
+   "A0",
+   "A1",
+   "A1-lo10",
+   "B0",
+   "B1",
+   "B1-alt",
+   "B1-ctl-classshuffle-201",
+   "B1-ctl-classshuffle-202",
+   "B1-ctl-classshuffle-203",
+   "B1-ctl-classshuffle-204",
+   "B1-ctl-classshuffle-205",
+   "B1-ctl-rewire-101",
+   "B1-ctl-rewire-102",
+   "B1-ctl-rewire-103",
+   "B1-ctl-rewire-104",
+   "B1-ctl-rewire-105",
+   "B1-lo10",
+   "B1-lo5",
+   "B2",
+   "B4",
+   "B5",
+   "S"
+  ],
+  "a1_read": "manc_type column only (membership of the primary set)"
+ },
+ "exposed_set": {
+  "definition": "kit_v2/exposed_types.csv + labels_v2/exposed_v2.csv (PREREG v2 L6)",
+  "n_types": 18
+ },
+ "type_labels_check": "type_labels recomputed from records.jsonl with this exposed set equals type_labels.csv",
+ "n_boot": 10000,
+ "n_perm": 10000,
+ "code_sha256": {
+  "scoring_v2/pipeline_v2.py": "52f40e0decd91cf5ac22799fa284e680ac4ce6a3296f5abb09b00e6b24bf2a34",
+  "scoring/pipeline.py": "702d6d63542b36c390e2a78c4907a1d42cf5cd35b1489256be33ad97acb74bca",
+  "scoring/stats.py": "46626425e4106c59848b95f93fb82617a1b6258ac4432bf0382760b5e487b90b"
+ },
+ "analyses": {
+  "B1r": {
+   "status": "ok",
+   "result": {
+    "n": 39,
+    "n_pos": 25,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.4542857142857143,
+    "boot": {
+     "auroc": 0.4542857142857143,
+     "lo": 0.2714285714285714,
+     "hi": 0.6357142857142857,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.4542857142857143,
+     "p": 0.691030896910309,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 2,
+     "n_driver_yes": 1,
+     "precision_driver": 0.5,
+     "n_non_driver": 29,
+     "n_non_driver_no": 11,
+     "npv_non_driver": 0.3793103448275862,
+     "n_indeterminate": 8
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 29,
+       "frac_yes": 0.6206896551724138,
+       "mean_score": 0.005965071838424139
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 6,
+       "frac_yes": 0.6666666666666666,
+       "mean_score": 0.09223195322
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 2,
+       "frac_yes": 1.0,
+       "mean_score": 0.39359909935000004
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 1,
+       "frac_yes": 0.0,
+       "mean_score": 0.6551202466
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 1,
+       "frac_yes": 1.0,
+       "mean_score": 0.8610268033
+      }
+     ],
+     "brier": 0.5719116628934482
+    },
+    "set_definition": "primary set (front-leg consensus yes/no, among A1's types, not in the v2 exposed set) restricted to the types the arm covers, finite score",
+    "n_primary_set": 39
+   }
+  },
+  "B2r": {
+   "status": "ok",
+   "result": {
+    "n": 37,
+    "n_pos": 23,
+    "n_neg": 14,
+    "n_dropped_nonfinite": 0,
+    "auroc": 0.4192546583850932,
+    "boot": {
+     "auroc": 0.4192546583850932,
+     "lo": 0.2515527950310559,
+     "hi": 0.5854425465838503,
+     "n_boot": 10000,
+     "seed": 20261120
+    },
+    "perm": {
+     "auroc": 0.4192546583850932,
+     "p": 0.8228177182281772,
+     "n_perm": 10000,
+     "seed": 20261121
+    },
+    "bands": {
+     "n_driver": 0,
+     "n_driver_yes": 0,
+     "precision_driver": NaN,
+     "n_non_driver": 29,
+     "n_non_driver_no": 11,
+     "npv_non_driver": 0.3793103448275862,
+     "n_indeterminate": 8
+    },
+    "calibration": {
+     "bins": [
+      {
+       "bin": [
+        0.0,
+        0.05
+       ],
+       "n": 29,
+       "frac_yes": 0.6206896551724138,
+       "mean_score": 0.005062640747517241
+      },
+      {
+       "bin": [
+        0.05,
+        0.25
+       ],
+       "n": 4,
+       "frac_yes": 0.75,
+       "mean_score": 0.15633677789
+      },
+      {
+       "bin": [
+        0.25,
+        0.5
+       ],
+       "n": 4,
+       "frac_yes": 0.5,
+       "mean_score": 0.3814782761
+      },
+      {
+       "bin": [
+        0.5,
+        0.75
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      },
+      {
+       "bin": [
+        0.75,
+        1.0
+       ],
+       "n": 0,
+       "frac_yes": null,
+       "mean_score": null
+      }
+     ],
+     "brier": 0.5731229313694195
+    },
+    "set_definition": "primary set (front-leg consensus yes/no, among A1's types, not in the v2 exposed set) restricted to the types the arm covers, finite score",
+    "n_primary_set": 39
+   }
+  },
+  "B1r_vs_B2r": {
+   "status": "ok",
+   "result": {
+    "n_common_types": 310,
+    "spearman": 0.3656800837185175,
+    "top_k": 10,
+    "top10_overlap": 1,
+    "band_agreement": 0.6322580645161291,
+    "n_band_disagreements": 114,
+    "types_band_disagree": [
+     "DNa03",
+     "DNa06",
+     "DNa07",
+     "DNa11",
+     "DNa13",
+     "DNb03",
+     "DNb06",
+     "DNd05",
+     "DNfl014",
+     "DNfl015",
+     "DNfl018",
+     "DNfl019",
+     "DNfl021",
+     "DNfl022",
+     "DNfl024",
+     "DNfl029",
+     "DNfl030",
+     "DNfl031",
+     "DNfl033",
+     "DNfl034",
+     "DNfl036",
+     "DNfl037",
+     "DNfl040",
+     "DNg07",
+     "DNg08",
+     "DNg09",
+     "DNg109",
+     "DNg12",
+     "DNg13",
+     "DNg17",
+     "DNg19",
+     "DNg21",
+     "DNg35",
+     "DNg36",
+     "DNg48",
+     "DNg53",
+     "DNg54",
+     "DNg57",
+     "DNg63",
+     "DNg68",
+     "DNg75",
+     "DNg76",
+     "DNg84",
+     "DNg88",
+     "DNg94",
+     "DNg95",
+     "DNit003",
+     "DNit010",
+     "DNit011",
+     "DNlt010",
+     "DNml001",
+     "DNp02",
+     "DNp11",
+     "DNp13",
+     "DNp14",
+     "DNp18",
+     "DNp21",
+     "DNp41",
+     "DNp42",
+     "DNp55",
+     "DNp57",
+     "DNp60",
+     "DNp63",
+     "DNp67",
+     "DNp69",
+     "DNp71",
+     "DNut053",
+     "DNut054",
+     "DNut060",
+     "DNxl014",
+     "DNxl021",
+     "DNxl053",
+     "DNxl067",
+     "DNxl068",
+     "DNxl073",
+     "DNxl082",
+     "DNxl091",
+     "DNxl092",
+     "DNxl095",
+     "DNxl099",
+     "DNxl101",
+     "DNxl102",
+     "DNxl109",
+     "DNxl110",
+     "DNxl113",
+     "DNxl121",
+     "DNxl130",
+     "DNxl133",
+     "DNxn101",
+     "DNxn104",
+     "DNxn109",
+     "DNxn115",
+     "DNxn118",
+     "DNxn122",
+     "DNxn129",
+     "DNxn132",
+     "DNxn139",
+     "DNxn143",
+     "DNxn151",
+     "DNxn159",
+     "DNxn163",
+     "DNxn164",
+     "DNxn167",
+     "DNxn168",
+     "DNxn171",
+     "DNxn174",
+     "DNxn177",
+     "DNxn178",
+     "DNxn185",
+     "MDN",
+     "aSP22",
+     "oviDN",
+     "pIP10",
+     "pMP2"
+    ],
+    "band_crosstab": {
+     "driver": {
+      "driver": 3,
+      "indeterminate": 17,
+      "non_driver": 9
+     },
+     "indeterminate": {
+      "driver": 7,
+      "indeterminate": 37,
+      "non_driver": 36
+     },
+     "non_driver": {
+      "driver": 5,
+      "indeterminate": 40,
+      "non_driver": 156
+     }
+    },
+    "definition": "all types in both arms (no labels); primary_score; top 10 by score, ties broken by type name; band = the arms' own band column"
+   }
+  },
+  "B4v2_stop_lost_excluded": {
+   "status": "ok",
+   "result": {
+    "n": 35,
+    "n_excluded_non_calls": 0,
+    "n_saturates": 13,
+    "n_rhythm_lost_other": 4,
+    "saturates_and_rhythm_lost_other": "excluded",
+    "raw_agreement": 0.9428571428571428,
+    "kappa": -0.029411764705882706,
+    "confusion": {
+     "no_stop": {
+      "no_stop": 33,
+      "stops": 1
+     },
+     "stops": {
+      "no_stop": 1,
+      "stops": 0
+     }
+    },
+    "definition": "call_128 halts -> stops, other calls -> no_stop, against stop_call (stops / no_stop); exposed types and non-calls (background_not_rhythmic, no_effect_low_n) excluded"
+   }
+  },
+  "B4v2_stop_lost_as_non_halts": {
+   "status": "ok",
+   "result": {
+    "n": 52,
+    "n_excluded_non_calls": 0,
+    "n_saturates": 13,
+    "n_rhythm_lost_other": 4,
+    "saturates_and_rhythm_lost_other": "counted as non-halts (no_stop)",
+    "raw_agreement": 0.9615384615384616,
+    "kappa": -0.019607843137252768,
+    "confusion": {
+     "no_stop": {
+      "no_stop": 50,
+      "stops": 1
+     },
+     "stops": {
+      "no_stop": 1,
+      "stops": 0
+     }
+    },
+    "definition": "call_128 halts -> stops, other calls -> no_stop, against stop_call (stops / no_stop); exposed types and non-calls (background_not_rhythmic, no_effect_low_n) excluded"
+   }
+  },
+  "B4v2_modulation": {
+   "status": "ok",
+   "result": {
+    "n": 27,
+    "n_excluded_non_calls": 0,
+    "n_excluded_saturates_or_rhythm_lost_other": 16,
+    "n_label_turns_excluded": 3,
+    "raw_agreement": 0.037037037037037035,
+    "kappa": 7.20577443867289e-18,
+    "confusion": {
+     "none": {
+      "none": 1,
+      "stops": 0
+     },
+     "speeds": {
+      "none": 24,
+      "stops": 1
+     },
+     "stops": {
+      "none": 1,
+      "stops": 0
+     }
+    },
+    "definition": "halts->stops, speeds_up->speeds, slows_down->slows, no_effect->none against walking_effect; saturates and rhythm_lost_other have no walking-effect counterpart and are excluded and counted"
+   }
+  }
+ },
+ "not_analysed": {
+  "B3": "PREREG v2 S3: B3 and B6 are not analysed in run 2 (not locked, P2)",
+  "B6": "PREREG v2 S3: B3 and B6 are not analysed in run 2 (not locked, P2)"
+ }
+}
