@@ -151,9 +151,10 @@ def r3(cross_fly: float | None) -> dict:
         vals = []
         for n in (1, 2, 3):
             name = f"r3-{s * 10 + n}-run3"
-            try:
-                d = _campaign_scores(name)
-            except FileNotFoundError:
+            if not (data_dir() / "reliability" / f"GHA_{name}" / "results.pkl").is_file():
+                continue  # campaign not collected (read_log returns nothing for a missing file)
+            d = _campaign_scores(name)
+            if d.empty:
                 continue
             sc = type_scores(d)
             ts = sorted(set(sc.index) & set(base.index))
