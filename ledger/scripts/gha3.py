@@ -56,8 +56,8 @@ def _tagged() -> bool:
 
 def require_freeze(what: str) -> None:
     if not _tagged():
-        raise SystemExit(f"{what}: hemilineage groups may be built only after the tag {FREEZE_TAG} exists (RUN3_PROMPT hard limit 2); "
-                         "refused, nothing built")
+        raise SystemExit(f"{what}: before the tag {FREEZE_TAG} only DNg100, DNb08 and random synthetic groups may be simulated "
+                         "(RUN3_PROMPT hard limit 2); refused, nothing built")
 
 
 def _fc():
@@ -179,8 +179,11 @@ G.BUILDERS.update(V3_BUILDERS)
 
 
 # ------------------------------------------------------------------------------------------------ publish / collect (v3 tags)
+RUN3_PREFIXES = {"p7", "hm", "hd", "hsens", "hc", "hmdet", "r3", "r4"}  # r3, r4: builders in gha3r.py (reliability study)
+
+
 def publish3(name: str, attempt: int) -> None:
-    if name.split("-")[0] not in V3_BUILDERS:
+    if name.split("-")[0] not in RUN3_PREFIXES:
         raise SystemExit(f"{name}: not a run 3 campaign")
     man = json.loads((G.GHA / name / "manifest.json").read_text())
     head = G.sh("git", "rev-parse", "HEAD")
@@ -294,7 +297,7 @@ if __name__ == "__main__":
         p7_check(sys.argv[2])
     elif cmd == ["det-compare"]:
         det_compare(sys.argv[2], sys.argv[3])
-    elif cmd == ["publish"] and sys.argv[2:3] and sys.argv[2].split("-")[0] in V3_BUILDERS:
+    elif cmd == ["publish"] and sys.argv[2:3] and sys.argv[2].split("-")[0] in RUN3_PREFIXES:
         raise SystemExit("a run 3 campaign is published with publish3: the frozen publish would run it on the old runner; refused")
     else:
         G.main()
