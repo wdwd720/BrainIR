@@ -31,18 +31,13 @@ Run 1 is closed (handoff `HANDOFF_1.md`); its locks (prereg v1, predictions v1, 
 - [x] Stage 2: predictions v2 LOCKED LOCALLY (LOCK_predictions_v2.json 2664143f..., tag ledger-predictions-v2, OTS):
       B1r, B2r, B4v2; B3, B6 not locked (G3 v2 fails). NO PUSH of ledger/v1 until LOCK_labels_v2 exists (pre-push hook refuses).
 - [x] Code locks: LOCK_labelcode_v2 (31f0d6b6...), LOCK_scoring_v2 (f116914a...), 00:04 UTC, pushed + OTS (44cb024).
-- [x] Stage 3 collection COMPLETE 18:23 PST: 62 sessions (all success; 1 breach: search-bydriverline-r2, leads dropped);
-      searches stopped after round 2 (9.6 % < 10 %); finalize: 416 records, kappa 0.932 (422 pairs); v1_vs_v2 done; home paths
-      redacted; committed locally (a04519e). Movies: metadata-only inventory (download needs an account).
-- [~] Label review RUNNING (fresh blind agent -> ~/ledger_rooms_review_labels2/REVIEW_labels_v2.md; copy to reviews_v2/ as a NEW
-      file). If 'usable' / 'usable with caveats': `git add -f` anything ignored; `lock2.py labels` (refuses if it exists);
-      commit; tag `ledger-labels-v2`; then push ledger/v1 and tags ledger-predictions-v2 + ledger-labels-v2 (hook allows once
-      LOCK_labels_v2 is in HEAD); OTS. Then verification: `labels2_collect.py verify-sample` -> enqueue
-      labels_v2/verify/specs/verify-01.json (restart the scheduler with nohup if it exited) -> `labels2_audit.py --verify` ->
-      `verify-score` -> redact home paths in labels_v2/verify -> commit. Then gate run 1 (`gate_v2.py`, clean tree) -> commit
-      -> fresh reviewer writes reviews_v2/GATE_CHECKLIST.md (one line `Verdict: confirmed`) -> commit -> gate run 2.
-      If all hold: UNBLIND.json (one entry per run) -> score_v2 P, then S-a, S-b, S-c -> RESULTS_1.md -> tag ledger-scorecard-v1.
-      If any fails: stop without unblinding; RESULTS_1.md says so.
+- [x] Stage 3 collection complete (62 sessions, 1 breach excluded; 416 final records; kappa 0.932); label review 'usable
+      with caveats'; LOCK_labels_v2 (4ac03e48...), tag ledger-labels-v2, pushed with ledger-predictions-v2, OTS; verification
+      1/30 (3.3 %).
+- [x] Stage 4: gate run 1 and run 2: all six conditions hold (identical); UNBLIND.json; runs P, S-a, S-b, S-c once each;
+      independent recomputation identical; RESULTS_1.md (verdict: the model does not predict; AUROC 0.577, 0.417-0.724,
+      p 0.18, 39 types); tag ledger-scorecard-v1; OTS. Final baseline and all locks verified (gates_v2/BASELINE_v2_final.json).
+- [x] HANDOFF_2.md written. RUN 2 DONE. After unblinding nothing moves (no label, model or scoring-rule change in this run).
 - Quota: 40 % at 13:51 (run 2 start ~34 %). Helper agents are expensive (~0.5-1 % each): keep them few.
 - [ ] Stage 2 (after freeze): G3 v2 incl. DNg100-only calibration BEFORE the first label session; tuner v2 K on DNg100
       (MANC + MaleCNS); tuner regression (K off = B1 on 30 types x 16 seeds); B1r, B2r, B3 (B6 only if budget); B4 v2
