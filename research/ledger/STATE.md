@@ -13,14 +13,14 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
       ledger 133). Trust gate run 3 PASSED (100/100, gates_v3/TRUST_GATE_v3.json). Diagnosis: no build error (active MNs match);
       tolerance not the cause (diag_v3/TOLERANCE_DIAG.json); coupling difference = phase only (LOG L70, L72). Outcome-location
       list: reviews_v3/HL_OUTCOME_LOCATIONS.md (29 locations, none opened).
-- [~] Stage 1: unit list (43), motor map v1, PREREG_v3.md (full draft), scoring_h1 + tests, prediction code (typescreen_v3,
-      jobs_v3, groups_h1, predict_h1, gha3 builders with freeze guard, gha_runner3 + ledger-gha3.yml), lock3.py, e2e test: DONE.
-      RUNNING: P7 pipeline test on GitHub (campaign p7-run3, tag gha3-run-p7-run3) -> `gha3.py collect3 p7-run3` then
-      `gha3.py p7-check p7-run3` and `predict_h1.py p7 --campaign p7-run3 --out <scratch>`; motor-map reviewer (fresh agent ->
-      reviews_v3/MOTOR_MAP_REVIEW.md); rulebook auditor (fresh agent -> reviews_v3/PREREG_AUDIT.md). THEN: fix findings, LOG
-      pre-mortem, commit, `lock3.py prereg`, commit lock, tag ledger-prereg-v3, push branch + tag, OTS stamp.
-      Label code (labels3_*, gate_h1, kit_v3) is excluded from the prereg lock (bound later by LOCK_labelcode_h1).
-- [ ] Stage 2 (after freeze): H-M, H-D, H-S, H-C, sensitivity groups; gates; LOCK_predictions_h1 (local until labels lock).
+- [x] Stage 1: FROZEN 02:23 PST. Tag ledger-prereg-v3 = a175625 (pushed). LOCK_prereg_v3 8c674fd0..., LOCK_labelcode_h1 c4437386...
+      (both verified in a clean worktree). OTS pending (upgrade later). Audit + re-check resolved (reviews_v3/).
+- [~] Stage 2: campaigns published (data/cache/ledger_logs/publish_all_run3.log): hm-run3, hmdet-run3, hc-<k>-run3 (k 101-105,
+      201-205), hsens-run3, hd-run3, r4-run3, r3-<k>-run3 (k 51 52 53 101 102 103 201 202 203). H-S computing locally
+      (predict_h1.py hs). NEXT: collect3 hm-run3 -> predict_h1.py hm -> det-compare hmdet-run3 hm-run3 -> P9 gates -> Stage 2
+      reviewer (brief in scratch) -> commit predictions LOCALLY (never push until LOCK_labels_h1) -> lock3.py predictions -> tag
+      ledger-predictions-h1 (local) -> OTS -> THEN label sessions (labels3_rooms.py enqueue specs + schedule).
+      RULE: after the first prediction commit, NO PUSH until the labels lock; publish3 re-runs tag origin (works without push).
 - [ ] Stage 3: kit_v3, canary, downloads, readers x2 per source, Cheong coder, searches, assembly, review, LOCK_labels_h1.
 - [ ] Stage 4: reliability R1-R4 -> LOCK_reliability_v1, tag ledger-reliability-v1.
 - [ ] Stage 5: gate -> unblind once or stop; RESULTS_2.md; tag ledger-scorecard-h1.
