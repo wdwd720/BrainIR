@@ -1,0 +1,22 @@
+{
+ "what": "Atlas-movie inventory (RUN2_PROMPT section 7 'Movies'), Cande et al. 2018, Dryad doi:10.5061/dryad.fr89c0c",
+ "utc": "2026-11-21T02:20:55Z",
+ "status": "metadata only: the archive could not be downloaded",
+ "archive_from_public_listing": {
+  "listing": "https://datadryad.org/api/v2/versions/16720/files",
+  "path": "opto_movies.zip",
+  "bytes": 2206557352,
+  "mime_type": "application/zip",
+  "md5": "b8f3181ed02a4fc409302919da088a29"
+ },
+ "download_attempts": {
+  "https://datadryad.org/api/v2/files/57625/download": "HTTP 401 Unauthorized (the API now requires an account token)",
+  "https://datadryad.org/stash/downloads/file_stream/57625": "HTTP 301 -> /downloads/file_stream/57625 -> HTTP 403 to scripted clients"
+ },
+ "not_done": "number of clips, mapping of file names to driver lines, resolution, frame rate, codec: these need the archive; creating an account is not allowed in run 2 and bot protection is not bypassed",
+ "no_analysis": "no frame was decoded or viewed (none was available)",
+ "tools": {
+  "script": "ledger/scripts/movies_inventory.py (stopped at the download)",
+  "pyav": "15.1.0 (14.4.0 has no wheel for this machine)"
+ }
+}

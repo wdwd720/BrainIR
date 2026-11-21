@@ -1,0 +1,29 @@
+# Session atlas-codeB, pass1: notes
+
+## What I did
+- Read PROTOCOL.md (v2, including section 8), record_schema.json, atlas_line_ids.csv (120 line IDs) and assigned_sources.csv (one source).
+- Source: Cande et al. 2018, eLife, doi 10.7554/elife.34275. I used only the local copy in `sources/10_7554_elife_34275/`. I read the full text (text.txt) and looked at all 11 figure images (Fig. 1–6 and their supplements) and all 43 page images of Figure 2—source data 1 ("Figure S5", the line-by-line analysis). That PDF has no text layer, so I read it page by page from the images. I also grepped the full-text XML for line IDs and for "headless/decapitat/tethered" and found no matches for the latter.
+- No web access was used. No model, simulation, BrainIR output, Pugliese or Sapkal material was opened. **No score sightings**, so there is no `sightings.csv`, and `saw_simulation_score` = false on every record.
+
+## Coverage
+- Figure S5 shows exactly 119 lines. This matches the text ("119 of the 130 (90%) descending neuron lines" had a significant phenotype). SS02635 is not in S5; it appears in Fig. 2A–C and the Results text. 119 + SS02635 = the 120 IDs in atlas_line_ids.csv. Every listed ID got exactly one record, and I found no line IDs in the figures or source data beyond the list (the Fig. 6A labels JRC_SS01052 and JRC_SS01059 are listed lines).
+- **Lines not coded:** the paper screened 130 lines. The roughly 10 lines without a significant phenotype are never identified by ID in the text, figures or S5, so I could not write their "no visible effect" records (no locator or quote). Fig. 4A says 13 lines had 0 activated regions, while the text says 11 of 130 had none. This is an internal inconsistency in the paper.
+- **Preparation:** every experiment uses intact, freely walking, solitary males in a 3 cm arena ("we assayed only males"). There are no headless or tethered tests, so each line has one `intact_free` record.
+
+## How labels were coded (please review)
+- Per-line evidence is almost entirely graphical. Each S5 panel has an inset marking the map region(s) whose density rose significantly in the first 3 s of light. I placed each region on the human-curated map in Fig. 1C: anterior grooming at the top, anterior (foreleg) movements upper-left/left, still/slow upper-right, wings and abdomen in the centre, and locomotion along the bottom (slow on the left, fast on the right). Quotes for these records are the panel's printed label (e.g. "SS01571 (9mW/cM²)", including the typo "9wM" for SS01066). Locators give the S5 page.
+- Locomotion region → `forward_walking`, all legs `yes`, confidence at most `medium` (postural-map classification, no leg tracking). The map does **not** resolve walking direction, so "forward" is an assumption. I used `effect_on_walking` = `speeds` when the region lies in the fast (bottom-right) part and `not_assessed` for central, slow or broad locomotion regions.
+- Anterior-movements region → `landing_or_extension` (reaching), legs `unclear`, because the map cannot show whether foreleg movement is rhythmic. The exception is SS01049, where the text says "anterior reaching": front leg coded `no` (single movement, PROTOCOL §3).
+- Anterior grooming → front `yes`, middle/hind `unclear`. Still/slow → all `no`, `halting`, `stops`. Central wings/abdomen region → legs `not_assessed`, category `other`.
+- Regions straddling the anterior-movements and slow-locomotion areas (SS02634, SS05107, SS05108, SS01064, SS01057, SS01553, SS01590, SS02534) were coded `forward_walking` + secondary `landing_or_extension`, legs `unclear`, confidence `low`. Tiny or border regions where I could not assign a class (SS02396, SS01575, SS01597, SS01564, SS01053, SS01588) were coded `other`, legs `unclear`, confidence `low`. For SS01564 the region is too small to see in the rendered inset.
+- Several "fast locomotion" calls rest on small regions at the right edge, lower-middle. I supported them with the experimental 0–3 s density maps, which show bottom-right hotspots.
+- SS01540: text reports repeated run-then-pause bouts. Coded `halting` (dominant region) with legs `yes` because repeated running is reported. This departs from the pure-stopping convention, and the reason is in the record notes.
+- Stimulation: panels labelled "(9 mW/cM²)" are coded as the re-screen condition (9 mW/cm², 0.4 mM retinal); all others as the initial 4.5–5 mW/cm² screen. The legend says 617 nm and Methods says 627 nm, so I wrote "617-627 nm". The intensity for SS02635 is not stated.
+- `n_flies` = 6 experimental flies per line (plus 6 no-retinal controls). `expression` = unknown and `line_specificity` = unknown unless noted.
+
+## Blinding
+- The paper itself prints DN type names next to some line IDs: S5 panel headings, Fig. 2/4 legends and the Results text for SS02635, SS01602, SS01540, SS02542, SS01049 and SS01052/SS01059 via Fig. 6A. I could not avoid seeing them, but I did not use them for coding. I left them out of locators and quotes, and I used Fig. 6 (which is organised by type) only for the general layout of the map. `name_in_paper` is the line ID throughout.
+- S5 headings show that 10 lines target two DN types: SS02384, SS01572, SS01552, SS01570, SS01569, SS01576, SS01068, SS02379, SS02534, SS01549. The text says the same for SS02635. These are marked `line_specificity` = `multi_dn` with a placeholder in `other_cell_types` ("second DN type ... withheld for blinding"). Following my instructions there is one record per line, not one per type. The type-mapping script should split them.
+
+## Not accessed
+- The 22 supplementary videos and the Dryad video dataset (doi 10.5061/dryad.fr89c0c) were not downloaded and were not needed for this coding. The three peer-review sub-articles were left out of text.txt; the XML grep found no line-specific data in them.
