@@ -16,7 +16,10 @@ LABEL_SIDE = ["ledger/scripts/labels3_*.py", "ledger/scripts/gate_h1.py", "ledge
 FORBIDDEN = re.compile(r"predictions(_h1|_v2)?[/\\\"']|LOCK_predictions|predicted\.csv|data/ledger/arms|scoring_h1|score_h1", re.I)
 # lines that name a prediction location in order to deny it (deny rules, planted canary files), never to read it
 ALLOWED = {("ledger/scripts/labels2_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),'),
-           ("ledger/scripts/labels3_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),')}
+           ("ledger/scripts/labels3_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),'),
+           # the gate's condition 1 runs the lock checker on every lock (it hashes files without parsing them; PREREG v3 S5.1)
+           ("ledger/scripts/gate_h1.py",
+            'LOCKS_H1 = ("LOCK_prereg_v3.json", "LOCK_labelcode_h1.json", "LOCK_predictions_h1.json", "LOCK_labels_h1.json")')}
 
 
 def label_side_files() -> list[Path]:
