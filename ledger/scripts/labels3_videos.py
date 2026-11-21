@@ -4,8 +4,8 @@ T1). No language model in the loop, and the orchestrator does not look at the ou
 For each source folder made by the mechanical downloader (`labels2_download.py`, which never downloads videos but lists them in
 `meta.json` `skipped`), this script downloads each distinct supplementary video once (preferring .mp4; only from the PMC open-access
 bucket or the eLife CDN), samples 24 frames evenly over its duration, and writes `videos/<stem>_montage_<k>.png` (2 images of 12
-frames, 4 x 3 tiles, frame time stamped on each tile) plus `videos/<stem>_legend.txt` (the video's label and caption from the
-article XML, verbatim) into the source folder. The video file itself is deleted after the montage is made.
+frames, 4 x 3 tiles), `videos/<stem>_frames.txt` (the time of every tile) and `videos/<stem>_legend.txt` (the video's label and
+caption from the article XML, verbatim) into the source folder. The video file itself is deleted after the montage is made.
 
     uv run --project ledger --no-sync python ledger/scripts/labels3_videos.py data/ledger/sources_h1/<slug> [...]
 """
@@ -92,8 +92,7 @@ def montage(video: Path, outdir: Path, stem: str) -> list[str]:
         frames = []
         for i, t in enumerate(times):
             f = Path(td) / f"f{i:02d}.png"
-            subprocess.run([FFMPEG, "-v", "error", "-ss", f"{t:.3f}", "-i", str(video), "-frames:v", "1", "-vf",
-                            f"scale=480:-2,drawtext=text='t={t:.1f}s':x=8:y=8:fontsize=22:fontcolor=yellow:box=1:boxcolor=black@0.6",
+            subprocess.run([FFMPEG, "-v", "error", "-ss", f"{t:.3f}", "-i", str(video), "-frames:v", "1", "-vf", "scale=480:-2",
                             "-y", str(f)], check=True, capture_output=True)
             frames.append(f)
         for k in range(0, N_FRAMES, PER_IMAGE):
@@ -104,6 +103,10 @@ def montage(video: Path, outdir: Path, stem: str) -> list[str]:
             subprocess.run([FFMPEG, "-v", "error", "-f", "concat", "-safe", "0", "-i", str(lst), "-vf", f"tile={COLS}x{rows}:padding=4",
                             "-frames:v", "1", "-y", str(out)], check=True, capture_output=True)
             made.append(out.name)
+    lines = [f"{stem}: {N_FRAMES} frames sampled evenly over {dur:.1f} s; tiles in time order, left to right, top to bottom"]
+    for k in range(0, N_FRAMES, PER_IMAGE):
+        lines.append(f"{stem}_montage_{k // PER_IMAGE + 1}.png: t = " + ", ".join(f"{x:.1f}" for x in times[k:k + PER_IMAGE]) + " s")
+    (outdir / f"{stem}_frames.txt").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return made
 
 

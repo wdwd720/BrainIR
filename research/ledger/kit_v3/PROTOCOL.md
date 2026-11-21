@@ -79,8 +79,8 @@ the driver covers or misses), `d1` ... `d15`, `locator` (figure, table, video, s
 
 Your assigned sources are already downloaded into `sources/<slug>/`: `text.txt` (full text with figure and table legends),
 `figures/` (figure images), `supp/` (supplementary tables as text or CSV), `pages/` (page images of PDFs), `videos/` (frame
-montages of supplementary videos: each `<video>_montage_<k>.png` shows frames in time order, left to right and top to bottom, with
-timestamps; the legend is in `<video>_legend.txt`), `meta.json`. Read the text, then figures, legends, tables and video montages as
+montages of supplementary videos: each `<video>_montage_<k>.png` shows frames in time order, left to right and top to bottom; the
+time of each frame is in `<video>_frames.txt` and the video's legend in `<video>_legend.txt`), `meta.json`. Read the text, then figures, legends, tables and video montages as
 needed. Most sessions have no web tools: if something you need is missing, say so in `out/notes.md` and in the disposition.
 
 ## 5. Things you must not do
