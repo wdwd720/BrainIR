@@ -22,9 +22,18 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
       ledger-predictions-h1 (local) -> OTS -> THEN label sessions (labels3_rooms.py enqueue specs + schedule).
       RULE: after the first prediction commit, NO PUSH until the labels lock; publish3 re-runs tag origin (works without push).
 - [ ] Stage 3: kit_v3, canary, downloads, readers x2 per source, Cheong coder, searches, assembly, review, LOCK_labels_h1.
-- [ ] Stage 4: reliability R1-R4 -> LOCK_reliability_v1, tag ledger-reliability-v1.
+- [~] Stage 4: R1 done (cross-fly 0.37; split-half 0.86/0.93), R2 done (wiring cross-fly 0.78-0.97) -> reliability_v1/R1.json, R2.json.
+      R3 (r3-<k>-run3) and R4 (r4-run3) published; after they finish: `reliability_v1.py r3` / `r4` -> LOCK_reliability_v1
+      (lock3.py reliability), tag ledger-reliability-v1 (local until labels lock: the reliability lock hashes code incl. predictions? no -
+      it hashes reliability_v1/** + code; but HEAD will hold predictions -> do not push until the labels lock).
 - [ ] Stage 5: gate -> unblind once or stop; RESULTS_2.md; tag ledger-scorecard-h1.
-- [ ] Stage 6: POSTMORTEM_1.md (exploratory). HANDOFF_3.md (<= 2,000 words, printed as final message).
+- [~] Stage 6: post-mortem delegated to a fresh agent (exam 1 only; writes results/POSTMORTEM_1.md + ledger/scripts/posthoc/postmortem_1.py).
+      HANDOFF_3.md (<= 2,000 words, printed as final message) at the end.
+- Briefs ready in the orchestrator scratchpad: stage2_reviewer_brief.md (Stage 2 reviewer RUNNING; resume it for the H-M table
+  spot-check once predicted.csv exists), label_review_brief.md, recompute_brief.md. Reporting script: ledger/scripts/posthoc/results_h1.py
+  (outside lock-hashed folders; run with `--with matplotlib==3.9.2` after unblinding).
+- CAUTION: any untracked .py directly in ledger/scripts/, ledger/src/brainir_ledger/, ledger/tests/ blocks lock3 writers (they refuse
+  untracked code); put exploratory code in ledger/scripts/posthoc/.
 
 ## Facts fixed so far
 - Full cord: 23,532 neurons; hemilineage annotation on every thoracic neuron (45 labels incl. TBD); birthtime covers 13,060 of
