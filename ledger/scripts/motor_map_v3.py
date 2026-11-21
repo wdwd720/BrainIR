@@ -33,9 +33,11 @@ MODULE = {"tibia flex": "tibia_flexor", "femur/tr flex": "femur_trochanter_flexo
 RULES = [
     (r"^DLMn", "wing_power_DLM", "indirect flight power muscle, dorsal longitudinal (wing depression)"),
     (r"^DVMn", "wing_power_DVM", "indirect flight power muscle, dorso-ventral (wing elevation)"),
-    (r"^TTMn$", "jump_TTM", "tergotrochanteral muscle (jump muscle, mesothoracic leg)"),
-    (r"^STTMm$", "leg_sternotrochanter_meso", "sternotrochanteral muscle of the middle leg (annotated in the wing subclass)"),
-    (r"^(b1|b2|b3|i1|i2|iii1|iii3|hg1|hg2|hg3|hg4|ps1|ps2|tp1|tp2|tpn) MN$", "wing_steering", "direct (steering) flight muscle"),
+    (r"^TTMn$", "jump_TTM", "tergotrochanteral muscle (the jump muscle; extends the mesothoracic leg)"),
+    (r"^STTMm$", "jump_STTM", "satellite tergotrochanter muscle MN: a second, smaller MN of the jump muscle leaving by the TTMn "
+                             "nerve, two per side (FlyBase FBbt:00053058; motor-map review, reviews_v3/MOTOR_MAP_REVIEW.md)"),
+    (r"^(b1|b2|b3|i1|i2|iii1|iii3|hg1|hg2|hg3|hg4) MN$", "wing_steering", "direct (steering) flight muscle"),
+    (r"^(ps1|ps2|tp1|tp2|tpn) MN$", "wing_tension", "direct flight muscle of the pleurosternal / tergopleural (tension) group"),
     (r"^MNwm", "wing_unassigned", "wing motor neuron without a named muscle"),
     (r"^hDVM MN$", "haltere_power", "haltere dorso-ventral muscle"),
     (r"^(hi1|hi2|hiii2) MN$", "haltere_steering", "haltere direct muscle"),
@@ -68,22 +70,21 @@ def main() -> None:
     for idx, r in mn.iterrows():
         body = BODY.get(r["subclass"], "unknown")
         act, basis = action_of(r)
-        if act == "leg_sternotrochanter_meso":
-            body = "middle_leg"
+        if act in ("jump_TTM", "jump_STTM"):
+            body = "middle_leg"  # the jump muscle (TTM) moves the middle leg; both MN types annotated in the wing subclass
         side = {"LHS": "L", "RHS": "R"}.get(str(r["somaSide"]), "mid")
         pools = []
         if body in LEG_PARTS:
             pools += ["any_body", body]
+            if act in ("jump_TTM", "jump_STTM"):
+                pools.append("jump")  # not a flexor/extensor pool member: those pools are the MANC leg motor modules only
             if act in ("tibia_flexor", "femur_trochanter_flexor"):
                 pools.append(f"{body}_flexor")
             if act in ("tibia_extensor", "femur_trochanter_extensor"):
                 pools.append(f"{body}_extensor")
         elif body == "wing":
             pools += ["any_body"]
-            if act == "jump_TTM":
-                pools.append("jump")
-            else:
-                pools.append("wing_any")
+            pools.append("wing_any")
             if act in ("wing_power_DLM", "wing_power_DVM"):
                 pools.append("wing_power")
         elif body == "haltere":
@@ -100,7 +101,12 @@ def main() -> None:
     summ = {"n_motor_neurons": len(df), "by_body_part": df["body_part"].value_counts().to_dict(),
             "by_action": df["action"].value_counts().to_dict(),
             "pool_sizes": {p: int(df["pools"].str.split(";").apply(lambda x: p in x).sum()) for p in pools},
-            "excluded_from_every_pool": df.loc[df["pools"] == "", "body_part"].value_counts().to_dict()}
+            "excluded_from_every_pool": df.loc[df["pools"] == "", "body_part"].value_counts().to_dict(),
+            "notes": ["segment and side are the soma's: correct for every leg MN (the per-leg pools use them); wing, haltere and "
+                      "abdominal pools use neither",
+                      "neck MNs feed no pool (the preparation has no head); the 6 'xm' MNs feed no pool (no body part annotated)",
+                      "middle and hind legs have MNs without a motor module (24 and 38): in their leg pools, in no flexor/extensor pool",
+                      "abdomen pool = every abdominal-subclass MN, including those of the terminal segments"]}
     (OUT / "MOTOR_MAP_v1.json").write_text(json.dumps(summ, indent=1) + "\n", encoding="utf-8", newline="\n")
     print(json.dumps(summ, indent=1))
 

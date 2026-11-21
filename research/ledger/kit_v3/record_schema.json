@@ -1,0 +1,246 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "title": "kit v3 record (one hemilineage activation experiment)",
+ "type": "object",
+ "additionalProperties": false,
+ "required": [
+  "record_id",
+  "session",
+  "doi",
+  "hemilineage_as_named",
+  "hemilineages_listed",
+  "driver",
+  "record_type",
+  "preparation",
+  "preparation_detail",
+  "effector",
+  "penetrance",
+  "coverage_notes",
+  "d1",
+  "d2",
+  "d3",
+  "d4",
+  "d5",
+  "d6",
+  "d7",
+  "d8",
+  "d9",
+  "d10",
+  "d11",
+  "d12",
+  "d13",
+  "d14",
+  "d15",
+  "locator",
+  "quote",
+  "other_observation",
+  "saw_model_prediction",
+  "notes"
+ ],
+ "properties": {
+  "record_id": {
+   "type": "string",
+   "pattern": "^[A-Za-z0-9_.-]+-[0-9]{4}$"
+  },
+  "session": {
+   "type": "string",
+   "minLength": 1
+  },
+  "doi": {
+   "type": "string",
+   "minLength": 6
+  },
+  "hemilineage_as_named": {
+   "type": "string",
+   "minLength": 1
+  },
+  "hemilineages_listed": {
+   "type": "string"
+  },
+  "driver": {
+   "type": "string"
+  },
+  "record_type": {
+   "type": "string",
+   "enum": [
+    "whole_two_sided",
+    "clonal",
+    "one_sided",
+    "partial_or_mixed"
+   ]
+  },
+  "preparation": {
+   "type": "string",
+   "enum": [
+    "decapitated",
+    "intact",
+    "other"
+   ]
+  },
+  "preparation_detail": {
+   "type": "string"
+  },
+  "effector": {
+   "type": "string"
+  },
+  "penetrance": {
+   "type": "string"
+  },
+  "coverage_notes": {
+   "type": "string"
+  },
+  "d1": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d2": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d3": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d4": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d5": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d6": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d7": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d8": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d9": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d10": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d11": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d12": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d13": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d14": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "d15": {
+   "type": "string",
+   "enum": [
+    "yes",
+    "no",
+    "unclear",
+    "not_assessed"
+   ]
+  },
+  "locator": {
+   "type": "string",
+   "minLength": 3
+  },
+  "quote": {
+   "type": "string",
+   "minLength": 3,
+   "description": "verbatim, at most 25 words"
+  },
+  "other_observation": {
+   "type": "string"
+  },
+  "saw_model_prediction": {
+   "type": "boolean"
+  },
+  "notes": {
+   "type": "string"
+  }
+ }
+}

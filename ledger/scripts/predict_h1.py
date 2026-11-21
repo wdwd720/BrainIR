@@ -35,6 +35,26 @@ def _sha(p: Path) -> str:
     return hashlib.sha256(p.read_bytes()).hexdigest()
 
 
+def _masks(campaign: str) -> tuple[dict, dict]:
+    """Pool masks in the motor-neuron order of the campaign's own read-out (`extras["mn"]` in its payload), so a table always
+    reads its jobs in the order they were run; provenance records whether that order is the frozen motor map's."""
+    import pickle
+    import zlib
+
+    man = json.loads((gha3.G.GHA / campaign / "manifest.json").read_text())
+    orders = {tuple(pickle.loads(zlib.decompress((gha3.G.GHA / campaign / f"payload_{k}.bin").read_bytes()))["mn"])
+              for k in man["payload_keys"]}
+    if len(orders) != 1:
+        raise SystemExit(f"{campaign}: payloads disagree on the motor-neuron order")
+    (order,) = orders
+    mm = GH.load_motor_map()
+    if sorted(order) != sorted(mm["index"].astype(int)):
+        raise SystemExit(f"{campaign}: read-out motor neurons are not the motor map's")
+    mm = mm.set_index("index").loc[list(order)].reset_index()
+    return GH.pool_masks(mm), {"mn_order_is_motor_map_order": list(order) == GH.mn_positions(GH.load_motor_map()),
+                               "mn_order_sha256": hashlib.sha256(json.dumps(list(order)).encode()).hexdigest()}
+
+
 def _results(campaign: str) -> tuple[dict[str, dict], dict]:
     man = json.loads((gha3.G.GHA / campaign / "manifest.json").read_text())
     p = data_dir() / man["area"] / f"GHA_{campaign}" / "results.pkl"
@@ -80,8 +100,10 @@ def _strict(res_arm: dict[str, list[dict]], units, n_members, n_seeds) -> None:
 def cmd_hm(a) -> None:
     gha3.require_freeze("H-M tables")
     res, prov = _results(a.campaign)
+    masks, mprov = _masks(a.campaign)
+    prov = {**prov, **mprov}
     fc = N.full_cord()
-    units, masks = GH.load_units(), GH.pool_masks(GH.load_motor_map())
+    units = GH.load_units()
     groups = gha3._unit_groups(fc, "primary")
     nm = {u: len(g) for u, g in groups.items()}
     for arm, seeds in (("H-M", None), ("H-M-s0-3", set(gha3.LOW_SEEDS))):
@@ -94,8 +116,10 @@ def cmd_hm(a) -> None:
 def cmd_hd(a) -> None:
     gha3.require_freeze("H-D tables")
     res, prov = _results(a.campaign)
+    masks, mprov = _masks(a.campaign)
+    prov = {**prov, **mprov}
     fc = N.full_cord()
-    units, masks = GH.load_units(), GH.pool_masks(GH.load_motor_map())
+    units = GH.load_units()
     nm = {u: len(g) for u, g in gha3._unit_groups(fc, "primary").items()}
     by = _by_arm(res)
     for c in gha3.HD_CURRENTS:
@@ -108,8 +132,10 @@ def cmd_hd(a) -> None:
 def cmd_hc(a) -> None:
     gha3.require_freeze("H-C tables")
     res, prov = _results(a.campaign)
+    masks, mprov = _masks(a.campaign)
+    prov = {**prov, **mprov}
     fc = N.full_cord()
-    units, masks = GH.load_units(), GH.pool_masks(GH.load_motor_map())
+    units = GH.load_units()
     nm = {u: len(g) for u, g in gha3._unit_groups(fc, "primary").items()}
     by = _by_arm(res)
     if len(by) != 1:
@@ -124,8 +150,12 @@ def cmd_hsens(a) -> None:
     gha3.require_freeze("sensitivity tables")
     res, prov = _results(a.campaign)
     prim, prov_p = _results(a.primary)
+    masks, mprov = _masks(a.campaign)
+    if _masks(a.primary)[1]["mn_order_sha256"] != mprov["mn_order_sha256"]:
+        raise SystemExit("primary and sensitivity campaigns differ in motor-neuron order; refused")
+    prov = {**prov, **mprov}
     fc = N.full_cord()
-    units, masks = GH.load_units(), GH.pool_masks(GH.load_motor_map())
+    units = GH.load_units()
     plan = gha3.sens_plan(fc)
     by, byp = _by_arm(res), _by_arm(prim, set(gha3.LOW_SEEDS))["H-M"]
     for v in GH.SENS_VARIANTS:
@@ -155,8 +185,9 @@ def cmd_hs(a) -> None:
 def cmd_p7(a) -> None:
     """Pipeline test only (allowed groups): the same tables for the P7 groups, written outside the predictions folder."""
     res, prov = _results(a.campaign)
+    masks, mprov = _masks(a.campaign)
+    prov = {**prov, **mprov}
     fc = N.full_cord()
-    masks = GH.pool_masks(GH.load_motor_map())
     groups = gha3.p7_groups(fc.table)
     by: dict[str, list[dict]] = defaultdict(list)
     for k, r in res.items():

@@ -160,7 +160,21 @@ def build_hc(k=None):
     return [({**shared, "W": Wc}, jobs)], "arms_h1"
 
 
-V3_BUILDERS = {"p7": build_p7, "hm": build_hm, "hd": build_hd, "hsens": build_hsens, "hc": build_hc}
+DET_RNG_SEED = 20261312
+DET_N = 50
+
+
+def build_hmdet(k=None):
+    """PREREG v3 P9.3: 50 H-M jobs drawn with default_rng(20261312) from the sorted H-M keys, re-run as a separate campaign (same
+    keys, same specs); `det-compare` checks that every `digest_v3` is identical."""
+    require_freeze("H-M determinism sample")
+    (shared, jobs), area = build_hm()[0][0], "arms_h1"
+    keys = sorted(j["key"] for j in jobs)
+    pick = set(np.random.default_rng(DET_RNG_SEED).choice(keys, DET_N, replace=False).tolist())
+    return [(shared, [j for j in jobs if j["key"] in pick])], area
+
+
+V3_BUILDERS = {"p7": build_p7, "hm": build_hm, "hd": build_hd, "hsens": build_hsens, "hc": build_hc, "hmdet": build_hmdet}
 G.BUILDERS.update(V3_BUILDERS)
 
 
@@ -223,6 +237,19 @@ def p7_check(name: str) -> dict:
     return out
 
 
+def det_compare(name: str, against: str) -> dict:
+    """P9.3: every job of the re-run campaign `name` has the same `digest_v3` as in campaign `against`."""
+    a, b = results(against), results(name)
+    man = json.loads((G.GHA / name / "manifest.json").read_text())
+    same = [k for k in man["keys"] if k in a and k in b and a[k].get("digest_v3") == b[k].get("digest_v3") and a[k].get("digest_v3")]
+    out = {"campaign": name, "against": against, "n": len(man["keys"]), "identical": len(same),
+           "different_or_missing": sorted(set(man["keys"]) - set(same)), "verdict": "identical" if len(same) == len(man["keys"]) else "fail"}
+    GATES3.mkdir(parents=True, exist_ok=True)
+    (GATES3 / f"DETERMINISM_{name}.json").write_text(json.dumps(out, indent=1) + "\n", encoding="utf-8", newline="\n")
+    print(json.dumps(out))
+    return out
+
+
 def trust_compare(name: str) -> dict:
     """The run-2 trust comparison (`gha.trust_compare`) for a campaign of another name: every re-run job's digest against the
     locked run-1 result it reproduces."""
@@ -265,6 +292,8 @@ if __name__ == "__main__":
         collect3(sys.argv[2], "--wait" in sys.argv)
     elif cmd == ["p7-check"]:
         p7_check(sys.argv[2])
+    elif cmd == ["det-compare"]:
+        det_compare(sys.argv[2], sys.argv[3])
     elif cmd == ["publish"] and sys.argv[2:3] and sys.argv[2].split("-")[0] in V3_BUILDERS:
         raise SystemExit("a run 3 campaign is published with publish3: the frozen publish would run it on the old runner; refused")
     else:

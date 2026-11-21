@@ -61,8 +61,9 @@ def lock_prereg() -> None:
     rec["gates_v3_at_freeze"] = _section((RES / "gates_v3").glob("*"))
     rec["reviews_v3_at_freeze"] = _section((RES / "reviews_v3").glob("*"))
     rec["earlier_locks"] = _chain(*EARLIER)
-    rec["code"] = _code(CODE_GLOBS)  # binding: every ledger code file at the freeze (prediction side, scoring h1, harness)
-    rec["code_scope"] = "every git-tracked file matching lock2.CODE_GLOBS at the freeze; binding (lock2.check)"
+    rec["code"] = _code(CODE_GLOBS, LABEL_CODE_H1)  # binding: prediction side, scoring h1, harness, tools (label code: labelcode_h1)
+    rec["code_scope"] = ("every git-tracked file matching lock2.CODE_GLOBS at the freeze except run 3's label code (LABEL_CODE_H1, "
+                         "bound by LOCK_labelcode_h1.json); binding (lock2.check)")
     L2.write("LOCK_prereg_v3.json", rec)
 
 

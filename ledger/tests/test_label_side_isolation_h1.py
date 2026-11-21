@@ -15,7 +15,8 @@ LABEL_SIDE = ["ledger/scripts/labels3_*.py", "ledger/scripts/gate_h1.py", "ledge
               "ledger/src/brainir_ledger/labels/*.py"]
 FORBIDDEN = re.compile(r"predictions(_h1|_v2)?[/\\\"']|LOCK_predictions|predicted\.csv|data/ledger/arms|scoring_h1|score_h1", re.I)
 # lines that name a prediction location in order to deny it (deny rules, planted canary files), never to read it
-ALLOWED = {("ledger/scripts/labels2_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),')}
+ALLOWED = {("ledger/scripts/labels2_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),'),
+           ("ledger/scripts/labels3_canary.py", '"planted_fake_predictions": str(BASE / "planted" / "predictions_FAKE.csv"),')}
 
 
 def label_side_files() -> list[Path]:

@@ -9,13 +9,17 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
   first (<= 300 runner-hours), Mac second. Push branch + tags only; no force push. After unblinding nothing moves.
 
 ## Checklist
-- [~] Stage 0: caffeinate (running); RUN3_PROMPT saved; tree clean, 9 locks verify, baseline identical (532 + arm64 failure;
-      ledger 133). Trust gate run 3 on GitHub (campaign trust-run3) RUNNING. Diagnosis (DNg100 only): active leg MNs match the
-      authors (r 0.98, same medians, no MN differs by >= 0.25) -> no build error; tolerance experiment RUNNING
-      (diag_v3/TOLERANCE_DIAG.json). Repo search for hemilineage outcomes: subagent RUNNING (locations only ->
-      ~/ledger_rooms_hl_search/LOCATIONS.md).
-- [ ] Stage 1: motor map (annotations) + fresh review; PREREG_v3.md; scoring h1 + synthetic tests + UNBLIND_h1 flag + label-side
-      no-prediction test; gate copy; fresh audit; freeze, tag ledger-prereg-v3, push, OTS.
+- [x] Stage 0: caffeinate (running); RUN3_PROMPT saved; tree clean, 9 locks verify, baseline identical (532 + arm64 failure;
+      ledger 133). Trust gate run 3 PASSED (100/100, gates_v3/TRUST_GATE_v3.json). Diagnosis: no build error (active MNs match);
+      tolerance not the cause (diag_v3/TOLERANCE_DIAG.json); coupling difference = phase only (LOG L70, L72). Outcome-location
+      list: reviews_v3/HL_OUTCOME_LOCATIONS.md (29 locations, none opened).
+- [~] Stage 1: unit list (43), motor map v1, PREREG_v3.md (full draft), scoring_h1 + tests, prediction code (typescreen_v3,
+      jobs_v3, groups_h1, predict_h1, gha3 builders with freeze guard, gha_runner3 + ledger-gha3.yml), lock3.py, e2e test: DONE.
+      RUNNING: P7 pipeline test on GitHub (campaign p7-run3, tag gha3-run-p7-run3) -> `gha3.py collect3 p7-run3` then
+      `gha3.py p7-check p7-run3` and `predict_h1.py p7 --campaign p7-run3 --out <scratch>`; motor-map reviewer (fresh agent ->
+      reviews_v3/MOTOR_MAP_REVIEW.md); rulebook auditor (fresh agent -> reviews_v3/PREREG_AUDIT.md). THEN: fix findings, LOG
+      pre-mortem, commit, `lock3.py prereg`, commit lock, tag ledger-prereg-v3, push branch + tag, OTS stamp.
+      Label code (labels3_*, gate_h1, kit_v3) is excluded from the prereg lock (bound later by LOCK_labelcode_h1).
 - [ ] Stage 2 (after freeze): H-M, H-D, H-S, H-C, sensitivity groups; gates; LOCK_predictions_h1 (local until labels lock).
 - [ ] Stage 3: kit_v3, canary, downloads, readers x2 per source, Cheong coder, searches, assembly, review, LOCK_labels_h1.
 - [ ] Stage 4: reliability R1-R4 -> LOCK_reliability_v1, tag ledger-reliability-v1.
@@ -27,4 +31,5 @@ Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
   13,064 thoracic hemilineage neurons (postembryonic = secondary + early_secondary); 732 MNs (fl 141, ml 119, hl 131, wm 66,
   hm 16, ad 229, nm 24, xm 6), leg MN motor modules annotated.
 - Linearised model at the model's coupling constant: spectral radius 34 -> no steady state (H-S linear baseline undefined).
+- Controls on the full cord build in seconds (class shuffle 0.3 s, rewire 12 s; 13.3 M of 13.7 M swaps).
 - Quota 59 % at run 3 start (resets 2026-11-25 17:00 PST): be frugal with helper agents.

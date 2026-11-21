@@ -4,8 +4,8 @@
   "abdomen": 229,
   "front_leg": 141,
   "hind_leg": 131,
-  "middle_leg": 123,
-  "wing": 62,
+  "middle_leg": 125,
+  "wing": 60,
   "neck": 24,
   "haltere": 16,
   "unknown": 6
@@ -18,18 +18,19 @@
   "substrate_grip": 47,
   "coxa_stance": 38,
   "femur_trochanter_extensor": 38,
-  "wing_steering": 32,
   "coxa_swing": 26,
   "neck": 24,
   "femur_reductor": 22,
+  "wing_steering": 22,
   "tarsus_control": 15,
   "wing_power_DVM": 14,
   "tibia_extensor": 12,
   "wing_power_DLM": 10,
+  "wing_tension": 10,
   "haltere_steering": 8,
   "haltere_unassigned": 6,
   "unknown": 6,
-  "leg_sternotrochanter_meso": 4,
+  "jump_STTM": 4,
   "wing_unassigned": 4,
   "haltere_power": 2,
   "jump_TTM": 2
@@ -44,8 +45,8 @@
   "hind_leg": 131,
   "hind_leg_extensor": 16,
   "hind_leg_flexor": 39,
-  "jump": 2,
-  "middle_leg": 123,
+  "jump": 6,
+  "middle_leg": 125,
   "middle_leg_extensor": 14,
   "middle_leg_flexor": 41,
   "wing_any": 60,
@@ -54,5 +55,11 @@
  "excluded_from_every_pool": {
   "neck": 24,
   "unknown": 6
- }
+ },
+ "notes": [
+  "segment and side are the soma's: correct for every leg MN (the per-leg pools use them); wing, haltere and abdominal pools use neither",
+  "neck MNs feed no pool (the preparation has no head); the 6 'xm' MNs feed no pool (no body part annotated)",
+  "middle and hind legs have MNs without a motor module (24 and 38): in their leg pools, in no flexor/extensor pool",
+  "abdomen pool = every abdominal-subclass MN, including those of the terminal segments"
+ ]
 }
