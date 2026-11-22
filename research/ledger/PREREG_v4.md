@@ -356,7 +356,9 @@ rules apply. This branch is described here so that it is fixed; it is run only i
 8. **All network-level fixes together** that apply to both flies, in this order: 7, 4, 5b, 6 (floors excluded: MaleCNS).
 
 **C3. Combined.** 9 = the passing procedure-level fix with the highest specific reproducibility together with the passing network-level
-fix with the highest specific reproducibility. Not run if either list has no passing fix.
+fix with the highest specific reproducibility (ties: the lower fix number). Not run if either list has no passing fix. Its runs
+are C5's with the network fix applied and then the procedure fix (fix 1: the 19-current grid sweeps on the fixed network; fix 2:
+the pooled score of the screens on the fixed network, traces stored), at its own DNg100 gain (C4).
 
 **C4. Gain (DNg100 only).** Every fix is first run on the DNg100 pair (whole type, G1's whole-type variant; for fix 1 its best
 in-bounds score over the grid; for fix 2 its pooled score), seeds 0..15, on both flies, at gain 1 (all synaptic weights times g). It
