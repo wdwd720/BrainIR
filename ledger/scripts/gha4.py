@@ -154,11 +154,43 @@ def type_sets() -> dict:
     return json.loads(TYPE_SETS.read_text())
 
 
+ANALYSED_X9 = REL2 / "ANALYSED_SET_X9.json"
+
+
 def analysed_set() -> dict:
+    """G9's analysed set. Once X9's first cut is written (`x9-cut`: the random part cut to 25 types; LOG L122, amendment 4), the cut
+    set, for every builder and every Part B/C analysis from then on (G9: the same set for every block and fix)."""
+    if ANALYSED_X9.is_file():
+        return json.loads(ANALYSED_X9.read_text())
     p = REL2 / "ANALYSED_SET.json"
     if not p.is_file():
         raise SystemExit("reliability_v2/ANALYSED_SET.json missing: run the Part A analysis first (G9)")
     return json.loads(p.read_text())
+
+
+def x9_cut(n: int = 25) -> dict:
+    """PREREG v4 X9, first step of the cut order: the analysed set's random part cut to `n` types, drawn as G9 draws its sample
+    (`default_rng(20261402)` over the sorted remaining types matched in both flies, without replacement). G9's random part holds all
+    41 remaining types (fewer than 50 exist), so the draw is over that list. Written once to reliability_v2/ANALYSED_SET_X9.json."""
+    full = json.loads((REL2 / "ANALYSED_SET.json").read_text())
+    rest = sorted(full["random_extra"])
+    rng = np.random.default_rng(20261402)
+    keep = sorted(rng.choice(rest, size=min(n, len(rest)), replace=False).tolist())
+    ana = sorted(set(full["informative"]) | set(keep))
+    ts = type_sets()
+    out = {"rule": "PREREG v4 X9 first step: the analysed set's random part cut to 25 types, drawn with default_rng(20261402) from the "
+                   "sorted remaining types matched in both flies (G9's draw with 25 in place of 50); informative set unchanged; used "
+                   "by every builder and Part B/C analysis from LOG L122 on",
+           "source": "reliability_v2/ANALYSED_SET.json", "informative": full["informative"], "random_extra": keep,
+           "random_extra_removed": sorted(set(rest) - set(keep)), "analysed": ana,
+           "n_informative": len(full["informative"]), "n_random_kept": len(keep), "n_analysed": len(ana),
+           "n_analysed_matched_MANC": len(set(ana) & set(ts["MANC"]["matched"])),
+           "n_analysed_matched_MaleCNS": len(set(ana) & set(ts["MaleCNS"]["matched"])),
+           "n_analysed_primary_MANC": len(set(ana) & set(ts["MANC"]["primary_homolog_consistent"])),
+           "n_analysed_primary_MaleCNS": len(set(ana) & set(ts["MaleCNS"]["primary_homolog_consistent"]))}
+    _write_once(ANALYSED_X9, out)
+    print(json.dumps({k: v for k, v in out.items() if not isinstance(v, list)}))
+    return out
 
 
 def part_a_results(fly: str) -> dict[tuple[str, str, int], dict]:
@@ -1070,6 +1102,8 @@ def main() -> None:
         c_gains9(*(a[:1] or []))
     elif cmd == ["type-sets"]:
         write_type_sets()
+    elif cmd == ["x9-cut"]:
+        x9_cut()
     elif cmd == ["mirror-check"]:
         mirror_check(write="--dry-run" not in a)
     else:
