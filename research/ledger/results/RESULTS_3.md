@@ -1,4 +1,4 @@
-**Cause found in part: the model is as sensitive to counting noise in synapses as to the real left-right differences.** Two copies of one network that differ only by Poisson noise in their raw synapse counts agree no better than the fly's left and right sides (0.40 against 0.37); the left-right difference sits mostly in connections that the 5-synapse floor leaves on one side only and in neurons without a partner; where the tuner lands explains at most a third; and none of the fixes tested restores reproducibility.
+**Cause found in part: Poisson-scale noise in synapse counts moves the model's predictions almost as much as the real left-right differences do.** Two copies of one network that differ only by such noise agree almost as poorly as the fly's left and right sides (0.40 against 0.37 for the pre-registered pair; over all six pairings of the four stored noise copies, a post-hoc check by the adversarial review, noise reproduces about 86 % of the gap); the left-right difference sits mostly in connections that the 5-synapse floor leaves on one side only and in neurons without a partner; where the tuner lands explains at most a third; and none of the fixes tested restores reproducibility.
 
 # Results 3 (run 4): does the simulation agree with itself across the two sides of a fly and across two flies, and why not?
 
@@ -122,8 +122,10 @@ The raw synapse counts exist for MANC only (MaleCNS is published already floored
 | two negative-binomial resamplings, dispersion measured from left-right homologous pairs (1/k = 0.027, 475,462 pairs) | 0.45 (0.35-0.55) | -0.08 (-0.21 to +0.05) |
 | floor lowered to 1, left vs right | 0.47 (ratio 0.57; closure 0.23, -0.01 to 0.44) | |
 
-**Reading.** Two copies of the same network that differ only by counting noise in their synapses disagree with each other as much as
-the left side disagrees with the right. No parameter was fitted: the Poisson model has none, and the negative-binomial dispersion comes
+**Reading.** Two copies of the same network that differ only by Poisson-scale noise in their synapse counts disagree with each other
+almost as much as the left side disagrees with the right. The adversarial review (`reviews_v4/ADVERSARIAL_REVIEW_v4.md`, post hoc)
+found the pre-registered Poisson pair to be a low draw: over all six pairings of the four stored copies, copies agree at 0.38-0.54
+(mean 0.46), so noise reproduces about 86 % of the gap (0.66-1.14), not demonstrably all of it (answer: `ADVERSARIAL_ADDENDUM_v4.md`). No parameter was fitted: the Poisson model has none, and the negative-binomial dispersion comes
 from the left-right count pairs themselves. Lowering the floor to 1 recovers about a quarter of the gap (the interval just reaches 0).
 The floors of 3 and 10 were dropped under the budget rule.
 
@@ -206,8 +208,9 @@ Exam 2 is not re-scored: it was reserved for the robust model, and no fix passed
 
 1. **The attributions are partial and their intervals wide.** Most single-intervention closures have intervals that include 0, and the
    closures of separate parts sum to 0.4-0.6 where all parts together give 1, so the classes interact and cannot be read as a
-   decomposition. The count-noise result shows that counting noise is enough to produce a gap of this size with no fitted parameter; it
-   does not show that the real left-right differences are counting noise.
+   decomposition. The count-noise result shows that Poisson-scale count noise is enough to produce most of a gap this size with no fitted
+   parameter (the pre-registered pair is a low draw; pooled over six copy pairings, about 86 %); it does not show that the real
+   left-right differences are count noise.
 2. **The mechanism results rest on MANC.** Count noise and floors need pre-floor counts, which exist only for MANC; Block 3's MaleCNS
    repeats, floors 3 and 10, fix 3b and Part D's whole-type screens were dropped under the pre-registered budget rule (X9) once the
    runner-hour projection passed 280 (five of those screens were run after the lock, when the user allowed more compute, and are

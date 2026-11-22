@@ -23,10 +23,11 @@ against right reaches **0.59** (MANC) and **0.64** (MaleCNS) of the ceiling; the
 (direct and two-hop connections onto the leg motor neurons, outputs, member counts) agree at 0.71-0.98. *Caveat:* stimulating one side and reading out that side is our procedure; result 1
 shows the gap without it.
 
-**3. Counting noise in synapses is enough to produce the gap.** Two copies of the MANC network that differ only by Poisson noise in their
-raw synapse counts (before the 5-synapse floor) agree with each other at **0.40**; the left and right sides agree at 0.37. No parameter
-was fitted. *Caveat:* this shows that counting noise suffices for a gap this large, not that the real left-right differences are
-counting noise; it is MANC only, because MaleCNS is published already floored.
+**3. Noise in synapse counts produces most of the gap.** Two copies of the MANC network that differ only by Poisson noise in their raw
+synapse counts (before the 5-synapse floor) agree with each other at **0.40**, almost as poorly as the left and right sides (0.37). No
+parameter was fitted. An adversarial check found this pre-registered pair to be a low draw: over all six pairings of the four stored
+noise copies, noise reproduces about 86 % of the gap. *Caveat:* this shows that Poisson-scale count noise (a third of the connections change between two copies) suffices for
+most of a gap this large, not that the real left-right differences are count noise; it is MANC only, because MaleCNS is published already floored.
 
 ## Why the two sides disagree, and what fixed it or did not
 
