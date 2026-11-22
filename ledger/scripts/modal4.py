@@ -36,6 +36,7 @@ CAP_USD = 15.0
 PRICE_CORE_H = 0.0473
 PRICE_GIB_H = 0.008
 MEM_GIB = 2.0
+OVERHEAD = 1.3  # real Modal cost / job-CPU-time estimate: the billing summary showed $3.06 of ephemeral apps after estimates of $2.43 (LOG L116)
 
 
 def _items(name: str) -> tuple[dict, list[tuple[str, dict]], dict]:
@@ -73,7 +74,7 @@ def run(name: str, max_containers: int = 100, budget_usd: float | None = None, s
         dest0 = data_dir() / man["area"] / f"MODAL_{name}" / "results.pkl"
         done = {r["key"] for r in read_log(dest0)} if dest0.exists() else set()
         n_todo = sum(1 for _, j in items if j["key"] not in done)
-        est = n_todo * s_per_job / 3600 * (PRICE_CORE_H + MEM_GIB * PRICE_GIB_H)
+        est = OVERHEAD * n_todo * s_per_job / 3600 * (PRICE_CORE_H + MEM_GIB * PRICE_GIB_H)
         cap = min(CAP_USD, budget_usd) if budget_usd is not None else CAP_USD
         if spent() + est > cap:
             raise SystemExit(f"estimated spend {spent():.2f} + {est:.2f} > ${cap:.2f}: refused")
@@ -98,7 +99,7 @@ def run(name: str, max_containers: int = 100, budget_usd: float | None = None, s
             n_new += 1
             cpu_s += float(r.get("job_wall_s") or 0.0)
         be.map_stream(run_job, todo, shared=payloads[pkey], sink=sink)
-    est = cpu_s / 3600 * (PRICE_CORE_H + MEM_GIB * PRICE_GIB_H)
+    est = OVERHEAD * cpu_s / 3600 * (PRICE_CORE_H + MEM_GIB * PRICE_GIB_H)
     with open(SPEND_LOG, "a") as fh:
         fh.write(json.dumps({"campaign": name, "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "new_results": n_new,
                              "job_cpu_s": round(cpu_s, 1), "est_usd": round(est, 4), "wall_s": round(time.time() - t0, 1)}) + "\n")
