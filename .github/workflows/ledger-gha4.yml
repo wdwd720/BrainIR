@@ -5,6 +5,7 @@
 # ledger/v1 only (never main, no manual trigger). Logs print progress only, never a per-type score; result files are encrypted to a
 # public key before upload (the private key never leaves the Mac). Campaign inputs (public connectome matrices and job specs, no
 # results) are the assets of the release ledgerdata-<name>; pushing the tag gha4-run-<name>[-r<n>] runs one matrix job per chunk.
+# Amendment (LOG L118): a run job's timeout is 340 minutes (run 3's copy had 170); a chunk killed by the timeout loses its results.
 name: ledger-gha4
 on:
   push:
@@ -67,7 +68,7 @@ jobs:
   run:
     needs: plan
     runs-on: ubuntu-24.04
-    timeout-minutes: 170
+    timeout-minutes: 340
     strategy:
       fail-fast: false
       max-parallel: 20
