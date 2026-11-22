@@ -41,7 +41,10 @@ def rows() -> list[dict]:
     for fix in ["unfixed", "1", "2", "3a", "3b", "4", "5a", "5b", "6", "7", "8", "9"]:
         r = c.get(fix) or {}
         if "left_right" not in r:
-            out.append({"label": FIX_LABEL[fix], "kind": "fix", "note": r.get("note", "not screened")})
+            note = str(r.get("note", "not screened"))
+            short = ("failed\ncontrol" if "DNg100" in note else "dropped\n(budget)" if ("no results" in note or "not evaluated" in note)
+                     else "not run" if "not run" in note else "not\nscreened")
+            out.append({"label": FIX_LABEL[fix], "kind": "fix", "note": note, "note_short": short})
             continue
         lr, cf = r["left_right"], r.get("cross_fly", {})
         out.append({"label": FIX_LABEL[fix], "kind": "model" if fix == "unfixed" else "fix", "passes": r.get("passes"),
@@ -58,7 +61,7 @@ def main() -> None:
 
     rs = rows()
     OUT.mkdir(parents=True, exist_ok=True)
-    fig, ax = plt.subplots(figsize=(10, 4.2))
+    fig, ax = plt.subplots(figsize=(10, 4.8))
     xs = list(range(len(rs)))
     for x, r in zip(xs, rs):
         for key, dx, color, marker in (("left_right", -0.13, "#1f77b4", "o"), ("cross_fly", 0.13, "#d62728", "s")):
@@ -69,15 +72,16 @@ def main() -> None:
             if c is not None and r["kind"] != "wiring":
                 ax.hlines(c, x + dx - 0.1, x + dx + 0.1, color=color, lw=2, zorder=2)
         if r.get("note"):
-            ax.text(x, 0.02, "not\nscreened", ha="center", va="bottom", fontsize=7, color="0.4")
+            ax.text(x, 0.02, r["note_short"], ha="center", va="bottom", fontsize=7, color="0.4")
     ax.set_xticks(xs)
     ax.set_xticklabels([r["label"] for r in rs], rotation=40, ha="right", fontsize=8)
     ax.set_ylim(0, 1.02)
+    ax.set_xlim(-0.6, len(rs) - 0.4)
     ax.set_ylabel("Spearman agreement of type scores")
     ax.plot([], [], "o", color="#1f77b4", label="left vs right (mean of two flies)")
     ax.plot([], [], "s", color="#d62728", label="MANC vs MaleCNS (same side, mean of two sides)")
     ax.hlines([], 0, 0, color="0.3", lw=2, label="matched ceiling (split-half; wiring is deterministic: 1)")
-    ax.legend(fontsize=7, loc="upper right", frameon=False)
+    ax.legend(fontsize=7, loc="upper center", bbox_to_anchor=(0.5, -0.36), ncol=3, frameon=False)
     ax.set_title("Agreement across sides and flies: wiring, the model, and each fix (primary types, seeds 0-7)", fontsize=9)
     fig.tight_layout()
     fig.savefig(OUT / "fig_agreement.png", dpi=160)
