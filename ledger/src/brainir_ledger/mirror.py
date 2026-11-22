@@ -252,9 +252,27 @@ def mirror_map(f: Fly) -> MirrorMap:
         if len(L) == 1 and len(R) == 1:
             pairs1.append((L[0], R[0]))
     prof = _profiles(f.C, np.array(pairs1, dtype=np.int64).reshape(-1, 2), side)
-    # step 0: within each stimulated type; extras are unmatched (never paired outside their type)
+    # step 0: within each stimulated type, (0a) one-left-one-right annotated groups of the type's members, then (0b) the Hungarian
+    # step on the remaining members; extras are unmatched (never paired outside their type). Re-check finding 7: 0a first, so a
+    # group-consistent pairing is used whenever the annotations give one.
     for t, (L, R) in members.items():
-        pairs = [(L[0], R[0])] if (len(L) == 1 and len(R) == 1) else _hungarian(prof, L, R)
+        if len(L) == 1 and len(R) == 1:
+            pairs = [(L[0], R[0])]
+        else:
+            pairs = []
+            grp: dict[str, tuple[list[int], list[int]]] = {}
+            for i in L:
+                if f.gid[i] is not None:
+                    grp.setdefault(f.gid[i], ([], []))[0].append(i)
+            for i in R:
+                if f.gid[i] is not None:
+                    grp.setdefault(f.gid[i], ([], []))[1].append(i)
+            used = set()
+            for g, (gl, gr) in sorted(grp.items()):
+                if len(gl) == 1 and len(gr) == 1:
+                    pairs.append((gl[0], gr[0]))
+                    used.update((gl[0], gr[0]))
+            pairs += _hungarian(prof, [i for i in L if i not in used], [i for i in R if i not in used])
         for a, b in pairs:
             m[a], m[b] = b, a
             status[a] = status[b] = "d"
@@ -387,11 +405,12 @@ def hybrid(e: Ext, em: Ext, mm: MirrorMap, classes: set[int], *, cache=None) -> 
     return Ext(C, np.where(sel_sign, em.sign, e.sign), np.where(sel_size, em.sizes, e.sizes), np.where(sel_pres, em.present, e.present))
 
 
-def columns_from(base: Ext, other: Ext, cols) -> Ext:
+def columns_from_counted(base: Ext, other: Ext, cols) -> tuple[Ext, int]:
     """B2.1: `base` with the columns `cols` (output connections), and those slots' sign, size and presence, taken from `other`; a listed
-    slot whose presence differs between the two networks also takes its row (inputs) from `other`, so that no slot is present
-    without inputs or absent with them (audit finding 2). H_own(t) = columns_from(W, M, slots); H_rest(t) = columns_from(M, W, slots);
-    every entry comes from M in exactly one of the two."""
+    slot whose presence differs between the two networks also takes its row (inputs) from `other`; then every absent slot's row and
+    column are cleared (an absent slot has no input and no output: a transplanted connection onto or from a neuron that does not exist
+    in the hybrid is dropped). Returns the hybrid and the number of entries the clearing removed (B2.5; re-check finding 5).
+    H_own(t) = columns_from(W, M, slots); H_rest(t) = columns_from(M, W, slots)."""
     cols = np.asarray(sorted(set(int(c) for c in cols)), dtype=np.int64)
     ne = base.C.shape[0]
     take_c = np.zeros(ne, bool)
@@ -404,30 +423,23 @@ def columns_from(base: Ext, other: Ext, cols) -> Ext:
     if take_r.any():
         C = (sp.diags((~take_r).astype(float)) @ C + sp.diags(take_r.astype(float)) @ other.C.tocsr()).tocsr()
     C.eliminate_zeros()
-    C.sort_indices()
     sign, sizes, pres = base.sign.copy(), base.sizes.copy(), base.present.copy()
     sign[cols], sizes[cols], pres[cols] = other.sign[cols], other.sizes[cols], other.present[cols]
-    # an absent slot has no input and no output: a transplanted connection onto (or from) a neuron that does not exist in the
-    # hybrid is dropped (B2.1; audit finding 2); `dropped_by_presence` counts them for the report
+    before = C.nnz
     C = (sp.diags(pres.astype(float)) @ C @ sp.diags(pres.astype(float))).tocsr()
     C.eliminate_zeros()
     C.sort_indices()
-    return Ext(C, sign, sizes, pres)
+    return Ext(C, sign, sizes, pres), int(before - C.nnz)
+
+
+def columns_from(base: Ext, other: Ext, cols) -> Ext:
+    """`columns_from_counted` without the count."""
+    return columns_from_counted(base, other, cols)[0]
 
 
 def dropped_by_presence(base: Ext, other: Ext, cols) -> int:
-    """Entries of `columns_from(base, other, cols)` before the absent rows and columns are cleared, minus after (B2.5 reports it)."""
-    cols = np.asarray(sorted(set(int(c) for c in cols)), dtype=np.int64)
-    ne = base.C.shape[0]
-    take_c = np.zeros(ne, bool)
-    take_c[cols] = True
-    pres = base.present.copy()
-    pres[cols] = other.present[cols]
-    full = (base.C.tocsc() @ sp.diags((~take_c).astype(float)) + other.C.tocsc() @ sp.diags(take_c.astype(float))).tocsr()
-    full.eliminate_zeros()
-    kept = (sp.diags(pres.astype(float)) @ full @ sp.diags(pres.astype(float))).tocsr()
-    kept.eliminate_zeros()
-    return int(full.nnz - kept.nnz)
+    """The number of entries `columns_from` drops by clearing absent slots (B2.5)."""
+    return columns_from_counted(base, other, cols)[1]
 
 
 def left_slots(mm: MirrorMap, members_left: list[int], members_right: list[int]) -> list[int]:

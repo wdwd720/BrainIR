@@ -60,8 +60,24 @@ def estimate(name: str, s_per_job: float) -> float:
     return usd
 
 
-def run(name: str, max_containers: int = 100, budget_usd: float | None = None) -> None:
+def run(name: str, max_containers: int = 100, budget_usd: float | None = None, s_per_job: float | None = None) -> None:
+    """Refuses (PREREG v4 X1; re-check finding 3) unless the Modal trust gate says 'identical' (except for the trust campaign itself),
+    and unless the logged spend plus this campaign's estimate (jobs not yet done x `s_per_job` seconds, required) stays within $15."""
     man, items, payloads = _items(name)
+    if name != "trust-run4":
+        gate = GATES4 / "TRUST_GATE_v4_modal.json"
+        if not (gate.is_file() and json.loads(gate.read_text()).get("verdict") == "identical"):
+            raise SystemExit("the Modal trust gate has not passed: refused")
+        if s_per_job is None:
+            raise SystemExit("--s-per-job is required (the spend estimate before running); refused")
+        dest0 = data_dir() / man["area"] / f"MODAL_{name}" / "results.pkl"
+        done = {r["key"] for r in read_log(dest0)} if dest0.exists() else set()
+        n_todo = sum(1 for _, j in items if j["key"] not in done)
+        est = n_todo * s_per_job / 3600 * (PRICE_CORE_H + MEM_GIB * PRICE_GIB_H)
+        cap = min(CAP_USD, budget_usd) if budget_usd is not None else CAP_USD
+        if spent() + est > cap:
+            raise SystemExit(f"estimated spend {spent():.2f} + {est:.2f} > ${cap:.2f}: refused")
+        print(json.dumps({"campaign": name, "jobs_to_run": n_todo, "estimate_usd": round(est, 2), "spent_before": round(spent(), 2)}), flush=True)
     dest = data_dir() / man["area"] / f"MODAL_{name}"
     dest.mkdir(parents=True, exist_ok=True)
     log = dest / "results.pkl"
@@ -89,8 +105,7 @@ def run(name: str, max_containers: int = 100, budget_usd: float | None = None) -
     got = {r["key"] for r in read_log(log)}
     print(json.dumps({"campaign": name, "new_results": n_new, "have": len(got), "expected": man["n_jobs"],
                       "missing": len(set(man["keys"]) - got), "est_usd_this_call": round(est, 3), "spent_total_est": round(spent(), 2)}))
-    if budget_usd is not None and spent() > budget_usd:
-        print("WARNING: estimated spend above the per-call budget")
+
 
 
 def trust() -> dict:
@@ -136,7 +151,8 @@ def main() -> None:
         trust()
     elif cmd == ["run"]:
         run(a[0], int(a[a.index("--max-containers") + 1]) if "--max-containers" in a else 100,
-            float(a[a.index("--budget-usd") + 1]) if "--budget-usd" in a else None)
+            float(a[a.index("--budget-usd") + 1]) if "--budget-usd" in a else None,
+            float(a[a.index("--s-per-job") + 1]) if "--s-per-job" in a else None)
     elif cmd == ["estimate"]:
         estimate(a[0], float(a[a.index("--s-per-job") + 1]))
     elif cmd == ["compare"]:

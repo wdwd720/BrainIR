@@ -93,21 +93,65 @@ def _paired(n_real: int) -> dict:
     return dict(PAIRED, n_real=int(n_real))
 
 
+def _modal_gate_ok() -> bool:
+    p = GATES4 / "TRUST_GATE_v4_modal.json"
+    return p.is_file() and json.loads(p.read_text()).get("verdict") == "identical"
+
+
+def _dig(r: dict):
+    """The digest that identifies a result: `digest_v4` where the kind has it (sweep_v4 has no run 1 `digest`), else `digest`."""
+    return r.get("digest_v4") or r.get("digest")
+
+
 def load_results(campaign: str, area: str = "reliability_v2") -> list[dict]:
-    """A campaign's results from GitHub (`GHA_<name>`) and Modal (`MODAL_<name>`, modal4.py), merged by key (a key present in both
-    must have the same digest: both platforms passed the same trust gate); errors are dropped."""
+    """A campaign's results from GitHub (`GHA_<name>`) and Modal (`MODAL_<name>`, modal4.py), merged by key. PREREG v4 X1 (re-check
+    finding 3): Modal results are read only if the Modal trust gate says 'identical'; every result must carry a digest; a key present
+    on both platforms must have the same digest. Errors are dropped."""
     out: dict[str, dict] = {}
     for pre in ("GHA_", "MODAL_"):
         p = data_dir() / area / f"{pre}{campaign}" / "results.pkl"
-        if p.is_file():
-            for r in read_log(p):
-                if "error" in r:
-                    continue
-                k = r["key"]
-                if k in out and out[k].get("digest") != r.get("digest"):
-                    raise SystemExit(f"{campaign} {k}: GitHub and Modal digests differ")
-                out[k] = r
+        if not p.is_file():
+            continue
+        if pre == "MODAL_" and not _modal_gate_ok():
+            raise SystemExit(f"{campaign}: Modal results present but the Modal trust gate is not 'identical'; refused")
+        for r in read_log(p):
+            if "error" in r:
+                continue
+            if _dig(r) is None:
+                raise SystemExit(f"{campaign} {r.get('key')}: a result without a digest; refused")
+            k = r["key"]
+            if k in out and _dig(out[k]) != _dig(r):
+                raise SystemExit(f"{campaign} {k}: GitHub and Modal digests differ; refused")
+            out[k] = r
     return list(out.values())
+
+
+TYPE_SETS = GATES4 / "TYPE_SETS.json"
+
+
+def write_type_sets() -> dict:
+    """PREREG v4 G3, G9 (re-check finding 6): the type sets, fixed before the tag and read by every analysis: per fly the matched
+    types, the primary (homolog-consistent) types, MANC's side-concordant types, MaleCNS's uncorrected types."""
+    out = {"rule": "PREREG v4 G3, G9; written before the freeze; analyses read this file"}
+    for fly in ("MANC", "MaleCNS"):
+        f = MR.fly(fly)
+        h = f.halves()
+        rec = {"matched": sorted(h["L"]), "primary_homolog_consistent": MR.homolog_consistent_types(f)}
+        if fly == "MANC":
+            rec["side_concordant"] = MR.side_concordant_types(f)
+        else:
+            rec["uncorrected"] = sorted(t for t in h["L"] if not any(f.corrected[i] for i in h["L"][t] + h["R"][t]))
+        rec["counts"] = {k: len(v) for k, v in rec.items() if isinstance(v, list)}
+        out[fly] = rec
+    _write_once(TYPE_SETS, out)
+    print(json.dumps({fly: out[fly]["counts"] for fly in ("MANC", "MaleCNS")}))
+    return out
+
+
+def type_sets() -> dict:
+    if not TYPE_SETS.is_file():
+        raise SystemExit("gates_v4/TYPE_SETS.json missing (written before the freeze)")
+    return json.loads(TYPE_SETS.read_text())
 
 
 def analysed_set() -> dict:
@@ -231,7 +275,7 @@ def sp_diags(v):
     return sp.diags(np.asarray(v, dtype=float))
 
 
-def mirror_check(name: str = "MIRROR_CHECK_v2.json", write: bool = True) -> dict:
+def mirror_check(name: str = "MIRROR_CHECK_v3.json", write: bool = True) -> dict:
     """PREREG v4 B2.3 (i) builder check, wiring only, written once before Block 2 is read (audit finding 11): per fly, the map is an
     involution; nothing replaced = W and all five classes = M bit for bit; for every matched type the stimulated sets on W and M are
     L_t and m(R_t); the identity hybrid equals W; in H_own(t) and H_rest(t) no absent slot has an input or output; every entry comes
@@ -268,17 +312,25 @@ def mirror_check(name: str = "MIRROR_CHECK_v2.json", write: bool = True) -> dict
             Dk = sp_diags(keep)
             if abs(Dk @ ((own.C + rest.C) - (e.C + em.C)) @ Dk).max() != 0:
                 bad_comp.append(t)
-            dropped.append(MR.dropped_by_presence(e, em, slots) + MR.dropped_by_presence(em, e, slots))
+            dropped.append(MR.columns_from_counted(e, em, slots)[1] + MR.columns_from_counted(em, e, slots)[1])
         rec.update(types=len(h["L"]), stimulated_sets_wrong=bad_stim, identity_hybrid_not_W=bad_id, absent_slot_with_entries=bad_absent,
                    own_rest_not_complementary_outside_presence_changing_slots=bad_comp,
                    entries_dropped_by_presence_per_type={"mean": float(np.mean(dropped)) if dropped else 0.0,
                                                          "max": int(max(dropped)) if dropped else 0,
                                                          "types_with_any": int(sum(1 for d in dropped if d))})
-        rec["pass"] = bool(rec["involution"] and rec["nothing_equals_W"] and rec["all_five_equal_M"] and not (bad_stim or bad_id or bad_absent or bad_comp))
+        b3_bad = []
+        for vname, cls in b3_variants().items():  # re-check finding 5: the ten Block 3 hybrids too
+            hh = MR.hybrid(e, em, mm, cls, cache=cache)
+            ab = np.flatnonzero(~hh.present)
+            if abs(hh.C[ab, :]).sum() != 0 or abs(hh.C[:, ab]).sum() != 0:
+                b3_bad.append(vname)
+        rec["block3_hybrids_with_driven_absent_slots"] = b3_bad
+        rec["pass"] = bool(rec["involution"] and rec["nothing_equals_W"] and rec["all_five_equal_M"]
+                           and not (bad_stim or bad_id or bad_absent or bad_comp or b3_bad))
         out[fly] = rec
     out["verdict"] = "pass" if all(out[x]["pass"] for x in ("MANC", "MaleCNS")) else "fail"
-    if write:  # MIRROR_CHECK.json (the first run, before the presence fix) failed and stays; LOG L109
-        _write_once(GATES4 / name, out)
+    if write:  # MIRROR_CHECK.json (the first run, before the presence fix) failed and stays (L109); v2 passed before the re-check's
+        _write_once(GATES4 / name, out)  # step-0 change (group pairs first) and counted drops; v3 supersedes it (L112)
     print(json.dumps({k: (v["pass"] if isinstance(v, dict) else v) for k, v in out.items()}))
     return out
 
@@ -1016,6 +1068,8 @@ def main() -> None:
         det_compare(int(a[0]))
     elif cmd == ["c-gains9"]:
         c_gains9(*(a[:1] or []))
+    elif cmd == ["type-sets"]:
+        write_type_sets()
     elif cmd == ["mirror-check"]:
         mirror_check(write="--dry-run" not in a)
     else:

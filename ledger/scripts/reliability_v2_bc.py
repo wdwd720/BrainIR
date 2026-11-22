@@ -105,10 +105,10 @@ def _rescued(dx: pd.DataFrame, dr: pd.DataFrame, flips, seeds=range(8)) -> list[
 
 def _types_for(fly: str, primary: bool = True) -> list[str]:
     """G9: the analysed types matched in the fly; `primary` restricts them to the homolog-consistent types (the primary set)."""
-    f = MR.fly(fly)
-    ts = [t for t in gha4.analysed_set()["analysed"] if t in f.halves()["L"]]
+    sets = gha4.type_sets()[fly]   # fixed before the freeze (re-check finding 6)
+    ts = [t for t in gha4.analysed_set()["analysed"] if t in set(sets["matched"])]
     if primary:
-        hc = set(MR.homolog_consistent_types(f))
+        hc = set(sets["primary_homolog_consistent"])
         ts = [t for t in ts if t in hc]
     return sorted(ts)
 
@@ -195,7 +195,7 @@ def _b1(fly: str, types: list[str]) -> dict:
     prim = tf["best_in_bounds"]["closure_vs_tuned"]
     out["procedure_share_of_gap"] = {"rule": "PREREG v4 B1.4: the closure of the best in-bounds score (primary); the others are secondary",
                                      "closure": prim.get("closure"), "interval": prim.get("closure_interval")}
-    out["block1_closes_whole_gap"] = bool(prim.get("closes_whole_gap"))
+    out["block1_closes_whole_gap"] = bool(prim.get("closes_whole_gap") and prim.get("reported"))  # re-check finding 2
     flips = _flips(tuned["L"], tuned["R"], types)
     out["flips"] = flips
     resc = {k: _rescued(data[k]["L"], data[k]["R"], flips) for k in data}
@@ -238,11 +238,11 @@ def _b2_sanity(fly: str) -> dict:
     trans = _same_outcome_share(res, f"B2-{tag}-LM", f"B2-{tag}-RW")
     rho_relab = AG.spearman(AG.type_scores(A["PERM"], list(range(8)), types).to_numpy(), AG.type_scores(A["LW"], list(range(8)), types).to_numpy())
     rho_trans = AG.spearman(AG.type_scores(A["LM"], list(range(8)), types).to_numpy(), AG.type_scores(A["RW"], list(range(8)), types).to_numpy())
-    gate = json.loads((gha4.GATES4 / "MIRROR_CHECK_v2.json").read_text())[fly]
+    gate = json.loads((gha4.GATES4 / "MIRROR_CHECK_v3.json").read_text())[fly]
     ok_i = bool(gate["pass"]) and len(ids) > 0 and id_ok == len(ids)
     ok_ii = bool(trans["share"] is not None and relab["share"] is not None and trans["share"] >= relab["share"] - 0.02
                  and rho_trans >= rho_relab - 0.01 and rho_trans >= 0.95)
-    return {"i_identity": {"builder_gate_MIRROR_CHECK_v2": bool(gate["pass"]), "identity_jobs": len(ids), "digests_identical": id_ok, "pass": ok_i},
+    return {"i_identity": {"builder_gate_MIRROR_CHECK_v3": bool(gate["pass"]), "identity_jobs": len(ids), "digests_identical": id_ok, "pass": ok_i},
             "ii_full_transplant": {"L_on_M_vs_R_on_W": trans, "full_seed_rho": rho_trans, "pass": ok_ii},
             "relabelling_control": {**relab, "full_seed_rho": rho_relab}, "pass": bool(ok_i and ok_ii)}
 
@@ -501,7 +501,8 @@ def _evaluate_fix(fix: str, unfixed_drivers: float | None, gains: dict, primary:
         lr["MaleCNS"] = AG.compare(hf["MCNS-L"], hf["MCNS-R"], tc, H8, n_boot=NB, seed=SEED)
     rxl = float(np.mean([R2._f(v["primary"]["rho_x"]) for v in lr.values()]))
     cl = float(np.mean([R2._f(v["primary"]["c"]) for v in lr.values()]))
-    rec["left_right"] = {**lr, "rho_x_mean": rxl, "c_mean": cl, "ratio": rxl / cl if cl else None, "required": fix in SIDES_DISTINCT}
+    required = (gha4._fix_parts("9")[1] in SIDES_DISTINCT | {"0"}) if fix == "9" else (fix in SIDES_DISTINCT)  # re-check finding 1
+    rec["left_right"] = {**lr, "rho_x_mean": rxl, "c_mean": cl, "ratio": rxl / cl if cl else None, "required": required}
     c2lr = (not rec["left_right"]["required"]) or bool(np.isfinite(rxl) and np.isfinite(cl) and cl >= 0.2 and rxl / cl >= 0.80)
     dr = {k: _drivers(hf[k], tm if k.startswith("MANC") else tc) for k in ("MANC-L", "MANC-R", "MCNS-L", "MCNS-R") if k in hf}
     mean_dr = float(np.mean(list(dr.values())))

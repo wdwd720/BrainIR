@@ -224,7 +224,8 @@ def _fly_with_cross_type_group():
     gid[15] = gid[0]          # cross-type group: E's right member grouped with D's left member 0
     ntype = f.ntype.copy()
     ntype[[2, 3, 15]] = "E"
-    groups = {"D": [0, 1, 13, 14], "E": [2, 3, 15]}
+    ntype[[4, 16, 17]] = "F"   # F: one left member, two right members -> an unmatched RIGHT member whose ghost is a left slot
+    groups = {"D": [0, 1, 13, 14], "E": [2, 3, 15], "F": [4, 16, 17]}
     return MR.Fly("SYN2", f.net, groups, f.side_annot, f.out_side, f.side, f.corrected, f.dropped, {}, gid, ntype, f.sign, f.C, f.readout), n
 
 
@@ -250,4 +251,18 @@ def test_stimulated_set_on_mirror_is_mirror_of_right_members_and_hybrids_have_no
 
         D = sp_.diags((e.present == em.present).astype(float))
         assert abs(D @ ((own.C + rest.C) - (e.C + em.C)) @ D).max() == 0
-    assert mm.counts["unmatched_stimulated_type_members"] == 1
+    assert mm.counts["unmatched_stimulated_type_members"] == 2
+    # F: the unmatched right member's ghost becomes present in H_own(F) and takes its row (inputs) from M (re-check finding 5)
+    L, R = [4], [16, 17]
+    slots = MR.left_slots(mm, L, R)
+    ghosts = [i for i in slots if mm.status[i] == "ghost"]
+    assert len(ghosts) == 1
+    own, dropped = MR.columns_from_counted(e, em, slots)
+    g = ghosts[0]
+    assert own.present[g] and not e.present[g] and em.present[g]
+    keep = own.present.astype(float)
+    import scipy.sparse as sp_  # noqa: PLC0415
+
+    row_m = (em.C[[g], :] @ sp_.diags(keep)).toarray().ravel()
+    assert np.array_equal(own.C[[g], :].toarray().ravel(), row_m)   # its inputs are M's, from the slots present in the hybrid
+    assert dropped == MR.dropped_by_presence(e, em, slots) >= 0

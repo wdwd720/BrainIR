@@ -184,12 +184,14 @@ def cmd_a() -> None:
     tm_all, tc_all = sorted(hm["L"]), sorted(hc["L"])
     for k, df in hf.items():
         _check_complete(df, tm_all if k.startswith("MANC") else tc_all, range(16), k)
-    tm, tc = MR.homolog_consistent_types(fm), MR.homolog_consistent_types(fc)
+    ts_ = gha4.type_sets()   # fixed before the freeze (re-check finding 6)
+    tm, tc = ts_["MANC"]["primary_homolog_consistent"], ts_["MaleCNS"]["primary_homolog_consistent"]
+    if sorted(ts_["MANC"]["matched"]) != tm_all or sorted(ts_["MaleCNS"]["matched"]) != tc_all:
+        raise SystemExit("the matched types differ from gates_v4/TYPE_SETS.json; refused")
     mc_m = {t: (len(hm["L"][t]), len(hm["R"][t])) for t in tm_all}
     mc_c = {t: (len(hc["L"][t]), len(hc["R"][t])) for t in tc_all}
-    corrected_types = sorted(t for t in tc_all if any(fc.corrected[i] for i in hc["L"][t] + hc["R"][t]))
-    unc = sorted(set(tc) - set(corrected_types))
-    conc = sorted(set(tm) & set(MR.side_concordant_types(fm)))
+    unc = sorted(set(tc) & set(ts_["MaleCNS"]["uncorrected"]))
+    conc = sorted(set(tm) & set(ts_["MANC"]["side_concordant"]))
     six = _six(hf, tm, tc, mc_m, mc_c)
     six_all = _six(hf, tm_all, tc_all, mc_m, mc_c)
     sens = {"n_maleCNS_uncorrected_primary_types": len(unc), "n_MANC_side_concordant_primary_types": len(conc)}

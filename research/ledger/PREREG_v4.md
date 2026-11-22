@@ -89,8 +89,9 @@ network; agreement is reported (no correction is made from this check; if agreem
   counted and left out. Member counts per side are recorded; "equal member counts" = the same number on both sides.
 - *Neurons (Blocks 2-3, wiring comparisons, fixes 4-5):* a mirror map built in this order, each neuron used once.
   (0) **Members of each stimulated type** (the excitatory DN members of B1r's / B2r's groups, sides by G3): paired within the type,
-  directly if the type has one member on each side, else by the Hungarian step below; extras are unmatched and are never paired
-  outside their type (audit finding 1: so the left screen on M stimulates exactly the mirror image of the right members; a pairing by
+  directly if the type has one member on each side; else (0a) the one-left-one-right annotated groups among the type's members are
+  paired, then (0b) the Hungarian step below pairs the rest (re-check finding 7: a group-consistent pairing is used whenever the
+  annotations give one); extras are unmatched and are never paired outside their type (audit finding 1: so the left screen on M stimulates exactly the mirror image of the right members; a pairing by
   annotated group alone crossed types for 34 MaleCNS and 2 MANC types). The profile basis of step 0 is the set of one-left-one-right
   annotated groups among the other neurons. (1) Annotated bilateral group (MANC: processed `manc:v1.2.3` `group_id` by bodyId; MaleCNS: body-annotation `group`) with exactly
   one member on each side in the network: paired. (2) Groups with members on both sides but more than one on a side: pairs are
@@ -107,8 +108,9 @@ network; agreement is reported (no correction is made from this check; if agreem
   a real neuron of that network (in W: the real neurons; in M: the images of the real neurons); only present slots are stimulated.
   Ghost and absent slots have no input, so the model keeps them at rate 0 (max(r_max tanh(.), 0) with input 0 and theta > 0). In
   every hybrid (B2.1, B3.1) an absent slot has no input and no output: a transplanted connection onto or from a neuron that does
-  not exist in the hybrid is dropped (counted and reported, B2.5). A wiring check of all of this on both flies is written before
-  Block 2 is read (`gates_v4/MIRROR_CHECK_v2.json`, B2.3 i).
+  not exist in the hybrid is dropped (counted and reported, B2.5). A wiring check of all of this on both flies, the ten Block 3
+  hybrids included, is written before the freeze (`gates_v4/MIRROR_CHECK_v3.json`, B2.3 i; v1 failed before the absent-slot fix and
+  v2 preceded the re-check's changes, both kept, LOG L109, L112).
 
 **G5. Scores and bands.** Per replicate: the accepted run's score (unusable -> 0 for the "fraction rhythmic"). Per type and design:
 the **type score** = mean score over usable replicates, 0 if none (run 2's `primary_score`). Bands: driver (>= 0.5), non-driver
@@ -153,8 +155,10 @@ size -> scale 1), exactly as `size_scaling` does. With no pair and no ghost this
 
 **G9. Type sets.**
 - **Primary type set (audit finding 1): the homolog-consistent matched types** of each fly, i.e. the matched types each of whose
-  step-0 pairs (G4) shares an annotated bilateral group (MANC 307 of 308, MaleCNS 214 of 250; a pair with a missing group is not
-  consistent): left and right copies of a primary type are annotated homologs. Cross-fly pairs use the types primary in both flies
+  step-0 pairs (G4) shares an annotated bilateral group (MANC 307 of 308, MaleCNS 219 of 250; a pair with a missing group is not
+  consistent; unmatched extras have no partner and are not checked): left and right copies of a primary type are annotated homologs.
+  The type sets of G3 and G9 (matched, primary, MANC side-concordant, MaleCNS uncorrected) are written before the freeze to
+  `gates_v4/TYPE_SETS.json`, and every analysis reads them from there (re-check finding 6). Cross-fly pairs use the types primary in both flies
   (MaleCNS groups carry MANC type names). **Every Part A, B and C analysis is also reported on all matched types (secondary).**
 - **Informative set I** = the types whose type score is > 0 in at least one of the four half-flies of Part A (16 seeds).
 - **Analysed set** for Parts B and C = I plus 50 types drawn with `default_rng(20261402)` from the remaining types matched in both
@@ -232,8 +236,10 @@ active). Used only by fix 2 (C1).
 
 **A7. If no real left-right gap.** If MANC-L vs MANC-R (primary type set) is **at the ceiling** (G7), the report says so plainly, and
 Blocks 2-3, count noise and Part C's attribution are run on the cross-fly gap instead (B5). If it is **inconclusive**, the report says
-so plainly and the blocks still run on the left-right gap (they test it rather than assume it), with every closure read as
-attribution of whatever difference exists. If it is **a real gap**, the blocks run on the left-right gap.
+so plainly and the blocks still run on the left-right gap (they test it rather than assume it); if it is **not judged** (c < 0.2), the
+blocks run on the left-right gap and the report says the ceiling is too low to judge; if it is **a real gap**, they run on the
+left-right gap. In every case each block's closures follow G7 on that block's own before-pair (reported only when that pair is a
+real gap), and "closes the whole gap" (B1.4) also requires a real-gap before-pair (re-check findings 2 and 8).
 
 ---
 
@@ -276,9 +282,9 @@ attribution of whatever difference exists. If it is **a real gap**, the blocks r
 - **B2.2 Screens (left side, seeds 0..7, paired draws):** L on W ("before"), R on W, L on M (= R on W up to arithmetic), L on
   H_own(t), L on H_rest(t), and L on the relabelling control (B2.4). The target Y is R on W.
 - **B2.3 Sanity checks, which gate every other Block 2-3 number:**
-  (i) **left into left:** the wiring check `gates_v4/MIRROR_CHECK_v2.json` (written before the freeze: on both flies the map is an
+  (i) **left into left:** the wiring check `gates_v4/MIRROR_CHECK_v3.json` (written before the freeze: on both flies the map is an
   involution, nothing replaced = W and all five classes = M bit for bit, for every matched type the stimulated set on W is L_t and on
-  M is m(R_t), the identity hybrid equals W, no absent slot has an entry in any H_own(t) or H_rest(t)) passes, and 50 jobs drawn with
+  M is m(R_t), the identity hybrid equals W, no absent slot has an entry in any H_own(t), H_rest(t) or Block 3 hybrid) passes, and 50 jobs drawn with
   `default_rng(20261405)` re-run through the hybrid path give digests identical to L on W;
   (ii) **everything transplanted:** L on M against R on W: the share of jobs with identical usable flag, identical accepted current and
   identical number of tuner runs must be at least the relabelling control's share minus 0.02, and the full-seed rho of type scores at
@@ -409,7 +415,8 @@ control (a new campaign) and, for fix 1, the grid sweeps of Block 1 plus a grid 
 2. **Agreement:** cross-fly agreement = the mean of the two same-side cross-fly pairs (rho_x and c each averaged over MANC-L/MaleCNS-L
    and MANC-R/MaleCNS-R); ratio >= 0.80 and c >= 0.2 (audit finding 4: a fix that only adds noise lowers c; rho_x is reported beside
    the ratio). Left-right (mean over the two flies of rho_x and of c) ratio >= 0.80 and c >= 0.2 too where the fix leaves the sides
-   distinct (fixes 1, 2, 3, 5a, 6, 7, and 9 if its parts are; not 4, 5b, 8, whose left-right numbers are reported only). All criteria
+   distinct (fixes 1, 2, 3, 5a, 6, 7, and 9 when its network part is one of 3a, 3b, 5a, 6, 7; not 4, 5b, 8, whose left-right numbers
+   are reported only). All criteria
    are evaluated on the primary type set (G9); every number is repeated on all analysed types.
 3. **Still informative:** the mean over the four half-flies of the number of driver types is between 0.5 and 2 times the unfixed mean
    (Part A seeds 0..7, analysed set).
@@ -501,8 +508,9 @@ counts (G6b), one side worse everywhere (A3), where the tuner lands (Block 1), o
   (`ledger/scripts/modal4.py`, one job per 1-CPU container), only after the same trust gate passes there (run 2's 100 locked jobs,
   identical digests: `gates_v4/TRUST_GATE_v4_modal.json`); a campaign packed for GitHub runs on Modal from the same chunk and payload
   files into its own log (`MODAL_<name>`); GitHub and Modal results of one key must have the same digest (the loader refuses
-  otherwise); every determinism campaign of a Modal campaign runs on GitHub (a cross-platform check); the estimated spend is logged
-  per campaign and Modal is not used beyond $15. Run 4 uses copies with one change each where needed: `jobs_v4.py` (new kinds; other kinds delegate
+  otherwise, comparing `digest_v4` where a kind has it, else `digest`); every determinism campaign of a Modal campaign runs on GitHub
+  (a cross-platform check); the spend is estimated before each Modal campaign and logged, and `modal4.py` refuses to run without a
+  passing Modal gate or when the logged spend plus the estimate exceeds $15 (re-check finding 3). Run 4 uses copies with one change each where needed: `jobs_v4.py` (new kinds; other kinds delegate
   to `jobs_v3.run_job`), `gha_runner4.py` (imports `jobs_v4.run_job`), `.github/workflows/ledger-gha4.yml` (tags `gha4-*`; the random
   key is written as 64 hex characters, fixing L82's 1-in-256 newline failure), `gha4.py` (builders, publish4, collect4, feeder).
   **Queue:** at most 20 GitHub jobs queued plus running at a time (the feeder counts jobs); campaigns are chunked so that one campaign
@@ -513,8 +521,9 @@ counts (G6b), one side worse everywhere (A3), where the tuner lands (Block 1), o
   stage; digests (`digest_v4`) must be identical.
 - **X4. Amendments** (`lock4.py amend`, ledger `AMENDMENTS_v4.jsonl`): code bug fixes only (code made to do what this text says),
   recorded before the commit and before the data they affect are produced; never a rule, a criterion or a file an earlier lock hashes.
-  Analysis code (`reliability_v2*.py`, `agree.py`, `forward_v1.py`, `posthoc/rescore_v4.py`) may be amended only before the first
-  collection of the campaigns it reads (A0's analysis: before it is first run); a later fix is still a recorded amendment, and the
+  Analysis code (`reliability_v2*.py`, `agree.py`, `forward_v1.py`, `posthoc/rescore_v4.py`, `pooled.py`, the set functions of
+  `mirror.py`, and the loading, gain and check functions of `gha4.py`) may be amended only before the first collection of the
+  campaigns it reads (A0's analysis: before it is first run); a later fix is still a recorded amendment, and the
   output of the code before and after it is reported side by side (audit finding 9).
 - **X5. Locks.** `LOCK_prereg_v4.json` (this file, the prompt, run 4 code including `ledger/scripts/posthoc/*.py`, gates_v4,
   diag_v4, reviews_v4, hashes of all earlier locks); `LOCK_reliability_v2.json` (Parts A0-D outputs under `reliability_v2/` and `results/run4/`, campaigns' provenance, code);
@@ -543,8 +552,10 @@ Re-budgeted after Part A with the real analysed-set size. If the projected total
 25 types; then items are dropped in this order: the case studies, the pooled read-out, the MaleCNS repeats of Block 3, the floors other
 than 1 and 5 (B4.4 floors 3 and 10, fix 3b), Part D (except the robust model's whole-type screen, which is Part E's), the count-noise
 models (B4.2-B4.3), fixes 6 and 7, the brief. Never dropped: this rulebook, Part A0, Part A with ceilings, Block 1, Block 2, the
-forward ledger (including the robust model's whole-type screen). Modal compute (X1) shortens the wall-clock time; it does not count
-toward the 300 runner-hours of GitHub, and its $15 is a separate cap.
+forward ledger (including the robust model's whole-type screen). **Envelope (re-check finding 4):** 300 GitHub runner-hours plus
+$15 of Modal (about 235 Modal core-hours, i.e. about 59 runner-hour equivalents at 4 cores per runner). The re-budget after Part A
+fixes which campaigns run on Modal, written to the LOG before they are published; drops (above) and Part D's exam-2 condition ("60
+runner-hours remain") are judged on the remaining envelope in runner-hour equivalents.
 
 **Departures from RUN4_PROMPT, each with its reason.** (1) Ceilings and agreements use the cross-half form (G6), so that the
 comparison and its ceiling have the same number of seeds per mean; full-seed agreement is reported beside it. (2) Paired draws only in
