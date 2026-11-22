@@ -169,8 +169,8 @@ def cmd_a() -> None:
     wc = sorted(set(b1["type"]) & set(b2["type"]))
     ref = AG.compare(b1, b2, wc, H16, n_boot=10000, seed=SEED_BOOT)
     # same-side minus opposite-side cross-fly agreement (point estimate and bootstrap over common types)
-    same = (six["MANC-L vs MaleCNS-L"]["rho_x"] + six["MANC-R vs MaleCNS-R"]["rho_x"]) / 2
-    opp = (six["MANC-L vs MaleCNS-R"]["rho_x"] + six["MANC-R vs MaleCNS-L"]["rho_x"]) / 2
+    same = (six["MANC-L vs MaleCNS-L"]["primary"]["rho_x"] + six["MANC-R vs MaleCNS-R"]["primary"]["rho_x"]) / 2
+    opp = (six["MANC-L vs MaleCNS-R"]["primary"]["rho_x"] + six["MANC-R vs MaleCNS-L"]["primary"]["rho_x"]) / 2
     ssd = _same_minus_opposite(hf, common)
     # A3 one bad side
     a3 = {}
@@ -198,15 +198,18 @@ def cmd_a() -> None:
         s = AG.type_scores(df, None, types)
         nonzero |= set(s.index[s > 0])
     both = sorted(set(tm) & set(tc))
-    inf = sorted(t for t in nonzero if t in both)
+    inf = sorted(nonzero)
     rest = sorted(set(both) - set(inf))
     rng = np.random.default_rng(SEED_SAMPLE)
     extra50 = sorted(rng.choice(rest, size=min(50, len(rest)), replace=False).tolist()) if rest else []
-    _out("ANALYSED_SET.json", {"rule": "PREREG v4 G9: informative (score > 0 in at least one half-fly, 16 seeds) among types matched in "
-                                       "both flies, plus 50 others drawn with default_rng(20261402)",
-                               "informative": inf, "random_extra": extra50, "analysed": sorted(inf + extra50),
-                               "n_informative": len(inf), "n_analysed": len(inf) + len(extra50),
-                               "informative_not_in_both_flies": sorted(nonzero - set(both))})
+    ana = sorted(set(inf) | set(extra50))
+    _out("ANALYSED_SET.json", {"rule": "PREREG v4 G9: informative = score > 0 in at least one half-fly (16 seeds); analysed = informative "
+                                       "plus 50 of the remaining types matched in both flies, drawn with default_rng(20261402); each fly "
+                                       "uses the analysed types matched in it",
+                               "informative": inf, "random_extra": extra50, "analysed": ana,
+                               "n_informative": len(inf), "n_analysed": len(ana),
+                               "n_analysed_matched_MANC": len(set(ana) & set(tm)), "n_analysed_matched_MaleCNS": len(set(ana) & set(tc)),
+                               "n_analysed_matched_both": len(set(ana) & set(both))})
 
 
 def _dist(s: pd.Series, df: pd.DataFrame) -> dict:
@@ -231,12 +234,190 @@ def _same_minus_opposite(hf, types, n_boot=10000) -> dict:
     return {"difference": point, "ci95": [float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))], "n_boot_used": int(len(bs))}
 
 
+# ----------------------------------------------------------------------------------------------------------- Part A4 wiring
+def _rho_pair(a: pd.Series, b: pd.Series, types) -> dict:
+    return {"n": len(types), "spearman": AG.spearman(a.reindex(types).to_numpy(), b.reindex(types).to_numpy())}
+
+
+def _log_stats(a: np.ndarray, b: np.ndarray) -> dict:
+    both = (a > 0) & (b > 0)
+    la, lb = np.log(a[both]), np.log(b[both])
+    one = (a > 0) ^ (b > 0)
+    return {"pairs": int(((a > 0) | (b > 0)).sum()), "present_both": int(both.sum()), "present_one_side_only": int(one.sum()),
+            "share_one_side_only": float(one.sum() / max(1, ((a > 0) | (b > 0)).sum())),
+            "spearman_log_both": AG.spearman(la, lb), "pearson_log_both": float(np.corrcoef(la, lb)[0, 1]) if both.sum() > 2 else None}
+
+
+def _mncs_manc_types(fc) -> np.ndarray:
+    import glob  # noqa: PLC0415
+
+    import pyarrow.feather as feather  # noqa: PLC0415
+
+    from brainir import paths  # noqa: PLC0415
+
+    ann = feather.read_table(glob.glob(str(paths.data_root() / "raw" / "external" / "malecns_v1.0_body_annotations" / "*.feather"))[0],
+                             columns=["bodyId", "mancBodyid", "mancType"]).to_pandas().set_index("bodyId")
+    fl = N.front_leg().table
+    body2type = {**dict(zip(N.full_cord().table["bodyId"].astype(int), N.full_cord().table["type"])), **dict(zip(fl["bodyId"].astype(int), fl["type"]))}
+    out = []
+    for b in fc.net.table["bodyId"].astype(np.int64):
+        t = None
+        if int(b) in ann.index:
+            r = ann.loc[int(b)]
+            if pd.notna(r["mancBodyid"]) and int(r["mancBodyid"]) in body2type and pd.notna(body2type[int(r["mancBodyid"])]):
+                t = str(body2type[int(r["mancBodyid"])])
+            elif pd.notna(r["mancType"]):
+                t = str(r["mancType"])
+        out.append(t)
+    return np.array(out, dtype=object)
+
+
+def _type_blocks(C: sp.csr_matrix, types: np.ndarray, side: np.ndarray) -> dict:
+    Cc = C.tocoo()
+    out: dict = {}
+    for i, j, v in zip(Cc.row, Cc.col, Cc.data):
+        a, b = types[j], types[i]
+        if a is None or b is None:
+            continue
+        si, sj = side[i], side[j]
+        rel = "same" if (si in ("L", "R") and si == sj) else ("opposite" if (si in ("L", "R") and sj in ("L", "R")) else "unsided")
+        out[(a, b, rel)] = out.get((a, b, rel), 0.0) + float(v)
+    return out
+
+
+def _compare_blocks(x: dict, y: dict) -> dict:
+    keys = sorted(set(x) | set(y))
+    a = np.array([x.get(k, 0.0) for k in keys])
+    b = np.array([y.get(k, 0.0) for k in keys])
+    return _log_stats(a, b)
+
+
+def cmd_a4() -> None:
+    gha4.require_freeze("Part A4")
+    from brainir_ledger import baselines as BL  # noqa: PLC0415
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
+    fm, fc = MR.fly("MANC"), MR.fly("MaleCNS")
+    hm, hc = fm.halves(), fc.halves()
+    tm, tc = sorted(hm["L"]), sorted(hc["L"])
+    common = sorted(set(tm) & set(tc))
+    sv = {}
+    for f, h, tag in ((fm, hm, "MANC"), (fc, hc, "MCNS")):
+        W = sp.csr_matrix(f.net.W, dtype=np.float64)
+        for s in ("L", "R"):
+            sv[f"{tag}-{s}"] = BL.compute(f.C, W, f.readout_side(s), h[s], []).set_index("manc_type")
+    cols = [c for c in BL.BASELINES if c != "S8_informed"]
+    pairs = {"MANC-L vs MANC-R": ("MANC-L", "MANC-R", tm), "MaleCNS-L vs MaleCNS-R": ("MCNS-L", "MCNS-R", tc),
+             "MANC-L vs MaleCNS-L": ("MANC-L", "MCNS-L", common), "MANC-R vs MaleCNS-R": ("MANC-R", "MCNS-R", common),
+             "MANC-L vs MaleCNS-R": ("MANC-L", "MCNS-R", common), "MANC-R vs MaleCNS-L": ("MANC-R", "MCNS-L", common)}
+    summaries = {p: {c: _rho_pair(sv[a][c], sv[b][c], ts) for c in cols} for p, (a, b, ts) in pairs.items()}
+    single = {}
+    for f, tag in ((fm, "MANC"), (fc, "MaleCNS")):
+        mm = MR.mirror_map(f)
+        m = mm.m[: f.n]
+        matched = np.isin(mm.status[: f.n], ("g1", "g2", "t"))
+        C = sp.csr_matrix(f.C)
+        Cm = C[m][:, m].tocsr()
+        U = (C + Cm).tocoo()
+        keep = matched[U.row] & matched[U.col]
+        r, c = U.row[keep], U.col[keep]
+        mr, mc = m[r], m[c]
+        canon = (r < mr) | ((r == mr) & (c < mc))   # each unordered pair once
+        r, c, mr, mc = r[canon], c[canon], mr[canon], mc[canon]
+        a = np.asarray(C[r, c]).ravel()
+        b = np.asarray(C[mr, mc]).ravel()
+        rec = _log_stats(a, b)
+        if tag == "MANC":
+            C1 = FX.manc_raw_counts()
+            one = (a > 0) ^ (b > 0)
+            ar, ac = np.where(a[one] > 0, mr[one], r[one]), np.where(a[one] > 0, mc[one], c[one])
+            raw = np.asarray(C1[ar, ac]).ravel()
+            rec["one_sided_absent_partner_raw_1_to_4"] = int(((raw >= 1) & (raw <= 4)).sum())
+            rec["one_sided_absent_partner_raw_0"] = int((raw == 0).sum())
+            rec["share_one_sided_only_because_of_floor"] = float(((raw >= 1) & (raw <= 4)).mean()) if len(raw) else None
+        single[tag] = rec
+    tmanc = np.array([None if pd.isna(x) else str(x) for x in fm.net.table["type"]], dtype=object)
+    tmc = _mncs_manc_types(fc)
+    bm, bc = _type_blocks(fm.C, tmanc, fm.side), _type_blocks(fc.C, tmc, fc.side)
+    by_rel = {rel: _compare_blocks({k: v for k, v in bm.items() if k[2] == rel}, {k: v for k, v in bc.items() if k[2] == rel})
+              for rel in ("same", "opposite", "unsided")}
+    pm, pc = {}, {}
+    for k, v in bm.items():
+        pm[(k[0], k[1])] = pm.get((k[0], k[1]), 0.0) + v
+    for k, v in bc.items():
+        pc[(k[0], k[1])] = pc.get((k[0], k[1]), 0.0) + v
+    out = {"marking": "pre-registered (PREREG v4 A4); wiring only, deterministic (no ceiling)",
+           "summaries_S1_S7_full_spearman": summaries, "single_connections": single,
+           "type_to_type_across_flies": {"pooled_sides": _compare_blocks(pm, pc), "by_side_relation": by_rel,
+                                         "malecns_neurons_with_manc_type": int(sum(t is not None for t in tmc)), "malecns_neurons": int(len(tmc))}}
+    _out("WIRING_A4.json", _clean(out))
+
+
+# ------------------------------------------------------------------------------------------------------- Part A5 descriptive
+def cmd_a5() -> None:
+    gha4.require_freeze("Part A5")
+    import gha3  # noqa: PLC0415
+    import predict_h1 as PH  # noqa: PLC0415
+
+    from brainir_ledger import authors as AU  # noqa: PLC0415
+    from brainir_ledger import groups_h1 as GH  # noqa: PLC0415
+    from brainir_ledger import legs as L  # noqa: PLC0415
+
+    res, _ = PH._results("hsens-run3")
+    prim, _ = PH._results("hm-run3")
+    masks, _ = PH._masks("hsens-run3")
+    fc_ = N.full_cord()
+    units = GH.load_units()
+    plan = gha3.sens_plan(fc_)
+    dims_by = {}
+    for v in ("L", "R"):
+        arm = f"H-M-S-{v}"
+        gv = gha3._unit_groups(fc_, v)
+        nm = {u: len(g) for u, g in gv.items()}
+        for label, seeds in (("full", {0, 1, 2, 3}), ("1", {0, 1}), ("2", {2, 3})):
+            by, byp = PH._by_arm(res, seeds), PH._by_arm(prim, seeds)["H-M"]
+            ra = {u: (by[arm].get(u, []) if plan[v][u] == "run" else byp.get(u, []) if plan[v][u] == "same_as_primary" else []) for u in units}
+            pred, _ = GH.arm_tables(ra, units, masks, nm)
+            dims_by[(v, label)] = pred.set_index("unit")[list(GH.DIMS)]
+    cells = lambda d: d.to_numpy().ravel()  # noqa: E731
+    full = AG.spearman(cells(dims_by[("L", "full")]), cells(dims_by[("R", "full")]))
+    rx = (AG.spearman(cells(dims_by[("L", "1")]), cells(dims_by[("R", "2")])) + AG.spearman(cells(dims_by[("L", "2")]), cells(dims_by[("R", "1")]))) / 2
+    c = (AG.spearman(cells(dims_by[("L", "1")]), cells(dims_by[("L", "2")])) + AG.spearman(cells(dims_by[("R", "1")]), cells(dims_by[("R", "2")]))) / 2
+    per_dim = {d: AG.spearman(dims_by[("L", "full")][d].to_numpy(), dims_by[("R", "full")][d].to_numpy()) for d in GH.DIMS}
+    hl = {"cells": int(dims_by[("L", "full")].size), "full_spearman_cells": full, "cross_half_cells": rx, "ceiling_cells": c,
+          "ratio": rx / c if c else None, "per_dimension_full_spearman": per_dim, "seeds": "0..3; halves {0,1} / {2,3}"}
+    # DNg100 per-leg asymmetry: authors' full-cord replicates and run 1's G3 runs (both DNg100 at 380, T = 2 s)
+    files = AU.fetch()
+    a_sc = pd.read_csv(files["full_scores_alllegs"], index_col=0)
+    g3 = sorted([r for r in read_log(data_dir() / "calibration" / "g3_v1" / "results.pkl") if "error" not in r],
+                key=lambda r: int(r["key"].rsplit("s", 1)[1]))
+    ours = pd.DataFrame({leg: [r["extras"]["legs"][leg]["score"] for r in g3] for leg in L.LEGS})
+    asym = {}
+    for who, df in (("authors_33195857", a_sc), ("ours_g3_v1", ours)):
+        rec = {"n_replicates": int(len(df))}
+        for seg in ("T1", "T2", "T3"):
+            l, r = df[f"{seg}L"].to_numpy(float), df[f"{seg}R"].to_numpy(float)
+            d = l - r
+            nz = d[d != 0]
+            w = wilcoxon(nz) if len(nz) >= 6 else None
+            rec[seg] = {"median_L": float(np.median(l)), "median_R": float(np.median(r)), "frac_ge_0_5_L": float((l >= 0.5).mean()),
+                        "frac_ge_0_5_R": float((r >= 0.5).mean()), "median_L_minus_R": float(np.median(d)),
+                        "wilcoxon_p": float(w.pvalue) if w is not None else None}
+        asym[who] = rec
+    _out("A5.json", _clean({"marking": "pre-registered (PREREG v4 A5); descriptive, existing locked runs", "hemilineage_L_vs_R": hl,
+                            "dng100_per_leg_asymmetry": asym}))
+
+
 def main() -> None:
     cmd = sys.argv[1:2]
     if cmd == ["a0"]:
         cmd_a0()
     elif cmd == ["a"]:
         cmd_a()
+    elif cmd == ["a4"]:
+        cmd_a4()
+    elif cmd == ["a5"]:
+        cmd_a5()
     else:
         raise SystemExit(__doc__)
 

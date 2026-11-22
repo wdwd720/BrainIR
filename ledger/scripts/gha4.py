@@ -285,6 +285,138 @@ def build_b3(k=None):
     return groups, "reliability_v2"
 
 
+# ------------------------------------------------------------------------------------------------------------- determinism
+def det_campaigns(stage: int) -> list[str]:
+    """PREREG v4 X3: the campaigns re-sampled by the determinism campaign of a stage (only those that exist when it is packed)."""
+    plan = {1: ["pa-manc-run4", "pa-mcns-run4"],
+            2: ["b1s-manc-run4", "b1s-mcns-run4", "b2-manc-run4", "b2-mcns-run4"],
+            3: ["b3-manc-run4", "b3-mcns-run4", "cn-run4", "fl-1-run4", "fl-3-run4", "fl-10-run4"],
+            4: ["cg-run4", "crw-run4"] + [f"cx-{x}-run4" for x in ("1", "3a", "3b", "4", "5a", "5b", "6", "7", "8", "9")],
+            5: [f"dx-{x}-run4" for x in ("1", "3a", "3b", "4", "5a", "5b", "6", "7", "8", "9")]}[int(stage)]
+    return [c for c in plan if (G.GHA / c / "manifest.json").is_file()]
+
+
+def build_det4(k=None):
+    """PREREG v4 X3: 20 jobs of every campaign of stage k drawn with default_rng(20261405) from its packed jobs, re-run with the same
+    specification and payload; keys prefixed `D4~<campaign>~`."""
+    import zlib  # noqa: PLC0415
+
+    require_freeze("determinism")
+    groups = []
+    for c in det_campaigns(int(k)):
+        items = []
+        for f in sorted((G.GHA / c).glob("chunk_*.pkl")):
+            items += pickle.loads(f.read_bytes())
+        keys = sorted(j["key"] for _, j in items)
+        pick = set(np.random.default_rng(DET_SEED).choice(keys, size=min(20, len(keys)), replace=False).tolist())
+        by_payload: dict[str, list] = {}
+        for pkey, j in items:
+            if j["key"] in pick:
+                by_payload.setdefault(pkey, []).append(dict(j, key=f"D4~{c}~{j['key']}", origin_campaign=c, origin_key=j["key"]))
+        for pkey, jobs in by_payload.items():
+            shared = pickle.loads(zlib.decompress((G.GHA / c / f"payload_{pkey}.bin").read_bytes()))
+            groups.append((shared, jobs))
+    return groups, "reliability_v2"
+
+
+def det_compare(stage: int) -> dict:
+    """Digests of the determinism re-runs against the originals (`digest_v4` where the kind has it, else run 1's `digest`)."""
+    name = f"det4-{stage}-run4"
+    new = {r["key"]: r for r in read_log(data_dir() / "reliability_v2" / f"GHA_{name}" / "results.pkl")}
+    man = json.loads((G.GHA / name / "manifest.json").read_text())
+    rows, ok = {}, True
+    cache: dict[str, dict] = {}
+    for k in man["keys"]:
+        _, c, ok_key = k.split("~", 2)
+        if c not in cache:
+            area = json.loads((G.GHA / c / "manifest.json").read_text())["area"]
+            cache[c] = {r["key"]: r for r in read_log(data_dir() / area / f"GHA_{c}" / "results.pkl")}
+        a, b = cache[c].get(ok_key), new.get(k)
+        fld = "digest_v4" if (a is not None and "digest_v4" in a) else "digest"
+        same = a is not None and b is not None and a.get(fld) == b.get(fld)
+        rows.setdefault(c, {"n": 0, "identical": 0})
+        rows[c]["n"] += 1
+        rows[c]["identical"] += int(same)
+        ok &= same
+    out = {"campaign": name, "by_campaign": rows, "verdict": "identical" if ok else "fail"}
+    _write_once(GATES4 / f"DETERMINISM_stage{stage}.json", out)
+    print(json.dumps(out, indent=1))
+    return out
+
+
+# ------------------------------------------------------------------------------------------------------------- count noise
+NOISE_SEEDS = {"P1": 20261411, "P2": 20261412, "N1": 20261421, "N2": 20261422}
+
+
+def _noise_ext(C, f, mm):
+    e = MR.extend(C, f.sign, f.net.sizes, mm)
+    return e
+
+
+def build_cn(k=None):
+    """PREREG v4 B4.2-B4.3 (MANC): two Poisson copies and two negative-binomial copies (dispersion 1/k measured from the left-right
+    homologous raw counts, recorded in gates_v4/NB_DISPERSION.json at pack time), floor 5, the left screen on each (paired draws,
+    seeds 0..7, analysed types)."""
+    require_freeze("count noise")
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
+    f = MR.fly("MANC")
+    mm = MR.mirror_map(f)
+    C1 = FX.manc_raw_counts()
+    nb = FX.nb_inverse_k(C1, mm)
+    p = GATES4 / "NB_DISPERSION.json"
+    if not p.exists():
+        _write_once(p, {"rule": "PREREG v4 B4.3", **nb})
+    halves = f.halves()
+    types = [t for t in analysed_set()["analysed"] if t in halves["L"]]
+    shared0 = {"src": MR.paired_source(mm), "sizes_real": np.asarray(f.net.sizes, np.float64),
+               "ro_L": f.readout[mm.real_of()] & (mm.side == "L")}
+    P = _paired(mm.n_real)
+    groups = []
+    for name, seed in NOISE_SEEDS.items():
+        raw = FX.poisson_copy(C1, seed) if name[0] == "P" else FX.nb_copy(C1, nb["inv_k"], seed)
+        e = _noise_ext(FX.at_floor(raw, 5), f, mm)
+        sh = dict(shared0, W=e.W(), sizes=e.sizes)
+        jobs = []
+        for t in types:
+            mem = MR.stimulated(MR.left_slots(mm, halves["L"][t], halves["R"][t]), e.present)
+            for s in B_SEEDS:
+                j = _base_job(f"CN-{name}|{t}|s{s}", s)
+                j.update(kind="group_v4", W=Shared("W"), sizes=Shared("sizes"), members=mem, readout=Shared("ro_L"), params=P)
+                jobs.append(j)
+        groups.append((sh, jobs))
+    return groups, "reliability_v2"
+
+
+def build_fl(k=None):
+    """PREREG v4 B4.4 (MANC): the network rebuilt at floor k (1, 3 or 10) from the raw counts; L on W_f and L on M_f (= R on W_f),
+    paired draws, seeds 0..7, analysed types."""
+    require_freeze("floors")
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
+    fl_ = int(k)
+    if fl_ not in (1, 3, 10):
+        raise SystemExit("--k must be 1, 3 or 10 (floor 5 is Block 2's baseline)")
+    f = MR.fly("MANC")
+    mm = MR.mirror_map(f)
+    e = _noise_ext(FX.at_floor(FX.manc_raw_counts(), fl_), f, mm)
+    em = MR.mirror(e, mm)
+    halves = f.halves()
+    types = [t for t in analysed_set()["analysed"] if t in halves["L"]]
+    sh = {"W": e.W(), "M": em.W(), "sizes_W": e.sizes, "sizes_M": em.sizes, "src": MR.paired_source(mm),
+          "sizes_real": np.asarray(f.net.sizes, np.float64), "ro_L": f.readout[mm.real_of()] & (mm.side == "L")}
+    P = _paired(mm.n_real)
+    jobs = []
+    for t in types:
+        slots = MR.left_slots(mm, halves["L"][t], halves["R"][t])
+        for s in B_SEEDS:
+            for arm, W, sz, pres in (("LW", "W", "sizes_W", e.present), ("LM", "M", "sizes_M", em.present)):
+                j = _base_job(f"FL-{fl_}-{arm}|{t}|s{s}", s)
+                j.update(kind="group_v4", W=Shared(W), sizes=Shared(sz), members=MR.stimulated(slots, pres), readout=Shared("ro_L"), params=P)
+                jobs.append(j)
+    return [(sh, jobs)], "reliability_v2"
+
+
 # ------------------------------------------------------------------------------------------------------------------ Part C
 NET_FIXES = ("3a", "3b", "4", "5a", "5b", "6", "7", "8")
 GAINS = (1.0, 0.5, 0.75, 1.5, 2.0, 3.0)
@@ -446,7 +578,9 @@ def build_cx(k=None):
                     j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared(f"readout_{side}"), members=h[side][t])
                     jobs.append(_std(j, g))
         groups.append((sh, jobs))
-    # the rewired control with the fix applied (left side)
+    # the rewired control with the fix applied (left side); not for the floors: a rewired network has no pre-floor counts (C2.3)
+    if fix in ("3a", "3b"):
+        return groups, "reliability_v2"
     W, sizes = FX.apply_fix(fix, rf, MR.mirror_map(fm))
     sh = {"W": W, "sizes": sizes, "readout_L": fm.readout_side("L")}
     hm = fm.halves()
@@ -563,9 +697,10 @@ def p4_check(name: str = "p4-run4") -> dict:
 
 
 RUN4_BUILDERS = {"pa": build_pa, "r4rep": build_r4rep, "b1s": build_b1s, "b2": build_b2, "b3": build_b3, "p4": build_p4,
-                 "p4b": build_p4, "cg": build_cg, "crw": build_crw, "cx": build_cx, "dx": build_dx}
+                 "p4b": build_p4, "cg": build_cg, "crw": build_crw, "cx": build_cx, "dx": build_dx, "cn": build_cn, "fl": build_fl,
+                 "det4": build_det4}
 G.BUILDERS.update(RUN4_BUILDERS)
-RUN4_PREFIXES = set(RUN4_BUILDERS) | {"cn", "fl", "det4"}
+RUN4_PREFIXES = set(RUN4_BUILDERS)
 
 
 # ------------------------------------------------------------------------------------------------ publish / collect / feeder
@@ -728,6 +863,8 @@ def main() -> None:
         p4_check(*(a[:1] or []))
     elif cmd == ["c-gains"]:
         c_gains(*(a[:1] or []))
+    elif cmd == ["det-compare"]:
+        det_compare(int(a[0]))
     else:
         raise SystemExit(__doc__)
 

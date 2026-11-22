@@ -296,8 +296,9 @@ noise and Part C's attribution are run on the cross-fly gap instead (B5).
 - **B4.2 Poisson:** every raw count c replaced by Poisson(c) (pairs with c >= 1; `default_rng(20261411)` and `(20261412)` for two
   copies), floor 5 applied, the left screen on each copy; agreement copy 1 vs copy 2 (cross-half primary, paired second), and each copy
   vs L on W.
-- **B4.3 Dispersion measured from the data (negative binomial):** over homologous connection pairs of matched neurons (G4) with raw
-  counts c_L, c_R (at least one >= 1): 1/k = sum(((c_L - c_R)^2 / 2 - mbar) * mbar^2) / sum(mbar^4) with mbar = (c_L + c_R) / 2 (least
+- **B4.3 Dispersion measured from the data (negative binomial):** over unordered homologous connection pairs {(i, j), (m(i),
+  m(j))} with i and j each matched or self-mapped (G4), not both self-mapped, counted once, with raw counts c_L, c_R (at least one
+  >= 1): 1/k = sum(((c_L - c_R)^2 / 2 - mbar) * mbar^2) / sum(mbar^4) with mbar = (c_L + c_R) / 2 (least
   squares through the origin of the excess variance on mbar^2; the measured left-right dispersion, no reference to any screen); every
   raw count c >= 1 replaced by a negative-binomial draw with mean c and size k (`(20261421)`, `(20261422)`), floor 5, as B4.2. If the
   estimate of 1/k is <= 0, the dispersion model equals Poisson and is reported as such.
@@ -337,7 +338,8 @@ rules apply. This branch is described here so that it is fixed; it is run only i
 
 **C2. Network-level** (applied to the network before the screen; parameters drawn as usual on the fixed network).
 3. **Lower floor:** floors 1 and 3 (two fixes, 3a and 3b). MANC only (no pre-floor MaleCNS counts), so criterion 2's cross-fly part
-   cannot be evaluated and **fixes 3a and 3b cannot pass**; they are reported on MANC's left-right agreement (stated now).
+   cannot be evaluated and **fixes 3a and 3b cannot pass**; nor can the rewired control be floored (a rewired network has no
+   pre-floor counts), so criterion 4 is not evaluated for them; they are reported on MANC's left-right agreement (stated now).
 4. **Symmetrised:** for every pair of homologous entries (i, j), (m(i), m(j)) with i and j matched or self-mapped, both counts are
    replaced by their mean (a connection present on one side becomes half its count on both); signs and sizes unchanged; entries of
    unmatched neurons unchanged.
