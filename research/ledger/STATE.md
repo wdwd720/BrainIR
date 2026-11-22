@@ -32,10 +32,13 @@ unblinded and closed.
       19 steps OK; L125). Feeder crash on an existing tag -> b2-manc published as -r2 (L124).
 - [x] Block 1 both flies (L126), Block 2 both flies (L128), Block 3 MANC (L129; MaleCNS repeats dropped). Outputs committed.
 - [x] X9 step 6 (L132): Part D dropped except the robust model's screen and zero-compute re-scores (fix 2; robust's from Part E).
-- [~] RUNNING (04:50 PST): GitHub cx-5a (3 left), cx-5b (6), cx-7 (6), det4-2 (1). Single publisher posthoc/fl1_subset_v4.py
-      (log data/cache/ledger_logs/publisher.log + feeder_run4_core2.log), first-fit queue: cx-3a (8 chunks), fl-1-subset (ALL 4,192
-      floor-1 jobs as attempt 2 in 10 chunks; attempt 1 all failed: 5 timeouts + 1 lost runner), cx-1, det4-3, det4-4.
-      Collector collect_all2.sh order: cx-5a, cx-5b, cx-7, cx-3a, cx-1, fl-1 (last; merges attempts). det4-* need their own collect4.
+- [x] Modal (user allowed +$14, cap $29, amendment 7, L136): cx-3a chunks 6-7 (1,048) and fl-1 re-packed chunks 4-9 (2,512) done;
+      logged total $25.94. Collected: cx-4, cx-5a, cx-5b, cx-7 (GitHub); det4-2 compared (80/80), det4-3/det4-4 collected.
+- [~] RUNNING (11:25 PST): GitHub cx-3a attempt 0 (1 chunk, limit 11:44) and -r3 (1 chunk, limit 12:12) -> if cut off, redo on
+      Modal with posthoc/modal_subset_v4.py (attempt 0 run(i) = packed chunk i; -r3 run(i) = packed chunk 4+i); fl-1 -r2 (re-packed
+      0-1) and -r3 (2-3); cx-1 redo of chunks 0,1,2,4 (1,272 jobs, 13 chunks of 100) by posthoc/redo_v4.py (log redo_cx1.log):
+      -r2, -r3 published, 2 parts pending. Collector collect_all2.sh waits on cx-3a, then cx-1, then fl-1 (missing counts exclude
+      MODAL results: check completeness with gha4.load_results).
 - NEXT: noise (cn + fl-1, only after fl-1's re-run completes), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
       model's dx first, then re-check the envelope for Part D (dx-*) -> rescue; det4 stages 2-5 (stage 3 without fl-3/fl-10);
       exploratory full-278 comparison for Block 1/3; LOCK_reliability_v2; then forward ledger.
