@@ -356,7 +356,10 @@ def cmd_a4() -> None:
         m = mm.m[: f.n]
         matched = np.isin(mm.status[: f.n], MR.MATCHED)
         C = sp.csr_matrix(f.C)
-        Cm = C[m][:, m].tocsr()
+        # the mirror image on the real neurons only: an unmatched neuron's partner is a ghost slot (index >= n), and unmatched
+        # neurons are left out below anyway (amendment: indexing C with ghost indices raised IndexError)
+        mreal = np.where(matched, m, np.arange(f.n))
+        Cm = C[mreal][:, mreal].tocsr()
         U = (C + Cm).tocoo()
         keep = matched[U.row] & matched[U.col]
         r, c = U.row[keep], U.col[keep]
