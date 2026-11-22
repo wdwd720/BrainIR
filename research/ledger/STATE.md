@@ -28,9 +28,11 @@ unblinded and closed.
 - [x] X9 re-budget (L122): random part cut to 25 (ANALYSED_SET_X9.json, amendment 4; 262 analysed types); DROPPED: MaleCNS Block 3
       repeats, floors 3/10 (fl-3, fl-10), fix 3b (cx-32, dx-32); fix 2 kept (zero compute); Part D dx deferred until the robust
       model is chosen (its whole-type screen first). Fix campaigns use LABEL names: cx-3a, cx-5a, cx-5b (dx-3a, dx-5a, dx-5b).
-- [~] RUNNING (21:40 PST): GitHub b1s-manc-run4-r2 (12 chunks), b1s-mcns-run4 attempts 1 (170-min timeout) + 2 (hedge; watcher
-      hedge_b1s_mcns.sh cancels attempt 2 if attempt 1 succeeds). Feeder (log feeder_run4_core.log): b2-manc, cn, fl-1, cx-4, cx-5a,
-      cx-5b, cx-7, cx-3a, cx-1. Collector scratchpad/collect_all2.sh -> data/cache/ledger_logs/collect_all.log.
+- [x] Amendments 5 (B1 transplant mapping) and 6 (SR guard) after a dry run on fake results (posthoc/dryrun_analyses_v4.py, all
+      19 steps OK; L125). Feeder crash on an existing tag -> b2-manc published as -r2 (L124).
+- [~] RUNNING (22:30 PST): GitHub b1s-manc-run4-r2 (12), b1s-mcns-run4-r2 (6), b2-manc-run4-r2 (7), cn-run4 (6). Feeder
+      (feeder_run4_core2.log): fl-1, cx-4, cx-5a, cx-5b, cx-7, cx-3a, cx-1. Collector scratchpad/collect_all2.sh (same list from
+      b1s-mcns on) -> data/cache/ledger_logs/collect_all.log. Monitor on both logs.
 - NEXT: as campaigns finish: b1 MANC/MaleCNS, b2 MANC/MaleCNS, b3 MANC (B3_MALECNS_CHOICE.json is written; b3-mcns NOT run: dropped),
       noise (cn + fl-1 only), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
       model's dx first, then re-check the envelope for Part D (dx-*) -> rescue; det4 stages 2-5 (stage 3 without fl-3/fl-10);
