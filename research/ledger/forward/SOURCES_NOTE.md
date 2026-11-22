@@ -4,7 +4,7 @@ PREREG v4 E2 names three sources: the authors' model, two-step signed counting, 
 
 - Fix 1 (dose-sweep scoring): fails 2 cross-fly agreement; 2 left-right agreement; 3 still informative.
 - Fix 2 (pooled read-out): fails 2 cross-fly agreement; 2 left-right agreement; 4 still about the wiring.
-- Fix 3a (floor 1): fails 2 cross-fly agreement (not evaluable: not evaluable: no pre-floor MaleCNS counts (PREREG v4 C2.3)); 2 left-right agreement; 4 still about the wiring.
+- Fix 3a (floor 1): fails 2 cross-fly agreement (not evaluable: no pre-floor MaleCNS counts (PREREG v4 C2.3)); 2 left-right agreement; 4 still about the wiring.
 - Fix 3b (floor 3): not evaluated: cx-3b-run4: no results collected.
 - Fix 4 (symmetrised): fails 2 cross-fly agreement; 4 still about the wiring.
 - Fix 5a (type-pooled within side): fails 2 cross-fly agreement; 2 left-right agreement; 4 still about the wiring.

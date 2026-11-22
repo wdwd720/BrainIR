@@ -34,7 +34,7 @@ def main() -> None:
             continue
         name = NAMES.get(fix, fix)
         if "criteria" in r:
-            failed = [CRIT[k] + (" (not evaluable: " + r["cross_fly"]["note"] + ")" if k == "2_agreement_cross_fly" and "note" in r.get("cross_fly", {})
+            failed = [CRIT[k] + (" (" + r["cross_fly"]["note"] + ")" if k == "2_agreement_cross_fly" and "note" in r.get("cross_fly", {})
                                  else "") for k, v in r["criteria"].items() if not v]
             lines.append(f"- Fix {fix} ({name}): fails " + "; ".join(failed) + ".")
         else:
