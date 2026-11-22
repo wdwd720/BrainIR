@@ -212,3 +212,42 @@ def test_mirror_trajectories_match_slot_for_slot_and_tuner_moves():
         for k in ("usable", "current", "n_tuning_runs", "n_active_all", "n_high_fr", "n_active_readout", "verdict"):
             assert b.get(k) == c.get(k), (seed, k)
     assert moved > 0 and differs > 0
+
+
+def _fly_with_cross_type_group():
+    """Type E has 2 left members and 1 right member; E's right member shares an annotated group with a left member of type D (a
+    cross-type group, as in MaleCNS); D has 2 + 2 members. Audit findings 1 and 2."""
+    f = _synthetic_fly(seed=5)
+    n = f.n
+    gid = f.gid.copy()
+    # members: D = 0, 1 (L), 13, 14 (R); make E = 2, 3 (L, interneuron slots) and 15 (R)
+    gid[15] = gid[0]          # cross-type group: E's right member grouped with D's left member 0
+    ntype = f.ntype.copy()
+    ntype[[2, 3, 15]] = "E"
+    groups = {"D": [0, 1, 13, 14], "E": [2, 3, 15]}
+    return MR.Fly("SYN2", f.net, groups, f.side_annot, f.out_side, f.side, f.corrected, f.dropped, {}, gid, ntype, f.sign, f.C, f.readout), n
+
+
+def test_stimulated_set_on_mirror_is_mirror_of_right_members_and_hybrids_have_no_driven_absent_slots():
+    f, n = _fly_with_cross_type_group()
+    mm = MR.mirror_map(f)
+    e = MR.extend(f.C, f.sign, f.net.sizes, mm)
+    em = MR.mirror(e, mm)
+    for t, mem in f.groups.items():
+        L = [i for i in mem if f.side[i] == "L"]
+        R = [i for i in mem if f.side[i] == "R"]
+        slots = MR.left_slots(mm, L, R)
+        assert sorted(MR.stimulated(slots, em.present)) == sorted(int(mm.m[j]) for j in R), t   # S_M == m(R_t)
+        assert sorted(MR.stimulated(slots, e.present)) == sorted(L), t                          # S_W == L_t
+        for j in L + R:   # step 0: partners stay within the type (or are ghosts)
+            assert mm.status[j] == "unmatched" or int(mm.m[j]) in mem
+        own, rest = MR.columns_from(e, em, slots), MR.columns_from(em, e, slots)
+        for h in (own, rest):
+            absent = np.flatnonzero(~h.present)
+            assert abs(h.C[absent, :]).sum() == 0 and abs(h.C[:, absent]).sum() == 0   # absent slots have no input and no output
+        # complementarity outside the slots whose presence differs between W and M (their entries are dropped where absent)
+        import scipy.sparse as sp_  # noqa: PLC0415
+
+        D = sp_.diags((e.present == em.present).astype(float))
+        assert abs(D @ ((own.C + rest.C) - (e.C + em.C)) @ D).max() == 0
+    assert mm.counts["unmatched_stimulated_type_members"] == 1

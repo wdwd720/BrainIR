@@ -40,7 +40,7 @@ TRAINING = ("Probabilities come from a one-variable logistic fit of exam 1's lab
             "predict future ones (RUN4_PROMPT hard limit 4).")
 ATLAS = ("Atlas caveat: 21 of exam 1's 25 'yes' types rest on the intact-fly atlas alone, and the atlas gives no 'no'; the fit inherits "
          "that confound.")
-PROTOCOL = ["Cross the driver line to UAS-CsChrimson; raise adults on food with 0.4 mM all-trans-retinal for 3-5 days, in the dark.",
+PROTOCOL = ["Cross the driver line to UAS-CsChrimson (LexAop-CsChrimson for a LexA line); raise adults on food with 0.4 mM all-trans-retinal for 3-5 days, in the dark.",
             "Decapitate the fly under cold anaesthesia and let it recover for 5-10 min, tethered or free on a flat surface.",
             "Deliver 1 s pulses of 617 nm light (several intensities), at least 10 pulses per fly, at least 8 flies per genotype.",
             "Record the front legs at >= 100 frames/s; score each pulse for rhythmic front-leg stepping blind to genotype.",
@@ -112,25 +112,26 @@ def collection_of(line: str) -> str:
 
 
 def robust_scores(fix: str) -> pd.Series:
-    """The robust model's exam 1 whole-type screen (Part D campaign dx-<fix>, seeds 0..7), G5 type score; fix 1: best in-bounds grid
-    score; fix 2: pooled score of B1r's stored runs (seeds 0..7)."""
+    """The robust model's exam 1 whole-type screen (E2; any passing fix of Part C), seeds 0..7, G5 type score, scored by the fix's
+    procedure part (fix 1: best in-bounds grid score; fix 2: pooled score; else the screen's score). Fix 2 at gain 1: B1r's stored
+    runs (seeds 0..7); otherwise the campaign `dx-<fix>-run4` (GitHub or Modal)."""
     a1 = list(a1_types().index)
-    if fix == "2":
-        res = read_log(data_dir() / "arms" / "GHA_b1r" / "results.pkl")
-        rows = [{"type": r["key"].split("|")[1], "seed": int(r["seed"]), "usable": bool(r.get("usable")), "score": pooled.pooled_score(r)}
-                for r in res if "error" not in r and int(r["seed"]) < 8]
+    proc, netfix = gha4._fix_parts(fix)
+    g = gha4._gain_of(fix)
+    if proc == "2" and netfix == "0" and g == 1.0:
+        res = [r for r in read_log(data_dir() / "arms" / "GHA_b1r" / "results.pkl") if "error" not in r and int(r["seed"]) < 8]
     else:
-        res = read_log(data_dir() / "reliability_v2" / f"GHA_dx-{fix}-run4" / "results.pkl")
-        rows = []
-        for r in res:
-            if "error" in r:
-                continue
-            t, s = r["key"].split("|")[1], int(r["key"].split("|")[2][1:])
-            if fix == "1":
-                ib = [x["score"] for x in r["runs"] if x["in_bounds"]]
-                rows.append({"type": t, "seed": s, "usable": True, "score": max(ib) if ib else 0.0})
-            else:
-                rows.append({"type": t, "seed": s, "usable": bool(r.get("usable")), "score": r.get("score")})
+        res = gha4.load_results(f"dx-{fix}-run4")
+    rows = []
+    for r in res:
+        t, s = r["key"].split("|")[1], int(r["key"].split("|")[2][1:])
+        if proc == "1":
+            ib = [x["score"] for x in r["runs"] if x["in_bounds"]]
+            rows.append({"type": t, "seed": s, "usable": True, "score": max(ib) if ib else 0.0})
+        elif proc == "2":
+            rows.append({"type": t, "seed": s, "usable": bool(r.get("usable")), "score": pooled.pooled_score(r)})
+        else:
+            rows.append({"type": t, "seed": s, "usable": bool(r.get("usable")), "score": r.get("score")})
     return AG.type_scores(pd.DataFrame(rows), list(range(8)), a1)
 
 
@@ -225,14 +226,14 @@ def flags(types: list[str], fix: str | None) -> dict[str, dict[str, dict[str, st
     sides_common = sorted(set(s2l.index) & set(s2r.index))
     tl_, tr_ = _tercile(s2l[sides_common]), _tercile(s2r[sides_common])
     rob = None
-    if fix is not None and fix not in ("1", "2"):
-        res = read_log(data_dir() / "reliability_v2" / f"GHA_cx-{fix}-run4" / "results.pkl")
-        rob = {}
-        for k in ("MANC-L", "MANC-R", "MCNS-L", "MCNS-R"):
-            rows = [{"type": r["key"].split("|")[1], "seed": int(r["key"].split("|")[2][1:]), "usable": bool(r.get("usable")),
-                     "score": r.get("score")} for r in res if "error" not in r and r["key"].split("|")[0] == f"CX-{fix}-{k}"]
-            d = pd.DataFrame(rows)
-            rob[k] = AG.type_scores(d, None, None) if len(d) else pd.Series(dtype=float)
+    if fix is not None:
+        import reliability_v2_bc as RB  # noqa: PLC0415
+
+        gains = json.loads((gha4.GATES4 / "C_GAINS.json").read_text())["fixes"]
+        if (gha4.GATES4 / "C_GAINS_fix9.json").is_file():
+            gains = {**gains, **json.loads((gha4.GATES4 / "C_GAINS_fix9.json").read_text())["fixes"]}
+        hf = RB._half_flies_fix(fix, gains)
+        rob = {k: AG.type_scores(hf[k], list(range(8)), sorted(set(hf[k]["type"]))) for k in ("MANC-L", "MANC-R", "MCNS-L", "MCNS-R") if k in hf}
     for t in types:
         f1 = "agree" if (t in b1.index and t in b2.index and _band(b1[t]) == _band(b2[t])) else ("disagree" if t in b1.index and t in b2.index else "not computed")
         f2 = "agree" if (t in sl.index and _band(sl[t]) == _band(sr[t])) else ("disagree" if t in sl.index else "not computed")
@@ -240,7 +241,7 @@ def flags(types: list[str], fix: str | None) -> dict[str, dict[str, dict[str, st
         g1 = ("agree" if tm_[t] == tc_[t] else "disagree") if t in tm_.index else "not computed"
         g2 = ("agree" if tl_[t] == tr_[t] else "disagree") if t in tl_.index else "not computed"
         out[t]["two_step_count"] = {"two_flies": g1, "two_sides": g2}
-        if rob is not None:
+        if rob is not None and len(rob) == 4:
             have = all(t in rob[k].index for k in rob)
             r1 = ("agree" if _band(rob["MANC-L"][t]) == _band(rob["MCNS-L"][t]) and _band(rob["MANC-R"][t]) == _band(rob["MCNS-R"][t])
                   else "disagree") if have else "not computed"
@@ -261,7 +262,7 @@ def build(fix: str | None) -> None:
         names["robust_model"] = f"the robust model (fix {fix})"
     y_all = primary_set()
     y_head = headless_set()
-    use_head = len(y_head) >= 15 and y_head.nunique() == 2
+    use_head = len(y_head) >= 15 and y_head.sum() >= 1 and (len(y_head) - y_head.sum()) >= 1  # E3: >= 15 headless types, both classes
     y = y_head if use_head else y_all
     cal, fits = {}, {}
     for src, s in raw.items():
@@ -294,6 +295,8 @@ def build(fix: str | None) -> None:
          + TRAINING + "\n\n" + "\n".join(f"- {x}" for x in sent) + "\n")
     _out("README.md", "# Forward ledger v1 (PREREG v4 Part E)\n\n" + HONESTY + "\n\n" + TRAINING + "\n\n" + ATLAS + "\n\n"
          + f"Types: {len(types)} (E1). Sources: {', '.join(names.values())}.\n\n"
+         + "The authors' model's stability flags come from our replication of it (B1r vs B2r for the two flies, Part A's MANC halves "
+           "for the two sides), not from the authors' own runs (E5).\n\n"
          + f"Scoring rule (E7): when results arrive, each source is scored by its Brier score against a base-rate guesser that says "
            f"{base:.3f} for every type (exam 1's base rate on the fit set).\n")
 

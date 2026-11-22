@@ -379,7 +379,7 @@ def test_words_rule():
     assert AG.words(0.95, [0.8, 1.0], 0.5) == "at the ceiling"
     assert AG.words(0.90, [0.7, 1.3], 0.2) == "at the ceiling"
     assert AG.words(0.95, [0.8, 0.99], 0.5) == "a real gap"
-    assert AG.words(0.89, [0.7, 1.1], 0.5) == "a real gap"
+    assert AG.words(0.89, [0.7, 1.1], 0.5) == "inconclusive"     # audit finding 3: the interval reaches 1
     assert AG.words(0.95, [0.8, 1.2], 0.19) == "not judged"     # ceiling too low, whatever the ratio
     assert AG.words(None, [None, None], 0.5) == "not judged"
     assert AG.words(0.95, [None, None], 0.5) == "not judged"    # no interval: the rule cannot be applied

@@ -21,6 +21,7 @@ from . import REPO
 from . import networks as N
 
 SIDES = ("L", "R")
+MATCHED = ("d", "g1", "g2", "t")  # statuses of paired neurons (step 0 = within a stimulated type)
 OPP = {"L": "R", "R": "L"}
 RELIABLE = 0.90  # G3: annotation reliable if it agrees with the output side for >= 90 % of DN members
 
@@ -228,16 +229,21 @@ def _hungarian(prof: sp.csr_matrix, left: list[int], right: list[int]) -> list[t
 
 
 def mirror_map(f: Fly) -> MirrorMap:
-    """G4: steps 1 (1:1 annotated groups), 2 (Hungarian within groups), 3 (Hungarian within type), 4 (unmatched -> ghost)."""
+    """G4: step 0 (the members of each stimulated type paired WITHIN the type, so that the left screen on M stimulates exactly the
+    mirror of the right members; audit finding 1), steps 1 (1:1 annotated groups), 2 (Hungarian within groups), 3 (Hungarian within
+    type) for every other sided neuron, step 4 (unmatched -> ghost). Members left out by G3 (`dropped`) map to themselves."""
     n = f.n
     side = np.array([s if s in ("L", "R", "M") else "U" for s in f.side], dtype=object)
+    side[np.asarray(f.dropped, bool)] = "U"  # audit finding 14: a left-out member is never paired
     m = np.arange(n)
     status = np.array(["self" if side[i] not in SIDES else "" for i in range(n)], dtype=object)
     sided = [i for i in range(n) if side[i] in SIDES]
-    # step 1
+    members = {t: ([i for i in g if side[i] == "L"], [i for i in g if side[i] == "R"]) for t, g in sorted(f.groups.items())}
+    hset = {i for L, R in members.values() for i in L + R}
+    # the profile basis: 1:1 annotated groups among neurons that are not members of a stimulated type
     by_g: dict[str, list[int]] = {}
     for i in sided:
-        if f.gid[i] is not None:
+        if f.gid[i] is not None and i not in hset:
             by_g.setdefault(f.gid[i], []).append(i)
     pairs1 = []
     for g, mem in sorted(by_g.items()):
@@ -245,10 +251,20 @@ def mirror_map(f: Fly) -> MirrorMap:
         R = [i for i in mem if side[i] == "R"]
         if len(L) == 1 and len(R) == 1:
             pairs1.append((L[0], R[0]))
+    prof = _profiles(f.C, np.array(pairs1, dtype=np.int64).reshape(-1, 2), side)
+    # step 0: within each stimulated type; extras are unmatched (never paired outside their type)
+    for t, (L, R) in members.items():
+        pairs = [(L[0], R[0])] if (len(L) == 1 and len(R) == 1) else _hungarian(prof, L, R)
+        for a, b in pairs:
+            m[a], m[b] = b, a
+            status[a] = status[b] = "d"
+        for i in L + R:
+            if status[i] == "":
+                status[i] = "unmatched"
+    # step 1
     for a, b in pairs1:
         m[a], m[b] = b, a
         status[a] = status[b] = "g1"
-    prof = _profiles(f.C, np.array(pairs1, dtype=np.int64).reshape(-1, 2), side)
     # step 2
     for g, mem in sorted(by_g.items()):
         L = [i for i in mem if side[i] == "L" and status[i] == ""]
@@ -268,7 +284,7 @@ def mirror_map(f: Fly) -> MirrorMap:
             m[a], m[b] = b, a
             status[a] = status[b] = "t"
     # step 4: ghosts
-    um = [i for i in sided if status[i] == ""]
+    um = [i for i in sided if status[i] in ("", "unmatched")]
     n_ext = n + len(um)
     m_ext = np.concatenate([m, np.zeros(len(um), dtype=np.int64)])
     status_ext = np.concatenate([status, np.array(["ghost"] * len(um), dtype=object)])
@@ -281,13 +297,19 @@ def mirror_map(f: Fly) -> MirrorMap:
         ghost_of[g] = i
     assert np.array_equal(m_ext[m_ext], np.arange(n_ext)), "mirror map is not an involution"
     for i in range(n_ext):
-        if status_ext[i] in ("g1", "g2", "t"):
+        if status_ext[i] in MATCHED:
             assert side_ext[m_ext[i]] == OPP[side_ext[i]]
+    for t, (L, R) in members.items():  # step 0's guarantee: the partner of a type member is a member of the same type (or a ghost)
+        for i in L + R:
+            j = int(m_ext[i])
+            assert status_ext[i] == "unmatched" or j in (members[t][0] + members[t][1]), (t, i, j)
     counts = {"neurons": n, "sided": len(sided), "self_mapped": int((status == "self").sum()),
+              "pairs_step0_within_stimulated_type": int(sum(1 for i in range(n) if status_ext[i] == "d") // 2),
               "pairs_step1_group_1to1": int(sum(1 for i in range(n) if status_ext[i] == "g1") // 2),
               "pairs_step2_group_hungarian": int(sum(1 for i in range(n) if status_ext[i] == "g2") // 2),
               "pairs_step3_type_hungarian": int(sum(1 for i in range(n) if status_ext[i] == "t") // 2),
               "unmatched_left": int(sum(1 for i in um if side[i] == "L")), "unmatched_right": int(sum(1 for i in um if side[i] == "R")),
+              "unmatched_stimulated_type_members": int(sum(1 for i in um if i in hset)),
               "ghost_slots": len(um)}
     return MirrorMap(n, m_ext, status_ext, side_ext, ghost_of, counts)
 
@@ -366,20 +388,46 @@ def hybrid(e: Ext, em: Ext, mm: MirrorMap, classes: set[int], *, cache=None) -> 
 
 
 def columns_from(base: Ext, other: Ext, cols) -> Ext:
-    """B2.1: `base` with the columns `cols` (output connections), and those slots' sign, size and presence, taken from `other`."""
+    """B2.1: `base` with the columns `cols` (output connections), and those slots' sign, size and presence, taken from `other`; a listed
+    slot whose presence differs between the two networks also takes its row (inputs) from `other`, so that no slot is present
+    without inputs or absent with them (audit finding 2). H_own(t) = columns_from(W, M, slots); H_rest(t) = columns_from(M, W, slots);
+    every entry comes from M in exactly one of the two."""
     cols = np.asarray(sorted(set(int(c) for c in cols)), dtype=np.int64)
     ne = base.C.shape[0]
-    keep = np.ones(ne, bool)
-    keep[cols] = False
+    take_c = np.zeros(ne, bool)
+    take_c[cols] = True
+    take_r = np.zeros(ne, bool)
+    if len(cols):
+        take_r[cols[base.present[cols] != other.present[cols]]] = True
     Bc, Oc = base.C.tocsc(), other.C.tocsc()
-    D_keep = sp.diags(keep.astype(float))
-    D_take = sp.diags((~keep).astype(float))
-    C = (Bc @ D_keep + Oc @ D_take).tocsr()
+    C = (Bc @ sp.diags((~take_c).astype(float)) + Oc @ sp.diags(take_c.astype(float))).tocsr()
+    if take_r.any():
+        C = (sp.diags((~take_r).astype(float)) @ C + sp.diags(take_r.astype(float)) @ other.C.tocsr()).tocsr()
     C.eliminate_zeros()
     C.sort_indices()
     sign, sizes, pres = base.sign.copy(), base.sizes.copy(), base.present.copy()
     sign[cols], sizes[cols], pres[cols] = other.sign[cols], other.sizes[cols], other.present[cols]
+    # an absent slot has no input and no output: a transplanted connection onto (or from) a neuron that does not exist in the
+    # hybrid is dropped (B2.1; audit finding 2); `dropped_by_presence` counts them for the report
+    C = (sp.diags(pres.astype(float)) @ C @ sp.diags(pres.astype(float))).tocsr()
+    C.eliminate_zeros()
+    C.sort_indices()
     return Ext(C, sign, sizes, pres)
+
+
+def dropped_by_presence(base: Ext, other: Ext, cols) -> int:
+    """Entries of `columns_from(base, other, cols)` before the absent rows and columns are cleared, minus after (B2.5 reports it)."""
+    cols = np.asarray(sorted(set(int(c) for c in cols)), dtype=np.int64)
+    ne = base.C.shape[0]
+    take_c = np.zeros(ne, bool)
+    take_c[cols] = True
+    pres = base.present.copy()
+    pres[cols] = other.present[cols]
+    full = (base.C.tocsc() @ sp.diags((~take_c).astype(float)) + other.C.tocsc() @ sp.diags(take_c.astype(float))).tocsr()
+    full.eliminate_zeros()
+    kept = (sp.diags(pres.astype(float)) @ full @ sp.diags(pres.astype(float))).tocsr()
+    kept.eliminate_zeros()
+    return int(full.nnz - kept.nnz)
 
 
 def left_slots(mm: MirrorMap, members_left: list[int], members_right: list[int]) -> list[int]:
@@ -400,7 +448,7 @@ def paired_source(mm: MirrorMap) -> np.ndarray:
     n = mm.n_real
     src = np.arange(mm.n_ext)
     for i in range(mm.n_ext):
-        if mm.status[i] in ("g1", "g2", "t"):
+        if mm.status[i] in MATCHED:
             src[i] = min(i, int(mm.m[i]))
         elif mm.status[i] == "ghost":
             src[i] = int(mm.ghost_of[i])
@@ -439,3 +487,31 @@ def permute(e: Ext, perm: np.ndarray) -> Ext:
     C = e.C[inv][:, inv].tocsr()
     C.sort_indices()
     return Ext(C, e.sign[inv], e.sizes[inv], e.present[inv])
+
+
+# ------------------------------------------------------------------------------------------------------------- type sets
+def homolog_consistent_types(f: Fly, mm: MirrorMap | None = None) -> list[str]:
+    """PREREG v4 G9 (audit finding 1): the matched types each of whose within-type pairs (step 0) shares an annotated bilateral group
+    (MANC `group_id`, MaleCNS `group`); a pair with a missing group on either side is not consistent. The primary type set."""
+    mm = mm or mirror_map(f)
+    h = f.halves()
+    out = []
+    for t in sorted(h["L"]):
+        ok = True
+        for i in h["L"][t]:
+            if mm.status[i] != "d":
+                continue
+            j = int(mm.m[i])
+            if f.gid[i] is None or f.gid[j] is None or f.gid[i] != f.gid[j]:
+                ok = False
+                break
+        if ok:
+            out.append(t)
+    return out
+
+
+def side_concordant_types(f: Fly) -> list[str]:
+    """PREREG v4 G3 (audit finding 8): the matched types none of whose members has an annotated side that differs from its defined
+    output side (MANC: root side vs output side)."""
+    h = f.halves()
+    return sorted(t for t in h["L"] if not any(f.out_side[i] in SIDES and f.out_side[i] != f.side_annot[i] for i in h["L"][t] + h["R"][t]))

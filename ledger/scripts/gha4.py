@@ -93,6 +93,23 @@ def _paired(n_real: int) -> dict:
     return dict(PAIRED, n_real=int(n_real))
 
 
+def load_results(campaign: str, area: str = "reliability_v2") -> list[dict]:
+    """A campaign's results from GitHub (`GHA_<name>`) and Modal (`MODAL_<name>`, modal4.py), merged by key (a key present in both
+    must have the same digest: both platforms passed the same trust gate); errors are dropped."""
+    out: dict[str, dict] = {}
+    for pre in ("GHA_", "MODAL_"):
+        p = data_dir() / area / f"{pre}{campaign}" / "results.pkl"
+        if p.is_file():
+            for r in read_log(p):
+                if "error" in r:
+                    continue
+                k = r["key"]
+                if k in out and out[k].get("digest") != r.get("digest"):
+                    raise SystemExit(f"{campaign} {k}: GitHub and Modal digests differ")
+                out[k] = r
+    return list(out.values())
+
+
 def analysed_set() -> dict:
     p = REL2 / "ANALYSED_SET.json"
     if not p.is_file():
@@ -107,13 +124,12 @@ def part_a_results(fly: str) -> dict[tuple[str, str, int], dict]:
         for r in read_log(data_dir() / "reliability" / "GHA_r4-run3" / "results.pkl"):
             arm, t, s = r["key"].split("|")
             out[(arm[-1], t, int(s[1:]))] = r
-        logs = [data_dir() / "reliability_v2" / "GHA_pa-manc-run4" / "results.pkl"]
+        name = "pa-manc-run4"
     else:
-        logs = [data_dir() / "reliability_v2" / "GHA_pa-mcns-run4" / "results.pkl"]
-    for p in logs:
-        for r in read_log(p):
-            arm, t, s = r["key"].split("|")
-            out[(arm[-1], t, int(s[1:]))] = r
+        name = "pa-mcns-run4"
+    for r in load_results(name):
+        arm, t, s = r["key"].split("|")
+        out[(arm[-1], t, int(s[1:]))] = r
     return out
 
 
@@ -197,6 +213,76 @@ def _ext_dict(e) -> dict:
     return {"C": e.C, "sign": e.sign, "sizes": e.sizes, "present": e.present}
 
 
+def _assert_mirror_stim(f, mm, e, em, types) -> None:
+    """Audit finding 1: for every type, the left screen on M stimulates exactly the mirror of the right members, and on W exactly
+    the left members."""
+    h = f.halves()
+    for t in types:
+        slots = MR.left_slots(mm, h["L"][t], h["R"][t])
+        if sorted(MR.stimulated(slots, em.present)) != sorted(int(mm.m[j]) for j in h["R"][t]):
+            raise SystemExit(f"{f.name} {t}: the stimulated set on M is not the mirror of the right members; refused")
+        if sorted(MR.stimulated(slots, e.present)) != sorted(h["L"][t]):
+            raise SystemExit(f"{f.name} {t}: the stimulated set on W is not the left members; refused")
+
+
+def sp_diags(v):
+    import scipy.sparse as sp  # noqa: PLC0415
+
+    return sp.diags(np.asarray(v, dtype=float))
+
+
+def mirror_check(name: str = "MIRROR_CHECK_v2.json", write: bool = True) -> dict:
+    """PREREG v4 B2.3 (i) builder check, wiring only, written once before Block 2 is read (audit finding 11): per fly, the map is an
+    involution; nothing replaced = W and all five classes = M bit for bit; for every matched type the stimulated sets on W and M are
+    L_t and m(R_t); the identity hybrid equals W; in H_own(t) and H_rest(t) no absent slot has an input or output; every entry comes
+    from M in exactly one of H_own(t), H_rest(t)."""
+    out = {}
+    for fly in ("MANC", "MaleCNS"):
+        f = MR.fly(fly)
+        mm = MR.mirror_map(f)
+        e = MR.extend(f.C, f.sign, f.net.sizes, mm)
+        em = MR.mirror(e, mm)
+        cache = MR.entry_classes(e, em, mm)
+        same = lambda a, b: bool(abs(a.C - b.C).max() == 0 and np.array_equal(a.sign, b.sign) and np.array_equal(a.present, b.present)  # noqa: E731
+                                 and np.array_equal(np.nan_to_num(a.sizes, nan=-1), np.nan_to_num(b.sizes, nan=-1)))
+        rec = {"involution": bool(np.array_equal(mm.m[mm.m], np.arange(mm.n_ext))), "counts": mm.counts,
+               "nothing_equals_W": same(MR.hybrid(e, em, mm, set(), cache=cache), e),
+               "all_five_equal_M": same(MR.hybrid(e, em, mm, {1, 2, 3, 4, 5}, cache=cache), em)}
+        h = f.halves()
+        bad_stim, bad_id, bad_absent, bad_comp, dropped = [], [], [], [], []
+        for t in sorted(h["L"]):
+            slots = MR.left_slots(mm, h["L"][t], h["R"][t])
+            if sorted(MR.stimulated(slots, em.present)) != sorted(int(mm.m[j]) for j in h["R"][t]) or \
+                    sorted(MR.stimulated(slots, e.present)) != sorted(h["L"][t]):
+                bad_stim.append(t)
+            if not same(MR.columns_from(e, e, slots), e):
+                bad_id.append(t)
+            own, rest = MR.columns_from(e, em, slots), MR.columns_from(em, e, slots)
+            for hh in (own, rest):
+                ab = np.flatnonzero(~hh.present)
+                if abs(hh.C[ab, :]).sum() != 0 or abs(hh.C[:, ab]).sum() != 0:
+                    bad_absent.append(t)
+                    break
+            # complementarity outside the slots whose presence differs between W and M (their entries are dropped where absent)
+            keep = (e.present == em.present).astype(float)
+            Dk = sp_diags(keep)
+            if abs(Dk @ ((own.C + rest.C) - (e.C + em.C)) @ Dk).max() != 0:
+                bad_comp.append(t)
+            dropped.append(MR.dropped_by_presence(e, em, slots) + MR.dropped_by_presence(em, e, slots))
+        rec.update(types=len(h["L"]), stimulated_sets_wrong=bad_stim, identity_hybrid_not_W=bad_id, absent_slot_with_entries=bad_absent,
+                   own_rest_not_complementary_outside_presence_changing_slots=bad_comp,
+                   entries_dropped_by_presence_per_type={"mean": float(np.mean(dropped)) if dropped else 0.0,
+                                                         "max": int(max(dropped)) if dropped else 0,
+                                                         "types_with_any": int(sum(1 for d in dropped if d))})
+        rec["pass"] = bool(rec["involution"] and rec["nothing_equals_W"] and rec["all_five_equal_M"] and not (bad_stim or bad_id or bad_absent or bad_comp))
+        out[fly] = rec
+    out["verdict"] = "pass" if all(out[x]["pass"] for x in ("MANC", "MaleCNS")) else "fail"
+    if write:  # MIRROR_CHECK.json (the first run, before the presence fix) failed and stays; LOG L109
+        _write_once(GATES4 / name, out)
+    print(json.dumps({k: (v["pass"] if isinstance(v, dict) else v) for k, v in out.items()}))
+    return out
+
+
 def build_b2(k=None):
     """PREREG v4 B2.2-B2.4 (paired draws, seeds 0..7, analysed types): L on W, R on W, L on M, L on H_own(t), L on H_rest(t), L on
     the relabelling control, and 50 identity-hybrid jobs (B2.3 i)."""
@@ -205,6 +291,7 @@ def build_b2(k=None):
     f, mm, e, em, shared = _ext_payload(fly)
     halves = f.halves()
     types = [t for t in analysed_set()["analysed"] if t in halves["L"]]
+    _assert_mirror_stim(f, mm, e, em, types)
     perm = np.random.default_rng(PERM_SEED).permutation(mm.n_ext)
     shared.update(W=e.W(), M=em.W(), sizes_W=e.sizes, sizes_M=em.sizes, eW=_ext_dict(e), eM=_ext_dict(em), perm=perm)
     tag = "MANC" if fly == "MANC" else "MCNS"
@@ -264,6 +351,7 @@ def build_b3(k=None):
     only = None
     if fly == "MaleCNS":
         only = json.loads((REL2 / "B3_MALECNS_CHOICE.json").read_text())["variants"]
+    _assert_mirror_stim(f, mm, e, em, types)
     cache = MR.entry_classes(e, em, mm)
     tag = "MANC" if fly == "MANC" else "MCNS"
     P = _paired(mm.n_real)
@@ -330,7 +418,7 @@ def det_compare(stage: int) -> dict:
         _, c, ok_key = k.split("~", 2)
         if c not in cache:
             area = json.loads((G.GHA / c / "manifest.json").read_text())["area"]
-            cache[c] = {r["key"]: r for r in read_log(data_dir() / area / f"GHA_{c}" / "results.pkl")}
+            cache[c] = {r["key"]: r for r in load_results(c, area)}
         a, b = cache[c].get(ok_key), new.get(k)
         fld = "digest_v4" if (a is not None and "digest_v4" in a) else "digest"
         same = a is not None and b is not None and a.get(fld) == b.get(fld)
@@ -403,6 +491,7 @@ def build_fl(k=None):
     em = MR.mirror(e, mm)
     halves = f.halves()
     types = [t for t in analysed_set()["analysed"] if t in halves["L"]]
+    _assert_mirror_stim(f, mm, e, em, types)
     sh = {"W": e.W(), "M": em.W(), "sizes_W": e.sizes, "sizes_M": em.sizes, "src": MR.paired_source(mm),
           "sizes_real": np.asarray(f.net.sizes, np.float64), "ro_L": f.readout[mm.real_of()] & (mm.side == "L")}
     P = _paired(mm.n_real)
@@ -477,7 +566,7 @@ def c_gains(name: str = "cg-run4") -> dict:
     the best in-bounds grid score, fix 2 the pooled score of the summed read-out signal."""
     from brainir_ledger import pooled  # noqa: PLC0415
 
-    res = {r["key"]: r for r in read_log(data_dir() / "reliability_v2" / f"GHA_{name}" / "results.pkl")}
+    res = {r["key"]: r for r in load_results(name)}
 
     def score(r, nm):
         if nm == "1":
@@ -509,7 +598,8 @@ def c_gains(name: str = "cg-run4") -> dict:
 
 
 def _gain_of(fix: str) -> float:
-    g = json.loads((GATES4 / "C_GAINS.json").read_text())["fixes"][fix]["gain"]
+    src = GATES4 / ("C_GAINS_fix9.json" if fix == "9" else "C_GAINS.json")
+    g = json.loads(src.read_text())["fixes"][fix]["gain"]
     if g is None:
         raise SystemExit(f"fix {fix} failed its DNg100 control at every gain: not screened (C4)")
     return float(g)
@@ -533,10 +623,43 @@ def build_crw(k=None):
     return [(shared, jobs)], "reliability_v2"
 
 
+def _fix9_spec() -> dict:
+    """C3: fix 9 = the best passing procedure-level fix with the best passing network-level fix, from C_FIXES_1_TO_8.json."""
+    c = json.loads((REL2 / "C_FIXES_1_TO_8.json").read_text())
+    if not (c.get("best_procedure") and c.get("best_network")):
+        raise SystemExit("fix 9 is not run: no passing procedure-level or no passing network-level fix (C3)")
+    return {"procedure": c["best_procedure"], "network": c["best_network"]}
+
+
+def _fix_parts(fix: str) -> tuple[str, str]:
+    """(procedure part '0' / '1' / '2', network part '0' or a network fix) of a fix."""
+    if fix in ("1", "2"):
+        return fix, "0"
+    if fix == "9":
+        sp9 = _fix9_spec()
+        return sp9["procedure"], sp9["network"]
+    return "0", fix
+
+
+def _screen_jobs(prefix: str, members: dict, types, seeds, side: str, proc: str, g: float) -> list[dict]:
+    jobs = []
+    for t in types:
+        for s in seeds:
+            j = _base_job(f"{prefix}|{t}|s{s}", s)
+            j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared(f"readout_{side}"), members=members[t])
+            if proc == "1":
+                j.update(kind="sweep_v4", params={"mode": "standard"}, gain=float(g), currents=list(GRID))
+            else:
+                _std(j, g)  # traces stored (fix 2's pooled score)
+            jobs.append(j)
+    return jobs
+
+
 def build_cx(k=None):
-    """PREREG v4 C5: one fix (k: 31 = 3a, 32 = 3b, 4, 51 = 5a, 52 = 5b, 6, 7, 8; 1 = fix 1's rewired-control sweep) at its gain from
-    gates_v4/C_GAINS.json: the four half-flies (MaleCNS except 3a/3b) and the rewired control (left), analysed types, seeds 0..7,
-    standard parameters."""
+    """PREREG v4 C5: one fix (k: 1, 2, 31 = 3a, 32 = 3b, 4, 51 = 5a, 52 = 5b, 6, 7, 8, 9) at its gain from gates_v4: the four half-flies
+    (MaleCNS except 3a/3b) and the rewired control (left), analysed types, seeds 0..7, standard parameters. Procedure fixes (1, 2) at
+    gain 1 only need the rewired control's sweep (fix 1; fix 2 uses the unfixed rewired control's traces): the half-flies are Block 1's
+    sweeps and Part A's runs; at another gain every run is new (audit finding 6). Fix 9 combines C_FIXES_1_TO_8.json's best fixes."""
     require_freeze("Part C fix screens")
     import scipy.sparse as sp  # noqa: PLC0415
 
@@ -544,76 +667,102 @@ def build_cx(k=None):
 
     fix = FIX_K[int(k)]
     g = _gain_of(fix)
+    proc, netfix = _fix_parts(fix)
     types_all = analysed_set()["analysed"]
     groups = []
     fm = MR.fly("MANC")
     rf = FX.rewired_fly(fm)
-    if fix == "1":
-        hm = fm.halves()
-        types = [t for t in types_all if t in hm["L"]]
-        W = sp.csr_matrix(rf.C.multiply(rf.sign[None, :]), dtype=np.float64)
-        sh = {"W": W, "sizes": fm.net.sizes, "readout_L": fm.readout_side("L")}
-        jobs = []
-        for t in types:
-            for s in B_SEEDS:
-                j = _base_job(f"CX-1-RW-MANC-L|{t}|s{s}", s)
-                j.update(kind="sweep_v4", W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout_L"), members=hm["L"][t],
-                         params={"mode": "standard"}, gain=g, currents=list(GRID))
-                jobs.append(j)
-        return [(sh, jobs)], "reliability_v2"
-    for fly in ("MANC", "MaleCNS"):
-        if fix in ("3a", "3b") and fly != "MANC":
-            continue
-        f = MR.fly(fly)
-        h = f.halves()
-        types = [t for t in types_all if t in h["L"]]
-        W, sizes = fixed_network(fix, fly)
-        sh = {"W": W, "sizes": sizes, "readout_L": f.readout_side("L"), "readout_R": f.readout_side("R")}
-        tag = "MANC" if fly == "MANC" else "MCNS"
-        jobs = []
-        for side in ("L", "R"):
-            for t in types:
-                for s in B_SEEDS:
-                    j = _base_job(f"CX-{fix}-{tag}-{side}|{t}|s{s}", s)
-                    j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared(f"readout_{side}"), members=h[side][t])
-                    jobs.append(_std(j, g))
-        groups.append((sh, jobs))
-    # the rewired control with the fix applied (left side); not for the floors: a rewired network has no pre-floor counts (C2.3)
-    if fix in ("3a", "3b"):
-        return groups, "reliability_v2"
-    W, sizes = FX.apply_fix(fix, rf, MR.mirror_map(fm))
-    sh = {"W": W, "sizes": sizes, "readout_L": fm.readout_side("L")}
     hm = fm.halves()
-    jobs = []
-    for t in [t for t in types_all if t in hm["L"]]:
-        for s in B_SEEDS:
-            j = _base_job(f"CX-{fix}-RW-MANC-L|{t}|s{s}", s)
-            j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout_L"), members=hm["L"][t])
-            jobs.append(_std(j, g))
-    groups.append((sh, jobs))
+    tm = [t for t in types_all if t in hm["L"]]
+    if fix == "2" and g == 1.0:
+        raise SystemExit("fix 2 at gain 1 needs no campaign: Part A's traces and crw-run4's traces (C5)")
+    if not (fix == "1" and g == 1.0):
+        for fly in ("MANC", "MaleCNS"):
+            if netfix in ("3a", "3b") and fly != "MANC":
+                continue
+            f = MR.fly(fly)
+            h = f.halves()
+            types = [t for t in types_all if t in h["L"]]
+            W, sizes = fixed_network(netfix, fly)
+            sh = {"W": W, "sizes": sizes, "readout_L": f.readout_side("L"), "readout_R": f.readout_side("R")}
+            tag = "MANC" if fly == "MANC" else "MCNS"
+            jobs = []
+            for side in ("L", "R"):
+                jobs += _screen_jobs(f"CX-{fix}-{tag}-{side}", h[side], types, B_SEEDS, side, proc, g)
+            groups.append((sh, jobs))
+    # the rewired control (left) with the fix; not for the floors: a rewired network has no pre-floor counts (C2.3)
+    if netfix in ("3a", "3b"):
+        return groups, "reliability_v2"
+    if netfix == "0":
+        W = sp.csr_matrix(rf.C.multiply(rf.sign[None, :]), dtype=np.float64)
+        sizes = fm.net.sizes
+    else:
+        W, sizes = FX.apply_fix(netfix, rf, MR.mirror_map(fm))
+    sh = {"W": W, "sizes": sizes, "readout_L": fm.readout_side("L")}
+    groups.append((sh, _screen_jobs(f"CX-{fix}-RW-MANC-L", hm["L"], tm, B_SEEDS, "L", proc, g)))
     return groups, "reliability_v2"
 
 
+def build_cg9(k=None):
+    """C3-C4: fix 9's DNg100-only gain campaign (both flies, seeds 0..15, all gains)."""
+    require_freeze("fix 9 gains")
+    proc, netfix = _fix_parts("9")
+    groups = []
+    for fly in ("MANC", "MaleCNS"):
+        if netfix in ("3a", "3b") and fly != "MANC":
+            continue
+        f = MR.fly(fly)
+        tag = "MANC" if fly == "MANC" else "MCNS"
+        W, sizes = fixed_network(netfix, fly)
+        sh = {"W": W, "sizes": sizes, "readout_L": f.readout, "readout_R": f.readout}
+        jobs = []
+        for g in GAINS:
+            jobs += _screen_jobs(f"CG-9-g{g:g}-{tag}", {"DNg100": list(f.groups["DNg100"])}, ["DNg100"], A_SEEDS, "L", proc, g)
+        groups.append((sh, jobs))
+    return groups, "reliability_v2"
+
+
+def c_gains9(name: str = "cg9-run4") -> dict:
+    """C4 for fix 9 from its DNg100-only campaign -> gates_v4/C_GAINS_fix9.json."""
+    from brainir_ledger import pooled  # noqa: PLC0415
+
+    proc, netfix = _fix_parts("9")
+    res = {r["key"]: r for r in load_results(name)}
+
+    def score(r):
+        if proc == "1":
+            ib = [x["score"] for x in r["runs"] if x["in_bounds"]]
+            return max(ib) if ib else 0.0
+        if not r.get("usable"):
+            return 0.0
+        return pooled.pooled_score(r) if proc == "2" else float(r["score"] or 0.0)
+    flies = ("MANC",) if netfix in ("3a", "3b") else ("MANC", "MCNS")
+    per_gain = {}
+    for g in GAINS:
+        ok = {tag: int(sum(score(res[f"CG-9-g{g:g}-{tag}|DNg100|s{s}"]) >= 0.5 for s in A_SEEDS)) for tag in flies}
+        per_gain[f"{g:g}"] = {"n_ge_0.5": ok, "pass": all(v >= 12 for v in ok.values())}
+    passing = [g for g in GAINS[1:] if per_gain[f"{g:g}"]["pass"]]
+    chosen = 1.0 if per_gain["1"]["pass"] else (min(passing) if passing else None)
+    out = {"9": {"per_gain": per_gain, "gain": chosen, "verdict": "pass" if chosen is not None else "fails", "parts": [proc, netfix]}}
+    _write_once(GATES4 / "C_GAINS_fix9.json", {"rule": "PREREG v4 C3-C4", "fixes": out})
+    print(json.dumps(out))
+    return out
+
+
 def build_dx(k=None):
-    """PREREG v4 Part D (EXPLORATORY): exam 1's whole-type screen on the fixed MANC network at the fix's gain, all 321 B1r types, seeds
-    0..7 (k as build_cx; fix 1: whole-type grid sweeps on the unfixed network; fix 2 needs no run: B1r's stored traces)."""
-    require_freeze("Part D")
+    """PREREG v4 Part D / E2: the whole-type screen (exam 1) under a fix at its gain, all 321 B1r types, seeds 0..7 (k as build_cx).
+    Fix 1: whole-type grid sweeps; fix 2: whole-type screens with traces (at gain 1 B1r's stored runs serve, no campaign); fix 9: its
+    two parts. The robust model's campaign belongs to Part E and is never dropped (audit finding 7)."""
+    require_freeze("Part D / E whole-type screen")
     fix = FIX_K[int(k)]
     g = _gain_of(fix)
+    proc, netfix = _fix_parts(fix)
+    if fix == "2" and g == 1.0:
+        raise SystemExit("fix 2 at gain 1: B1r's stored runs (seeds 0..7) are its whole-type screen; no campaign")
     _, _, (fl, g1), _ = G._nets()
-    W, sizes = fixed_network(fix if fix != "1" else "0", "MANC")
-    sh = {"W": W, "sizes": sizes, "readout": fl.readout}
-    jobs = []
-    for t, m in sorted(g1.items()):
-        for s in B_SEEDS:
-            j = _base_job(f"DX-{fix}|{t}|s{s}", s)
-            j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout"), members=list(m))
-            if fix == "1":
-                j.update(kind="sweep_v4", params={"mode": "standard"}, gain=g, currents=list(GRID))
-            else:
-                _std(j, g)
-            jobs.append(j)
-    return [(sh, jobs)], "reliability_v2"
+    W, sizes = fixed_network(netfix, "MANC")
+    sh = {"W": W, "sizes": sizes, "readout_L": fl.readout}
+    return [(sh, _screen_jobs(f"DX-{fix}", dict(g1), sorted(g1), B_SEEDS, "L", proc, g))], "reliability_v2"
 
 
 def build_p4(k=None):
@@ -698,7 +847,7 @@ def p4_check(name: str = "p4-run4") -> dict:
 
 RUN4_BUILDERS = {"pa": build_pa, "r4rep": build_r4rep, "b1s": build_b1s, "b2": build_b2, "b3": build_b3, "p4": build_p4,
                  "p4b": build_p4, "cg": build_cg, "crw": build_crw, "cx": build_cx, "dx": build_dx, "cn": build_cn, "fl": build_fl,
-                 "det4": build_det4}
+                 "det4": build_det4, "cg9": build_cg9}
 G.BUILDERS.update(RUN4_BUILDERS)
 RUN4_PREFIXES = set(RUN4_BUILDERS)
 
@@ -865,6 +1014,10 @@ def main() -> None:
         c_gains(*(a[:1] or []))
     elif cmd == ["det-compare"]:
         det_compare(int(a[0]))
+    elif cmd == ["c-gains9"]:
+        c_gains9(*(a[:1] or []))
+    elif cmd == ["mirror-check"]:
+        mirror_check(write="--dry-run" not in a)
     else:
         raise SystemExit(__doc__)
 

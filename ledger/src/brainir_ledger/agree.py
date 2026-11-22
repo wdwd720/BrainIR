@@ -37,7 +37,7 @@ import numpy as np
 import pandas as pd
 from scipy.stats import rankdata
 
-__all__ = ["AT_CEILING", "BOOT_SEED", "NOT_JUDGED", "N_BOOT", "REAL_GAP", "bands", "closure", "closure_vectors", "cohen_kappa",
+__all__ = ["AT_CEILING", "BOOT_SEED", "INCONCLUSIVE", "NOT_JUDGED", "N_BOOT", "REAL_GAP", "bands", "closure", "closure_vectors", "cohen_kappa",
            "compare", "compare_vectors", "frac_rhythmic", "paired_agreement", "paired_closure", "replication_rate", "spearman",
            "top_overlap", "type_scores", "words"]
 
@@ -51,7 +51,7 @@ UPPER_MIN = 1.00       # ... and the upper end of the ratio's 95 % interval >= 1
 BOOT_SEED = 20261401   # G10
 N_BOOT = 10_000        # G6
 PERCENTILES = (2.5, 97.5)
-AT_CEILING, REAL_GAP, NOT_JUDGED = "at the ceiling", "a real gap", "not judged"
+AT_CEILING, REAL_GAP, NOT_JUDGED, INCONCLUSIVE = "at the ceiling", "a real gap", "not judged", "inconclusive"
 COLUMNS = ("type", "seed", "usable", "score")
 _CHUNK = 2_000         # bootstrap rows ranked at a time (bounds memory; results do not depend on it)
 _NAN = float("nan")
@@ -451,14 +451,17 @@ def _secondary(v: dict[str, np.ndarray], tl: list[str], eq: np.ndarray | None) -
 # ------------------------------------------------------------------------------------------------------------------- G7
 def words(ratio: float | None, ratio_interval: Sequence[float | None] | None, c: float | None) -> str:
     """G7: 'not judged' if c < 0.2; otherwise 'at the ceiling' if ratio >= 0.90 and the upper end of its 95 % interval is >= 1.00;
-    otherwise 'a real gap'. An undefined c, ratio or upper end (NaN or None) gives 'not judged': the rule cannot be applied."""
+    'inconclusive' if ratio < 0.90 but the upper end is >= 1.00 (audit finding 3); 'a real gap' only if the upper end is < 1.00. An
+    undefined c, ratio or upper end (NaN or None) gives 'not judged': the rule cannot be applied."""
     c_, r_ = _num(c), _num(ratio)
     hi = _num(ratio_interval[1]) if ratio_interval is not None else _NAN
     if not np.isfinite(c_) or c_ < CEILING_MIN:
         return NOT_JUDGED
     if not (np.isfinite(r_) and np.isfinite(hi)):
         return NOT_JUDGED
-    return AT_CEILING if (r_ >= RATIO_MIN and hi >= UPPER_MIN) else REAL_GAP
+    if hi >= UPPER_MIN:
+        return AT_CEILING if r_ >= RATIO_MIN else INCONCLUSIVE
+    return REAL_GAP
 
 
 # ------------------------------------------------------------------------------------------------------------ public G6

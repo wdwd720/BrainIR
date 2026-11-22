@@ -146,63 +146,94 @@ def _check_complete(df: pd.DataFrame, types, seeds, name) -> None:
         raise SystemExit(f"{name}: {len(miss)} replicates missing, e.g. {miss[:3]}; refused")
 
 
+def _a3(hf: dict, tag: str, types: list[str]) -> dict:
+    """A3: per-type distributions, drivers, tuner outcomes; Wilcoxon signed-rank over types with a non-zero L - R difference (only
+    with at least 10 such types); 'weaker everywhere' if p < 0.01 and at least 60 % of the non-tied types favour the other side."""
+    L, R = hf[f"{tag}-L"], hf[f"{tag}-R"]
+    sl, sr = AG.type_scores(L, None, types), AG.type_scores(R, None, types)
+    d = (sl - sr)
+    nz = d[d != 0]
+    w = wilcoxon(nz) if len(nz) >= 10 else None
+    fav = (nz > 0).mean() if len(nz) else float("nan")
+    return {"L": _dist(sl, L[L["type"].isin(types)]), "R": _dist(sr, R[R["type"].isin(types)]), "n_types": len(types),
+            "nonzero_differences": int(len(nz)), "share_favouring_L": float(fav), "wilcoxon_p": float(w.pvalue) if w is not None else None,
+            "weaker_everywhere": (None if w is None else
+                                  ("R" if (w.pvalue < 0.01 and fav >= 0.6) else "L" if (w.pvalue < 0.01 and fav <= 0.4) else "neither"))}
+
+
+def _six(hf: dict, tm: list[str], tc: list[str], mc_m: dict, mc_c: dict) -> dict:
+    common = sorted(set(tm) & set(tc))
+
+    def cmp(a, b, types, mc=None):
+        return AG.compare(hf[a], hf[b], types, H16, member_counts=mc, n_boot=10000, seed=SEED_BOOT)
+    return {"MANC-L vs MANC-R": cmp("MANC-L", "MANC-R", tm, {t: mc_m[t] for t in tm}),
+            "MaleCNS-L vs MaleCNS-R": cmp("MCNS-L", "MCNS-R", tc, {t: mc_c[t] for t in tc}),
+            "MANC-L vs MaleCNS-L": cmp("MANC-L", "MCNS-L", common), "MANC-R vs MaleCNS-R": cmp("MANC-R", "MCNS-R", common),
+            "MANC-L vs MaleCNS-R": cmp("MANC-L", "MCNS-R", common), "MANC-R vs MaleCNS-L": cmp("MANC-R", "MCNS-L", common),
+            "n_types": {"MANC": len(tm), "MaleCNS": len(tc), "common": len(common)}}
+
+
 def cmd_a() -> None:
+    """PREREG v4 A2-A3 on the primary type sets (homolog-consistent matched types, G9) and, as secondary, on all matched types; with
+    the sensitivity sets of G3 (MaleCNS types without a corrected member; MANC types without a member whose root side differs from
+    its output side)."""
     gha4.require_freeze("Part A analysis")
     hf = half_flies()
     fm, fc = MR.fly("MANC"), MR.fly("MaleCNS")
     hm, hc = fm.halves(), fc.halves()
-    tm, tc = sorted(hm["L"]), sorted(hc["L"])
+    tm_all, tc_all = sorted(hm["L"]), sorted(hc["L"])
     for k, df in hf.items():
-        _check_complete(df, tm if k.startswith("MANC") else tc, range(16), k)
-    common = sorted(set(tm) & set(tc))
-    corrected_types = sorted(t for t in tc if any(fc.corrected[i] for i in hc["L"][t] + hc["R"][t]))
+        _check_complete(df, tm_all if k.startswith("MANC") else tc_all, range(16), k)
+    tm, tc = MR.homolog_consistent_types(fm), MR.homolog_consistent_types(fc)
+    mc_m = {t: (len(hm["L"][t]), len(hm["R"][t])) for t in tm_all}
+    mc_c = {t: (len(hc["L"][t]), len(hc["R"][t])) for t in tc_all}
+    corrected_types = sorted(t for t in tc_all if any(fc.corrected[i] for i in hc["L"][t] + hc["R"][t]))
     unc = sorted(set(tc) - set(corrected_types))
-
-    def cmp(a, b, types, mc=None):
-        return AG.compare(hf[a], hf[b], types, H16, member_counts=mc, n_boot=10000, seed=SEED_BOOT)
-
-    mc_m = {t: (len(hm["L"][t]), len(hm["R"][t])) for t in tm}
-    mc_c = {t: (len(hc["L"][t]), len(hc["R"][t])) for t in tc}
-    six = {"MANC-L vs MANC-R": cmp("MANC-L", "MANC-R", tm, mc_m), "MaleCNS-L vs MaleCNS-R": cmp("MCNS-L", "MCNS-R", tc, mc_c),
-           "MANC-L vs MaleCNS-L": cmp("MANC-L", "MCNS-L", common), "MANC-R vs MaleCNS-R": cmp("MANC-R", "MCNS-R", common),
-           "MANC-L vs MaleCNS-R": cmp("MANC-L", "MCNS-R", common), "MANC-R vs MaleCNS-L": cmp("MANC-R", "MCNS-L", common)}
-    extra = {"MaleCNS-L vs MaleCNS-R, uncorrected types": cmp("MCNS-L", "MCNS-R", unc, {t: mc_c[t] for t in unc}) if len(unc) >= 10 else None,
-             "n_uncorrected_types": len(unc), "n_corrected_types": len(corrected_types)}
+    conc = sorted(set(tm) & set(MR.side_concordant_types(fm)))
+    six = _six(hf, tm, tc, mc_m, mc_c)
+    six_all = _six(hf, tm_all, tc_all, mc_m, mc_c)
+    sens = {"n_maleCNS_uncorrected_primary_types": len(unc), "n_MANC_side_concordant_primary_types": len(conc)}
+    if len(unc) >= 10:
+        c_unc = sorted(set(tm) & set(unc))
+        sens["MaleCNS_uncorrected"] = {
+            "MaleCNS-L vs MaleCNS-R": AG.compare(hf["MCNS-L"], hf["MCNS-R"], unc, H16, member_counts={t: mc_c[t] for t in unc}, n_boot=10000, seed=SEED_BOOT),
+            **({f"{a} vs {b}": AG.compare(hf[x], hf[y], c_unc, H16, n_boot=10000, seed=SEED_BOOT)
+                for (a, b, x, y) in (("MANC-L", "MaleCNS-L", "MANC-L", "MCNS-L"), ("MANC-R", "MaleCNS-R", "MANC-R", "MCNS-R"),
+                                     ("MANC-L", "MaleCNS-R", "MANC-L", "MCNS-R"), ("MANC-R", "MaleCNS-L", "MANC-R", "MCNS-L"))}
+               if len(c_unc) >= 10 else {})}
+    if len(conc) >= 10:
+        sens["MANC_side_concordant"] = {"MANC-L vs MANC-R": AG.compare(hf["MANC-L"], hf["MANC-R"], conc, H16, member_counts={t: mc_m[t] for t in conc},
+                                                                       n_boot=10000, seed=SEED_BOOT),
+                                        "one_bad_side": _a3(hf, "MANC", conc)}
     # reference: run 3's R1 (whole type, B1r vs B2r, 16 seeds) in the cross-half form
     b1 = pd.read_parquet(P2 / "B1r" / "replicates.parquet").rename(columns={"manc_type": "type"})
     b2 = pd.read_parquet(P2 / "B2r" / "replicates.parquet").rename(columns={"manc_type": "type"})
     wc = sorted(set(b1["type"]) & set(b2["type"]))
     ref = AG.compare(b1, b2, wc, H16, n_boot=10000, seed=SEED_BOOT)
-    # same-side minus opposite-side cross-fly agreement (point estimate and bootstrap over common types)
+    common = sorted(set(tm) & set(tc))
     same = (_f(six["MANC-L vs MaleCNS-L"]["primary"]["rho_x"]) + _f(six["MANC-R vs MaleCNS-R"]["primary"]["rho_x"])) / 2
     opp = (_f(six["MANC-L vs MaleCNS-R"]["primary"]["rho_x"]) + _f(six["MANC-R vs MaleCNS-L"]["primary"]["rho_x"])) / 2
     ssd = _same_minus_opposite(hf, common)
-    # A3 one bad side
-    a3 = {}
-    for fly, tag, types in (("MANC", "MANC", tm), ("MaleCNS", "MCNS", tc)):
-        L, R = hf[f"{tag}-L"], hf[f"{tag}-R"]
-        sl, sr = AG.type_scores(L, None, types), AG.type_scores(R, None, types)
-        d = (sl - sr)
-        nz = d[d != 0]
-        w = wilcoxon(nz) if len(nz) >= 10 else None
-        fav = (nz > 0).mean() if len(nz) else float("nan")
-        a3[fly] = {"L": _dist(sl, L), "R": _dist(sr, R), "n_types": len(types), "nonzero_differences": int(len(nz)),
-                   "share_favouring_L": float(fav), "wilcoxon_p": float(w.pvalue) if w is not None else None,
-                   "weaker_everywhere": (None if w is None else
-                                         ("R" if (w.pvalue < 0.01 and fav >= 0.6) else "L" if (w.pvalue < 0.01 and fav <= 0.4) else "neither"))}
+    a3 = {"MANC": _a3(hf, "MANC", tm), "MaleCNS": _a3(hf, "MCNS", tc)}
+    a3_all = {"MANC": _a3(hf, "MANC", tm_all), "MaleCNS": _a3(hf, "MCNS", tc_all)}
+    words = six["MANC-L vs MANC-R"]["words"]
     out = {"marking": "pre-registered (PREREG v4 Part A)", "seeds": "0..15; halves 0..7 / 8..15",
-           "type_counts": {"MANC": fm.type_counts(), "MaleCNS": fc.type_counts(), "common": len(common)},
-           "six_agreements": six, "extra": extra, "reference_R1_whole_type_cross_fly": ref,
+           "type_counts": {"MANC": fm.type_counts(), "MaleCNS": fc.type_counts(), "MANC_homolog_consistent": len(tm),
+                           "MaleCNS_homolog_consistent": len(tc), "common_primary": len(common)},
+           "six_agreements_primary_homolog_consistent": six, "six_agreements_all_matched_types": six_all, "sensitivity_sets": sens,
+           "reference_R1_whole_type_cross_fly": ref,
            "same_side_minus_opposite_side_cross_fly": {"same": same, "opposite": opp, **ssd},
-           "one_bad_side": a3}
+           "one_bad_side": a3, "one_bad_side_all_matched_types": a3_all,
+           "A7_branch": {"MANC_left_right_words": words,
+                         "blocks_on": "cross-fly gap (B5)" if words == "at the ceiling" else "left-right gap"}}
     _out("A.json", _clean(out))
     # G9 informative and analysed sets
     nonzero = set()
     for k, df in hf.items():
-        types = tm if k.startswith("MANC") else tc
+        types = tm_all if k.startswith("MANC") else tc_all
         s = AG.type_scores(df, None, types)
         nonzero |= set(s.index[s > 0])
-    both = sorted(set(tm) & set(tc))
+    both = sorted(set(tm_all) & set(tc_all))
     inf = sorted(nonzero)
     rest = sorted(set(both) - set(inf))
     rng = np.random.default_rng(SEED_SAMPLE)
@@ -213,8 +244,9 @@ def cmd_a() -> None:
                                        "uses the analysed types matched in it",
                                "informative": inf, "random_extra": extra50, "analysed": ana,
                                "n_informative": len(inf), "n_analysed": len(ana),
-                               "n_analysed_matched_MANC": len(set(ana) & set(tm)), "n_analysed_matched_MaleCNS": len(set(ana) & set(tc)),
-                               "n_analysed_matched_both": len(set(ana) & set(both))})
+                               "n_analysed_matched_MANC": len(set(ana) & set(tm_all)), "n_analysed_matched_MaleCNS": len(set(ana) & set(tc_all)),
+                               "n_analysed_matched_both": len(set(ana) & set(both)),
+                               "n_analysed_primary_MANC": len(set(ana) & set(tm)), "n_analysed_primary_MaleCNS": len(set(ana) & set(tc))})
 
 
 def _dist(s: pd.Series, df: pd.DataFrame) -> dict:
@@ -320,7 +352,7 @@ def cmd_a4() -> None:
     for f, tag in ((fm, "MANC"), (fc, "MaleCNS")):
         mm = MR.mirror_map(f)
         m = mm.m[: f.n]
-        matched = np.isin(mm.status[: f.n], ("g1", "g2", "t"))
+        matched = np.isin(mm.status[: f.n], MR.MATCHED)
         C = sp.csr_matrix(f.C)
         Cm = C[m][:, m].tocsr()
         U = (C + Cm).tocoo()

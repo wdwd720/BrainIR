@@ -31,7 +31,7 @@ import lock3 as L3  # noqa: E402
 
 RES = L2.RES
 REPO = L2.REPO
-CODE_GLOBS = L2.CODE_GLOBS
+CODE_GLOBS = L2.CODE_GLOBS + ["ledger/scripts/posthoc/*.py"]  # audit finding 20: lock2's globs do not recurse into posthoc/
 NEVER_AMEND = ["ledger/scripts/lock4.py", "ledger/tests/test_lock4.py"]
 EARLIER = L3.EARLIER + list(L3.V3_LOCKS)
 V4_LOCKS = ("LOCK_prereg_v4.json", "LOCK_reliability_v2.json", "LOCK_forward_v1.json")
@@ -230,7 +230,8 @@ def lock_prereg() -> None:
     rec["reviews_v4_at_freeze"] = _section((RES / "reviews_v4").glob("*"))
     rec["earlier_locks"] = _chain(*EARLIER)
     rec["code"] = _code()
-    rec["code_scope"] = "every git-tracked file matching lock2.CODE_GLOBS at the freeze; binding (changes only by v4 amendment rows)"
+    rec["code_scope"] = ("every git-tracked file matching lock2.CODE_GLOBS plus ledger/scripts/posthoc/*.py at the freeze; binding "
+                         "(changes only by v4 amendment rows)")
     L2.write("LOCK_prereg_v4.json", rec)
 
 

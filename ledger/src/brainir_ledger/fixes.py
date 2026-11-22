@@ -32,7 +32,7 @@ from . import controls
 from . import mirror as MI
 from . import networks as N
 
-MATCHED_OR_SELF = ("g1", "g2", "t", "self")
+MATCHED_OR_SELF = ("d", "g1", "g2", "t", "self")  # "d": step 0, within a stimulated type (audit finding 1)
 REWIRE_CONTROL = "B1-ctl-rewire-101"  # C5: run 1's degree-preserving generator, network seed 101
 FIXES = ("3a", "3b", "4", "5a", "5b", "6", "7", "8")
 FLOOR_OF_FIX = {"3a": 1, "3b": 3}  # C2.3
