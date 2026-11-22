@@ -476,6 +476,9 @@ def _sr(hf: dict, types, n_boot=NB, seed=SEED) -> dict:
     idx = np.random.default_rng(seed).integers(0, n, size=(n_boot, n))
     bs = rx("MANC-L", "MCNS-L", idx) - rx("MANC-L", "RW-MANC-L", idx)
     bs = bs[np.isfinite(bs)]
+    if not len(bs):  # amendment 6: every resample undefined (a constant type-score vector): no interval, criterion 4 not met
+        return {"SR": point if np.isfinite(point) else None, "ci95": [None, None], "n_types": n, "n_boot_used": 0,
+                "note": "undefined: a type-score vector is constant, so Spearman is undefined and no interval can exclude 0"}
     return {"SR": point, "ci95": [float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))], "n_types": n, "n_boot_used": int(len(bs))}
 
 
@@ -516,7 +519,8 @@ def _evaluate_fix(fix: str, unfixed_drivers: float | None, gains: dict, primary:
     c3 = unfixed_drivers is None or (0.5 * unfixed_drivers <= mean_dr <= 2 * unfixed_drivers)
     if "MCNS-L" in hf and "RW-MANC-L" in hf:
         rec["specific_reproducibility"] = _sr(hf, common)
-        c4a = rec["specific_reproducibility"]["ci95"][0] > 0
+        lo = rec["specific_reproducibility"]["ci95"][0]
+        c4a = lo is not None and lo > 0
     else:
         rec["specific_reproducibility"] = {"note": "not evaluable (no MaleCNS screen or no rewired control)"}
         c4a = False
