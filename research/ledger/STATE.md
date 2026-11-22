@@ -31,10 +31,11 @@ unblinded and closed.
 - [x] Amendments 5 (B1 transplant mapping) and 6 (SR guard) after a dry run on fake results (posthoc/dryrun_analyses_v4.py, all
       19 steps OK; L125). Feeder crash on an existing tag -> b2-manc published as -r2 (L124).
 - [x] Block 1 both flies (L126), Block 2 both flies (L128), Block 3 MANC (L129; MaleCNS repeats dropped). Outputs committed.
-- [~] RUNNING (02:25 PST): GitHub fl-1-run4 (5 chunks; chunk 2 lost its runner, L127 -> scratchpad/rerun_fl1.sh fires automatically
-      when the run completes: pauses the feeder, reruns the failed chunk under 20 jobs, restarts the feeder), cx-4 (6), cx-5a (6).
-      Feeder (feeder_run4_core2.log) next: cx-5b, cx-7, cx-3a, cx-1. Collector collect_all2.sh order: cx-4, cx-5a, cx-5b, cx-7, cx-3a,
-      cx-1, fl-1 (last). Draft of RESULTS_3 sections 1-3.3 in the scratchpad (RESULTS_3_draft.md; move to results/ after the lock).
+- [x] X9 step 6 (L132): Part D dropped except the robust model's screen and zero-compute re-scores (fix 2; robust's from Part E).
+- [~] RUNNING (04:50 PST): GitHub cx-5a (3 left), cx-5b (6), cx-7 (6), det4-2 (1). Single publisher posthoc/fl1_subset_v4.py
+      (log data/cache/ledger_logs/publisher.log + feeder_run4_core2.log), first-fit queue: cx-3a (8 chunks), fl-1-subset (ALL 4,192
+      floor-1 jobs as attempt 2 in 10 chunks; attempt 1 all failed: 5 timeouts + 1 lost runner), cx-1, det4-3, det4-4.
+      Collector collect_all2.sh order: cx-5a, cx-5b, cx-7, cx-3a, cx-1, fl-1 (last; merges attempts). det4-* need their own collect4.
 - NEXT: noise (cn + fl-1, only after fl-1's re-run completes), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
       model's dx first, then re-check the envelope for Part D (dx-*) -> rescue; det4 stages 2-5 (stage 3 without fl-3/fl-10);
       exploratory full-278 comparison for Block 1/3; LOCK_reliability_v2; then forward ledger.
