@@ -117,8 +117,9 @@ the **type score** = mean score over usable replicates, 0 if none (run 2's `prim
 - **Secondary measures**, each for full seeds, for the cross-half form and for the split halves (ceiling form):
   (a) rho over types non-zero (type score > 0) in at least one of the pair; (b) rho over types with equal member counts on the two
   sides (left-right pairs only); (c) **replication rate**: of the types called drivers in X, the fraction also drivers in Y, both
-  directions and their mean (NaN when X has no driver); (d) Cohen's kappa of the three bands; (e) top-30 overlap (types ranked by type
-  score, ties broken by type name; |top30(X) ∩ top30(Y)| / 30).
+  directions and their mean (NaN when X has no driver); (d) Cohen's kappa of the three bands; (e) top-30 overlap: the top 30 types by type
+  score among types with a non-zero score (ties broken by type name; fewer if fewer are non-zero), |A ∩ B| / max(|A|, |B|), undefined
+  if both lists are empty (zero-score types never enter a list, so a name tie-break among zeros cannot inflate it).
 - **Paired same-seed agreement** (Blocks 2-3 and count noise, G8): rho of the 8-seed type scores of two screens run on the same seeds
   with paired draws; its reference is the relabelling control (B2.4), not a split half. It is a labelled second statistic.
 
@@ -291,7 +292,7 @@ noise and Part C's attribution are run on the cross-fly gap instead (B5).
 ### Count noise (MANC only: pre-floor counts; paired draws, seeds 0..7)
 
 - **B4.1 Raw counts:** the `synapse_count` (conf >= 0.4, neuPrint `weight`) of every pair of the MANC front-leg neurons in the
-  processed `manc:v1.2.1` connections; the network is rebuilt by BrainIR's builder with the node list, signs and sizes of B1r and a
+  processed `manc:v1.2.1` connections (autapses excluded, as in B1r's build); the network is rebuilt by BrainIR's builder with the node list, signs and sizes of B1r and a
   floor f; **floor 5 must reproduce B1r's matrix exactly** (checked before any noise run).
 - **B4.2 Poisson:** every raw count c replaced by Poisson(c) (pairs with c >= 1; `default_rng(20261411)` and `(20261412)` for two
   copies), floor 5 applied, the left screen on each copy; agreement copy 1 vs copy 2 (cross-half primary, paired second), and each copy

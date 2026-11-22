@@ -19,10 +19,11 @@ Conventions
   means: a NaN in either input gives NaN (no ``nanmean``).
 * Bootstrap (G6, G10): each call starts ``default_rng(seed)`` and draws every resample index array up front as
   ``rng.integers(0, n, size=(n_boot, n))``. The indices are positions in ``types`` *in the order given*, so two calls over the same
-  type list share their resamples. Every quantity is recomputed from the same resampled types. A resample is dropped (and counted)
-  if any Spearman it needs is NaN, that is, if a resampled vector is constant. It is also dropped, and counted separately, if its
-  ratio (or closure) is undefined because the denominator is exactly 0. G6 does not cover that second case; percentiles over
-  infinite values would come out NaN. Intervals are 95 % percentile intervals (2.5, 97.5; numpy's linear interpolation).
+  type list share their resamples. Every quantity is recomputed from the same resampled types. A resample is dropped from every
+  interval (and counted, ``n_dropped``) if any Spearman of the comparison is NaN, that is, if a resampled vector is constant.
+  G6 does not cover a resample whose ratio (or closure) has a denominator of exactly 0. Such a resample is left out of that one
+  quantity's interval only, and counted separately (``n_ratio_zero_ceiling``, ``n_zero_denominator``); percentiles over infinite
+  values would come out NaN. Intervals are 95 % percentile intervals (2.5, 97.5; numpy's linear interpolation).
 * Dict results are JSON-ready (Python float, int, str, bool, list, dict). An undefined value (NaN) is written as None. Scalar
   results (``spearman``, ``cohen_kappa``, ``top_overlap``, ``paired_agreement``) are floats and may be NaN.
 """
@@ -241,16 +242,19 @@ def _replication(a: np.ndarray, b: np.ndarray) -> dict:
 
 
 def _top_set(names: Sequence[str], v: np.ndarray, k: int) -> set[str]:
-    order = sorted(range(len(names)), key=lambda i: (-float(v[i]), names[i]))  # score descending, then name ascending
+    """The top k types with a NON-ZERO score (score descending, ties by name ascending); fewer if fewer are non-zero (PREREG v4 G6 e:
+    zero-score types never enter a top list, so an alphabetical tie-break among zeros cannot inflate the overlap)."""
+    order = sorted((i for i in range(len(names)) if float(v[i]) > 0), key=lambda i: (-float(v[i]), names[i]))
     return {names[i] for i in order[:k]}
 
 
 def _top_overlap(names: Sequence[str], a: np.ndarray, b: np.ndarray, k: int = TOP_K) -> float:
-    """G6 (e): |top_k(A) & top_k(B)| / k, ties broken by type name; with fewer than k types, all of them and their count."""
-    m = min(k, len(names))
+    """G6 (e): |A & B| / max(|A|, |B|) with A, B the top-k non-zero types of each vector (ties by name); NaN if both are empty."""
+    A, B = _top_set(names, a, k), _top_set(names, b, k)
+    m = max(len(A), len(B))
     if m == 0:
         return _NAN
-    return len(_top_set(names, a, m) & _top_set(names, b, m)) / m
+    return len(A & B) / m
 
 
 def _aligned(x: pd.Series, y: pd.Series) -> tuple[list[str], np.ndarray, np.ndarray]:
@@ -274,8 +278,8 @@ def replication_rate(x: pd.Series, y: pd.Series) -> dict:
 
 
 def top_overlap(x: pd.Series, y: pd.Series, k: int = TOP_K) -> float:
-    """G6 (e) for two type-score vectors (aligned by type): types ranked by score descending with ties broken by type name ascending;
-    |top_k(x) & top_k(y)| / k. With fewer than k types, all types are used and the divisor is their count."""
+    """G6 (e) for two type-score vectors (aligned by type): the top-k NON-ZERO types of each (score descending, ties by name ascending;
+    fewer if fewer are non-zero); |A & B| / max(|A|, |B|), NaN if both are empty."""
     names, a, b = _aligned(x, y)
     return _top_overlap(names, a, b, k)
 
@@ -402,15 +406,13 @@ def _pair_block(v: dict[str, np.ndarray], rh: dict, x: str, y: str, seed: int) -
     b_x, b_c = (B[1] + B[2]) / 2, (B[3] + B[4]) / 2
     with np.errstate(divide="ignore", invalid="ignore"):
         b_ratio = b_x / b_c
-    const = np.isnan(np.vstack(B)).any(axis=0)
-    zero_c = ~const & ~np.isfinite(b_ratio)
-    keep = ~const & ~zero_c
-    iv = {"rho_full": _pct(B[0][keep]), "rho_x": _pct(b_x[keep]), "c": _pct(b_c[keep]), "ratio": _pct(b_ratio[keep])}
+    keep = ~np.isnan(np.vstack(B)).any(axis=0)  # G6: a resample with a constant vector (a NaN Spearman) is dropped
+    ratio_ok = keep & np.isfinite(b_ratio)       # beyond G6: a ceiling of exactly 0 leaves only the ratio undefined
+    iv = {"rho_full": _pct(B[0][keep]), "rho_x": _pct(b_x[keep]), "c": _pct(b_c[keep]), "ratio": _pct(b_ratio[ratio_ok])}
     block = {"primary": {"rho_full": r[0], "rho_x": rho_x, "c": c, "ratio": ratio,
                          "rho_x_pairs": {_LABELS[1]: r[1], _LABELS[2]: r[2]}, "c_pairs": {_LABELS[3]: r[3], _LABELS[4]: r[4]}},
              "bootstrap": {"n_boot": int(keep.size), "seed": int(seed), "percentiles": list(PERCENTILES), "n_used": int(keep.sum()),
-                           "n_dropped": int((~keep).sum()), "n_dropped_constant": int(const.sum()),
-                           "n_dropped_zero_ceiling": int(zero_c.sum()), "interval": iv},
+                           "n_dropped": int((~keep).sum()), "n_ratio_zero_ceiling": int((keep & ~ratio_ok).sum()), "interval": iv},
              "words": words(ratio, iv["ratio"], c)}
     return block, {"rho_x": b_x, "c": b_c}
 
@@ -473,7 +475,8 @@ def compare_vectors(x_full: pd.Series, y_full: pd.Series, x1: pd.Series, x2: pd.
     * ``primary``: rho_full = rho(x_full, y_full); rho_x = (rho(x1, y2) + rho(x2, y1)) / 2 (the primary cross-half agreement);
       c = (rho(x1, x2) + rho(y1, y2)) / 2 (the matched ceiling); ratio = rho_x / c; and each pair's rho.
     * ``bootstrap``: n_boot resamples of the types (``default_rng(seed)``); 2.5 and 97.5 percentiles of rho_full, rho_x, c and ratio
-      over the kept resamples; the counts of dropped resamples (a constant resampled vector; a ceiling of exactly 0).
+      over the kept resamples; ``n_dropped`` (a constant resampled vector, G6) and ``n_ratio_zero_ceiling`` (kept resamples
+      whose ceiling is exactly 0, left out of the ratio interval only).
     * ``words``: G7 ('at the ceiling', 'a real gap' or 'not judged').
     * ``secondary``: G6 (a) ``nonzero``, (b) ``equal_members`` (only with ``member_counts``, type -> (n_left, n_right); else None),
       (c) ``replication``, (d) ``kappa`` and (e) ``top30``. Each has "full", "cross" and "split" forms (see ``_secondary``)."""
@@ -522,14 +525,14 @@ def closure_vectors(xb_full: pd.Series, xb1: pd.Series, xb2: pd.Series, xa_full:
     rx_b, c_b, rx_a = before["primary"]["rho_x"], before["primary"]["c"], after["primary"]["rho_x"]
     with np.errstate(divide="ignore", invalid="ignore"):
         arr = (ab["rho_x"] - bb["rho_x"]) / (bb["c"] - bb["rho_x"])
-    undefined = np.isnan(bb["rho_x"]) | np.isnan(bb["c"]) | np.isnan(ab["rho_x"])
-    nonfinite = ~undefined & ~np.isfinite(arr)
-    keep = ~undefined & ~nonfinite
+    undefined = np.isnan(bb["rho_x"]) | np.isnan(bb["c"]) | np.isnan(ab["rho_x"])  # G6 drop: a needed Spearman is NaN
+    zero_den = ~undefined & ~np.isfinite(arr)                                         # c(X, Y) == rho_x(X, Y): no closure
+    keep = ~undefined & ~zero_den
     return _json({"n_types": len(tl), "y_changed": ya == "Z", "before": before, "after": after,
                   "closure": _div(rx_a - rx_b, c_b - rx_b), "closure_interval": _pct(arr[keep]),
                   "closure_bootstrap": {"n_boot": int(keep.size), "seed": int(seed), "percentiles": list(PERCENTILES),
-                                        "n_used": int(keep.sum()), "n_dropped": int((~keep).sum()),
-                                        "n_dropped_constant": int(undefined.sum()), "n_dropped_zero_denominator": int(nonfinite.sum())},
+                                        "n_used": int(keep.sum()), "n_dropped": int(undefined.sum()),
+                                        "n_zero_denominator": int(zero_den.sum())},
                   "after_ratio_vs_before_ceiling": _div(rx_a, c_b),
                   "reported": before["words"] == REAL_GAP, "closes_whole_gap": after["words"] == AT_CEILING})
 
@@ -538,8 +541,8 @@ def closure(X_before: pd.DataFrame, X_after: pd.DataFrame, Y: pd.DataFrame, type
             n_boot: int = N_BOOT, seed: int = BOOT_SEED, *, Y_after: pd.DataFrame | None = None) -> dict:
     """G7 gap closure of an intervention that turns X into X' (compared with the same Y). The formula is
     closure = (rho_x(X', Y) - rho_x(X, Y)) / (c(X, Y) - rho_x(X, Y)), and its percentile interval uses the same resamples for every
-    quantity. A resample is dropped if a Spearman it needs is undefined, or if its denominator is exactly 0; the two are counted
-    separately.
+    quantity. The interval leaves out a resample in which a Spearman it needs is undefined (``n_dropped``), or in which its
+    denominator is exactly 0 (``n_zero_denominator``).
 
     ``before`` and ``after`` hold each pair's primary block, bootstrap and words, identical to ``compare`` on that pair with the same
     seed. The after pair's words use its own ratio rho_x(X', Y) / c(X', Y). ``after_ratio_vs_before_ceiling`` = rho_x(X', Y) /

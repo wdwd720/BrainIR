@@ -375,6 +375,88 @@ def test_nb_copy_falls_back_to_poisson_and_has_the_nb_moments():
     assert abs(x.mean() - 100) < 3.0 and abs(x.var() / 5100 - 1) < 0.1
 
 
+# ---------------------------------------------------------------------- brute force on a random fly (4, 5a, 5b, B4.3)
+def random_fly(seed=11, n_pairs=12, n_self=6, n_unmatched=8, density=0.3):
+    """Pairs (one group per pair), midline / unsided self-mapped neurons and unmatched neurons, in a shuffled order; random counts
+    with one-sided entries, (i, m(i)) entries and autapses."""
+    rng = np.random.default_rng(seed)
+    side, gid, ntype = [], [], []
+    for k in range(n_pairs):
+        side += ["L", "R"]
+        gid += [f"g{k}", f"g{k}"]
+        ntype += [f"P{k % 4}", f"P{k % 4}"]
+    for k in range(n_self):
+        side.append("M" if k % 2 == 0 else "U")
+        gid.append(None)
+        ntype.append(f"S{k % 2}" if k < 4 else None)
+    for k in range(n_unmatched):
+        side.append("L" if k % 2 == 0 else "R")
+        gid.append(None)
+        ntype.append(f"X{k}" if k < 6 else None)
+    n = len(side)
+    perm = rng.permutation(n)
+    side, gid, ntype = [side[i] for i in perm], [gid[i] for i in perm], [ntype[i] for i in perm]
+    D = np.where(rng.random((n, n)) < density, rng.integers(1, 20, (n, n)), 0).astype(float)
+    r, c = np.nonzero(D)
+    fly = make_fly(n, list(zip(r, c, D[r, c])), sign=rng.choice([1.0, -1.0, 0.0], n), ntype=ntype, side=side, gid=gid,
+                   sizes=rng.random(n))
+    mm = MI.mirror_map(fly)
+    st = list(mm.status[:n])
+    assert st.count("g1") == 2 * n_pairs and st.count("self") == n_self and st.count("unmatched") == n_unmatched
+    return fly, mm, D
+
+
+def test_symmetrised_and_pooled_match_a_brute_force_loop():
+    fly, mm, D = random_fly()
+    n = len(D)
+    ok = [s in F.MATCHED_OR_SELF for s in mm.status[:n]]
+    want4 = D.copy()
+    for i in range(n):
+        for j in range(n):
+            if ok[i] and ok[j]:
+                want4[i, j] = (D[i, j] + D[mm.m[i], mm.m[j]]) / 2
+    np.testing.assert_array_equal(F.fix_symmetrised(fly, mm)[0].toarray(), want4 * fly.sign[None, :])
+    tkey = [t if t is not None else ("untyped", k) for k, t in enumerate(fly.ntype)]
+    sd = [s if s in ("L", "R", "M") else "U" for s in fly.side]
+    def cls(i, j, within):  # class of the connection pre j -> post i
+        if within:
+            return (tkey[j], sd[j], tkey[i], sd[i])
+        rel = "unsided" if sd[i] not in ("L", "R") or sd[j] not in ("L", "R") else ("same" if sd[i] == sd[j] else "diff")
+        return (tkey[j], tkey[i], rel)
+
+    for within in (True, False):
+        groups: dict = {}
+        for i, j in zip(*np.nonzero(D)):
+            groups.setdefault(cls(i, j, within), []).append(D[i, j])
+        want5 = np.zeros_like(D)
+        for i, j in zip(*np.nonzero(D)):
+            want5[i, j] = np.mean(groups[cls(i, j, within)])
+        np.testing.assert_allclose(F.fix_type_pooled(fly, within)[0].toarray(), want5 * fly.sign[None, :], rtol=1e-12, atol=0)
+
+
+def test_nb_inverse_k_matches_a_brute_force_loop():
+    for seed in (11, 12, 13):
+        fly, mm, D = random_fly(seed=seed)
+        n = len(D)
+        st = [str(s) for s in mm.status[:n]]
+        ok = [s in F.MATCHED_OR_SELF for s in st]
+        pairs = {}
+        for i in range(n):
+            for j in range(n):
+                if not (ok[i] and ok[j]) or (st[i] == "self" and st[j] == "self"):
+                    continue
+                a, b = (i, j), (int(mm.m[i]), int(mm.m[j]))
+                assert a != b
+                key = tuple(sorted((a, b)))
+                if D[key[0]] >= 1 or D[key[1]] >= 1:
+                    pairs[key] = (D[key[0]], D[key[1]])
+        cl, cr = np.array([v[0] for v in pairs.values()]), np.array([v[1] for v in pairs.values()])
+        mbar = (cl + cr) / 2
+        want = np.sum(((cl - cr) ** 2 / 2 - mbar) * mbar ** 2) / np.sum(mbar ** 4)
+        out = F.nb_inverse_k(fly.C, mm)
+        assert out["n_pairs"] == len(pairs) and out["inv_k"] == pytest.approx(want, rel=1e-12)
+
+
 # ------------------------------------------------------------------------------------------------------- rewired control (C5)
 def rewire_fly():
     rng = np.random.default_rng(4)

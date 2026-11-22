@@ -37,6 +37,11 @@ SEED_BOOT = 20261401
 SEED_SAMPLE = 20261402
 
 
+def _f(x) -> float:
+    """None (agree's undefined) -> NaN, so arithmetic on undefined values gives NaN instead of a TypeError."""
+    return float("nan") if x is None else float(x)
+
+
 def _out(name: str, obj) -> None:
     REL2.mkdir(parents=True, exist_ok=True)
     with open(REL2 / name, "x", encoding="utf-8", newline="\n") as fh:
@@ -169,8 +174,8 @@ def cmd_a() -> None:
     wc = sorted(set(b1["type"]) & set(b2["type"]))
     ref = AG.compare(b1, b2, wc, H16, n_boot=10000, seed=SEED_BOOT)
     # same-side minus opposite-side cross-fly agreement (point estimate and bootstrap over common types)
-    same = (six["MANC-L vs MaleCNS-L"]["primary"]["rho_x"] + six["MANC-R vs MaleCNS-R"]["primary"]["rho_x"]) / 2
-    opp = (six["MANC-L vs MaleCNS-R"]["primary"]["rho_x"] + six["MANC-R vs MaleCNS-L"]["primary"]["rho_x"]) / 2
+    same = (_f(six["MANC-L vs MaleCNS-L"]["primary"]["rho_x"]) + _f(six["MANC-R vs MaleCNS-R"]["primary"]["rho_x"])) / 2
+    opp = (_f(six["MANC-L vs MaleCNS-R"]["primary"]["rho_x"]) + _f(six["MANC-R vs MaleCNS-L"]["primary"]["rho_x"])) / 2
     ssd = _same_minus_opposite(hf, common)
     # A3 one bad side
     a3 = {}

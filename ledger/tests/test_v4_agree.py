@@ -142,17 +142,23 @@ def test_cohen_kappa_hand_computed():
 
 
 def test_top30_overlap_ties_broken_by_name():
+    """PREREG v4 G6 (e): only non-zero types enter a top list (ties among them by name); |A & B| / max(|A|, |B|)."""
     names = [f"t{i:02d}" for i in range(40)]
     x = pd.Series(0.0, index=names)
     y = pd.Series(0.0, index=names)
-    x.iloc[:20] = 1.0 - 0.01 * np.arange(20)       # t00..t19 distinct positive; t20..t39 tied at 0
-    y.iloc[20:] = 0.5 + 0.01 * np.arange(20)       # t20..t39 distinct positive; t00..t19 tied at 0
-    # top30(x) = t00..t19 + the 10 first-named zeros t20..t29; top30(y) = t20..t39 + t00..t09 -> overlap {t00..t09, t20..t29}
-    assert AG.top_overlap(x, y) == pytest.approx(20 / 30)
-    assert AG.top_overlap(x, y.iloc[::-1]) == pytest.approx(20 / 30)    # aligned by type, not by position
-    assert AG.top_overlap(pd.Series(0.0, index=names), pd.Series(0.0, index=names[::-1])) == 1.0
+    x.iloc[:20] = 1.0 - 0.01 * np.arange(20)       # t00..t19 distinct positive; t20..t39 zero
+    y.iloc[20:] = 0.5 + 0.01 * np.arange(20)       # t20..t39 distinct positive; t00..t19 zero
+    # zero-score types never enter a list: A = t00..t19, B = t20..t39 -> no overlap (the old name tie-break gave 20/30)
+    assert AG.top_overlap(x, y) == 0.0
+    assert AG.top_overlap(x, y.iloc[::-1]) == 0.0                         # aligned by type, not by position
+    assert np.isnan(AG.top_overlap(pd.Series(0.0, index=names), pd.Series(0.0, index=names[::-1])))  # both empty
+    z = pd.Series(0.0, index=names)
+    z.iloc[:40] = 1.0                                                     # 40 tied positive: top 30 by name = t00..t29
+    w = pd.Series(0.0, index=names)
+    w.iloc[10:40] = 2.0                                                   # 30 positive: t10..t39
+    assert AG.top_overlap(z, w) == pytest.approx(20 / 30)                 # {t10..t29}
     few = pd.Series([0.9, 0.1, 0.0, 0.3, 0.2], index=list("abcde"))
-    assert AG.top_overlap(few, few[::-1] * 0 + 1) == 1.0                # fewer than 30 types: all of them, divided by 5
+    assert AG.top_overlap(few, few[::-1] * 0 + 1) == pytest.approx(4 / 5)  # A = {a,b,d,e}, B = all five -> 4 / 5
 
 
 def test_replication_rate_both_directions_and_nan():
@@ -249,11 +255,11 @@ def test_secondary_measures_use_the_named_pairs():
 
 
 def _bruteforce(vecs: dict[str, np.ndarray], n_boot: int, seed: int) -> dict:
-    """G6's bootstrap written out row by row with the scalar Spearman: positions resampled with default_rng(seed), a resample
-    dropped if a needed Spearman is NaN, or (counted separately) if its ceiling is exactly 0."""
+    """G6's bootstrap written out row by row with the scalar Spearman: positions resampled with default_rng(seed); a resample with a
+    NaN Spearman dropped from every interval; one whose ceiling is exactly 0 left out of the ratio interval only."""
     n = len(vecs["X"])
     idx = np.random.default_rng(seed).integers(0, n, size=(n_boot, n))
-    kept, n_const, n_zero = [], 0, 0
+    kept, ratios, n_const, n_zero = [], [], 0, 0
     for row in idx:
         r = [AG.spearman(vecs[a][row], vecs[b][row]) for a, b in
              (("X", "Y"), ("X_h1", "Y_h2"), ("X_h2", "Y_h1"), ("X_h1", "X_h2"), ("Y_h1", "Y_h2"))]
@@ -261,13 +267,15 @@ def _bruteforce(vecs: dict[str, np.ndarray], n_boot: int, seed: int) -> dict:
             n_const += 1
             continue
         rx, c = (r[1] + r[2]) / 2, (r[3] + r[4]) / 2
+        kept.append((r[0], rx, c))
         if c == 0:
             n_zero += 1
-            continue
-        kept.append((r[0], rx, c, rx / c))
+        else:
+            ratios.append(rx / c)
     K = np.array(kept)
-    return {"n_const": n_const, "n_zero": n_zero,
-            "interval": {k: list(np.percentile(K[:, j], [2.5, 97.5])) for j, k in enumerate(("rho_full", "rho_x", "c", "ratio"))}}
+    iv = {k: list(np.percentile(K[:, j], [2.5, 97.5])) for j, k in enumerate(("rho_full", "rho_x", "c"))}
+    iv["ratio"] = list(np.percentile(ratios, [2.5, 97.5]))
+    return {"n_const": n_const, "n_zero": n_zero, "interval": iv}
 
 
 @pytest.mark.parametrize("n_types", [4, 8])
@@ -286,25 +294,37 @@ def test_bootstrap_matches_row_by_row_definition(n_types):
     out = AG.compare_vectors(s["X"], s["Y"], s["X_h1"], s["X_h2"], s["Y_h1"], s["Y_h2"], n_boot=n_boot, seed=seed)
     ref = _bruteforce({k: v.to_numpy() for k, v in s.items()}, n_boot, seed)
     b = out["bootstrap"]
-    assert b["n_dropped_constant"] == ref["n_const"] > 0
-    assert b["n_dropped_zero_ceiling"] == ref["n_zero"]
-    assert b["n_used"] == n_boot - ref["n_const"] - ref["n_zero"]
+    assert b["n_dropped"] == ref["n_const"] > 0
+    assert b["n_used"] == n_boot - ref["n_const"]
+    assert b["n_ratio_zero_ceiling"] == ref["n_zero"]
     for k, iv in ref["interval"].items():
         assert b["interval"][k] == pytest.approx(iv, abs=1e-12)
 
 
-def test_zero_ceiling_resamples_are_dropped_and_counted():
+def test_zero_ceiling_resamples_leave_out_only_the_ratio():
     types = list("abcde")
     up = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5], index=types)
     down = pd.Series(up.to_numpy()[::-1], index=types)
-    # rho(x1, x2) = 1 and rho(y1, y2) = -1 on every non-constant resample: c = 0, the ratio is undefined
+    # rho(x1, x2) = 1 and rho(y1, y2) = -1 on every non-constant resample: c = 0, so only the ratio is undefined
     out = AG.compare_vectors(up, up, up, up, up, down, n_boot=500)
     b = out["bootstrap"]
     assert out["primary"]["c"] == 0.0 and out["primary"]["ratio"] is None and out["words"] == "not judged"
-    assert b["n_dropped"] == 500 and b["n_dropped_zero_ceiling"] > 0
-    assert b["n_dropped_constant"] + b["n_dropped_zero_ceiling"] == 500
+    assert b["n_ratio_zero_ceiling"] == b["n_used"] > 0 and b["n_used"] + b["n_dropped"] == 500
     assert b["interval"]["ratio"] == [None, None]
+    assert b["interval"]["c"] == [0.0, 0.0] and b["interval"]["rho_x"] == [0.0, 0.0] and b["interval"]["rho_full"] == [1.0, 1.0]
     json.dumps(out, allow_nan=False)
+
+
+def test_bootstrap_does_not_depend_on_the_chunk_size(monkeypatch):
+    rng = np.random.default_rng(12)
+    base = _base(25, rng)
+    types = sorted(base)
+    Y = _screen(base, rng, noise=0.2, p_unusable=0.1)
+    Xb = _screen({t: float(np.clip(0.5 * v + 0.5 * rng.uniform(), 0, 1)) for t, v in base.items()}, rng, noise=0.2)
+    Xa = _screen({t: float(np.clip(v + rng.normal(0, 0.1), 0, 1)) for t, v in base.items()}, rng, noise=0.2)
+    one_chunk = AG.compare(Xb, Y, types, H8, n_boot=1500), AG.closure(Xb, Xa, Y, types, H8, n_boot=1500)
+    monkeypatch.setattr(AG, "_CHUNK", 37)   # 1500 resamples in 41 chunks, the last one partial
+    assert (AG.compare(Xb, Y, types, H8, n_boot=1500), AG.closure(Xb, Xa, Y, types, H8, n_boot=1500)) == one_chunk
 
 
 def test_bootstrap_is_deterministic_and_seeded():
@@ -385,7 +405,7 @@ def test_closure_known_answer():
     assert out["after_ratio_vs_before_ceiling"] == pytest.approx(ra)
     assert out["before"]["words"] == "a real gap" and out["reported"] is True
     cb = out["closure_bootstrap"]
-    assert cb["n_used"] + cb["n_dropped"] == 2000 and cb["n_used"] > 1900
+    assert cb["n_used"] + cb["n_dropped"] + cb["n_zero_denominator"] == 2000 and cb["n_used"] > 1900
     lo, hi = out["closure_interval"]
     assert lo <= hi <= 1.0 + 1e-12
     assert out["y_changed"] is False

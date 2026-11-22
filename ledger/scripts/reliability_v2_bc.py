@@ -336,7 +336,8 @@ def cmd_noise() -> None:
         lo, hi = cc["bootstrap"]["interval"]["rho_x"]
         out[model] = {"copy_vs_copy": cc, "paired_copy_vs_copy": _paired(X, Y, ts),
                       "copy1_vs_L_on_W": AG.compare(X, A["LW"], ts, H8, n_boot=2000, seed=SEED),
-                      "reproduces_left_right": (lo is not None and hi is not None and lo <= obs["primary"]["rho_x"] <= hi)}
+                      "reproduces_left_right": bool(lo is not None and hi is not None and obs["primary"]["rho_x"] is not None
+                                                    and lo <= obs["primary"]["rho_x"] <= hi)}
     flips = _flips(A["LW"], A["RW"], types)
     floors = {}
     for f in (1, 3, 10):
@@ -435,17 +436,18 @@ def _evaluate_fix(fix: str, unfixed_drivers: float | None, gains: dict) -> dict:
     else:
         pl = AG.compare(hf["MANC-L"], hf["MCNS-L"], common, H8, n_boot=NB, seed=SEED)
         pr = AG.compare(hf["MANC-R"], hf["MCNS-R"], common, H8, n_boot=NB, seed=SEED)
-        rx, c = (pl["primary"]["rho_x"] + pr["primary"]["rho_x"]) / 2, (pl["primary"]["c"] + pr["primary"]["c"]) / 2
+        rx = (R2._f(pl["primary"]["rho_x"]) + R2._f(pr["primary"]["rho_x"])) / 2
+        c = (R2._f(pl["primary"]["c"]) + R2._f(pr["primary"]["c"])) / 2
         rec["cross_fly"] = {"L": pl, "R": pr, "rho_x_mean": rx, "c_mean": c, "ratio": rx / c if c else None}
-        c2x = c is not None and c > 0 and rx / c >= 0.80
+        c2x = bool(np.isfinite(rx) and np.isfinite(c) and c > 0 and rx / c >= 0.80)
     lr = {"MANC": AG.compare(hf["MANC-L"], hf["MANC-R"], tm, H8, n_boot=NB, seed=SEED)}
     if "MCNS-L" in hf:
         lr["MaleCNS"] = AG.compare(hf["MCNS-L"], hf["MCNS-R"], tc, H8, n_boot=NB, seed=SEED)
-    rxl = float(np.mean([v["primary"]["rho_x"] for v in lr.values()]))
-    cl = float(np.mean([v["primary"]["c"] for v in lr.values()]))
+    rxl = float(np.mean([R2._f(v["primary"]["rho_x"]) for v in lr.values()]))
+    cl = float(np.mean([R2._f(v["primary"]["c"]) for v in lr.values()]))
     rec["left_right"] = {**lr, "rho_x_mean": rxl, "c_mean": cl, "ratio": rxl / cl if cl else None,
                          "required": fix in SIDES_DISTINCT}
-    c2lr = (not rec["left_right"]["required"]) or (cl > 0 and rxl / cl >= 0.80)
+    c2lr = (not rec["left_right"]["required"]) or bool(np.isfinite(rxl) and np.isfinite(cl) and cl > 0 and rxl / cl >= 0.80)
     dr = {k: _drivers(hf[k], tm if k.startswith("MANC") else tc) for k in ("MANC-L", "MANC-R", "MCNS-L", "MCNS-R") if k in hf}
     mean_dr = float(np.mean(list(dr.values())))
     rec["drivers"] = {"per_half_fly": dr, "mean": mean_dr, "unfixed_mean": unfixed_drivers}
