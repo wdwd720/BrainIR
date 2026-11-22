@@ -285,6 +285,203 @@ def build_b3(k=None):
     return groups, "reliability_v2"
 
 
+# ------------------------------------------------------------------------------------------------------------------ Part C
+NET_FIXES = ("3a", "3b", "4", "5a", "5b", "6", "7", "8")
+GAINS = (1.0, 0.5, 0.75, 1.5, 2.0, 3.0)
+FIX_K = {31: "3a", 32: "3b", 4: "4", 51: "5a", 52: "5b", 6: "6", 7: "7", 8: "8", 1: "1", 2: "2", 9: "9"}
+
+
+def fixed_network(fix: str, fly: str):
+    """(W, sizes) of fly `fly` under network fix `fix` ('0' = unfixed), PREREG v4 C2 (`brainir_ledger.fixes`)."""
+    import scipy.sparse as sp  # noqa: PLC0415
+
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
+    f = MR.fly(fly)
+    if fix in ("0", "1", "2"):
+        return sp.csr_matrix(f.net.W, dtype=np.float64), np.asarray(f.net.sizes, np.float64)
+    return FX.apply_fix(fix, f, MR.mirror_map(f))
+
+
+def _std(job: dict, gain: float) -> dict:
+    job.update(kind="group_v4", params={"mode": "standard"}, gain=float(gain), extras={"readout_traces": True})
+    return job
+
+
+def build_cg(k=None):
+    """PREREG v4 C4: DNg100 (both members, whole type, all front-leg motor neurons), seeds 0..15, every fix at every gain, both flies
+    (3a/3b MANC only). Network fixes: the screen on the fixed network times the gain; fix 2: the screen with traces on the unfixed
+    network times the gain (pooled score from the traces); fix 1: grid sweeps on the unfixed network times the gain."""
+    require_freeze("Part C gains")
+    groups = []
+    for fly in ("MANC", "MaleCNS"):
+        f = MR.fly(fly)
+        tag = "MANC" if fly == "MANC" else "MCNS"
+        dng = f.groups["DNg100"]
+        for fix in ("0",) + NET_FIXES:
+            if fix in ("3a", "3b") and fly != "MANC":
+                continue
+            W, sizes = fixed_network(fix, fly)
+            sh = {"W": W, "sizes": sizes, "readout": f.readout}
+            jobs = []
+            for g in GAINS:
+                names = ("1", "2") if fix == "0" else (fix,)
+                for nm in names:
+                    for s in A_SEEDS:
+                        j = _base_job(f"CG-{nm}-g{g:g}-{tag}|DNg100|s{s}", s)
+                        j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout"), members=list(dng))
+                        if nm == "1":
+                            j.update(kind="sweep_v4", params={"mode": "standard"}, gain=float(g), currents=list(GRID))
+                        else:
+                            _std(j, g)
+                        jobs.append(j)
+            groups.append((sh, jobs))
+    return groups, "reliability_v2"
+
+
+def c_gains(name: str = "cg-run4") -> dict:
+    """PREREG v4 C4 from the DNg100-only campaign: per fix the gain used (1 if it passes, else the smallest passing gain of 0.5, 0.75,
+    1.5, 2, 3), or 'fails'. Pass = score >= 0.5 in >= 12 of 16 seeds on both flies (3a/3b: MANC only), unusable = < 0.5; fix 1 uses
+    the best in-bounds grid score, fix 2 the pooled score of the summed read-out signal."""
+    from brainir_ledger import pooled  # noqa: PLC0415
+
+    res = {r["key"]: r for r in read_log(data_dir() / "reliability_v2" / f"GHA_{name}" / "results.pkl")}
+
+    def score(r, nm):
+        if nm == "1":
+            ib = [x["score"] for x in r["runs"] if x["in_bounds"]]
+            return max(ib) if ib else 0.0
+        if not r.get("usable"):
+            return 0.0
+        return pooled.pooled_score(r) if nm == "2" else float(r["score"] or 0.0)
+
+    out = {}
+    for nm in ("1", "2") + NET_FIXES:
+        flies = ("MANC",) if nm in ("3a", "3b") else ("MANC", "MCNS")
+        per_gain = {}
+        for g in GAINS:
+            ok = {}
+            for tag in flies:
+                vals = [score(res[f"CG-{nm}-g{g:g}-{tag}|DNg100|s{s}"], nm) for s in A_SEEDS]
+                ok[tag] = int(sum(v >= 0.5 for v in vals))
+            per_gain[f"{g:g}"] = {"n_ge_0.5": ok, "pass": all(v >= 12 for v in ok.values())}
+        if per_gain["1"]["pass"]:
+            chosen = 1.0
+        else:
+            passing = [g for g in GAINS[1:] if per_gain[f"{g:g}"]["pass"]]
+            chosen = min(passing) if passing else None
+        out[nm] = {"per_gain": per_gain, "gain": chosen, "verdict": "pass" if chosen is not None else "fails"}
+    _write_once(GATES4 / "C_GAINS.json", {"rule": "PREREG v4 C4", "fixes": out})
+    print(json.dumps({k: (v["gain"], v["verdict"]) for k, v in out.items()}))
+    return out
+
+
+def _gain_of(fix: str) -> float:
+    g = json.loads((GATES4 / "C_GAINS.json").read_text())["fixes"][fix]["gain"]
+    if g is None:
+        raise SystemExit(f"fix {fix} failed its DNg100 control at every gain: not screened (C4)")
+    return float(g)
+
+
+def build_crw(k=None):
+    """PREREG v4 C5: the unfixed rewired control (B1-ctl-rewire-101's network), left side, analysed types, seeds 0..7, R4's job
+    specification (traces stored, for fix 2)."""
+    require_freeze("Part C rewired control")
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
+    f = MR.fly("MANC")
+    rf = FX.rewired_fly(f)
+    halves = f.halves()
+    types = [t for t in analysed_set()["analysed"] if t in halves["L"]]
+    import scipy.sparse as sp  # noqa: PLC0415
+
+    W = sp.csr_matrix(rf.C.multiply(rf.sign[None, :]), dtype=np.float64)
+    shared = {"W": W, "sizes": f.net.sizes, "readout_L": f.readout_side("L")}
+    jobs = [dict(j, readout=Shared("readout_L")) for j in _v2_jobs("CRW-MANC-L", {t: halves["L"][t] for t in types}, B_SEEDS)]
+    return [(shared, jobs)], "reliability_v2"
+
+
+def build_cx(k=None):
+    """PREREG v4 C5: one fix (k: 31 = 3a, 32 = 3b, 4, 51 = 5a, 52 = 5b, 6, 7, 8; 1 = fix 1's rewired-control sweep) at its gain from
+    gates_v4/C_GAINS.json: the four half-flies (MaleCNS except 3a/3b) and the rewired control (left), analysed types, seeds 0..7,
+    standard parameters."""
+    require_freeze("Part C fix screens")
+    import scipy.sparse as sp  # noqa: PLC0415
+
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
+    fix = FIX_K[int(k)]
+    g = _gain_of(fix)
+    types_all = analysed_set()["analysed"]
+    groups = []
+    fm = MR.fly("MANC")
+    rf = FX.rewired_fly(fm)
+    if fix == "1":
+        hm = fm.halves()
+        types = [t for t in types_all if t in hm["L"]]
+        W = sp.csr_matrix(rf.C.multiply(rf.sign[None, :]), dtype=np.float64)
+        sh = {"W": W, "sizes": fm.net.sizes, "readout_L": fm.readout_side("L")}
+        jobs = []
+        for t in types:
+            for s in B_SEEDS:
+                j = _base_job(f"CX-1-RW-MANC-L|{t}|s{s}", s)
+                j.update(kind="sweep_v4", W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout_L"), members=hm["L"][t],
+                         params={"mode": "standard"}, gain=g, currents=list(GRID))
+                jobs.append(j)
+        return [(sh, jobs)], "reliability_v2"
+    for fly in ("MANC", "MaleCNS"):
+        if fix in ("3a", "3b") and fly != "MANC":
+            continue
+        f = MR.fly(fly)
+        h = f.halves()
+        types = [t for t in types_all if t in h["L"]]
+        W, sizes = fixed_network(fix, fly)
+        sh = {"W": W, "sizes": sizes, "readout_L": f.readout_side("L"), "readout_R": f.readout_side("R")}
+        tag = "MANC" if fly == "MANC" else "MCNS"
+        jobs = []
+        for side in ("L", "R"):
+            for t in types:
+                for s in B_SEEDS:
+                    j = _base_job(f"CX-{fix}-{tag}-{side}|{t}|s{s}", s)
+                    j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared(f"readout_{side}"), members=h[side][t])
+                    jobs.append(_std(j, g))
+        groups.append((sh, jobs))
+    # the rewired control with the fix applied (left side)
+    W, sizes = FX.apply_fix(fix, rf, MR.mirror_map(fm))
+    sh = {"W": W, "sizes": sizes, "readout_L": fm.readout_side("L")}
+    hm = fm.halves()
+    jobs = []
+    for t in [t for t in types_all if t in hm["L"]]:
+        for s in B_SEEDS:
+            j = _base_job(f"CX-{fix}-RW-MANC-L|{t}|s{s}", s)
+            j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout_L"), members=hm["L"][t])
+            jobs.append(_std(j, g))
+    groups.append((sh, jobs))
+    return groups, "reliability_v2"
+
+
+def build_dx(k=None):
+    """PREREG v4 Part D (EXPLORATORY): exam 1's whole-type screen on the fixed MANC network at the fix's gain, all 321 B1r types, seeds
+    0..7 (k as build_cx; fix 1: whole-type grid sweeps on the unfixed network; fix 2 needs no run: B1r's stored traces)."""
+    require_freeze("Part D")
+    fix = FIX_K[int(k)]
+    g = _gain_of(fix)
+    _, _, (fl, g1), _ = G._nets()
+    W, sizes = fixed_network(fix if fix != "1" else "0", "MANC")
+    sh = {"W": W, "sizes": sizes, "readout": fl.readout}
+    jobs = []
+    for t, m in sorted(g1.items()):
+        for s in B_SEEDS:
+            j = _base_job(f"DX-{fix}|{t}|s{s}", s)
+            j.update(W=Shared("W"), sizes=Shared("sizes"), readout=Shared("readout"), members=list(m))
+            if fix == "1":
+                j.update(kind="sweep_v4", params={"mode": "standard"}, gain=g, currents=list(GRID))
+            else:
+                _std(j, g)
+            jobs.append(j)
+    return [(sh, jobs)], "reliability_v2"
+
+
 def build_p4(k=None):
     """PREREG v4 X2, allowed before the freeze: the run 4 runner and workflow on (a) 4 locked B1r DNg100 jobs and 4 locked R4 jobs
     (digests must reproduce) and (b) the v4 kinds on the SYNTHETIC test circuit of `ledger/tests/test_v4_mirror.py` (must run
@@ -307,7 +504,8 @@ def build_p4(k=None):
     real = mm.real_of()
     syn = {"W": e.W(), "M": em.W(), "sizes_W": e.sizes, "sizes_M": em.sizes, "eW": _ext_dict(e), "eM": _ext_dict(em),
            "ro_L": f.readout[real] & (mm.side == "L"), "ro_R": f.readout[real] & (mm.side == "R"), "src": MR.paired_source(mm),
-           "sizes_real": f.net.sizes, "perm": np.random.default_rng(7).permutation(mm.n_ext), "Wreal": sp_csr(f.net.W)}
+           "sizes_real": f.net.sizes, "perm": np.random.default_rng(7).permutation(mm.n_ext), "Wreal": sp_csr(f.net.W),
+           "ro_L_real": f.readout & (f.side == "L")}  # p4-run4 used ro_L (extended) for the sweep: a test-spec error (LOG)
     slots = MR.left_slots(mm, [0, 1], [13, 14])
     P = _paired(mm.n_real)
     sj = []
@@ -323,7 +521,7 @@ def build_p4(k=None):
                  params=P, perm=Shared("perm"))
         sj.append(j)
         j = _base_job(f"P4-SYN-SWEEP|D|s{s}", s)
-        j.update(kind="sweep_v4", W=Shared("Wreal"), sizes=Shared("sizes_real"), members=[0, 1], readout=Shared("ro_L"), params={"mode": "standard"},
+        j.update(kind="sweep_v4", W=Shared("Wreal"), sizes=Shared("sizes_real"), members=[0, 1], readout=Shared("ro_L_real"), params={"mode": "standard"},
                  currents=[8.0, 64.0, 512.0])
         sj.append(j)
     fl_shared = {"W": fl.W, "sizes": fl.sizes, "readout": fl.readout}
@@ -359,14 +557,15 @@ def p4_check(name: str = "p4-run4") -> dict:
     meta = [json.loads(x) for x in (data_dir() / "reliability_v2" / f"GHA_{name}" / "gha_meta.jsonl").read_text().splitlines() if x.strip()]
     out = {"campaign": name, "jobs": rows, "numerics_digests": sorted({m["probe"]["numerics_digest"][:12] for m in meta}),
            "verdict": "pass" if ok else "fail"}
-    _write_once(GATES4 / "P4_PIPELINE.json", out)
+    _write_once(GATES4 / ("P4_PIPELINE.json" if name == "p4-run4" else f"P4_PIPELINE_{name}.json"), out)
     print(json.dumps(out, indent=1))
     return out
 
 
-RUN4_BUILDERS = {"pa": build_pa, "r4rep": build_r4rep, "b1s": build_b1s, "b2": build_b2, "b3": build_b3, "p4": build_p4}
+RUN4_BUILDERS = {"pa": build_pa, "r4rep": build_r4rep, "b1s": build_b1s, "b2": build_b2, "b3": build_b3, "p4": build_p4,
+                 "p4b": build_p4, "cg": build_cg, "crw": build_crw, "cx": build_cx, "dx": build_dx}
 G.BUILDERS.update(RUN4_BUILDERS)
-RUN4_PREFIXES = set(RUN4_BUILDERS) | {"cn", "cg", "cx", "crw", "dx", "det4"}
+RUN4_PREFIXES = set(RUN4_BUILDERS) | {"cn", "fl", "det4"}
 
 
 # ------------------------------------------------------------------------------------------------ publish / collect / feeder
@@ -527,6 +726,8 @@ def main() -> None:
         r4_compare(*(a[:1] or []))
     elif cmd == ["p4-check"]:
         p4_check(*(a[:1] or []))
+    elif cmd == ["c-gains"]:
+        c_gains(*(a[:1] or []))
     else:
         raise SystemExit(__doc__)
 

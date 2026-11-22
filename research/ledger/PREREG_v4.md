@@ -146,8 +146,8 @@ size -> scale 1), exactly as `size_scaling` does. With no pair and no ghost this
   flies (all of them if fewer than 50), the same set for every block and fix; each fly uses the analysed types matched in it. Every
   table says that it is on the analysed set.
 
-**G10. Random numbers.** Bootstrap 20261401; analysed-set sample 20261402; relabelling control permutation 20261403; determinism
-samples 20261405; Poisson copies 20261411, 20261412; negative-binomial copies 20261421, 20261422; Part E nothing random; side QA sample
+**G10. Random numbers.** Bootstrap 20261401; analysed-set sample 20261402; relabelling control permutation 20261403; R4
+reproduction sample 20261404; determinism samples and the identity-hybrid sample 20261405; Poisson copies 20261411, 20261412; negative-binomial copies 20261421, 20261422; Part E nothing random; side QA sample
 20261451. Model seeds as stated per part.
 
 ---
@@ -225,9 +225,9 @@ noise and Part C's attribution are run on the cross-fly gap instead (B5).
 
 - **B1.1 Dose grid (fixed now from B1r's accepted currents):** 19 currents 4 x 2^(k/2), k = 0..18 (4.0, 5.66, 8, ..., 1448, 2048),
   i.e. B1r's 1st-99th percentile range (4.06-1,024) with the top extended one doubling because a half group has about half the members.
-  Job kind `fixed_v4`: one job = one (half-fly, type, seed), all 19 currents in order, each a fixed run (no tuner) with the same
-  parameters as the Part A replicate of that seed. Per run: tuner class, active counts, read-out score, active read-out motor
-  neurons, summed-signal score. **In bounds** = the tuner-v2 acceptance test (10 <= active <= 1,500, <= 200 above 100 Hz, >= 1 active
+  Job kind `sweep_v4`: one job = one (half-fly, type, seed), all 19 currents in order (then the transplant currents of B1.3), each
+  a fixed run (run 1's `fixed_run`, no tuner) with the same parameters as the Part A replicate of that seed. Per run: tuner class,
+  active counts, read-out score, active read-out motor neurons. **In bounds** = the tuner-v2 acceptance test (10 <= active <= 1,500, <= 200 above 100 Hz, >= 1 active
   read-out motor neuron).
 - **B1.2 Matched-current agreement:** left vs right at each grid current (type score = mean over the 8 seeds of the run's score, all
   runs counted), G6 form. Two tuner-free scores per type: **best in-bounds score** (per seed the maximum score over in-bounds currents,
@@ -360,7 +360,8 @@ in-bounds score over the grid; for fix 2 its pooled score), seeds 0..15, on both
 **passes** if DNg100 scores >= 0.5 in >= 12 of 16 seeds on both flies (unusable counts as < 0.5). If it fails at gain 1, the gains 0.5,
 0.75, 1.5, 2 and 3 are run and the smallest passing gain is used for every run of that fix; if none passes, the fix fails and is not
 screened further. Unfixed: run 2's calibK (K = 1: MANC 16/16, MaleCNS 13/16) passes. All gains are fixed from one DNg100-only campaign
-before any other run of the fixes is published. DNb08 is reported, never used.
+before any other run of the fixes is published; fix 9's gain, if it needs one, comes from a second DNg100-only campaign before its
+screens. DNb08 is reported, never used.
 
 **C5. Runs per fix (analysed set, seeds 0..7, unpaired draws):** the four half-flies (MaleCNS halves for every fix except 3a/3b), and
 the **rewired control**: MANC rewired by run 1's degree-preserving generator with network seed 101 (`controls.build`, the network of
@@ -494,7 +495,7 @@ rulebook, Part A0, Part A with ceilings, Block 1, Block 2, the forward ledger.
 **Departures from RUN4_PROMPT, each with its reason.** (1) Ceilings and agreements use the cross-half form (G6), so that the
 comparison and its ceiling have the same number of seeds per mean; full-seed agreement is reported beside it. (2) Paired draws only in
 Blocks 2-3 and count noise; Block 1 and Part C use the unchanged procedure (Block 1 reuses Part A's tuned currents and parameters).
-(3) MANC seeds 0..3 are re-run, not copied, and must reproduce R4's digests (A1). (4) MaleCNS DN sides come from the output side (G3):
+(3) MANC seeds 0..3 are R4's runs, reused after a 100-job reproduction check through run 4's runner (A1). (4) MaleCNS DN sides come from the output side (G3):
 MaleCNS annotates only the brain soma side for DNs, which disagrees with the nerve-cord output side for 40 % of them. (5) Floors and
 count noise on MANC only, and fixes 3a/3b cannot pass criterion 2 (no pre-floor MaleCNS counts). (6) Fix 8 excludes the floors (same
 reason). (7) The full-transplant check has a tolerance set by a relabelling control (B2.3-B2.4), because a relabelled matrix sums in

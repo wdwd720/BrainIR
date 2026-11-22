@@ -36,12 +36,17 @@ def _ext(d: dict) -> MR.Ext:
 
 
 def _network(job: dict):
-    """(W, slot sizes, stimulated slots, read-out mask) of a v4 job, before any relabelling."""
+    """(W, slot sizes, stimulated slots, read-out mask) of a v4 job, before any relabelling; W times the job's `gain` (C4) if given."""
     hy = job.get("hybrid")
     if hy is not None:
         e = MR.columns_from(_ext(hy["base"]), _ext(hy["other"]), hy["cols"])
-        return e.W(), e.sizes, MR.stimulated(hy["slots"], e.present), np.asarray(job["readout"], bool)
-    return sp.csr_matrix(job["W"]), np.asarray(job["sizes"], np.float64), [int(i) for i in job["members"]], np.asarray(job["readout"], bool)
+        W, sizes, members = e.W(), e.sizes, MR.stimulated(hy["slots"], e.present)
+    else:
+        W, sizes, members = sp.csr_matrix(job["W"]), np.asarray(job["sizes"], np.float64), [int(i) for i in job["members"]]
+    g = job.get("gain")
+    if g is not None and float(g) != 1.0:
+        W = (W * float(g)).tocsr()
+    return W, sizes, members, np.asarray(job["readout"], bool)
 
 
 def _params(job: dict, model_cfg, n: int, sizes):
@@ -64,7 +69,7 @@ def _relabel(W, sizes, members, readout, params, perm):
 
 
 def digest_v4(res: dict) -> str:
-    keep = {k: res.get(k) for k in ("digest", "runs_digest", "params_mode", "n_slots")}
+    keep = {k: res.get(k) for k in ("digest", "runs_digest", "params_mode", "n_slots", "gain")}
     return hashlib.sha256(json.dumps(keep, sort_keys=True, default=str).encode()).hexdigest()
 
 
@@ -104,6 +109,7 @@ def run_job(job: dict) -> dict:
             res = {"members": [int(m) for m in members], "seed": int(job["seed"]), "runs": runs, "runs_digest": _runs_digest(runs)}
         res["key"] = key
         res["params_mode"] = mode
+        res["gain"] = float(job.get("gain") or 1.0)
         res["n_slots"] = int(W.shape[0])
         res["n_stimulated"] = len(members)
         res["digest_v4"] = digest_v4(res)
