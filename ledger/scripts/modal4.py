@@ -114,6 +114,22 @@ def trust() -> dict:
     return out
 
 
+def compare(name: str) -> dict:
+    """A campaign run on both platforms: every key's digests (run 1 `digest`, and `digest_v4` where present) must be identical ->
+    gates_v4/CROSS_PLATFORM_<name>.json (written once)."""
+    man, _, _ = _items(name)
+    gh = {r["key"]: r for r in read_log(data_dir() / man["area"] / f"GHA_{name}" / "results.pkl")}
+    mo = {r["key"]: r for r in read_log(data_dir() / man["area"] / f"MODAL_{name}" / "results.pkl")}
+    keys = sorted(set(gh) & set(mo))
+    same = [k for k in keys if gh[k].get("digest") == mo[k].get("digest") and gh[k].get("digest_v4") == mo[k].get("digest_v4")]
+    out = {"campaign": name, "keys_both": len(keys), "identical": len(same), "different": sorted(set(keys) - set(same)),
+           "verdict": "identical" if keys and len(same) == len(keys) else "fail"}
+    with open(GATES4 / f"CROSS_PLATFORM_{name}.json", "x", encoding="utf-8", newline="\n") as fh:
+        fh.write(json.dumps(out, indent=1) + "\n")
+    print(json.dumps(out))
+    return out
+
+
 def main() -> None:
     cmd, a = sys.argv[1:2], sys.argv[2:]
     if cmd == ["trust"]:
@@ -123,6 +139,8 @@ def main() -> None:
             float(a[a.index("--budget-usd") + 1]) if "--budget-usd" in a else None)
     elif cmd == ["estimate"]:
         estimate(a[0], float(a[a.index("--s-per-job") + 1]))
+    elif cmd == ["compare"]:
+        compare(a[0])
     elif cmd == ["spent"]:
         print(round(spent(), 3))
     else:
