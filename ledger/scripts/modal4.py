@@ -32,7 +32,7 @@ from brainir_ledger.jobs_v4 import run_job  # noqa: E402
 
 GATES4 = RESEARCH / "gates_v4"
 SPEND_LOG = data_dir() / "modal_run4_spend.jsonl"
-CAP_USD = 15.0
+CAP_USD = 29.0  # user, in chat 2026-11-22 ~09:55 PST: "you can use another $14 dollars worth of modal" (LOG L136); was 15.0
 PRICE_CORE_H = 0.0473
 PRICE_GIB_H = 0.008
 MEM_GIB = 2.0
