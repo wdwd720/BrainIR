@@ -161,17 +161,23 @@ def _b1(fly: str, types: list[str]) -> dict:
                     "closure_vs_tuned": closure_df(tuned["L"], tuned["R"], d["L"], d["R"], types)}
     out["tuner_free"] = tf
     # transplant (B1.3): types whose replicate was accepted on both sides in all 8 seeds (at least 10 such types, else not computed)
+    # The transplant runs follow the grid: the side's own accepted current, then the other side's accepted current of the same seed,
+    # each only when that Part A replicate was accepted (the builder's rule, gha4.build_b1s). The sweep result does not carry the
+    # job's `transplant` field, so the mapping is rebuilt from Part A and checked against each run's recorded current (amendment 5).
     tr = {s: {} for s in ("L", "R")}
     for s in ("L", "R"):
+        o_s = "R" if s == "L" else "L"
         for t, se, r in rows[s]:
-            tp = r.get("transplant") or {}
             extra = r["runs"][ng:]
             i = 0
-            if tp.get("own") is not None:
-                tr[s][(t, se, "own")] = extra[i]
-                i += 1
-            if tp.get("other") is not None:
-                tr[s][(t, se, "other")] = extra[i]
+            for kind, rep in (("own", pa[(s, t, se)]), ("other", pa[(o_s, t, se)])):
+                if rep.get("usable"):
+                    if abs(float(extra[i]["current"]) - float(rep["current"])) > 1e-9:
+                        raise SystemExit(f"B1 transplant mapping: {s} {t} s{se} {kind}: run current {extra[i]['current']} != {rep['current']}")
+                    tr[s][(t, se, kind)] = extra[i]
+                    i += 1
+            if i != len(extra):
+                raise SystemExit(f"B1 transplant mapping: {s} {t} s{se}: {len(extra)} extra runs, {i} expected")
     repro = n_rep = 0
     for s in ("L", "R"):
         for (t, se, kind), x in tr[s].items():
