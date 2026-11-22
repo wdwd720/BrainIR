@@ -1,0 +1,46 @@
+{
+ "marking": "EXPLORATORY, after unblinding (PREREG v4 Part D): not pre-registered evidence; each variant scored once.",
+ "fix": "4",
+ "primary_set": "run 2's P (labels v2, clear front-leg label, among A1's 321, not exposed)",
+ "n_types": 39,
+ "n_yes": 25,
+ "fixed_model": {
+  "auroc": 0.4657142857142857,
+  "lo": 0.30425,
+  "hi": 0.6185714285714285,
+  "n_boot": 10000,
+  "seed": 20261120
+ },
+ "unfixed_B1r_seeds_0_7": {
+  "auroc": 0.4342857142857143,
+  "lo": 0.2613928571428572,
+  "hi": 0.6085714285714285,
+  "n_boot": 10000,
+  "seed": 20261120
+ },
+ "two_step_signed_S2": {
+  "auroc": 0.6685714285714286,
+  "lo": 0.44285714285714284,
+  "hi": 0.8714285714285714,
+  "n_boot": 10000,
+  "seed": 20261120
+ },
+ "fixed_minus_unfixed": {
+  "auroc_a": 0.4657142857142857,
+  "auroc_b": 0.4342857142857143,
+  "diff": 0.03142857142857142,
+  "lo": -0.16142857142857142,
+  "hi": 0.22285714285714284,
+  "n_boot": 10000,
+  "seed": 20261122
+ },
+ "fixed_minus_S2": {
+  "auroc_a": 0.4657142857142857,
+  "auroc_b": 0.6685714285714286,
+  "diff": -0.2028571428571429,
+  "lo": -0.4643214285714286,
+  "hi": 0.0714285714285714,
+  "n_boot": 10000,
+  "seed": 20261122
+ }
+}
