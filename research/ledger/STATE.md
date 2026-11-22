@@ -30,12 +30,12 @@ unblinded and closed.
       model is chosen (its whole-type screen first). Fix campaigns use LABEL names: cx-3a, cx-5a, cx-5b (dx-3a, dx-5a, dx-5b).
 - [x] Amendments 5 (B1 transplant mapping) and 6 (SR guard) after a dry run on fake results (posthoc/dryrun_analyses_v4.py, all
       19 steps OK; L125). Feeder crash on an existing tag -> b2-manc published as -r2 (L124).
-- [x] Block 1 both flies (B1_MANC.json, B1_MaleCNS.json; L126): tuner explains <= ~1/3 of the gap; gap at every fixed current.
-- [x] Block 2 MaleCNS (B2_MaleCNS.json): sanity pass; H_own closure 0.17, H_rest 0.21 (both CIs include 0).
-- [~] RUNNING (23:15 PST): GitHub b2-manc-run4-r2 (7, ~00:40), cn-run4 (6, ~01:00), fl-1-run4 (6, ~01:40); feeder
-      (feeder_run4_core2.log) next: cx-4, cx-5a, cx-5b, cx-7, cx-3a, cx-1. Collector collect_all2.sh. Monitor on both logs.
-- NEXT: b2 MANC, then b3 MANC (B3_MALECNS_CHOICE.json is written; b3-mcns NOT run: dropped),
-      noise (cn + fl-1 only), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
+- [x] Block 1 both flies (L126), Block 2 both flies (L128), Block 3 MANC (L129; MaleCNS repeats dropped). Outputs committed.
+- [~] RUNNING (02:25 PST): GitHub fl-1-run4 (5 chunks; chunk 2 lost its runner, L127 -> scratchpad/rerun_fl1.sh fires automatically
+      when the run completes: pauses the feeder, reruns the failed chunk under 20 jobs, restarts the feeder), cx-4 (6), cx-5a (6).
+      Feeder (feeder_run4_core2.log) next: cx-5b, cx-7, cx-3a, cx-1. Collector collect_all2.sh order: cx-4, cx-5a, cx-5b, cx-7, cx-3a,
+      cx-1, fl-1 (last). Draft of RESULTS_3 sections 1-3.3 in the scratchpad (RESULTS_3_draft.md; move to results/ after the lock).
+- NEXT: noise (cn + fl-1, only after fl-1's re-run completes), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
       model's dx first, then re-check the envelope for Part D (dx-*) -> rescue; det4 stages 2-5 (stage 3 without fl-3/fl-10);
       exploratory full-278 comparison for Block 1/3; LOCK_reliability_v2; then forward ledger.
 - [ ] Stages 2-5: A0 -> A -> Block 1 -> Block 2 -> Block 3 + count noise -> C -> D; LOCK_reliability_v2, tag ledger-reliability-v2.
