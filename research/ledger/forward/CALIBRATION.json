@@ -1,0 +1,93 @@
+{
+ "fit_set": "all labelled types (exam 1 primary set)",
+ "n_fit": 39,
+ "n_yes": 25,
+ "n_headless": 6,
+ "base_rate": 0.6410256410256411,
+ "training_note": "Probabilities come from a one-variable logistic fit of exam 1's labels on each source's score: training on past results to predict future ones (RUN4_PROMPT hard limit 4).",
+ "atlas_caveat": "Atlas caveat: 21 of exam 1's 25 'yes' types rest on the intact-fly atlas alone, and the atlas gives no 'no'; the fit inherits that confound.",
+ "sources": {
+  "authors_model": {
+   "fit": {
+    "a": 0.07364816882947109,
+    "b": 1.3670312975569272,
+    "method": "maximum likelihood"
+   },
+   "n": 39,
+   "brier_loo": 0.2477635699937315,
+   "brier_base_rate_loo": 0.242382271468144,
+   "log_loss_loo": 0.7009789809814321,
+   "auroc_loo": 0.3342857142857143,
+   "reliability_3_bins": [
+    {
+     "bin": [
+      0,
+      0.333
+     ],
+     "n": 0,
+     "mean_p": null,
+     "observed_yes": null
+    },
+    {
+     "bin": [
+      0.333,
+      0.667
+     ],
+     "n": 26,
+     "mean_p": 0.5910697100835715,
+     "observed_yes": 0.6153846153846154
+    },
+    {
+     "bin": [
+      0.667,
+      1.0
+     ],
+     "n": 13,
+     "mean_p": 0.7390782858540905,
+     "observed_yes": 0.6923076923076923
+    }
+   ]
+  },
+  "two_step_count": {
+   "fit": {
+    "a": -0.25301829358883027,
+    "b": 1.9223593164686588,
+    "method": "maximum likelihood"
+   },
+   "n": 39,
+   "brier_loo": 0.23945457213182472,
+   "brier_base_rate_loo": 0.242382271468144,
+   "log_loss_loo": 0.699776174797781,
+   "auroc_loo": 0.6114285714285714,
+   "reliability_3_bins": [
+    {
+     "bin": [
+      0,
+      0.333
+     ],
+     "n": 0,
+     "mean_p": null,
+     "observed_yes": null
+    },
+    {
+     "bin": [
+      0.333,
+      0.667
+     ],
+     "n": 24,
+     "mean_p": 0.5692935407932815,
+     "observed_yes": 0.5833333333333334
+    },
+    {
+     "bin": [
+      0.667,
+      1.0
+     ],
+     "n": 15,
+     "mean_p": 0.7688719394452745,
+     "observed_yes": 0.7333333333333333
+    }
+   ]
+  }
+ }
+}
