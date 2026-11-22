@@ -24,13 +24,17 @@ unblinded and closed.
 - [x] Part A0: real gap in the authors' own scores (ratio 0.63) -> reliability_v2/A0.json (L114).
 - [x] Part A: real gap both flies (MANC 0.59, MaleCNS 0.64); cross-fly 0.32-0.50; analysed set 278 (A.json, ANALYSED_SET.json, L116).
       A4 (WIRING_A4.json), A5 (A5.json) done (L115).
-- [~] RUNNING (19:00 PST): Modal b3-manc-run4 then crw-run4 (task bai44hbi4; log data/cache/ledger_logs/modal_b3_crw.log);
-      GitHub feeder (det4-1, b1s-mcns, b2-mcns, b1s-manc, b2-manc, cn, fl-1, fl-3, fl-10; log feeder_run4_B.log);
-      cg-run4 collector -> c-gains -> gates_v4/C_GAINS.json (task bp6h90zth). Modal spend ~3.06 USD + ~10 estimated (cap 15).
-- NEXT: as campaigns finish: collect4 each (Modal ones need no collect); det-compare 1; reliability_v2_bc.py b1 MANC/MaleCNS,
-      b2 MANC/MaleCNS, b3 MANC (writes B3_MALECNS_CHOICE.json -> pack b3-mcns-run4 --k 2), noise, then Part C: pack cx-<k> for
-      k in 31 32 4 51 52 6 7 8 (+ 1 if gain 1: rewired sweep only; 2 needs no campaign at gain 1), dx for the fixes; cmd c (partial)
-      -> fix 9 if any; cmd c --final; rescue; det4 stages 2-5; LOCK_reliability_v2; then forward ledger.
+- [x] Modal done (b3-manc-run4, crw-run4; billing $14.93 of $15; L120). Determinism stage 1 (Part A) 40/40 (L-row in commit 314aa6f).
+- [x] X9 re-budget (L122): random part cut to 25 (ANALYSED_SET_X9.json, amendment 4; 262 analysed types); DROPPED: MaleCNS Block 3
+      repeats, floors 3/10 (fl-3, fl-10), fix 3b (cx-32, dx-32); fix 2 kept (zero compute); Part D dx deferred until the robust
+      model is chosen (its whole-type screen first). Fix campaigns use LABEL names: cx-3a, cx-5a, cx-5b (dx-3a, dx-5a, dx-5b).
+- [~] RUNNING (21:40 PST): GitHub b1s-manc-run4-r2 (12 chunks), b1s-mcns-run4 attempts 1 (170-min timeout) + 2 (hedge; watcher
+      hedge_b1s_mcns.sh cancels attempt 2 if attempt 1 succeeds). Feeder (log feeder_run4_core.log): b2-manc, cn, fl-1, cx-4, cx-5a,
+      cx-5b, cx-7, cx-3a, cx-1. Collector scratchpad/collect_all2.sh -> data/cache/ledger_logs/collect_all.log.
+- NEXT: as campaigns finish: b1 MANC/MaleCNS, b2 MANC/MaleCNS, b3 MANC (B3_MALECNS_CHOICE.json is written; b3-mcns NOT run: dropped),
+      noise (cn + fl-1 only), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
+      model's dx first, then re-check the envelope for Part D (dx-*) -> rescue; det4 stages 2-5 (stage 3 without fl-3/fl-10);
+      exploratory full-278 comparison for Block 1/3; LOCK_reliability_v2; then forward ledger.
 - [ ] Stages 2-5: A0 -> A -> Block 1 -> Block 2 -> Block 3 + count noise -> C -> D; LOCK_reliability_v2, tag ledger-reliability-v2.
 - [ ] Stage 6: forward ledger research/ledger/forward/, LOCK_forward_v1, tag ledger-forward-v1.
 - [ ] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md, EVIDENCE_MAP.md; HANDOFF_4.md (<= 2,200 words, 14 sections,
