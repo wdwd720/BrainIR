@@ -1,67 +1,44 @@
-# Ledger STATE (run 3: hemilineage exam; spec research/ledger/RUN3_PROMPT.md, sha256 dc5b0d8d...aeb)
+# Ledger STATE (run 4: left-right and cross-fly reproducibility; spec research/ledger/RUN4_PROMPT.md, sha256 ec03c9a6...9756)
 
-Read RUN3_PROMPT.md, this file and LOG.md (L70+) after any context loss.
+Read RUN4_PROMPT.md, this file and LOG.md (L104+) after any context loss. Run 3 is closed (HANDOFF_3.md); exams 1 and 2 are
+unblinded and closed.
 
-## Hard limits (RUN3_PROMPT section 3)
-- ONE unblinding for exam 2, through the Stage 5 gate. Never put a hemilineage prediction next to a hemilineage outcome before.
-- NO hemilineage simulation before tag `ledger-prereg-v3` (only DNg100, DNb08, RNG-chosen synthetic groups).
-- I never author labels and never read the hemilineage papers' results. Frozen locks/BrainIR/main untouched. No Modal; GitHub
-  first (<= 300 runner-hours), Mac second. Push branch + tags only; no force push. After unblinding nothing moves.
-
-## RUN 3 COMPLETE (2026-11-21 13:45 PST). Exam 2 unblinded once and scored; NEVER RE-RUN score_h1.py (flag retired).
-- All tags pushed (prereg-v3, predictions-h1, labels-h1, scorecard-h1, reliability-v1); every proof complete; baseline,
-  ledger suite and all locks green; HANDOFF_3.md written. The list below is the history of the run.
-
-- Gate run 2: all six conditions hold. Flag committed (ebf0f01), primary + secondary run once, recompute agrees, flag retired to
-  results/run3/UNBLIND_h1_used.json. Verdict: PREDICTS (0.633, 0.533-0.724, p 0.0076, 27 units) but NOT beyond wiring
-  (H-S-k2-signed 0.638; diff -0.006, -0.172..+0.166). RESULTS_2.md written; results commit 3dd9746 (+ wording fix commit).
-- Remaining, in order: commit wording fixes -> tag ledger-scorecard-h1 -> push branch + tag, verify ls-remote == HEAD and origin
-  main unchanged -> OTS stamp RESULTS_2.md (commit .ots, push) -> lock3.py reliability (commit ALONE) -> tag ledger-reliability-v1
-  -> push -> OTS stamp -> baseline checks (BrainIR `uv run pytest -m "not real_data"`: expect 532 passed + known arm64 failure;
-  benchmarks/dng100/freeze.py --check; scripts/method_lock.py --check; scripts/p3/method_lock_p3.py --check) -> OTS upgrades
-  (re-check every <= 10 min) -> HANDOFF_3.md (<= 2,000 words, 13 sections; draft scratch handoff_draft.md; compact scorecard)
-  -> commit, push, print as final message.
+## Hard limits (RUN4_PROMPT section 3)
+1. Declare first: every analysis, metric and criterion in PREREG_v4.md before its data or simulation (Part A0 included). Later
+   ideas -> section marked exploratory.
+2. Calibrate on DNg100 only (gains, thresholds). DNb08 reported, never tuned on. No exam label shapes a fix.
+3. Exams closed: Part D re-scores are exploratory, each variant scored once, said every time.
+4. Labels used only for the Part E probability fit (stated as training on past results).
+5. Frozen stays frozen: existing locks, BrainIR locks, Phase 2-4 files, `main`. BrainIR methods imported read-only.
+6. Reviews write-once; later thoughts in an addendum file.
+7. No paid compute: GitHub Actions only (trust gate); the Mac runs no prediction. At most 20 GitHub jobs queued+running at a time
+   (count jobs, not campaigns). Stop at 300 runner-hours.
+8. Push branch + tags only. Never `main`. No force push.
 
 ## Checklist
-- [x] Stage 0: caffeinate (running); RUN3_PROMPT saved; tree clean, 9 locks verify, baseline identical (532 + arm64 failure;
-      ledger 133). Trust gate run 3 PASSED (100/100, gates_v3/TRUST_GATE_v3.json). Diagnosis: no build error (active MNs match);
-      tolerance not the cause (diag_v3/TOLERANCE_DIAG.json); coupling difference = phase only (LOG L70, L72). Outcome-location
-      list: reviews_v3/HL_OUTCOME_LOCATIONS.md (29 locations, none opened).
-- [x] Stage 1: FROZEN 02:23 PST. Tag ledger-prereg-v3 = a175625 (pushed). LOCK_prereg_v3 8c674fd0..., LOCK_labelcode_h1 c4437386...
-      (both verified in a clean worktree). OTS pending (upgrade later). Audit + re-check resolved (reviews_v3/).
-- [x] Stage 2 (primary): LOCK_predictions_h1.json 732aca14... committed 04:49:14 (LOCAL; tag ledger-predictions-h1 LOCAL; OTS pending).
-      Descriptive arms (H-C x10, hsens, H-D) via the FEEDER (publish log data/cache/ledger_logs/feeder_run3.log): collect3 each,
-      predict_h1.py hc --campaign hc-<k>-run3 / hsens --campaign hsens-run3 --primary hm-run3 / hd --campaign hd-run3, then
-      lock3.py predictions-b <arms> [ARM=reason] --platform ... BEFORE the labels lock (LOCK_predictions_h1b.json must exist).
-- [x] Stage 3 (labels FINAL, NOT LOCKED yet): 14 sessions + verify-2 (verify-1 blocked by a safety classifier), no breach;
-      79 final records, 27 units >= 3 coded, kappa 0.975, verification 4.1 %, review "usable with caveats" (L91-L92);
-      sensitivity input labels_h1/consensus_sensitivity.csv (exploratory). Gate conditions 2-5 dry-run: pass.
-- NEXT (in order): wait for the descriptive arms (CUTOFF 12:00 PST, L93) -> predict_h1.py hc/hsens/hd tables -> commit ->
-      lock3.py predictions-b <arms> [ARM=reason] -> commit -> (>= 1 s later) lock3.py labels -> commit -> tag ledger-labels-h1 ->
-      push branch + tags (hook allows once the labels lock is in HEAD) -> OTS. Then GATE: python -c gate_h1.evaluate() dry-run ->
-      gate_h1.py (run 1) -> commit ONLY the report -> checklist reviewer (scratch gate_checklist_brief.md) -> commit ONLY the
-      checklist -> gate_h1.py (run 2) -> commit. Do NOT write the reliability lock or amendment rows between gate runs.
-      Then UNBLIND: research/ledger/UNBLIND_h1.json naming the three locks + sha256 -> commit -> score_h1.py --run primary ->
-      --run secondary -> independent recompute (scratch recompute_brief.md) -> posthoc/results_h1.py (--with matplotlib) ->
-      RESULTS_2.md -> retire flag to results/run3/UNBLIND_h1_used.json -> tag ledger-scorecard-h1 -> push -> OTS.
-      R3/R4: feeder publishes r4, r3-51 early -> run reliability_v1.py r4/r3 on the first finished before the flag.
-- [~] Stage 4: R1 done (cross-fly 0.37; split-half 0.86/0.93), R2 done (wiring cross-fly 0.78-0.97) -> reliability_v1/R1.json, R2.json.
-      R3 (r3-<k>-run3) and R4 (r4-run3) published; after they finish: `reliability_v1.py r3` / `r4` -> LOCK_reliability_v1
-      (lock3.py reliability), tag ledger-reliability-v1 (local until labels lock: the reliability lock hashes code incl. predictions? no -
-      it hashes reliability_v1/** + code; but HEAD will hold predictions -> do not push until the labels lock).
-- [ ] Stage 5: gate -> unblind once or stop; RESULTS_2.md; tag ledger-scorecard-h1.
-- [~] Stage 6: post-mortem delegated to a fresh agent (exam 1 only; writes results/POSTMORTEM_1.md + ledger/scripts/posthoc/postmortem_1.py).
-      HANDOFF_3.md (<= 2,000 words, printed as final message) at the end.
-- Briefs ready in the orchestrator scratchpad: stage2_reviewer_brief.md (Stage 2 reviewer RUNNING; resume it for the H-M table
-  spot-check once predicted.csv exists), label_review_brief.md, recompute_brief.md. Reporting script: ledger/scripts/posthoc/results_h1.py
-  (outside lock-hashed folders; run with `--with matplotlib==3.9.2` after unblinding).
-- CAUTION: any untracked .py directly in ledger/scripts/, ledger/src/brainir_ledger/, ledger/tests/ blocks lock3 writers (they refuse
-  untracked code); put exploratory code in ledger/scripts/posthoc/.
+- [~] Stage 0: caffeinate (task bpzx5j4ux); RUN4_PROMPT saved; tree clean at start (HEAD fb9fc60 = origin). Dose arm: current
+      applied, not a bug (diag_v4/DOSE_ARM_CHECK.json, LOG L105). TODO: lock checks, baseline suite, trust gate (trust-run4).
+- [ ] Stage 1: PREREG_v4.md (design draft: orchestrator scratchpad run4_design.md + advisor items in LOG L106), code before the
+      freeze (jobs_v4, gha_runner4, ledger-gha4.yml with the key-newline fix, gha4.py, lock4.py, analysis code), side QA
+      (annotations/wiring only, disclosed), fresh rulebook audit, tag ledger-prereg-v4, push, OTS.
+- [ ] Stages 2-5: A0 -> A -> Block 1 -> Block 2 -> Block 3 + count noise -> C -> D; LOCK_reliability_v2, tag ledger-reliability-v2.
+- [ ] Stage 6: forward ledger research/ledger/forward/, LOCK_forward_v1, tag ledger-forward-v1.
+- [ ] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md, EVIDENCE_MAP.md; HANDOFF_4.md (<= 2,200 words, 14 sections,
+      printed as the final message).
 
-## Facts fixed so far
-- Full cord: 23,532 neurons; hemilineage annotation on every thoracic neuron (45 labels incl. TBD); birthtime covers 13,060 of
-  13,064 thoracic hemilineage neurons (postembryonic = secondary + early_secondary); 732 MNs (fl 141, ml 119, hl 131, wm 66,
-  hm 16, ad 229, nm 24, xm 6), leg MN motor modules annotated.
-- Linearised model at the model's coupling constant: spectral radius 34 -> no steady state (H-S linear baseline undefined).
-- Controls on the full cord build in seconds (class shuffle 0.3 s, rewire 12 s; 13.3 M of 13.7 M swaps).
-- Quota 59 % at run 3 start (resets 2026-11-25 17:00 PST): be frugal with helper agents.
+## Facts fixed so far (run 4)
+- Dose arm (H-D): all 1,376 job specs carry the key's current for every member; neurons above 100 Hz rise with the current; the
+  run class is set by member count and sign in this range (only 01B and 27X change, at 512).
+- One-sided screen (R4, run 3): MANC seeds 0..3, 2,464 jobs, 20.9 s per job (median 11.3). B1r accepted currents 1-99 %:
+  4.06-1024 (min 1.75, max 2048). B2r (MaleCNS) jobs 2.7 s.
+- MANC front leg: 4,604 neurons, 144 fl MNs (72 L / 72 R), 933 excitatory DN members in 321 types, DN side = rootSide of the
+  full-cord table. MaleCNS (authors' matrix): 4,310 neurons, 130 fl MNs (67 L / 63 R), 885 excitatory DN members in 328 types,
+  DN side annotated only as brain soma side; MaleCNS matrix floored at 5 (no pre-floor counts): floors and count noise on MANC only.
+- Run 1 unfixed rewired controls (B1, whole type): 1, 1, 2, 0, 0 drivers of 321 (B1 itself 10).
+
+## Earlier facts (runs 1-3)
+- Full cord: 23,532 neurons; 732 MNs; linearised model spectral radius 34 (no stable steady state).
+- Mac numerics differ from GitHub (arm64): the Mac never runs a prediction. GitHub runner numerics digest a72e417cfd91.
+- GitHub workflow key bug (L82): a random key starting with a newline breaks encryption (1/256 per chunk): re-run the job.
+- Queue stalls at ~270 queued jobs (L83): keep the queue small.
+- CAUTION: untracked .py directly in ledger/scripts/, ledger/src/brainir_ledger/, ledger/tests/ blocks the lock writers.
