@@ -15,37 +15,15 @@ unblinded and closed.
    (count jobs, not campaigns). Stop at 300 runner-hours.
 8. Push branch + tags only. Never `main`. No force push.
 
-## Checklist
-- [x] Stage 0: caffeinate (detached `caffeinate -dimsu`, restart if gone); RUN4_PROMPT saved; baseline identical (532 + arm64
-      failure; 15 locks; ledger 201); trust gate trust-run4 100/100 (gates_v4/TRUST_GATE_v4.json); dose arm: current applied, not a
-      bug (diag_v4/DOSE_ARM_CHECK.json, L105).
-- [x] Stage 1: FROZEN. Tag ledger-prereg-v4 = badc4d7 (pushed), LOCK_prereg_v4 fd34d9f7...19ad4 (186 files; clean-worktree check
-      258 passed); OTS pending (upgrade later). Audit + re-check resolved (reviews_v4/). Amendments: 1 (A4 indexing), 2 (Modal x1.3).
-- [x] Part A0: real gap in the authors' own scores (ratio 0.63) -> reliability_v2/A0.json (L114).
-- [x] Part A: real gap both flies (MANC 0.59, MaleCNS 0.64); cross-fly 0.32-0.50; analysed set 278 (A.json, ANALYSED_SET.json, L116).
-      A4 (WIRING_A4.json), A5 (A5.json) done (L115).
-- [x] Modal done (b3-manc-run4, crw-run4; billing $14.93 of $15; L120). Determinism stage 1 (Part A) 40/40 (L-row in commit 314aa6f).
-- [x] X9 re-budget (L122): random part cut to 25 (ANALYSED_SET_X9.json, amendment 4; 262 analysed types); DROPPED: MaleCNS Block 3
-      repeats, floors 3/10 (fl-3, fl-10), fix 3b (cx-32, dx-32); fix 2 kept (zero compute); Part D dx deferred until the robust
-      model is chosen (its whole-type screen first). Fix campaigns use LABEL names: cx-3a, cx-5a, cx-5b (dx-3a, dx-5a, dx-5b).
-- [x] Amendments 5 (B1 transplant mapping) and 6 (SR guard) after a dry run on fake results (posthoc/dryrun_analyses_v4.py, all
-      19 steps OK; L125). Feeder crash on an existing tag -> b2-manc published as -r2 (L124).
-- [x] Block 1 both flies (L126), Block 2 both flies (L128), Block 3 MANC (L129; MaleCNS repeats dropped). Outputs committed.
-- [x] X9 step 6 (L132): Part D dropped except the robust model's screen and zero-compute re-scores (fix 2; robust's from Part E).
-- [x] Modal (user allowed +$14, cap $29, amendment 7, L136): cx-3a chunks 6-7 (1,048) and fl-1 re-packed chunks 4-9 (2,512) done;
-      logged total $25.94. Collected: cx-4, cx-5a, cx-5b, cx-7 (GitHub); det4-2 compared (80/80), det4-3/det4-4 collected.
-- [~] RUNNING (11:25 PST): GitHub cx-3a attempt 0 (1 chunk, limit 11:44) and -r3 (1 chunk, limit 12:12) -> if cut off, redo on
-      Modal with posthoc/modal_subset_v4.py (attempt 0 run(i) = packed chunk i; -r3 run(i) = packed chunk 4+i); fl-1 -r2 (re-packed
-      0-1) and -r3 (2-3); cx-1 redo of chunks 0,1,2,4 (1,272 jobs, 13 chunks of 100) by posthoc/redo_v4.py (log redo_cx1.log):
-      -r2, -r3 published, 2 parts pending. Collector collect_all2.sh waits on cx-3a, then cx-1, then fl-1 (missing counts exclude
-      MODAL results: check completeness with gha4.load_results).
-- NEXT: noise (cn + fl-1, only after fl-1's re-run completes), then c (C_FIXES_1_TO_8) -> fix 9 if a procedure and a network fix both pass -> c --final -> robust
-      model's dx first, then re-check the envelope for Part D (dx-*) -> rescue; det4 stages 2-5 (stage 3 without fl-3/fl-10);
-      exploratory full-278 comparison for Block 1/3; LOCK_reliability_v2; then forward ledger.
-- [ ] Stages 2-5: A0 -> A -> Block 1 -> Block 2 -> Block 3 + count noise -> C -> D; LOCK_reliability_v2, tag ledger-reliability-v2.
-- [ ] Stage 6: forward ledger research/ledger/forward/, LOCK_forward_v1, tag ledger-forward-v1.
-- [ ] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md, EVIDENCE_MAP.md; HANDOFF_4.md (<= 2,200 words, 14 sections,
-      printed as the final message).
+## Checklist (run 4 DONE, 2026-11-22 ~16:00 PST)
+- [x] Stage 0-1: freeze `ledger-prereg-v4` (badc4d7; proofs Bitcoin-attested).
+- [x] Stages 2-5: A0, A, Blocks 1-3, count noise, Part C (no fix passes), Part D (fix 2 locked; 1, 4, 5a, 5b, 7 post-lock exploratory);
+      `LOCK_reliability_v2` + tag `ledger-reliability-v2` (d81668b; proof Bitcoin-attested).
+- [x] Stage 6: forward ledger (63 types, two sources), ten-entry check 10/10, availability; `LOCK_forward_v1` + tag `ledger-forward-v1`
+      (c3ffcfa; proof pending at the end: run `ots upgrade research/ledger/LOCK_forward_v1.json.ots`).
+- [x] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md (overclaim review stopped by provider safeguards; L151),
+      EVIDENCE_MAP.md, HANDOFF_4.md. Final baseline identical to the start.
+- Open: forward proof upgrade; the brief's overclaim review (needs another model or later retry).
 
 ## Facts fixed so far (run 4)
 - Dose arm (H-D): all 1,376 job specs carry the key's current for every member; neurons above 100 Hz rise with the current; the
