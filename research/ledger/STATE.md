@@ -19,16 +19,18 @@ unblinded and closed.
 - [x] Stage 0: caffeinate (detached `caffeinate -dimsu`, restart if gone); RUN4_PROMPT saved; baseline identical (532 + arm64
       failure; 15 locks; ledger 201); trust gate trust-run4 100/100 (gates_v4/TRUST_GATE_v4.json); dose arm: current applied, not a
       bug (diag_v4/DOSE_ARM_CHECK.json, L105).
-- [~] Stage 1: rulebook + code at 697cb31 (audit "freeze after fixes" -> all 20 findings applied, LOG L109; resolution file).
-      Narrow re-check RUNNING -> reviews_v4/PREREG_RECHECK_v4.md. Modal trust gate RUNNING (modal4.py trust -> gates_v4/TRUST_GATE_v4_modal.json;
-      user allowed Modal up to ~$15, L110). Then: fix re-check items; pre-mortem (LOG L111); `git add` everything; `lock4.py prereg`
-      (commit ALONE); verify in a clean worktree (`git worktree add`; lock4 check + ledger suite); annotated tag ledger-prereg-v4;
-      push branch + tag; OTS stamp LOCK_prereg_v4.json + PREREG_v4.md (commit .ots, push).
-- NEXT after the tag (Part A): `gha4.py pack pa-manc-run4 --chunk-jobs 700 --k 1`; `pack pa-mcns-run4 --chunk-jobs 2000 --k 2`;
-      `pack r4rep-run4 --chunk-jobs 100`. If the Modal trust gate passed: run pa-manc-run4 on Modal (`modal4.py run pa-manc-run4`,
-      est. ~$3) and publish pa-mcns-run4 + r4rep-run4 on GitHub (`gha4.py feeder ...`); else all three via the feeder. Meanwhile
-      `reliability_v2.py a0`, `a4`, `a5`. Then collect4 / r4-compare, `reliability_v2.py a` (A.json, ANALYSED_SET.json), det4 stage 1
-      (on GitHub), re-budget (X9), Block 1-3 + noise campaigns.
+- [x] Stage 1: FROZEN. Tag ledger-prereg-v4 = badc4d7 (pushed), LOCK_prereg_v4 fd34d9f7...19ad4 (186 files; clean-worktree check
+      258 passed); OTS pending (upgrade later). Audit + re-check resolved (reviews_v4/). Amendments: 1 (A4 indexing), 2 (Modal x1.3).
+- [x] Part A0: real gap in the authors' own scores (ratio 0.63) -> reliability_v2/A0.json (L114).
+- [x] Part A: real gap both flies (MANC 0.59, MaleCNS 0.64); cross-fly 0.32-0.50; analysed set 278 (A.json, ANALYSED_SET.json, L116).
+      A4 (WIRING_A4.json), A5 (A5.json) done (L115).
+- [~] RUNNING (19:00 PST): Modal b3-manc-run4 then crw-run4 (task bai44hbi4; log data/cache/ledger_logs/modal_b3_crw.log);
+      GitHub feeder (det4-1, b1s-mcns, b2-mcns, b1s-manc, b2-manc, cn, fl-1, fl-3, fl-10; log feeder_run4_B.log);
+      cg-run4 collector -> c-gains -> gates_v4/C_GAINS.json (task bp6h90zth). Modal spend ~3.06 USD + ~10 estimated (cap 15).
+- NEXT: as campaigns finish: collect4 each (Modal ones need no collect); det-compare 1; reliability_v2_bc.py b1 MANC/MaleCNS,
+      b2 MANC/MaleCNS, b3 MANC (writes B3_MALECNS_CHOICE.json -> pack b3-mcns-run4 --k 2), noise, then Part C: pack cx-<k> for
+      k in 31 32 4 51 52 6 7 8 (+ 1 if gain 1: rewired sweep only; 2 needs no campaign at gain 1), dx for the fixes; cmd c (partial)
+      -> fix 9 if any; cmd c --final; rescue; det4 stages 2-5; LOCK_reliability_v2; then forward ledger.
 - [ ] Stages 2-5: A0 -> A -> Block 1 -> Block 2 -> Block 3 + count noise -> C -> D; LOCK_reliability_v2, tag ledger-reliability-v2.
 - [ ] Stage 6: forward ledger research/ledger/forward/, LOCK_forward_v1, tag ledger-forward-v1.
 - [ ] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md, EVIDENCE_MAP.md; HANDOFF_4.md (<= 2,200 words, 14 sections,
