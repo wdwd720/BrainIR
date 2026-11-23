@@ -22,7 +22,7 @@ unblinded and closed.
 - [x] Stage 6: forward ledger (63 types, two sources), ten-entry check 10/10, availability; `LOCK_forward_v1` + tag `ledger-forward-v1`
       (c3ffcfa; proof Bitcoin-attested at 21:28).
 - [x] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md + two overclaim reviews (15 items, L152; 13 items on the
-      default model, answered in reviews_v4/BRIEF_OVERCLAIM_ADDENDUM_2.md, L154-L155; all fixed); brief cut to two pages, measured (L156);
+      default model, answered in reviews_v4/BRIEF_OVERCLAIM_ADDENDUM_2.md, L154-L155; all fixed); brief cut to two pages, measured (L156); third review of the final text, 3 items fixed (L157);
       EVIDENCE_MAP.md (30 rows), HANDOFF_4.md.
       Final baseline identical to the start.
 - Open: nothing required; next-step ideas in HANDOFF_4 section 14.

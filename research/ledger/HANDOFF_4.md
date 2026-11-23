@@ -10,7 +10,7 @@ All three tags exist, were pushed to `origin` (branch `ledger/v1` only; `main` u
 
 Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md` (two pages:
 US Letter, 1-inch margins, 11 pt, with the table and the figure; `ledger/scripts/posthoc/brief_pages_v4.py` prints "pages: 2") with its
-two overclaim reviews (`reviews_v4/BRIEF_OVERCLAIM_REVIEW.md`; `BRIEF_OVERCLAIM_REVIEW_2.md` with `BRIEF_OVERCLAIM_ADDENDUM_2.md`),
+three overclaim reviews (`reviews_v4/BRIEF_OVERCLAIM_REVIEW.md`; `_REVIEW_2.md` with `_ADDENDUM_2.md`; `_REVIEW_3.md` with `_ADDENDUM_3.md`),
 `EVIDENCE_MAP.md` (one row per claim, 30 rows), this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
 locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 failure.
 
@@ -39,8 +39,12 @@ locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 f
    report are in `BRIEF_OVERCLAIM_ADDENDUM_2.md` (LOG L154). The brief now uses only numbers from locked files, so the adversarial
    reviewer's post-hoc figures appear in it in words only. The brief was then cut to the two pages the prompt asks for (it had printed
    to 4) by removing whole claims, not caveats. Every item of both reviews is either kept in the final text or resolved by removing the
-   claim it qualified (`BRIEF_OVERCLAIM_ADDENDUM_2.md` section 4; LOG L155-L156). Every review of this run was written by a newly
-   started agent with none of this session's context (LOG L153).
+   claim it qualified (`BRIEF_OVERCLAIM_ADDENDUM_2.md` section 4; LOG L155-L156). A third fresh reviewer, on the default model and told
+   of the two-page limit, then reviewed that final text: every number matched; it marked 3 items (the decisive list is the top 15 of the
+   20 types stable across sides and flies, not of all 63; MANC's Block 1 closure is not distinguishable from 0; the Block 3 classes
+   interact) and a reversed protocol step. All are fixed within the two pages (`BRIEF_OVERCLAIM_ADDENDUM_3.md`; LOG L157). Every review
+   of this run was written by a newly started agent with none of this session's context (LOG L153); beyond how they were launched and
+   what they wrote, that cannot be shown from inside the session.
 7. **Wall-clock** was about 23.5 hours (16:28 to about 16:00 the next day), at the top of the 12-24 h estimate.
 
 ## 3. The dose-arm check
@@ -98,8 +102,8 @@ two-step counting 0.67. No fix moves exam 1 beyond its interval; fix 1 is below 
 
 63 types, two sources (authors' model, two-step signed counting; no robust model, `forward/SOURCES_NOTE.md`). Fit on all 39 labelled
 types (6 headless). Leave-one-out Brier 0.248 (model) and 0.239 (counting) against 0.242 for the base rate; AUROC 0.33 and 0.61.
-Ten-entry check: ten of ten agree. The 15 decisive experiments: DNg43, DNp56, DNg32, DNp34, DNp45, DNp35, DNp26, DNg87, DNad006,
-DNg91, DNp31, DNg78, DNg39, DNp44, DNp15 (probability gaps 0.05-0.28); 34 of their 59 lines are listed as available.
+Ten-entry check: ten of ten agree. The 15 decisive experiments (the most divergent of the 20 types stable across sides and flies): DNg43, DNp56,
+DNg32, DNp34, DNp45, DNp35, DNp26, DNg87, DNad006, DNg91, DNp31, DNg78, DNg39, DNp44, DNp15 (probability gaps 0.05-0.28); 34 of their 59 lines are listed as available.
 
 ## 10. The adversarial review
 
