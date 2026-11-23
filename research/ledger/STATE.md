@@ -26,8 +26,13 @@ unblinded and closed. Run 4's state is in git history (this file at 0b15e33).
       Part L (68 sessions; exam 1 stands; erratum for six exposed types incl. DNg100), LOCK_replication_v1 (bd858b3e...3dc1, tag
       ledger-replication-v1), L167-L170.
 - [x] Part F: 12-type short list, availability, decision rule; LOCK_forward_v2 (760413aa...6fb9, tag ledger-forward-v2), L171.
-- [ ] RESULTS_4 (drafted), paper (drafted; reviews running: overclaim, hostile referee, numbers), BRIEF_v2 (two pages; overclaim
-      review running), outreach drafts (written), addenda, HANDOFF_5, final baseline, OTS upgrades (replication, forward pending).
+- [x] RESULTS_4, LABEL_AUDIT_v1, paper (PREPRINT_v0 + figures 1-4 + CLAIMS, 42 rows) revised after three reviews (overclaim 47,
+      referee 18, numbers 11 + 5) with addenda; BRIEF_v2 (two pages) after its review (17) + addendum; outreach drafts (authors 165
+      words, lab 118, one paragraph 119); LOG L172-L173.
+- [x] Final baseline (05:10): lock checks 25/25; ledger 285 passed; BrainIR fast suite 1 known failure (L5). Runner-hours 17.02 of 100.
+- [x] HANDOFF_5.md (<= 2,500 words, 13 sections), committed, pushed, printed as the final message.
+- [ ] OTS upgrades of LOCK_replication_v1 and LOCK_forward_v2: in Bitcoin transactions, waiting for confirmations at 05:15; upgrade with
+      `uvx --from opentimestamps-client ots upgrade LOCK_<name>.json.ots`, then commit the proof.
 
 ## Facts fixed so far (run 5)
 - Whole-type drivers (>= 0.5): B1r 15 types, A1 11, B2r 30; in both B1r and B2r: DNg100, DNb08, DNit013 (seen before PREREG_v5).

@@ -29,8 +29,8 @@ whole-type score of at least 0.5; B1r = our MANC screen, B2r = our MaleCNS scree
 
 With the authors' list (A1 x B2r): 2 of 6 high-confidence A1 drivers replicate (DNg100, DNb08), 3 of 11 over all matched types. In the
 authors' single-neuron screen, DNg100 and DNb08 are the only 2 of 18 types with a driver copy (among 308 types with copies on both sides)
-whose every copy is a driver. **The two experimentally confirmed drivers are the replicated set**, with the selection caveats beside them:
-DNg100 is the neuron the model was calibrated and built around; the original authors chose DNb08 themselves; both are exposed types; two
+whose every copy is a driver. **The two experimentally confirmed drivers are the replicated set**, with the selection caveats beside them: DNg100's replication is guaranteed by our calibration (rulebook v2 chose the tuner's one setting to
+make DNg100 a driver in both connectomes), so DNb08 is the informative case; the original authors chose DNb08 themselves; both are exposed types; two
 confirmed neurons are a tiny sample.
 
 ## 2. Part S: does stability under count noise predict replication? (pre-registered, confirmatory)
@@ -81,8 +81,8 @@ headless flies) is wrong: one record of DNg100 activated together with a brake n
 DNg100 records, the consensus rule let it decide, and the blind rule had set aside 23 concordant records from the simulation papers; the
 audited label is "yes". Across all 39 primary-set types the audit counted 3 errors (7.7 %; 1 of 15 in the pre-registered sample), below the
 10 % threshold, and no systematic fault, so **exam 1 stands as reported, with an erratum for six exposed types** (DNg100 no -> yes; DNa01,
-DNa02, DNg13 no -> unclear; DNg62 yes -> unclear; MDN yes -> conflicting). One of the three errors (DNg30) comes from the audit's scope rule,
-not from any record. Recomputed with audited labels (exploratory), exam 1's AUROC is 0.559 against the locked 0.577; two-step counting 0.713.
+DNa02, DNg13 no -> unclear; DNg62 yes -> unclear; MDN yes -> conflicting). The errors are not spread evenly: none among the 21 atlas-only types (re-coded with exam 1's own procedure) and 3 of the 18 types read
+from papers. One of the three errors (DNg30) comes from the audit's scope rule, not from any record. Recomputed with audited labels (exploratory), exam 1's AUROC is 0.559 against the locked 0.577; two-step counting 0.713.
 Details: `LABEL_AUDIT_v1.md`.
 
 ## 5. Three caveats
@@ -90,5 +90,6 @@ Details: `LABEL_AUDIT_v1.md`.
 1. **The replication pattern is post hoc and tiny, and half of it is built in.** Two (or three) replicated types, seen before the rule; DNg100's replication is guaranteed by our calibration (rulebook v2 chose the tuner's setting to make DNg100 a driver in both connectomes; under the original procedure it scored 0.059 in MaleCNS), so DNb08, the authors' own pick, is the informative case; DNit013 replicates only under the calibrated procedure and on a low-confidence match.
 2. **Part S's null says nothing either way.** Three replicated types cannot support a test at 0.05 unless they are strictly the most stable;
    DNb08 was not.
-3. **The labels are inferred from papers.** Both exam 1 and the audit read the literature with language-model sessions of one family; the
-   consensus rule's tie-breaks decide 30 of 54 audited labels.
+3. **The labels are inferred from papers and confounded with their sources.** Both exam 1 and the audit read the literature with
+   language-model sessions of one family; all 21 atlas-only types are "yes" while the "no" labels come from other papers; the consensus
+   rule's tie-breaks decide 30 of 54 audited labels.
