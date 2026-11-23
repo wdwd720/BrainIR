@@ -31,7 +31,7 @@ locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 f
    Modal cap. Each was made before the analysis it touches had run on real data.
 5. **Operations not in the prompt:** chunks that hit GitHub's time limit were re-packed and re-run as partial attempts of the same
    campaign (same jobs and payloads; collection merges attempts by key); a dry-run harness ran every analysis on fake results first.
-6. **The brief was reviewed for overclaims twice.** The first fresh reviewer was stopped by the model provider's safeguards (an API
+6. **The brief was reviewed for overclaims three times.** The first fresh reviewer was stopped by the model provider's safeguards (an API
    error that flags biology-adjacent research) before writing anything; I did not do the review myself. A fresh reviewer on another
    model, as the error message suggests, marked 15 items, all fixed (LOG L151-L152). Because the stop hook questioned that substitution
    (the prompt names no model), a fresh reviewer on the default model then reviewed the revised brief and marked 13 more (overclaims,
