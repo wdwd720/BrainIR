@@ -1,0 +1,101 @@
+{
+ "marking": "POST HOC, exploratory: not pre-registered; the locked comparison is with the best baseline only (vs_best_H-S)",
+ "n_units": 27,
+ "model_mean_pr": 0.632716049382716,
+ "seed": 20261303,
+ "n_boot": 10000,
+ "baselines": {
+  "H-S-k0": {
+   "baseline_mean_pr": 0.4197530864197531,
+   "difference": 0.212962962962963,
+   "interval": [
+    0.08818342151675489,
+    0.335978835978836
+   ],
+   "clearly_above": true
+  },
+  "H-S-k1-signed": {
+   "baseline_mean_pr": 0.5573192239858906,
+   "difference": 0.0753968253968254,
+   "interval": [
+    -0.035284391534391515,
+    0.1900352733686067
+   ],
+   "clearly_above": false
+  },
+  "H-S-k1-unsigned": {
+   "baseline_mean_pr": 0.5511463844797176,
+   "difference": 0.08156966490299823,
+   "interval": [
+    -0.04717813051146384,
+    0.20943562610229274
+   ],
+   "clearly_above": false
+  },
+  "H-S-k2-signed": {
+   "baseline_mean_pr": 0.6384479717813052,
+   "difference": -0.005731922398589069,
+   "interval": [
+    -0.17239858906525574,
+    0.16622574955908292
+   ],
+   "clearly_above": false
+  },
+  "H-S-k2-unsigned": {
+   "baseline_mean_pr": 0.49735449735449727,
+   "difference": 0.1353615520282187,
+   "interval": [
+    0.0035273368606701973,
+    0.26851851851851855
+   ],
+   "clearly_above": true
+  },
+  "H-S-k3-signed": {
+   "baseline_mean_pr": 0.5061728395061729,
+   "difference": 0.12654320987654322,
+   "interval": [
+    -0.052921075837742484,
+    0.3011463844797178
+   ],
+   "clearly_above": false
+  },
+  "H-S-k3-unsigned": {
+   "baseline_mean_pr": 0.4761904761904762,
+   "difference": 0.15652557319223986,
+   "interval": [
+    0.030423280423280418,
+    0.27954144620811283
+   ],
+   "clearly_above": true
+  },
+  "H-S-lin": {
+   "baseline_mean_pr": 0.46119929453262787,
+   "difference": 0.1715167548500882,
+   "interval": [
+    0.03614417989417992,
+    0.2985008818342152
+   ],
+   "clearly_above": true
+  }
+ },
+ "n_clearly_above": 4,
+ "check_against_locked_vs_best": {
+  "locked": {
+   "n": 27,
+   "diff": -0.005731922398589069,
+   "lo": -0.17239858906525574,
+   "hi": 0.16622574955908292,
+   "n_boot": 10000,
+   "seed": 20261303
+  },
+  "recomputed": {
+   "baseline_mean_pr": 0.6384479717813052,
+   "difference": -0.005731922398589069,
+   "interval": [
+    -0.17239858906525574,
+    0.16622574955908292
+   ],
+   "clearly_above": false
+  }
+ }
+}
