@@ -22,14 +22,15 @@ run 5's state is in git history (this file at ec770a8).
 - [x] Stage 2: PREREG_v6 audited (14 findings) and re-checked (N1-N6), all applied (L179-L180); analysis code, type sets
       (`gates_v6/TYPE_SETS_v6.json`), planning numbers, references (23/23), hand-check kit and build pipeline done before the freeze.
 - [x] Frozen 12:11 PST: LOCK_prereg_v6 08f1ad75...bd20, tag ledger-prereg-v6 pushed, OTS pending (commit a8744d1) (L181).
-- [ ] Campaigns (order X1): published ms-mcns-run6, pv-mcns-run6, bt-p1-banc-run6 (feeder6). To pack after timing: bt-p2 (--k 2),
-      bs-p1..p3 (--k 1..3), bh-p1/p2, bn-p1/p2 (232 matched types; 1,856 jobs per part); then det6-1, det6-2; validity after bt
-      (`thirdfly_v1.py --validity`); Part H (`posthoc_v6.py`) after ms -> LOCK_posthoc_v6 -> tag ledger-posthoc-v6.
-- Facts after the freeze: BANC DN sides unreliable (62.7 %), output sides used; 232 matched / 181 label-consistent (180 w/o DNg100);
-  authors' BANC DNb08 = position 2446 at 250 (their score 0.000).
-- [ ] Stage 3: Part H (+ MaleCNS sweep if needed), Part V, BANC tuned / sweep / one-sided / noise, tests; locks posthoc_v6, thirdfly_v1.
-- [ ] RESULTS_5.md; Stage 4 paper v1 + supplement + claims + figures + build.sh + PDF/DOCX; four reviews + addenda.
-- [ ] Stage 5 STUDY_GUIDE.md, HAND_CHECK.md; Stage 6 BRIEF_v3, outreach v2; HANDOFF_6.md.
+- [x] Campaigns collected: bt-p1/p2 (5,040), ms (2,624), pv (1,344), bs-p1/p2 (1,648); det6-1 100/100 identical.
+- [x] B4: tuned BANC INVALID (DNg100 11/16 < 12); sweep VALID (8/8) -> sweep primary for C3, C4, C6-C8; C5 tuned (L183-L184).
+- [x] Part V: V1 reproduces (0.985); V2 reproduces at the authors' configuration 391 @ 250 (15/16, mean 0.86) (L183).
+- [x] Part H built and LOCKED: LOCK_posthoc_v6 4b680b1f...7c50, tag ledger-posthoc-v6 pushed, OTS pending (L185).
+- [ ] Running: bs-p3, bh-p1/p2, bn-p1/p2 -> collect6 each -> pack det6-2-run6 (--k 2) -> feeder -> det-compare 2.
+- [ ] Then: `thirdfly_v1.py` (build) -> RESULTS_5.md -> pre-mortem -> `lock6.py thirdfly` -> tag ledger-thirdfly-v1 -> push -> OTS.
+- [ ] Then the paper (draft started: paper/PREPRINT_v1.md, static parts), figures (`posthoc/paper_figures_v6.py`), supplement,
+      CLAIMS_v1, build draft, 4 reviews (agents 2-5), addenda; STUDY_GUIDE; BRIEF_v3; outreach v2; HANDOFF_6.
+- Extra post hoc (exploratory) file for the paper: thirdfly_v1/POSTHOC_exam2_pairs.json (model clearly above 4 of 8 baselines).
 
 ## Facts fixed so far (run 6)
 - K = 1 (tuned procedure: B1's screen `b1_screen_cfg(10)`: start 128, <= 10 runs, 10 <= active <= 1,500, <= 200 above 100 Hz,
