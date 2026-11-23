@@ -1,0 +1,203 @@
+{
+ "locked_sources": {
+  "A0_copies.csv": [
+   "predictions/A0/replicates.parquet",
+   "predictions/A0/neurons.csv (LOCK_predictions_v1)"
+  ],
+  "A1.csv": [
+   "predictions/A1/replicates.parquet, types.csv (LOCK_predictions_v1)"
+  ],
+  "B1r.csv / B2r.csv": [
+   "predictions_v2/<arm>/replicates.parquet, types.csv (LOCK_predictions_v2)"
+  ],
+  "MANC_L/R, MaleCNS_L/R": [
+   "Part A replicate results (untracked; reproduce reliability_v2/A.json, LOCK_reliability_v2)"
+  ],
+  "match_confidence.csv": [
+   "MaleCNS body annotations (untracked raw file); reproduces predictions/B2/provenance.json type_mapping"
+  ],
+  "type sets": [
+   "gates_v4/TYPE_SETS.json (LOCK_reliability_v2)"
+  ]
+ },
+ "rows": {
+  "A0_copies.csv": 933,
+  "A1.csv": 321,
+  "B1r.csv": 321,
+  "B2r.csv": 328,
+  "MANC_L.csv": 308,
+  "MANC_R.csv": 308,
+  "MaleCNS_L.csv": 250,
+  "MaleCNS_R.csv": 250,
+  "match_confidence.csv": 328
+ },
+ "rules": {
+  "band": "driver >= 0.5, non_driver < 0.05, else indeterminate",
+  "halves": "A0 replicates 0-63 / 64-127; the 16-seed screens seeds 0-7 / 8-15",
+  "match_confidence": "high = every MaleCNS member mapped by the curated body match (mancBodyid), no member whose body match conflicts with its mancType string, and one-to-one naming (the type's MaleCNS label(s) map only to this MANC type, and this MANC type receives only one MaleCNS label); low = any conflict; medium = the rest; none = the MANC type has no MaleCNS group. Per-side member count equality is reported as its own column, not used (LOG L160).",
+  "sides": "A0: Part A0's full-cord root side; half-fly and whole-type tables: G3 via run 4's mirror module",
+  "type_score": "G5 (PREREG v4): mean score over usable replicates, 0 if none (A0 per copy: the same over the copy's replicates)"
+ },
+ "stage": "run 5 Stage 0: per-type tables (RUN5_PROMPT section 4)",
+ "tables": {
+  "A0_copies.csv": [
+   "manc_type",
+   "bodyId",
+   "side",
+   "members_L",
+   "members_R",
+   "members_unsided",
+   "n_replicates",
+   "n_usable",
+   "n_usable_h1",
+   "n_usable_h2",
+   "score",
+   "score_h1",
+   "score_h2",
+   "n_weak",
+   "n_strong",
+   "type_matched",
+   "type_one_each_side",
+   "type_primary_run4",
+   "cross_fly_match"
+  ],
+  "A1.csv": [
+   "manc_type",
+   "screen",
+   "n_members",
+   "members_L",
+   "members_R",
+   "members_other",
+   "n_replicates",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "cross_fly_match"
+  ],
+  "B1r.csv": [
+   "manc_type",
+   "screen",
+   "n_members",
+   "members_L",
+   "members_R",
+   "members_other",
+   "n_replicates",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "cross_fly_match"
+  ],
+  "B2r.csv": [
+   "manc_type",
+   "screen",
+   "n_members",
+   "members_L",
+   "members_R",
+   "members_other",
+   "n_replicates",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "cross_fly_match"
+  ],
+  "MANC_L.csv": [
+   "manc_type",
+   "screen",
+   "members_L",
+   "members_R",
+   "n_seeds",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "primary_run4",
+   "cross_fly_match"
+  ],
+  "MANC_R.csv": [
+   "manc_type",
+   "screen",
+   "members_L",
+   "members_R",
+   "n_seeds",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "primary_run4",
+   "cross_fly_match"
+  ],
+  "MaleCNS_L.csv": [
+   "manc_type",
+   "screen",
+   "members_L",
+   "members_R",
+   "n_seeds",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "primary_run4",
+   "cross_fly_match"
+  ],
+  "MaleCNS_R.csv": [
+   "manc_type",
+   "screen",
+   "members_L",
+   "members_R",
+   "n_seeds",
+   "n_usable",
+   "score",
+   "score_h1",
+   "score_h2",
+   "frac_rhythmic",
+   "band",
+   "primary_run4",
+   "cross_fly_match"
+  ],
+  "match_confidence.csv": [
+   "manc_type",
+   "malecns_labels",
+   "n_malecns_members",
+   "malecns_L",
+   "malecns_R",
+   "manc_L",
+   "manc_R",
+   "in_manc",
+   "all_body_matched",
+   "n_body_matched",
+   "n_conflicts",
+   "one_to_one_naming",
+   "same_name",
+   "per_side_counts_equal",
+   "confidence"
+  ]
+ },
+ "untracked_inputs": [
+  "data/ledger/reliability/GHA_r4-run3/results.pkl",
+  "data/ledger/reliability_v2/GHA_pa-mcns-run4/results.pkl",
+  "data/ledger/reliability_v2/MODAL_pa-manc-run4/results.pkl",
+  "data/raw/external/malecns_v1.0_body_annotations/body-annotations-male-cns-v1.0-minconf-0.5.feather",
+  "data/raw/external/pugliese_2026/10e7661bf4/W_20250813_DNtoMN_unsorted.csv",
+  "data/raw/external/pugliese_2026/10e7661bf4/W_20251006.feather",
+  "data/raw/external/pugliese_2026/10e7661bf4/W_20260210_vncRoisOnly.csv",
+  "data/raw/external/pugliese_2026/10e7661bf4/wTable_20250813_DNtoMN_unsorted_withModules.csv",
+  "data/raw/external/pugliese_2026/10e7661bf4/wTable_20251006.feather",
+  "data/raw/external/pugliese_2026/10e7661bf4/wTable_20260210_vncRoisOnly.csv"
+ ],
+ "verify_all_pass": true
+}

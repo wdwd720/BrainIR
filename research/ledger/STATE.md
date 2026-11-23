@@ -1,45 +1,40 @@
-# Ledger STATE (run 4: left-right and cross-fly reproducibility; spec research/ledger/RUN4_PROMPT.md, sha256 ec03c9a6...9756)
+# Ledger STATE (run 5: replication, count-noise stability, label audit, forward ledger v2, paper; spec research/ledger/RUN5_PROMPT.md, sha256 65fabef7...1d25)
 
-Read RUN4_PROMPT.md, this file and LOG.md (L104+) after any context loss. Run 3 is closed (HANDOFF_3.md); exams 1 and 2 are
-unblinded and closed.
+Read RUN5_PROMPT.md, this file and LOG.md (L159+) after any context loss. Runs 1-4 are closed (HANDOFF_1..4.md); exams 1 and 2 are
+unblinded and closed. Run 4's state is in git history (this file at 0b15e33).
 
-## Hard limits (RUN4_PROMPT section 3)
-1. Declare first: every analysis, metric and criterion in PREREG_v4.md before its data or simulation (Part A0 included). Later
-   ideas -> section marked exploratory.
-2. Calibrate on DNg100 only (gains, thresholds). DNb08 reported, never tuned on. No exam label shapes a fix.
-3. Exams closed: Part D re-scores are exploratory, each variant scored once, said every time.
-4. Labels used only for the Part E probability fit (stated as training on past results).
-5. Frozen stays frozen: existing locks, BrainIR locks, Phase 2-4 files, `main`. BrainIR methods imported read-only.
-6. Reviews write-once; later thoughts in an addendum file.
-7. No paid compute: GitHub Actions only (trust gate); the Mac runs no prediction. At most 20 GitHub jobs queued+running at a time
-   (count jobs, not campaigns). Stop at 300 runner-hours.
-8. Push branch + tags only. Never `main`. No force push.
+## Hard limits (RUN5_PROMPT section 3)
+1. Declare first: every analysis and criterion in PREREG_v5.md before the data or simulations it concerns.
+2. Mark post hoc: the replication pattern (B1r x B2r hits) was seen before PREREG_v5; every table, figure and sentence resting on it
+   says "post hoc". Part S is the only new confirmatory test.
+3. Exams closed: no primary result re-scored; an audited-labels re-score of exam 1 may be reported once, marked exploratory.
+4. I never author labels: the audit is done by fresh reader sessions (they may read every source, incl. simulation papers).
+5. Frozen stays frozen: every existing lock, the BrainIR locks, Phase 2-4 files, `main`. Corrections live in new files.
+6. Reviews write-once; later thoughts in an addendum. Tell every reviewer the length limit of what it reviews.
+7. Compute: GitHub Actions under the trust gate, <= 20 jobs queued, <= 100 runner-hours; time jobs first, chunks < 1 hour.
+   No Modal (unless the user says so in chat). The Mac runs no prediction.
+8. Nothing leaves this machine except pushes to the repo (branch, tags, campaign releases). No email, posting, uploading, contact.
+9. Be fair to the original authors.
 
-## Checklist (run 4 DONE, 2026-11-22 ~16:00 PST)
-- [x] Stage 0-1: freeze `ledger-prereg-v4` (badc4d7; proofs Bitcoin-attested).
-- [x] Stages 2-5: A0, A, Blocks 1-3, count noise, Part C (no fix passes), Part D (fix 2 locked; 1, 4, 5a, 5b, 7 post-lock exploratory);
-      `LOCK_reliability_v2` + tag `ledger-reliability-v2` (d81668b; proof Bitcoin-attested).
-- [x] Stage 6: forward ledger (63 types, two sources), ten-entry check 10/10, availability; `LOCK_forward_v1` + tag `ledger-forward-v1`
-      (c3ffcfa; proof Bitcoin-attested at 21:28).
-- [x] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md + two overclaim reviews (15 items, L152; 13 items on the
-      default model, answered in reviews_v4/BRIEF_OVERCLAIM_ADDENDUM_2.md, L154-L155; all fixed); brief cut to two pages, measured (L156); third review of the final text, 3 items fixed (L157);
-      EVIDENCE_MAP.md (30 rows), HANDOFF_4.md.
-      Final baseline identical to the start.
-- Open: nothing required; next-step ideas in HANDOFF_4 section 14.
+## Checklist
+- [ ] Stage 0: caffeinate (started 00:45 PST 2026-11-23); RUN5_PROMPT.md saved; tree clean (ba016c8 = origin); locks + baseline;
+      trust gate `trust-run5` (published 00:5x; 100 run-1 jobs via run 2's workflow).
+- [ ] Per-type tables `pertype_v1/` + reproduction of locked aggregates; LOCK_pertype_v1 + tag ledger-pertype-v1; push; OTS.
+- [ ] PREREG_v5.md (Parts Q, G, R, S, T, L, F, P, B, X); fresh rulebook audit; fixes; LOCK_prereg_v5 + tag ledger-prereg-v5; OTS.
+- [ ] Part R (from locked tables); Part S campaign (time first; chunks < 1 h; determinism sample); Part L (fresh readers);
+      Part T if budget; LOCK_replication_v1 + tag ledger-replication-v1; OTS.
+- [ ] Part F (readings, short list, availability lookups read-only, decision rule); LOCK_forward_v2 + tag ledger-forward-v2; OTS.
+- [ ] RESULTS_4.md; paper/PREPRINT_v0.md + figures + CLAIMS.md; three reviews + addenda; BRIEF_v2.md (two pages, measured);
+      outreach drafts (blank recipients); HANDOFF_5.md (<= 2,500 words, 13 sections); final baseline; print handoff.
 
-## Facts fixed so far (run 4)
-- Dose arm (H-D): all 1,376 job specs carry the key's current for every member; neurons above 100 Hz rise with the current; the
-  run class is set by member count and sign in this range (only 01B and 27X change, at 512).
-- One-sided screen (R4, run 3): MANC seeds 0..3, 2,464 jobs, 20.9 s per job (median 11.3). B1r accepted currents 1-99 %:
-  4.06-1024 (min 1.75, max 2048). B2r (MaleCNS) jobs 2.7 s.
-- MANC front leg: 4,604 neurons, 144 fl MNs (72 L / 72 R), 933 excitatory DN members in 321 types, DN side = rootSide of the
-  full-cord table. MaleCNS (authors' matrix): 4,310 neurons, 130 fl MNs (67 L / 63 R), 885 excitatory DN members in 328 types,
-  DN side annotated only as brain soma side; MaleCNS matrix floored at 5 (no pre-floor counts): floors and count noise on MANC only.
-- Run 1 unfixed rewired controls (B1, whole type): 1, 1, 2, 0, 0 drivers of 321 (B1 itself 10).
-
-## Earlier facts (runs 1-3)
-- Full cord: 23,532 neurons; 732 MNs; linearised model spectral radius 34 (no stable steady state).
-- Mac numerics differ from GitHub (arm64): the Mac never runs a prediction. GitHub runner numerics digest a72e417cfd91.
-- GitHub workflow key bug (L82): a random key starting with a newline breaks encryption (1/256 per chunk): re-run the job.
-- Queue stalls at ~270 queued jobs (L83): keep the queue small.
-- CAUTION: untracked .py directly in ledger/scripts/, ledger/src/brainir_ledger/, ledger/tests/ blocks the lock writers.
+## Facts fixed so far (run 5)
+- Whole-type drivers (>= 0.5): B1r 15 types, A1 11, B2r 30; in both B1r and B2r: DNg100, DNb08, DNit013 (seen before PREREG_v5).
+- Cross-fly match evidence (MaleCNS body annotations, raw file sha256 2177e246...a9a3b2; B2's mapping: curated `mancBodyid` first,
+  `mancType` string as fallback): of 328 MaleCNS types, 320 fully body-matched; 82 have a member whose body match conflicts with its
+  `mancType` string; 230 one-to-one in naming. Rule (fixed in Stage 0, before PREREG_v5): high = all members body-matched, no
+  conflict, one-to-one naming; low = any conflict; medium = the rest. Counts: high 217, medium 29, low 82.
+- DNit013's MaleCNS match is low-confidence (seen while building the tables): one MaleCNS body (11410, label DNpe023, soma side L,
+  output side R) whose body match is MANC DNit013 (37139) but whose `mancType` string is DNit011; MaleCNS's DNpe023 pair maps to
+  MANC DNit011 and DNit013 (two single-neuron MANC types on opposite sides).
+- Compute plan: run 4's workflow and runner unchanged (`gha4-run-<name>` tags) through a new wrapper `gha5.py`; trust gate via the
+  frozen `gha.py` (run 2's workflow), compared into `gates_v5/`.
