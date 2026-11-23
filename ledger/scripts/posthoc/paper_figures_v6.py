@@ -98,7 +98,7 @@ def fig2() -> None:
         rows += [("MANC vs MaleCNS (post hoc)", _ratio(c3["MANC-MaleCNS (reference, post hoc)"]["three_animal_noDNg100"]), S2),
                  ("MANC vs BANC (pre-registered)", _ratio(c3["MANC-BANC"]["three_animal_noDNg100"]), S2),
                  ("MaleCNS vs BANC (pre-registered)", _ratio(c3["MaleCNS-BANC"]["three_animal_noDNg100"]), S2)]
-    fig, ax = plt.subplots(figsize=(6.6, 3.9))
+    fig, ax = plt.subplots(figsize=(7.2, 3.9))
     for i, (lab, (v, lo, hi), col) in enumerate(rows):
         y = len(rows) - 1 - i
         ax.plot([lo, hi], [y, y], color=col, lw=2, solid_capstyle="round", zorder=2)
@@ -108,11 +108,11 @@ def fig2() -> None:
     ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=8)
     ax.axvline(1.0, color=AXIS, lw=1)
     ax.set_xlim(0, 1.12)
-    ax.set_xlabel("agreement as a fraction of the ceiling (1 = as close as the screen is to itself)")
+    ax.set_xlabel("agreement / ceiling (1 = as close as a screen is to itself)")
     ax.grid(axis="y", visible=False)
     sweep_note = "current sweep" if prim == "sweep" else "tuned current"
-    ax.set_title(f"How closely screens of matched cell types agree (blue: left vs right; green: count noise;\norange: across animals, "
-                 f"{sweep_note}, 181 types matched in all three)", fontsize=8.5, color=INK, loc="left")
+    ax.set_title(f"Agreement of matched screens. Blue: left vs right; green: count noise;\norange: across animals ({sweep_note}, "
+                 f"181 types)", fontsize=8.5, color=INK, loc="left")
     fig.tight_layout()
     _save(fig, "fig2_agreement")
     plt.close(fig)
@@ -195,12 +195,13 @@ def fig5() -> None:
     fig, ax = plt.subplots(figsize=(4.2, 3.6))
     ax.scatter(x, y, s=30, color=S1, edgecolor=SURFACE, linewidth=0.8, zorder=3)
     for t, xi, yi in zip(ts, x, y):
-        ax.annotate(t, (xi, yi), xytext=(3, 3), textcoords="offset points", fontsize=6.5, color=INK2)
+        if yi >= 0.1:  # the other types score below 0.1 in BANC (named in the legend text of the paper)
+            ax.annotate(t, (xi, yi), xytext=(4, 3), textcoords="offset points", fontsize=7, color=INK2)
     ax.set_xlabel("MANC: mean score over 16 copies with\nresampled synapse counts (run 5)")
     ax.set_ylabel(f"BANC score ({'current sweep' if prim == 'sweep' else 'tuned current'})")
     p = c8["primary"].get("p_one_sided_permutation")
     r = c8["primary"].get("rho")
-    ax.set_title(f"Does stability under count noise predict the third animal?\n12 types, Spearman {r:.2f}, one-sided p {p:.2f}" if (r is not None and p is not None)
+    ax.set_title(f"Does stability under count noise predict the third animal?\n12 types, Spearman {r:.2f}, one-sided p = {p:.3f}" if (r is not None and p is not None)
                  else "Stability against the third animal (rho undefined)", fontsize=8.5, color=INK, loc="left")
     ax.set_xlim(-0.03, 1.03)
     ax.set_ylim(-0.03, 1.03)
@@ -223,7 +224,9 @@ def fig6() -> None:
         ax.scatter([250], [au["frac_ge_0_5"]], s=90, facecolor="none", edgecolor=INK, lw=1.2, zorder=4, label="authors' configuration (current 250)")
     ax.axhline(0.5, color=AXIS, lw=1, ls="--")
     ax.set_xscale("log", base=2)
-    ax.set_xlabel("stimulus current (fixed, log scale)")
+    ax.set_xticks([4, 16, 64, 256, 1024])
+    ax.set_xticklabels(["4", "16", "64", "256", "1,024"])
+    ax.set_xlabel("stimulus current (fixed; log scale)")
     ax.set_ylabel("share of 16 runs with rhythm score >= 0.5")
     ax.set_ylim(-0.03, 1.05)
     ax.legend(fontsize=6.5, frameon=False, loc="upper left")

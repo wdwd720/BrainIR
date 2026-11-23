@@ -57,8 +57,8 @@ figure { margin: 8pt 0 10pt 0; break-inside: avoid; text-align: center; }
 figure img { max-width: 100%; max-height: 120mm; }
 figcaption { font-size: 9pt; text-align: left; margin-top: 3pt; }
 code { font-size: 9pt; }
-.draftbar { position: fixed; top: -12mm; left: 0; right: 0; text-align: center; color: #b00; font-weight: bold; font-size: 10pt; letter-spacing: 2pt; }
-.draftmark { position: fixed; top: 105mm; left: 10mm; font-size: 96pt; color: rgba(190, 0, 0, 0.10); transform: rotate(-30deg); z-index: -1; }
+.draftmark { position: fixed; top: 105mm; left: 10mm; font-size: 96pt; font-weight: bold; color: rgba(190, 0, 0, 0.13); transform: rotate(-30deg);
+             z-index: 10; pointer-events: none; }
 """
 
 
@@ -111,7 +111,7 @@ def prepare(draft: bool) -> None:
         head = f'---\ntitle: "{title.replace(chr(34), chr(39))}"\n---\n\n'
         block = f'<div class="authors">{names}<br/>{aff}<br/>{em}</div>\n\n'
         if draft:
-            block = '<div class="draftbar">DRAFT - not for distribution</div><div class="draftmark">DRAFT</div>\n\n' + block
+            block = '<div class="draftmark">DRAFT</div>\n\n' + block
         (BUILD / d).write_text(head + block + body, encoding="utf-8")
         docx_head = f'---\ntitle: "{title.replace(chr(34), chr(39))}"\nauthor: "{names}, {aff}, {em}"\n---\n\n'
         (BUILD / d.replace(".md", "_docx.md")).write_text(docx_head + (("**DRAFT - not for distribution**\n\n") if draft else "") + body,
