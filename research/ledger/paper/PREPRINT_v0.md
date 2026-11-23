@@ -46,7 +46,7 @@ The authors' single-neuron screen (A0) stimulates each DN copy alone, 128 times,
 neurons. For the 250 types with exactly one copy on each side, the left copy's score predicts the right copy's with a Spearman correlation
 of 0.597 across halves of the replicates, against a ceiling of 0.951 when each copy is compared with itself: **0.63 of the ceiling (95 %
 interval 0.53-0.72), a real gap** by the pre-registered criterion (Fig. 1). Seven types are drivers (score at least 0.5) on one side and
-eight on the other; one is a driver on both. This comparison uses the authors' published numbers, not our reimplementation, but their
+eight on the other; one is a driver on both, and the three-way bands (driver, indeterminate, non-driver) agree with a kappa of 0.47. This comparison uses the authors' published numbers, not our reimplementation, but their
 screen reads out both front legs together, so a one-sided input can reach either leg.
 
 ### 2. Two flies' hit lists barely overlap, though their wiring summaries agree
@@ -62,15 +62,16 @@ The hit lists overlap little (**post hoc**: the thresholds below were chosen aft
 high-confidence cross-fly match, MANC (B1r) has 11 drivers and MaleCNS (B2r) 23; two are drivers in both, against 1.2 expected if the
 lists were independent (Fig. 2). Of MANC's hits, 0.18 replicate (2 of 11; 95 % interval 0.00-0.44); of MaleCNS's, 0.09. Comparing
 half-screens with half-screens, so that noise is matched, the overlap across flies reaches 0.26 of the overlap within a fly (0.00-0.55;
-overlap coefficient, which is not capped by unequal list sizes). Over all 310 matched types, including 82 MaleCNS types whose match is low
-confidence, the same figures are 3 of 15 and 0.27 (0.04-0.53).
+overlap coefficient, which is not capped by unequal list sizes). Over all 310 matched types, including those whose match is low or medium
+confidence, the same figures are 3 of 15 and 0.27 (0.04-0.53). The thresholds matter less than the pattern: the authors' own list (A1)
+gives the same picture (2 of its 6 high-confidence hits replicate).
 
 ### 3. The hits that replicate include both experimentally confirmed drivers (post hoc)
 
 With high-confidence matches, the replicated set is exactly **DNg100 and DNb08** (Fig. 2); over all matched types a third, DNit013, joins
 them, on a match we rated low confidence before looking (its MaleCNS neuron is matched to MANC's DNit013 by body but annotated as DNit011). In the authors'
 single-neuron screen, DNg100 and DNb08 are also the only two of 18 types with a driver copy, among 308 types with copies on both sides,
-in which every copy is a driver. This is fair to the original paper: its two experimentally supported drivers hold up across animals. It
+in which every copy is a driver. [[PART T]] This is fair to the original paper: its two experimentally supported drivers hold up across animals. It
 is also post hoc and selected: we saw the pattern in a table after both exams were unblinded; DNg100 is the neuron the model was
 calibrated on and built around; the authors chose DNb08 themselves; and two confirmed neurons are a tiny sample.
 
@@ -103,7 +104,9 @@ types already near the threshold), and none in half the copies.
 
 ### 6. Two blind exams: the simulation does no better than two-step synapse counting
 
-Both exams compared frozen predictions with labels collected blind from the literature. **Exam 1** asked whether a type's simulated score
+Both exams compared frozen predictions with labels collected blind from the literature, and both included pre-registered wiring
+baselines: counts of direct, two-step and three-step synaptic paths from the stimulated neurons to the motor neurons, signed or not,
+computed without any simulation. **Exam 1** asked whether a type's simulated score
 ranks types that drive rhythmic front-leg movement when switched on in flies above types that do not. On 39 labelled types (25 yes, 14
 no), the authors' whole-type score reached an AUROC of **0.577 (0.417-0.724), not better than chance by the pre-registered rule**, and
 counting signed two-step paths from the type to the front-leg motor neurons, with no simulation, reached 0.669. **Exam 2** asked whether
@@ -122,7 +125,27 @@ Recomputed with audited labels (exploratory), the AUROC is 0.559, and two-step c
 
 ### 7. Forward predictions
 
-[[PART F: the short list, its readings, lines and the decision rule; filled from forward_v2/ after its lock.]]
+We locked a forward ledger of experiments that have not been done, built on replication status. A candidate type is in a replication
+category, has a driver line in the labelling kit, and had not been tested in headless flies according to the audit or exam 1. Three
+readings give each candidate yes or no for rhythmic front-leg stepping when it is switched on in a decapitated fly: the **replication
+reading** (replicated or near-replicated types yes), the **single-connectome reading** (the authors' A1 hits yes) and the **counting
+reading** (the top third of two-step signed counts yes). The short list (Table 1) holds 12 types, each with at least one line listed as
+available on the day of the lookup (58 of the 78 lines checked):
+
+| Group | Types | Replication / single-connectome / counting |
+|---|---|---|
+| near-replicated | DNp71, DNa13, DNa07, DNa03 | yes / no (DNa07: yes) / DNp71 yes, others no |
+| single-fly hit, MANC (DNp41 on the authors' list) | DNp41, DNp02, DNg63 | no / DNp41 yes, others no / DNp41 and DNg63 yes |
+| single-fly hit, MaleCNS | DNg13, DNg21 | no / no / yes |
+| controls: non-driver in both flies, high counting | DNp07, DNg39, DNp26 | no / no / yes |
+
+The decision rule was fixed before any experiment: for two readings, take the tested types with a clear outcome on which they disagree;
+one reading is supported over the other if it is right on enough of them for a one-sided binomial test at 0.05. On this list the
+replication and single-connectome readings disagree on only four types, so that comparison can only be inconclusive; we say so in
+advance rather than discover it later. The informative comparisons are against counting: replication against counting on up to 10
+types (9 right needed; power 0.38 or 0.74 if the better reading is right on 80 or 90 % of types) and single-connectome against counting on
+up to 8 (7 right needed; power 0.50 or 0.81). Two caveats bear on the lines: both of DNp41's available lines also label another DN type,
+one of them DNg100, and DNa03's only line labels six other types.
 
 ## Discussion
 
@@ -132,6 +155,11 @@ sides of one animal disagree; the same type in two animals disagrees more; and r
 about as much as the left-right difference does. In blind tests against published experiments, the simulation's ranking of types did not
 beat a count of two-step synaptic paths.
 
+These results bear on type-level hit lists, not on every claim a connectome simulation can make. The original paper's central circuit
+claim, a three-neuron rhythm generator found by pruning, was tested by its authors across four connectome datasets, which is the kind of
+cross-animal check this work argues for; we did not re-test it. The fragility we measured sits in which of many weakly driving types
+cross a threshold, where small differences in wiring move a type from one side of the line to the other.
+
 For anyone simulating a single connectome, three practices follow. Report each hit's behaviour on matched copies (the other side, and
 another animal where one exists) before calling it a prediction. Report its stability under synapse-count noise; our test could not show
 that stability predicts replication, so it is a cheap screen for fragility, not a substitute for a second connectome. And compare with
@@ -139,7 +167,8 @@ wiring counts, which in both exams did as well as the simulation.
 
 What this work does not show: that a real fly's left and right copies behave differently; that the model is wrong about DNg100's own
 circuit or the three-neuron rhythm generator, which we did not test; or anything about other behaviours or models. Whether replication
-across connectomes picks out real drivers is the question the forward list is built to answer.
+across connectomes picks out real drivers is the question the forward list is built to answer; as designed, it can say whether replication
+or the single-connectome list beats wiring counts, but not, with the available lines, which of the two is better.
 
 ## Limitations
 
@@ -154,6 +183,9 @@ across connectomes picks out real drivers is the question the forward list is bu
   30 of the 54 audited labels; DNg100's label was wrong; one of the three audit errors comes from the audit's own scope rule.
 - Exam 2's two laboratories disagree with each other, so its ceiling is low.
 - Count noise sufficing to produce the gap does not identify the gap's cause.
+- The tuner was calibrated once on DNg100, and our screens read out one side's motor neurons where the authors' single-neuron screen
+  reads both; our reimplementation reproduces the authors' published dynamics, but any procedure is one choice among several.
+- Two of the short list's types can only be tested with lines that also label other DN types (DNp41, DNa03).
 
 ## Methods
 
@@ -167,10 +199,26 @@ before they are committed.
 rhythmicity; a type's score is the mean over usable replicates, a driver scores at least 0.5. Agreement is the Spearman correlation of
 type scores across halves of the seeds, divided by the split-half ceiling, with 10,000-resample bootstrap intervals over types.
 
+**Replication (post hoc).** Types are matched across flies by the curated body match of each MaleCNS neuron to a MANC neuron, falling
+back on the annotated MANC type name; a match is high confidence when every member is body-matched, no body match conflicts with the name
+and naming is one-to-one (a rule fixed before the replication analysis). Categories use a driver threshold of 0.5 and the bands 0.3 and
+0.05. Overlap uses replication rates (the share of one list's hits that are hits in the other), the overlap coefficient (shared hits over
+the shorter list), whose cross-fly value on matched halves of the seeds is compared with each fly's split-half value, and the Jaccard
+index with its maximum for the list sizes; intervals are 95 % percentile intervals over 10,000 resamples of types.
+
+**Count-noise stability (pre-registered).** Sixteen Poisson draws of every connection's raw synapse count in MANC (fixed seeds), each
+thresholded at 5 synapses after resampling and signed by the presynaptic neuron's predicted transmitter, were screened with B1r's exact
+job specification on 8 seeds. A type's copy score is its mean over usable seeds; its stability is the fraction of copies in which that
+score is at least 0.5. The test ranks the 15 B1r drivers by stability (midranks for ties) and counts, over all 455 subsets of three, those
+whose rank sum is at least that of the three replicated types. Sensitivity analyses and a reference test on the real network's score were
+fixed in advance without words.
+
 **Labels and exams.** Exam labels were collected from a registry of 96 published sources by language-model reader sessions in isolated
 rooms, with two readings, adjudication, quote checks by the second readers and transcript audits for breaches, and frozen before unblinding; predictions were frozen
-separately. The audit used fresh sessions, two independent readers per source, adjudication of disagreements and verification of unclear
-outcomes, under rules fixed before it began.
+separately. The audit used fresh sessions in isolated rooms (checked by a canary and by transcript audits), two independent readers per source,
+adjudication of disagreements, the atlas re-coded with exam 1's own procedure, and verification of unclear outcomes, under rules and a
+consequence fixed before it began; its error rate counts a clear audited label that differs from exam 1's, a non-clear one that a
+verifier did not confirm, or an unread type.
 
 **Compute.** Simulations ran on GitHub Actions under a trust gate (locked jobs reproduced exactly) with determinism re-runs of every
 campaign; run 4 also used Modal at the author's instruction.
