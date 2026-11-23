@@ -71,7 +71,8 @@ gives the same picture (2 of its 6 high-confidence hits replicate).
 With high-confidence matches, the replicated set is exactly **DNg100 and DNb08** (Fig. 2); over all matched types a third, DNit013, joins
 them, on a match we rated low confidence before looking (its MaleCNS neuron is matched to MANC's DNit013 by body but annotated as DNit011). In the authors'
 single-neuron screen, DNg100 and DNb08 are also the only two of 18 types with a driver copy, among 308 types with copies on both sides,
-in which every copy is a driver. [[PART T]] This is fair to the original paper: its two experimentally supported drivers hold up across animals. It
+in which every copy is a driver. Stimulating single copies with our procedure (descriptive), DNg100's copies drive rhythm in both flies, while none of DNb08's four
+MaleCNS copies does so alone (scores 0.00-0.48), although its whole type does. This is fair to the original paper: its two experimentally supported drivers hold up across animals. It
 is also post hoc and selected: we saw the pattern in a table after both exams were unblinded; DNg100 is the neuron the model was
 calibrated on and built around; the authors chose DNb08 themselves; and two confirmed neurons are a tiny sample.
 

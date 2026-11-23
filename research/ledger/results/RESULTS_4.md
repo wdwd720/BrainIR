@@ -65,7 +65,13 @@ non-drivers (< 0.05) and 22 of 144 among the 9 indeterminate types (0.05-0.5).
 
 ## 3. Part T: the single-copy screen in both flies (descriptive)
 
-[[PART T: filled from replication_v1/T_singlecopy.json]]
+Every copy of the 43 types that are drivers in B1r, B2r or A1 was stimulated alone with B1r's procedure (16 seeds; 3,824 jobs, none
+missing; `replication_v1/T_singlecopy.json`). This is our single-copy variant of the whole-type procedure, not the authors' single-neuron
+notebook. In MANC, 19 of 42 types have at least one driver copy and 4 types with several copies have every copy a driver (DNa13, DNb08,
+DNg100, DNp63); in MaleCNS, 31 of 43 and 7 (DNd05, DNfl015, DNg100, DNg109, DNg13, DNxl067, DNxn168). **DNg100**'s copies are drivers in
+both flies (MANC 0.98 and 0.97; MaleCNS 0.86 and 0.78). **DNb08**'s four copies are all drivers in MANC (0.66-0.79) but none in MaleCNS
+(0.00, 0.00, 0.07, 0.48), although its whole type is a driver there (B2r 0.78). Our single-copy MANC scores agree with the authors'
+single-neuron screen copy by copy at a Spearman correlation of 0.65 (120 copies).
 
 ## 4. Label audit (Part L)
 
