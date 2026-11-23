@@ -31,8 +31,8 @@ unblinded and closed. Run 4's state is in git history (this file at 0b15e33).
       words, lab 118, one paragraph 119); LOG L172-L173.
 - [x] Final baseline (05:10): lock checks 25/25; ledger 285 passed; BrainIR fast suite 1 known failure (L5). Runner-hours 17.02 of 100.
 - [x] HANDOFF_5.md (<= 2,500 words, 13 sections), committed, pushed, printed as the final message.
-- [ ] OTS upgrades of LOCK_replication_v1 and LOCK_forward_v2: in Bitcoin transactions, waiting for confirmations at 05:15; upgrade with
-      `uvx --from opentimestamps-client ots upgrade LOCK_<name>.json.ots`, then commit the proof.
+- [x] OTS: LOCK_replication_v1 (block 977206) and LOCK_forward_v2 (blocks 977205, 977206) attested at 06:02 and committed;
+      all four run-5 proofs are complete. Run 5 is closed.
 
 ## Facts fixed so far (run 5)
 - Whole-type drivers (>= 0.5): B1r 15 types, A1 11, B2r 30; in both B1r and B2r: DNg100, DNb08, DNit013 (seen before PREREG_v5).

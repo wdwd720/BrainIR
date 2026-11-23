@@ -8,10 +8,10 @@ All four tags exist and were pushed to `origin` (branch `ledger/v1` only; `main`
 |---|---|---|---|
 | `ledger-pertype-v1` | `LOCK_pertype_v1.json` | 40a4c521c257787de7b0ef9de82b9a7f57bd4a833a678caf6c3e988e8b30c044 | Bitcoin-attested |
 | `ledger-prereg-v5` | `LOCK_prereg_v5.json` | 779b3b5373b37352537e94594d3b8bec513ceba8253dfee1b101427878be4ddc | Bitcoin-attested |
-| `ledger-replication-v1` | `LOCK_replication_v1.json` | bd858b3efd201b20614029a91672fd1db760d614e8bec100be7b694b2c5b3dc1 | submitted, pending confirmation |
-| `ledger-forward-v2` | `LOCK_forward_v2.json` | 760413aa049ae7ec84b01bfd671a565d85d1e990bf83b82bb1480498cead6fb9 | submitted, pending confirmation |
+| `ledger-replication-v1` | `LOCK_replication_v1.json` | bd858b3efd201b20614029a91672fd1db760d614e8bec100be7b694b2c5b3dc1 | Bitcoin-attested (block 977206) |
+| `ledger-forward-v2` | `LOCK_forward_v2.json` | 760413aa049ae7ec84b01bfd671a565d85d1e990bf83b82bb1480498cead6fb9 | Bitcoin-attested (blocks 977205, 977206) |
 
-Upgrade the two pending proofs later (`uvx --from opentimestamps-client ots upgrade research/ledger/LOCK_*.json.ots`) and commit them.
+All four proofs (`LOCK_*.json.ots`) are committed.
 
 Documents: `results/RESULTS_4.md`, `LABEL_AUDIT_v1.md`, `paper/PREPRINT_v0.md` (figures 1-4; `paper/CLAIMS.md`, 42 rows),
 `BRIEF_v2.md` (two pages, measured), the three outreach drafts (recipients blank), and the reviews with addenda in `reviews_v5/`.
@@ -245,7 +245,7 @@ types. We pre-register 12 experiments and a rule for reading them.
 - **Modal and the Mac:** no Modal; no prediction ran on the Mac.
 - **Label audit:** 68 sessions, $141 at list price.
 - **Weekly usage:** about 0.87 of the account's seven-day window at last check (resets 25 November, 17:00).
-- **Wall-clock:** 00:45 to about 05:30 PST, 23 November 2026.
+- **Wall-clock:** 00:45 to about 06:10 PST, 23 November 2026 (the last 40 minutes waiting for Bitcoin confirmations).
 - **Final baseline:** all 25 lock checks pass (the 21 earlier ones, the Phase 1-3 locks among them, and the 4 new ones); ledger
   suite 285 passed; BrainIR fast suite 532 passed and 1 failed, the same arm64 RK4 test as at the start of every run (LOG L5).
 
@@ -259,9 +259,8 @@ types. We pre-register 12 experiments and a rule for reading them.
 
 ## 13. What I would do next
 
-1. Upgrade and commit the two pending timestamp proofs.
-2. Read the paper and the emails yourself before anyone else sees them. Fill in the recipients and the repository link.
-3. Find lines for the 12 types on which the replication and single-connectome readings disagree but the kit has none (six A1 hits,
+1. Read the paper and the emails yourself before anyone else sees them. Fill in the recipients and the repository link.
+2. Find lines for the 12 types on which the replication and single-connectome readings disagree but the kit has none (six A1 hits,
    six near-replicated; `forward_v2/CANDIDATES.csv`), or a clean DNp41 line, to make the prompt's comparison decidable.
-4. If a lab tests the list, freeze its calls first, then score them with `forward_v2`'s rule.
-5. A third connectome, or a MaleCNS screen calibrated on a neuron other than DNg100, would test replication without the built-in case.
+3. If a lab tests the list, freeze its calls first, then score them with `forward_v2`'s rule.
+4. A third connectome, or a MaleCNS screen calibrated on a neuron other than DNg100, would test replication without the built-in case.
