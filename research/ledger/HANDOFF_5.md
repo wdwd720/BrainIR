@@ -13,30 +13,33 @@ All four tags exist and were pushed to `origin` (branch `ledger/v1` only; `main`
 
 Upgrade the two pending proofs later (`uvx --from opentimestamps-client ots upgrade research/ledger/LOCK_*.json.ots`) and commit them.
 
-Documents:
-- `results/RESULTS_4.md`;
-- `LABEL_AUDIT_v1.md`;
-- `paper/PREPRINT_v0.md`, with figures 1-4 and `paper/CLAIMS.md` (42 rows);
-- `BRIEF_v2.md` (two pages, measured);
-- `outreach/EMAIL_authors.md`, `EMAIL_lab.md`, `ONE_PARAGRAPH.md` (recipients blank);
-- the reviews and their addenda, in `reviews_v5/`.
+Documents: `results/RESULTS_4.md`, `LABEL_AUDIT_v1.md`, `paper/PREPRINT_v0.md` (figures 1-4; `paper/CLAIMS.md`, 42 rows),
+`BRIEF_v2.md` (two pages, measured), the three outreach drafts (recipients blank), and the reviews with addenda in `reviews_v5/`.
 
-Nothing was sent, posted or uploaded. The final baseline is in section 11.
+Nothing was sent, posted or uploaded.
 
 ## 2. Departures from the prompt
 
-1. **The rulebook was audited twice:** a fresh audit (23 findings, one blocker), then a re-check by the same auditor (15 more), all fixed
-   (`reviews_v5/PREREG_AUDIT_RESOLUTION_v5.md`).
-2. **Part T** used our whole-type procedure with one copy stimulated, in both flies; no single-neuron procedure is validated on MaleCNS.
-3. **Part L** added a census of all 39 primary-set types beside the sample of 15 (either triggers), the atlas re-coded with exam 1's own
-   procedure, adjudication and verification, so that audit noise does not count as exam 1 error.
-4. **Sessions ran in run 2's tool mode:** the sandbox also stopped sessions writing their outputs, so the pre-specified fallback applied.
-5. **Part F** adds replication vs counting and single-connectome vs counting; the prompt's comparison has at most 4 informative types and is
-   inconclusive by construction (stated in advance). The list caps group 1 at 9 and requires an available line.
-6. **Paper:** the exam numbers are frozen by tagged, timestamped commits, not locks; claims about the original paper cite it.
-7. **Other:** amendment rows for `gha5.py`, `audit5_rooms.py`, `paper_figures_v5.py` (three) and `forward_v2.py`; Part T re-packed before
-   publishing; a first draft of `LOCK_replication_v1.json` failed its own check and was rewritten before commit (LOG L170); the brief was
-   changed once after its review (the referee's DNg100 finding).
+Reasons in full: `PREREG_v5.md` Part D.
+
+1. **Part T** ran B1r's procedure with one copy stimulated, in both flies: no single-neuron procedure is validated on MaleCNS.
+2. **Part R:** replication rates and the overlap coefficient carry the words, not Jaccard, which lists of 15 and 29 drivers cap.
+3. **Part L:** a census of all 39 primary-set types beside the sample of 15 (either above 10 % triggers), to remove sampling error.
+4. **Part L:** the atlas re-coded with exam 1's own procedure, reader disagreements adjudicated and unclear outcomes verified, so that audit noise is not counted as exam 1 error; every Part R type with a kit line added, so that Part F rests on the audit.
+5. **Part L:** readers used run 2's web exception for 24 sources that are abstract-only or unreachable in the cache.
+6. **Part S:** the primary replicated set is the prompt's (from the locked B2r table); the high-confidence version is a sensitivity.
+7. **Part F:** replication vs counting and single-connectome vs counting added, since the prompt's comparison has at most 4 informative
+   types (inconclusive by construction, stated in advance); power is given per number of informative types.
+8. **Part F list:** at most 9 non-control types, only types with an available line, A1 hits first among single-fly hits (to keep 12 with
+   the controls); "not already tested" uses the audit or exam 1, the stricter test.
+9. **"If time runs short":** a fixed checkpoint, against optional stopping (never triggered).
+10. **Sessions ran in run 2's tool mode:** the sandbox also stopped sessions writing their outputs, so the pre-specified fallback applied.
+11. **Paper:** exam numbers come from tagged, timestamped scorecard commits, not locks; claims about the original paper cite it; two
+    reviewer findings appear in words, marked "not locked"; headings softened per the overclaim review. The prompt's "our rebuild for the
+    second fly" is corrected: our rebuild is MANC's (identical to the authors'); the MaleCNS network is theirs, its screen ours.
+12. **Operational:** the rulebook was audited twice (23 and 15 findings, all fixed); amendment rows for four code files; Part T
+    re-packed; the replication lock's first draft failed its own check and was rewritten before commit (LOG L170); the brief changed once
+    after its review, for the referee's DNg100 finding.
 
 ## 3. Part R: replication (post hoc)
 
@@ -81,10 +84,11 @@ Stability across 16 Poisson copies:
 | DNg63 | 0.00 | |
 
 - **A1 list:** p = 0.27.
-- **Sensitivities (no words):** high-confidence 0.13; mean copy score 0.035; mean fraction rhythmic 0.033; without the two low-usability drivers 0.18.
-- **Reference test on the real network's score:** 0.37 and 0.32.
-- **False hits:** of 640 type-copies of the 40 sampled non-hits, 26 scored at least 0.5 (4.1 % per copy). Seven of 40 types had a driver copy; none had stability of at least 0.5.
-- **Checks:** the regression gate reproduced 448 of 448 of B1r's results digest for digest, and the determinism re-run was 100 of 100 identical.
+- **Sensitivities (no words):** high-confidence 0.13; mean copy score 0.035; mean fraction rhythmic 0.033; without the two low-usability
+  drivers 0.18; reference test on the real network's score 0.37 and 0.32.
+
+- **False hits:** 26 of 640 type-copies of the 40 sampled non-hits (4.1 %); 7 of 40 types had a driver copy, none in half the copies.
+- **Checks:** regression gate 448 of 448 digest-identical; determinism 100 of 100.
 - **Power statement (fixed in advance):** with three replicated types, this null is uninformative.
 
 ## 5. Part T: single copies (descriptive)
@@ -96,16 +100,12 @@ Stability across 16 Poisson copies:
 
 ## 6. Part L: label audit
 
-**DNg100.** Two independent forensic sessions agreed on the explanation.
-- The only "no" is a record of DNg100 activated together with a brake neuron.
-- That record was coded as more line-specific than two plain DNg100 "yes" records, and the consensus rule's tie-break let it decide.
-- The blind rule had set aside 23 concordant records from the simulation papers (22 headless "yes").
-- It was not a mapping error. The correct label is **yes** (high confidence).
+**DNg100.** Two independent forensic sessions agree: the only "no" is a record of DNg100 activated together with a brake neuron, coded
+as more line-specific than two plain DNg100 "yes" records, so the consensus rule's tie-break let it decide; the blind rule had set aside
+23 concordant records from the simulation papers (22 headless "yes"). Not a mapping error; the correct label is **yes** (high confidence).
 
-**Re-reading.**
-- 68 sessions in all, with no breach.
-- The two readers agreed on 67 of 73 types; the atlas coders on 107 of 120 keys.
-- Quotes: 372 of 375 found verbatim in the source text.
+**Re-reading:** 68 sessions, no breach; the readers agreed on 67 of 73 types and the atlas coders on 107 of 120 keys; 372 of 375
+quotes were found verbatim (the other 3 read from a figure).
 
 **Error rates.**
 
@@ -130,8 +130,7 @@ Stability across 16 Poisson copies:
 
 ## 7. Part F: the short list
 
-Each type is tested by switching it on bilaterally in decapitated flies and scoring front-leg rhythm blind to genotype.
-R/S/C are the replication, single-connectome and counting readings; lines are those listed as available today, with the clean ones in brackets.
+R/S/C: the replication, single-connectome and counting readings. Lines: listed as available today (clean ones in brackets).
 
 | Type | Group | R / S / C | Lines (clean) |
 |---|---|---|---|
@@ -148,17 +147,16 @@ R/S/C are the replication, single-connectome and counting readings; lines are th
 | DNg39 | control | no / no / yes | 2 (2) |
 | DNp26 | control | no / no / yes | 7 (4) |
 
-- **Collections:** almost all lines are Janelia FlyLight split-GAL4. A few are Bloomington GAL4 (R lines), and one is VDRC (VT057342).
+- **Collections:** of the short list's 70 lines, 63 are Janelia FlyLight split-GAL4, 5 Janelia GAL4 lines at Bloomington and 2 VDRC
+  Vienna Tiles lines.
 - **Availability:** 58 of the 78 lines checked are listed as available today. The 14 split lines available only through FlyBank are the weakest "yes".
 - **Decision rule:** for two readings, take the tested types with a clear outcome on which they disagree. One reading is supported if it is right on enough of them for a one-sided binomial test at 0.05.
 
-| Comparison | Informative types | Right answers needed | Power |
+| Comparison | Informative types | Right answers needed | Power (80 % / 90 % accurate) |
 |---|---|---|---|
 | Replication vs counting | up to 10 | 9 | 0.38 / 0.74 |
 | Single-connectome vs counting | up to 8 | 7 | 0.50 / 0.81 |
 | Replication vs single-connectome | 4 | | inconclusive by construction |
-
-Power is shown for per-type accuracy of 80 % and 90 %.
 
 ## 8. The paper
 
@@ -185,7 +183,6 @@ types. We pre-register 12 experiments and a rule for reading them.
 | Hostile referee (18 objections, 15 tested) | DNg100's replication is built in: rulebook v2 chose the tuner's one setting to make DNg100 a driver in both connectomes. Under the original procedure it scored 0.059 in MaleCNS. Also: exam 1's labels are confounded with their source. | Both accepted: the abstract, Results 3 and 6, the Discussion and the brief now say so; DNb08 is named as the informative case. |
 | Overclaim (47 items) | The Discussion's "real signal" generalised a post hoc result about two neurons, one of them the calibration neuron, and the noise wording overreached. | All 47 accepted; the sentence was replaced by a model-specific, post hoc statement. |
 | Numbers (196 checked) | No value was wrong, but 11 misdescribed their set or label ("11 hits" read as the authors'), and the original paper's numbers had no source. | All fixed; external claims cited; `CLAIMS.md` corrected and extended. |
-| Brief overclaim (17 items) | "Of 11 hits" credited our screen's hits to the authors (theirs: 2 of 6), and the A0 footnote was false as worded (single-copy types also qualify). | All 17 applied within two pages. |
 
 ## 10. The brief's first paragraph and the emails
 
@@ -239,19 +236,18 @@ types. We pre-register 12 experiments and a rule for reading them.
 
 ## 11. Compute and wall-clock
 
-- **GitHub Actions:** 17.0 of 100 runner-hours (step time), 51 jobs, at most 20 queued. Campaigns:
-  - the trust gate;
-  - S0 (448 jobs);
-  - 16 copies (7,168 jobs);
-  - Part T (3,824 jobs);
-  - two determinism re-runs (140 jobs).
+- **GitHub Actions:** 17.0 of 100 runner-hours (step time) over 51 runner jobs, at most 20 queued. Simulation jobs:
+  - the trust gate (100, all identical);
+  - S0 (448);
+  - 16 copies (7,168);
+  - Part T (3,824);
+  - two determinism re-runs (140, all identical).
 - **Modal and the Mac:** no Modal; no prediction ran on the Mac.
 - **Label audit:** 68 sessions, $141 at list price.
-- **Agents:** the rulebook audit and its re-check, the availability check, and four reviewers.
-- **Weekly usage:** the account's seven-day window rose from 0.81 to about 0.87 during the audit. It resets on 25 November 2026 at 17:00.
+- **Weekly usage:** about 0.87 of the account's seven-day window at last check (resets 25 November, 17:00).
 - **Wall-clock:** 00:45 to about 05:30 PST, 23 November 2026.
-- **Final baseline (`baseline_run5_final.log`):** all 25 lock checks pass (the 21 earlier locks, the Phase 1-3 locks among them, and the 4 new ones); ledger suite 285 passed; BrainIR fast
-  suite 532 passed and 1 failed, the same arm64 RK4 test as at the start of every run (LOG L5).
+- **Final baseline:** all 25 lock checks pass (the 21 earlier ones, the Phase 1-3 locks among them, and the 4 new ones); ledger
+  suite 285 passed; BrainIR fast suite 532 passed and 1 failed, the same arm64 RK4 test as at the start of every run (LOG L5).
 
 ## 12. What worries me
 
@@ -265,6 +261,7 @@ types. We pre-register 12 experiments and a rule for reading them.
 
 1. Upgrade and commit the two pending timestamp proofs.
 2. Read the paper and the emails yourself before anyone else sees them. Fill in the recipients and the repository link.
-3. Find a clean DNp41 line, or a line for an A1 hit without one (DNit011, DNit013, the DNxl types). That is what would make the replication-vs-single-connectome comparison decidable.
-4. If a lab tests the list, record its calls before comparing them with the readings, and score them with `forward_v2`'s rule.
+3. Find lines for the 12 types on which the replication and single-connectome readings disagree but the kit has none (six A1 hits,
+   six near-replicated; `forward_v2/CANDIDATES.csv`), or a clean DNp41 line, to make the prompt's comparison decidable.
+4. If a lab tests the list, freeze its calls first, then score them with `forward_v2`'s rule.
 5. A third connectome, or a MaleCNS screen calibrated on a neuron other than DNg100, would test replication without the built-in case.
