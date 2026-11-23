@@ -1,0 +1,43 @@
+-- [works as a discovery tool]
+   We note that this computational screen works as a discovery tool, analogous to a forward genetic screen, to identify high-confidence candidate DNs for further investigation.
+
+-- [we do not interpret low scores as evidence]
+   Like a forward genetic screen, it likely produced false negatives; therefore, we do not interpret low scores as evidence against a DN’s role in rhythm generation.
+
+-- [because every DN of these two types produced]
+   In subsequent analyses, we focus on two descending neuron types, DNg100 and DNb08, because every DN of these two types produced among the highest rhythmicity scores across all simulation replicates. ### DNg100 activation drives rhythmic leg motor neuron activity and controls stepping frequency DNg100 is the only cell type in Drosophila known to function as descending command neurons for walking; optogenetic stimulation of DNg100 neurons initiates forward walking, even in headless flies ([50], where DNg100 is referred to as BDN2).
+
+-- [rather than over-interpreting the low scores]
+   We therefore focused on the small set of neurons that robustly generated motor rhythms across most parameter configurations, rather than over-interpreting the low scores of other neurons.
+
+-- [Only 29 DNs]
+   Only 29 DNs (3.4%, or 3.1% of total) had an average score greater than 0.5 (Supplementary Table 1).
+
+-- [qualitatively similar across a wide range of model parameters]
+   DN activation screen results were qualitatively similar across a wide range of model parameters and configurations, including activating DNs of the same cell type (rather than one-by-one, Extended Data Fig.
+
+-- [Across all four connectomes, DNg100 reliably drove]
+   Across all four connectomes, DNg100 reliably drove rhythmic activity in front leg motor neurons (Fig.
+
+-- [three of the four connectome datasets (MANC, FANC, and mCNS]
+   Activating a single DNb08 neuron in the full network simulation consistently produced rhythmic leg motor neuron activity across three of the four connectome datasets (MANC, FANC, and mCNS; Fig.
+
+-- [we optogenetically activated DNb08 neurons in decapitated flies]
+   To test this prediction experimentally, we optogenetically activated DNb08 neurons in decapitated flies and found that they reliably produced rhythmic leg movements (Fig.
+
+-- [robust to noise perturbations of weights]
+   f, Motor rhythms were robust to noise perturbations of weights in the connectivity matrix up to 10% (n=512 replicates per noise condition); increasing noise led to more replicates with no MN recruitment or unstable dynamics (top).
+
+-- [We followed a very similar procedure in the Male CNS]
+   We followed a very similar procedure in the Male CNS (mCNS) dataset, given the shared data infrastructure through neuPrint [81].
+
+-- [For DNg100 activation, Istim = 250 in MANC]
+   For DNg100 activation, Istim = 250 in MANC, 150 in FANC, and 400 in the two CNS datasets (these activations have arbitrary units and were set to the same values that produced robust oscillations in Figure 2).
+
+-- [For DNb08 activation, Istim =]
+   For DNb08 activation, Istim = 65 in MANC and 180 in FANC.
+
+ledger single-copy screen, DNg100 in MANC: copies [(10093, 0.981), (10339, 0.972)], driver copies 2 of 2
+ledger single-copy screen, DNg100 in MCNS: copies [(10045, 0.864), (10056, 0.78)], driver copies 2 of 2
+ledger single-copy screen, DNb08 in MANC: copies [(13892, 0.664), (14061, 0.794), (14680, 0.667), (14966, 0.696)], driver copies 4 of 4
+ledger single-copy screen, DNb08 in MCNS: copies [(12044, 0.0), (12075, 0.0), (12189, 0.066), (12550, 0.476)], driver copies 0 of 4

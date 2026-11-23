@@ -1,0 +1,609 @@
+{
+ "inputs": "predictions/{A1,A1-lo10,B1,B1-alt,B2}/types.csv, predictions_v2/{B1r,B2r}/types.csv (primary_score), pertype_v1/match_confidence.csv",
+ "threshold": 0.5,
+ "results": {
+  "same fly MANC, authors vs ours K=0: A1 x B1": {
+   "all_321_manc_types": {
+    "n_types": 321,
+    "n_drivers_x": 11,
+    "n_drivers_y": 10,
+    "n_both": 8,
+    "expected_both_if_independent": 0.34,
+    "rate_x_in_y": 0.727,
+    "rate_y_in_x": 0.8,
+    "overlap_coefficient": 0.8,
+    "spearman_scores": 0.792,
+    "auroc_y_score_for_x_drivers": 0.996,
+    "auroc_x_score_for_y_drivers": 0.975,
+    "top_k_overlap_equal_size": "8 of 10",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNit011",
+     "DNit013",
+     "DNp41",
+     "DNxl102",
+     "DNxl133"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 6,
+    "n_both": 4,
+    "expected_both_if_independent": 0.17,
+    "rate_x_in_y": 0.667,
+    "rate_y_in_x": 0.667,
+    "overlap_coefficient": 0.667,
+    "spearman_scores": 0.8,
+    "auroc_y_score_for_x_drivers": 0.994,
+    "auroc_x_score_for_y_drivers": 0.951,
+    "top_k_overlap_equal_size": "4 of 6",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNp41"
+    ]
+   }
+  },
+  "same fly MANC, authors vs ours K=1: A1 x B1r": {
+   "all_321_manc_types": {
+    "n_types": 321,
+    "n_drivers_x": 11,
+    "n_drivers_y": 15,
+    "n_both": 10,
+    "expected_both_if_independent": 0.51,
+    "rate_x_in_y": 0.909,
+    "rate_y_in_x": 0.667,
+    "overlap_coefficient": 0.909,
+    "spearman_scores": 0.62,
+    "auroc_y_score_for_x_drivers": 0.99,
+    "auroc_x_score_for_y_drivers": 0.931,
+    "top_k_overlap_equal_size": "7 of 11",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNit011",
+     "DNit013",
+     "DNp41",
+     "DNxl101",
+     "DNxl102",
+     "DNxl110",
+     "DNxl133"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 11,
+    "n_both": 6,
+    "expected_both_if_independent": 0.31,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 0.545,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.59,
+    "auroc_y_score_for_x_drivers": 0.989,
+    "auroc_x_score_for_y_drivers": 0.902,
+    "top_k_overlap_equal_size": "3 of 6",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNp41",
+     "DNxl101",
+     "DNxl110"
+    ]
+   }
+  },
+  "same fly MANC, ours K=0 vs K=1: B1 x B1r": {
+   "all_321_manc_types": {
+    "n_types": 321,
+    "n_drivers_x": 10,
+    "n_drivers_y": 15,
+    "n_both": 10,
+    "expected_both_if_independent": 0.47,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 0.667,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.849,
+    "auroc_y_score_for_x_drivers": 0.996,
+    "auroc_x_score_for_y_drivers": 0.948,
+    "top_k_overlap_equal_size": "8 of 10",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNg63",
+     "DNit011",
+     "DNit013",
+     "DNp41",
+     "DNxl102",
+     "DNxl121",
+     "DNxl133"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 11,
+    "n_both": 6,
+    "expected_both_if_independent": 0.31,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 0.545,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.826,
+    "auroc_y_score_for_x_drivers": 0.996,
+    "auroc_x_score_for_y_drivers": 0.928,
+    "top_k_overlap_equal_size": "4 of 6",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNg63",
+     "DNp41",
+     "DNxl121"
+    ]
+   }
+  },
+  "same fly MANC, ours lower bound 10 vs 5: B1 x B1-alt": {
+   "all_321_manc_types": {
+    "n_types": 321,
+    "n_drivers_x": 10,
+    "n_drivers_y": 7,
+    "n_both": 7,
+    "expected_both_if_independent": 0.22,
+    "rate_x_in_y": 0.7,
+    "rate_y_in_x": 1.0,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.972,
+    "auroc_y_score_for_x_drivers": 0.92,
+    "auroc_x_score_for_y_drivers": 0.997,
+    "top_k_overlap_equal_size": "6 of 7",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNit011",
+     "DNit013",
+     "DNp41",
+     "DNxl102"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 4,
+    "n_both": 4,
+    "expected_both_if_independent": 0.11,
+    "rate_x_in_y": 0.667,
+    "rate_y_in_x": 1.0,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.967,
+    "auroc_y_score_for_x_drivers": 0.862,
+    "auroc_x_score_for_y_drivers": 0.996,
+    "top_k_overlap_equal_size": "3 of 4",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNp41"
+    ]
+   }
+  },
+  "same fly MANC, authors usable rule 5 vs 10: A1 x A1-lo10": {
+   "all_321_manc_types": {
+    "n_types": 321,
+    "n_drivers_x": 11,
+    "n_drivers_y": 11,
+    "n_both": 11,
+    "expected_both_if_independent": 0.38,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 1.0,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 1.0,
+    "auroc_y_score_for_x_drivers": 1.0,
+    "auroc_x_score_for_y_drivers": 1.0,
+    "top_k_overlap_equal_size": "11 of 11",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNg54",
+     "DNit011",
+     "DNit013",
+     "DNp41",
+     "DNxl101",
+     "DNxl102",
+     "DNxl110",
+     "DNxl133"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 6,
+    "n_both": 6,
+    "expected_both_if_independent": 0.17,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 1.0,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 1.0,
+    "auroc_y_score_for_x_drivers": 1.0,
+    "auroc_x_score_for_y_drivers": 1.0,
+    "top_k_overlap_equal_size": "6 of 6",
+    "shared_drivers": [
+     "DNa07",
+     "DNb08",
+     "DNg100",
+     "DNp41",
+     "DNxl101",
+     "DNxl110"
+    ]
+   }
+  },
+  "same fly MaleCNS, ours K=0 vs K=1: B2 x B2r": {
+   "all_310_common": {
+    "n_types": 310,
+    "n_drivers_x": 23,
+    "n_drivers_y": 29,
+    "n_both": 23,
+    "expected_both_if_independent": 2.15,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 0.793,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.816,
+    "auroc_y_score_for_x_drivers": 0.986,
+    "auroc_x_score_for_y_drivers": 0.897,
+    "top_k_overlap_equal_size": "17 of 23",
+    "shared_drivers": [
+     "DNa13",
+     "DNb08",
+     "DNd05",
+     "DNfl015",
+     "DNfl018",
+     "DNfl022",
+     "DNfl030",
+     "DNfl031",
+     "DNfl034",
+     "DNg109",
+     "DNg12",
+     "DNg13",
+     "DNg21",
+     "DNp71",
+     "DNxl021",
+     "DNxl067",
+     "DNxl092",
+     "DNxl130",
+     "DNxn104",
+     "DNxn118",
+     "DNxn143",
+     "DNxn151",
+     "DNxn171"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 18,
+    "n_drivers_y": 23,
+    "n_both": 18,
+    "expected_both_if_independent": 1.93,
+    "rate_x_in_y": 1.0,
+    "rate_y_in_x": 0.783,
+    "overlap_coefficient": 1.0,
+    "spearman_scores": 0.777,
+    "auroc_y_score_for_x_drivers": 0.984,
+    "auroc_x_score_for_y_drivers": 0.869,
+    "top_k_overlap_equal_size": "13 of 18",
+    "shared_drivers": [
+     "DNa13",
+     "DNb08",
+     "DNd05",
+     "DNfl015",
+     "DNfl031",
+     "DNfl034",
+     "DNg109",
+     "DNg13",
+     "DNg21",
+     "DNp71",
+     "DNxl021",
+     "DNxl067",
+     "DNxl092",
+     "DNxl130",
+     "DNxn118",
+     "DNxn143",
+     "DNxn151",
+     "DNxn171"
+    ]
+   }
+  },
+  "two flies, ours K=0: B1 x B2": {
+   "all_310_common": {
+    "n_types": 310,
+    "n_drivers_x": 10,
+    "n_drivers_y": 23,
+    "n_both": 1,
+    "expected_both_if_independent": 0.74,
+    "rate_x_in_y": 0.1,
+    "rate_y_in_x": 0.043,
+    "overlap_coefficient": 0.1,
+    "spearman_scores": 0.311,
+    "auroc_y_score_for_x_drivers": 0.705,
+    "auroc_x_score_for_y_drivers": 0.658,
+    "top_k_overlap_equal_size": "1 of 10",
+    "shared_drivers": [
+     "DNb08"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 18,
+    "n_both": 1,
+    "expected_both_if_independent": 0.5,
+    "rate_x_in_y": 0.167,
+    "rate_y_in_x": 0.056,
+    "overlap_coefficient": 0.167,
+    "spearman_scores": 0.382,
+    "auroc_y_score_for_x_drivers": 0.792,
+    "auroc_x_score_for_y_drivers": 0.675,
+    "top_k_overlap_equal_size": "1 of 6",
+    "shared_drivers": [
+     "DNb08"
+    ]
+   }
+  },
+  "two flies, ours K=1 (the draft's B1r x B2r): B1r x B2r": {
+   "all_310_common": {
+    "n_types": 310,
+    "n_drivers_x": 15,
+    "n_drivers_y": 29,
+    "n_both": 3,
+    "expected_both_if_independent": 1.4,
+    "rate_x_in_y": 0.2,
+    "rate_y_in_x": 0.103,
+    "overlap_coefficient": 0.2,
+    "spearman_scores": 0.366,
+    "auroc_y_score_for_x_drivers": 0.715,
+    "auroc_x_score_for_y_drivers": 0.714,
+    "top_k_overlap_equal_size": "2 of 15",
+    "shared_drivers": [
+     "DNb08",
+     "DNg100",
+     "DNit013"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 11,
+    "n_drivers_y": 23,
+    "n_both": 2,
+    "expected_both_if_independent": 1.18,
+    "rate_x_in_y": 0.182,
+    "rate_y_in_x": 0.087,
+    "overlap_coefficient": 0.182,
+    "spearman_scores": 0.382,
+    "auroc_y_score_for_x_drivers": 0.705,
+    "auroc_x_score_for_y_drivers": 0.722,
+    "top_k_overlap_equal_size": "1 of 11",
+    "shared_drivers": [
+     "DNb08",
+     "DNg100"
+    ]
+   }
+  },
+  "two flies and procedures, A1 x B2r: A1 x B2r": {
+   "all_310_common": {
+    "n_types": 310,
+    "n_drivers_x": 11,
+    "n_drivers_y": 29,
+    "n_both": 3,
+    "expected_both_if_independent": 1.03,
+    "rate_x_in_y": 0.273,
+    "rate_y_in_x": 0.103,
+    "overlap_coefficient": 0.273,
+    "spearman_scores": 0.419,
+    "auroc_y_score_for_x_drivers": 0.691,
+    "auroc_x_score_for_y_drivers": 0.738,
+    "top_k_overlap_equal_size": "2 of 11",
+    "shared_drivers": [
+     "DNb08",
+     "DNg100",
+     "DNit013"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 23,
+    "n_both": 2,
+    "expected_both_if_independent": 0.64,
+    "rate_x_in_y": 0.333,
+    "rate_y_in_x": 0.087,
+    "overlap_coefficient": 0.333,
+    "spearman_scores": 0.455,
+    "auroc_y_score_for_x_drivers": 0.767,
+    "auroc_x_score_for_y_drivers": 0.746,
+    "top_k_overlap_equal_size": "0 of 6",
+    "shared_drivers": [
+     "DNb08",
+     "DNg100"
+    ]
+   }
+  },
+  "two flies and procedures, A1 x B2 (K=0): A1 x B2": {
+   "all_310_common": {
+    "n_types": 310,
+    "n_drivers_x": 11,
+    "n_drivers_y": 23,
+    "n_both": 1,
+    "expected_both_if_independent": 0.82,
+    "rate_x_in_y": 0.091,
+    "rate_y_in_x": 0.043,
+    "overlap_coefficient": 0.091,
+    "spearman_scores": 0.425,
+    "auroc_y_score_for_x_drivers": 0.665,
+    "auroc_x_score_for_y_drivers": 0.721,
+    "top_k_overlap_equal_size": "1 of 11",
+    "shared_drivers": [
+     "DNb08"
+    ]
+   },
+   "high_conf_215": {
+    "n_types": 215,
+    "n_drivers_x": 6,
+    "n_drivers_y": 18,
+    "n_both": 1,
+    "expected_both_if_independent": 0.5,
+    "rate_x_in_y": 0.167,
+    "rate_y_in_x": 0.056,
+    "overlap_coefficient": 0.167,
+    "spearman_scores": 0.486,
+    "auroc_y_score_for_x_drivers": 0.788,
+    "auroc_x_score_for_y_drivers": 0.747,
+    "top_k_overlap_equal_size": "1 of 6",
+    "shared_drivers": [
+     "DNb08"
+    ]
+   }
+  }
+ },
+ "threshold_sensitivity": {
+  "0.3": {
+   "B1r x B2r high": {
+    "n_drivers_x": 30,
+    "n_drivers_y": 45,
+    "n_both": 15,
+    "expected_both_if_independent": 6.28,
+    "rate_x_in_y": 0.5,
+    "overlap_coefficient": 0.5
+   },
+   "A1 x B1r high": {
+    "n_drivers_x": 22,
+    "n_drivers_y": 30,
+    "n_both": 19,
+    "expected_both_if_independent": 3.07,
+    "rate_x_in_y": 0.864,
+    "overlap_coefficient": 0.864
+   },
+   "B2 x B2r high": {
+    "n_drivers_x": 30,
+    "n_drivers_y": 45,
+    "n_both": 30,
+    "expected_both_if_independent": 6.28,
+    "rate_x_in_y": 1.0,
+    "overlap_coefficient": 1.0
+   }
+  },
+  "0.4": {
+   "B1r x B2r high": {
+    "n_drivers_x": 17,
+    "n_drivers_y": 33,
+    "n_both": 7,
+    "expected_both_if_independent": 2.61,
+    "rate_x_in_y": 0.412,
+    "overlap_coefficient": 0.412
+   },
+   "A1 x B1r high": {
+    "n_drivers_x": 12,
+    "n_drivers_y": 17,
+    "n_both": 10,
+    "expected_both_if_independent": 0.95,
+    "rate_x_in_y": 0.833,
+    "overlap_coefficient": 0.833
+   },
+   "B2 x B2r high": {
+    "n_drivers_x": 22,
+    "n_drivers_y": 33,
+    "n_both": 22,
+    "expected_both_if_independent": 3.38,
+    "rate_x_in_y": 1.0,
+    "overlap_coefficient": 1.0
+   }
+  },
+  "0.5": {
+   "B1r x B2r high": {
+    "n_drivers_x": 11,
+    "n_drivers_y": 23,
+    "n_both": 2,
+    "expected_both_if_independent": 1.18,
+    "rate_x_in_y": 0.182,
+    "overlap_coefficient": 0.182
+   },
+   "A1 x B1r high": {
+    "n_drivers_x": 6,
+    "n_drivers_y": 11,
+    "n_both": 6,
+    "expected_both_if_independent": 0.31,
+    "rate_x_in_y": 1.0,
+    "overlap_coefficient": 1.0
+   },
+   "B2 x B2r high": {
+    "n_drivers_x": 18,
+    "n_drivers_y": 23,
+    "n_both": 18,
+    "expected_both_if_independent": 1.93,
+    "rate_x_in_y": 1.0,
+    "overlap_coefficient": 1.0
+   }
+  },
+  "0.6": {
+   "B1r x B2r high": {
+    "n_drivers_x": 8,
+    "n_drivers_y": 20,
+    "n_both": 2,
+    "expected_both_if_independent": 0.74,
+    "rate_x_in_y": 0.25,
+    "overlap_coefficient": 0.25
+   },
+   "A1 x B1r high": {
+    "n_drivers_x": 5,
+    "n_drivers_y": 8,
+    "n_both": 4,
+    "expected_both_if_independent": 0.19,
+    "rate_x_in_y": 0.8,
+    "overlap_coefficient": 0.8
+   },
+   "B2 x B2r high": {
+    "n_drivers_x": 14,
+    "n_drivers_y": 20,
+    "n_both": 14,
+    "expected_both_if_independent": 1.3,
+    "rate_x_in_y": 1.0,
+    "overlap_coefficient": 1.0
+   }
+  }
+ },
+ "DNg100_DNb08": {
+  "A1": {
+   "DNg100": 0.896,
+   "DNb08": 0.628
+  },
+  "A1-lo10": {
+   "DNg100": 0.896,
+   "DNb08": 0.628
+  },
+  "B1": {
+   "DNg100": 0.828,
+   "DNb08": 0.613
+  },
+  "B1-alt": {
+   "DNg100": 0.828,
+   "DNb08": 0.613
+  },
+  "B1r": {
+   "DNg100": 0.828,
+   "DNb08": 0.613
+  },
+  "B2": {
+   "DNg100": 0.059,
+   "DNb08": 0.784
+  },
+  "B2r": {
+   "DNg100": 0.674,
+   "DNb08": 0.784
+  }
+ }
+}

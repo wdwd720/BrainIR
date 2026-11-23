@@ -1,0 +1,106 @@
+{
+ "a_one_sided_connections_MANC": {
+  "pairs": 110983,
+  "present_both": 54562,
+  "present_one_side_only": 56421,
+  "share_one_side_only": 0.5083751565555085,
+  "one_sided_absent_partner_raw_1_to_4": 38545,
+  "one_sided_absent_partner_raw_0": 17876,
+  "share_one_sided_only_because_of_floor": 0.6831676148951632,
+  "share_of_all_pairs_with_no_synapse_on_one_side": 0.161
+ },
+ "b_poisson_floor": {
+  "w=2": {
+   "P_created_(Poisson>=5)": 0.053,
+   "cv": 0.707
+  },
+  "w=3": {
+   "P_created_(Poisson>=5)": 0.185,
+   "cv": 0.577
+  },
+  "w=4": {
+   "P_created_(Poisson>=5)": 0.371,
+   "cv": 0.5
+  },
+  "w=5": {
+   "P_deleted_(Poisson<5)": 0.44,
+   "cv": 0.447
+  },
+  "w=6": {
+   "P_deleted_(Poisson<5)": 0.285,
+   "cv": 0.408
+  },
+  "w=8": {
+   "P_deleted_(Poisson<5)": 0.1,
+   "cv": 0.354
+  },
+  "w=10": {
+   "P_deleted_(Poisson<5)": 0.029,
+   "cv": 0.316
+  },
+  "w=20": {
+   "P_deleted_(Poisson<5)": 0.0,
+   "cv": 0.224
+  },
+  "w=50": {
+   "P_deleted_(Poisson<5)": 0.0,
+   "cv": 0.141
+  },
+  "w=100": {
+   "P_deleted_(Poisson<5)": 0.0,
+   "cv": 0.1
+  }
+ },
+ "c_G3v2": {
+  "pairs": {
+   "T1L-T1R": {
+    "R_ours": 0.2342,
+    "R_authors": 0.3304,
+    "evaluable": true,
+    "p": 0.6271
+   },
+   "T2L-T2R": {
+    "R_ours": 0.2263,
+    "R_authors": 0.2093,
+    "evaluable": true,
+    "p": 0.8879
+   },
+   "T3L-T3R": {
+    "R_ours": 0.5955,
+    "R_authors": 0.6265,
+    "evaluable": false
+   },
+   "T1L-T2L": {
+    "R_ours": 0.5896,
+    "R_authors": 0.5851,
+    "evaluable": true,
+    "p": 0.9805
+   },
+   "T2L-T3L": {
+    "R_ours": 0.5826,
+    "R_authors": 1.0,
+    "evaluable": false
+   },
+   "T1R-T2R": {
+    "R_ours": 0.1403,
+    "R_authors": 0.6021,
+    "evaluable": true,
+    "p": 0.0035
+   },
+   "T2R-T3R": {
+    "R_ours": 0.8795,
+    "R_authors": 0.7458,
+    "evaluable": true,
+    "p": 0.0576
+   }
+  },
+  "criteria": {
+   "1_every_leg_rhythmic": true,
+   "2_per_leg_agreement": true,
+   "3_hind_weaker": true,
+   "4p_coupling_consistent": false,
+   "5_dng100_b3_procedure": true
+  },
+  "pass": false
+ }
+}

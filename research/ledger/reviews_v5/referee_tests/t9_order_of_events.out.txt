@@ -1,0 +1,16 @@
+== Draft sentence
+paper/PREPRINT_v0.md:72: them, on a match we rated low confidence before looking (its MaleCNS neuron is matched to MANC's DNit013 by body but annotated as DNit011). In the authors'
+== RUN5_PROMPT section 1 (the prompt that started run 5)
+RUN5_PROMPT.md:21: - MaleCNS, our run (B2r): 30 types.
+RUN5_PROMPT.md:22: - **In both flies: 3 types.** DNg100, DNb08 and DNit013.
+== LOG (order of rows: L158 question round, L160 match-confidence rule)
+LOG.md:166: | L158 | (question round, 2026-11-23) | **Definitions for the question round, fixed before looking at any data (verbatim from the request).** Driver: mean score of at least 0.5 in that screen. Stable driver: a driver in all four one-sided half-fly screens from Part A (MANC left, MANC right, MaleCNS left, MaleCNS right). Near-stable driver: a driver in exactly three of the four. Discordant hit: a driver in one or two of the four, and below 0.05 in at least one. Stable non-driver: below 0.05 in all four. Authors-concordant: every copy of the type scores at least 0.5 in the authors' single-neuron screen (A0). Rules for the answers: locked files only; no new simulations, no re-scoring, no other changes; anything that uses exam labels is marked exploratory. | The question round's request. |
+LOG.md:168: | L160 | (run 5, Stage 0) | **Cross-fly match confidence, defined while building the per-type tables (before PREREG_v5).** The B2 arm maps each MaleCNS DN to a MANC type by the curated body match (`mancBodyid` -> that MANC body's type) and, failing that, by the `mancType` string (`run_arms.py`; raw file `data/raw/external/malecns_v1.0_body_annotations/body-annotations-male-cns-v1.0-minconf-0.5.feather`, sha256 2177e246113e4cfbf1e7772ec37c6da1955ff22e8063d0b1f833101f99a9a3b2). Evidence per MaleCNS type (328): all members body-matched 320 (6 partly, 2 string only); a member whose body match conflicts with its `mancType` string 82; one-to-one naming (the type's MaleCNS label(s) map only to it, and it receives one label) 230; MaleCNS name equal to the MANC name 119; per-side member counts equal to MANC 212. **Rule:** high = every member body-matched, no conflict, one-to-one naming; low = any
+== PREREG v5 Part Q
+PREREG_v5.md:24: - The replication pattern (RUN5_PROMPT section 1): drivers (>= 0.5) B1r 15 types, A1 11, B2r 30; in both B1r and B2r: DNg100, DNb08,
+PREREG_v5.md:27: - While building the per-type tables (LOG L160): the cross-fly match confidence of every MaleCNS type (high 217, medium 29, low 82);
+== K calibration on DNg100 (PREREG v2 P1)
+{'MaleCNS|K1': {'n_seeds_score_ge_0_5': 13, 'n_usable': 16}, 'MaleCNS|K2': {'n_seeds_score_ge_0_5': 16, 'n_usable': 16}, 'MaleCNS|K3': {'n_seeds_score_ge_0_5': 16, 'n_usable': 16}, 'MaleCNS|K5': {'n_seeds_score_ge_0_5': 16, 'n_usable': 16}, 'MaleCNS|K10': {'n_seeds_score_ge_0_5': 16, 'n_usable': 16}} k_chosen 1
+DNg100: B2 (K=0) 0.059  B2r (K=1) 0.674
+DNb08: B2 (K=0) 0.784  B2r (K=1) 0.784
+DNit013: B2 (K=0) 0.204  B2r (K=1) 0.802

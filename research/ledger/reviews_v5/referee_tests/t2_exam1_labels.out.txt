@@ -1,0 +1,155 @@
+{
+ "composition": {
+  "n": 39,
+  "yes": 25,
+  "no": 14,
+  "yes_atlas_only": 21,
+  "no_atlas_only": 0,
+  "best_preparation_by_label": "{('no', 'intact_tethered'): 6, ('no', 'intact_free'): 5, ('no', 'headless'): 3, ('yes', 'intact_free'): 22, ('yes', 'headless'): 3}",
+  "decided_by_tiers_yes": 8,
+  "decided_by_tiers_no": 11,
+  "no_types_with_an_eligible_yes_record": [
+   "DNb05",
+   "DNfl023",
+   "DNp02",
+   "DNp03",
+   "DNp04",
+   "DNp05",
+   "DNp06",
+   "DNp07",
+   "DNp11",
+   "DNp42"
+  ],
+  "yes_types_with_an_eligible_no_record": [
+   "DNg30"
+  ]
+ },
+ "auroc": {
+  "all_39": {
+   "n": 39,
+   "yes": 25,
+   "no": 14,
+   "atlas_only_indicator": 0.92,
+   "A1": 0.577,
+   "B1r": 0.454,
+   "B2r": 0.419,
+   "S1_direct_mn": 0.31,
+   "S2_twohop_signed": 0.669,
+   "S3_twohop_abs": 0.091,
+   "S4_total_out": 0.114,
+   "S5_out_partners": 0.093,
+   "S6_premotor": 0.103,
+   "S7_n_members": 0.634
+  },
+  "non_atlas_only": {
+   "n": 18,
+   "yes": 4,
+   "no": 14,
+   "atlas_only_indicator": 0.5,
+   "A1": 0.357,
+   "B1r": 0.259,
+   "B2r": 0.518,
+   "S1_direct_mn": 0.25,
+   "S2_twohop_signed": 0.714,
+   "S3_twohop_abs": 0.089,
+   "S4_total_out": 0.036,
+   "S5_out_partners": 0.045,
+   "S6_premotor": 0.054,
+   "S7_n_members": 0.464
+  },
+  "not_decided_by_tiers": {
+   "n": 20,
+   "yes": 17,
+   "no": 3,
+   "atlas_only_indicator": 0.941,
+   "A1": 0.588,
+   "B1r": 0.539,
+   "B2r": 0.354,
+   "S1_direct_mn": 0.255,
+   "S2_twohop_signed": 0.627,
+   "S3_twohop_abs": 0.059,
+   "S4_total_out": 0.098,
+   "S5_out_partners": 0.127,
+   "S6_premotor": 0.059,
+   "S7_n_members": 0.539
+  },
+  "headless_best_preparation": {
+   "n": 6,
+   "yes": 3,
+   "no": 3,
+   "atlas_only_indicator": 0.5,
+   "A1": 0.333,
+   "B1r": 0.444,
+   "B2r": 0.333,
+   "S1_direct_mn": 0.333,
+   "S2_twohop_signed": 0.778,
+   "S3_twohop_abs": 0.111,
+   "S4_total_out": 0.0,
+   "S5_out_partners": 0.0,
+   "S6_premotor": 0.0,
+   "S7_n_members": 0.5
+  }
+ },
+ "twohop": {
+  "S2_by_label": {
+   "yes": {
+    "n_neg": 15,
+    "n_zero": 1,
+    "n_pos": 9,
+    "median": -361.0
+   },
+   "no": {
+    "n_neg": 10,
+    "n_zero": 0,
+    "n_pos": 4,
+    "median": -39163.0
+   }
+  },
+  "spearman_S2_vs_S3_over_39": -0.359,
+  "auroc_minus_S3_(fewer_paths_predicts_yes)": 0.909,
+  "auroc_S2_over_S3_ratio_(net_sign_only)": 0.474,
+  "auroc_S2_positive_part_only": 0.503,
+  "auroc_S2_negative_part_only": 0.709
+ }
+}
+          front best_preparation  atlas_only  decided_by_tiers without_tiers  eligible_yes  eligible_no  eligible_headless_yes  eligible_headless_no        A1       B1r       B2r  S2_twohop_signed  S3_twohop_abs  S4_total_out
+manc_type                                                                                                                                                                                                                        
+DNp03        no  intact_tethered       False              True   conflicting             3            2                      0                     0  0.000000  0.000000  0.000000           -7193.0         8607.0         400.0
+DNp05        no      intact_free       False              True   conflicting             1            2                      0                     0  0.000000  0.000000  0.000000           19274.0       109896.0        1847.0
+DNp04        no      intact_free       False              True   conflicting             3            4                      0                     0  0.000000  0.000000  0.000000          -16358.0       110594.0        2152.0
+DNp42        no         headless       False              True   conflicting             1            1                      0                     1  0.018430  0.063650  0.017824           17101.0       125005.0        3744.0
+DNp13        no         headless       False             False                           0            1                      0                     0  0.000000  0.000000  0.388017          -67321.0       163423.0        3619.0
+DNp02        no      intact_free       False              True   conflicting             1            5                      0                     0  0.399887  0.655120  0.047865          -37128.0       311822.0        4833.0
+DNp11        no      intact_free       False              True   conflicting             2            3                      0                     0  0.000000  0.013615  0.331120          -92226.0       327008.0        3770.0
+DNp06        no      intact_free       False              True   conflicting             1            2                      0                     0  0.000000  0.030942  0.000000         -126925.0       367021.0        4682.0
+DNfl023      no         headless       False              True   conflicting            14            2                      0                     1  0.000000  0.000000  0.001644          -41198.0       537904.0        3108.0
+DNp10        no  intact_tethered       False              True       unclear             0            4                      0                     0  0.000000  0.014655  0.000000          -84306.0       615572.0        3684.0
+DNp47        no  intact_tethered       False             False                           0            1                      0                     0  0.021730  0.047458  0.034973          197141.0       756105.0        3423.0
+DNg79        no  intact_tethered       False             False                           0            1                      0                     0  0.000000  0.001782  0.000000         -268130.0       834110.0        4293.0
+DNb05        no  intact_tethered       False              True   conflicting             1            2                      0                     0  0.000000  0.063976  0.223231         -333518.0       940626.0        6283.0
+DNp07        no  intact_tethered       False              True   conflicting             2            4                      0                     0  0.004439  0.005812  0.000000          195263.0      1126519.0        4642.0
+DNa08       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.000000  0.000000               0.0            0.0          57.0
+DNp16       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.000000  0.000000            -187.0          187.0          89.0
+DNp17       yes      intact_free        True             False                           1            0                      0                     0  0.097826  0.052357  0.114579            -361.0          493.0         485.0
+DNg82       yes      intact_free        True              True       unclear             2            0                      0                     0  0.000000  0.000000  0.000000            -421.0          655.0         123.0
+DNg04       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.000000  0.000000             574.0          774.0         267.0
+DNp20       yes      intact_free        True              True       unclear             2            0                      0                     0  0.000000  0.000000  0.000000             713.0          785.0          84.0
+DNa07       yes      intact_free        True             False                           5            0                      0                     0  0.842740  0.861027  0.419233             663.0          993.0          67.0
+DNb03       yes      intact_free        True             False                           2            0                      0                     0  0.010528  0.057793  0.000000            1297.0         1297.0         631.0
+DNp29       yes      intact_free       False             False                           1            0                      0                     0  0.000000  0.000000       NaN           -1369.0         1635.0         245.0
+DNg03       yes      intact_free        True              True       unclear             3            0                      0                     0  0.004736  0.007128  0.000000           -2001.0         2001.0         673.0
+DNa05       yes      intact_free        True             False                           3            0                      0                     0  0.000000  0.000000  0.000000           -1054.0         2186.0         501.0
+DNg01       yes      intact_free        True              True       unclear             3            0                      0                     0  0.025785  0.010061  0.000000             -61.0         3545.0         503.0
+DNa10       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.000000  0.000000           -2587.0         4301.0         391.0
+DNg09       yes      intact_free        True             False                           1            0                      0                     0  0.268177  0.245590  0.042045            4285.0         4735.0         587.0
+DNg30       yes         headless       False              True   conflicting             3            1                      0                     1  0.000000  0.008947       NaN           -4837.0         8493.0        1335.0
+DNp28       yes      intact_free        True              True       unclear             2            0                      0                     0  0.000000  0.004789  0.000000           14486.0        14716.0         320.0
+DNa04       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.027515  0.002466          -10001.0        20755.0         853.0
+DNg14       yes         headless       False             False                           1            0                      0                     0  0.000000  0.000000  0.000000          -22955.0        28149.0          41.0
+DNg07       yes      intact_free        True             False                           6            0                      0                     0  0.151880  0.000000  0.234054           20714.0        33316.0        1216.0
+DNg69       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.000000  0.000000          -28901.0        35417.0         477.0
+DNa11       yes         headless       False              True       unclear             2            0                      0                     0  0.000000  0.000000  0.053483          124442.0       128196.0        1503.0
+DNb06       yes      intact_free        True             False                           1            0                      0                     0  0.022682  0.070026  0.000000         -144963.0       221823.0        1995.0
+DNg02       yes      intact_free        True              True       unclear             5            0                      0                     0  0.100998  0.000283  0.000000          107074.0       242018.0        3182.0
+DNp18       yes      intact_free        True             False                           1            0                      0                     0  0.000000  0.341204  0.000000           -8810.0       281088.0        4111.0
+DNg15       yes      intact_free        True             False                           1            0                      0                     0  0.147694  0.445994  0.387543         -242212.0       501954.0        8257.0

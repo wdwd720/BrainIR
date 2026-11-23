@@ -1,0 +1,100 @@
+{
+ "n_units": 27,
+ "model_mean_pr": 0.6327,
+ "baselines_mean_pr": {
+  "H-S-k0": 0.4198,
+  "H-S-k1-signed": 0.5573,
+  "H-S-k1-unsigned": 0.5511,
+  "H-S-k2-signed": 0.6384,
+  "H-S-k2-unsigned": 0.4974,
+  "H-S-k3-signed": 0.5062,
+  "H-S-k3-unsigned": 0.4762,
+  "H-S-lin": 0.4612
+ },
+ "paired": {
+  "H-S-k0": {
+   "diff": 0.213,
+   "ci95": [
+    0.0886,
+    0.3395
+   ],
+   "share_model_above": 1.0
+  },
+  "H-S-k1-signed": {
+   "diff": 0.0754,
+   "ci95": [
+    -0.0326,
+    0.1896
+   ],
+   "share_model_above": 0.91
+  },
+  "H-S-k1-unsigned": {
+   "diff": 0.0816,
+   "ci95": [
+    -0.0503,
+    0.2112
+   ],
+   "share_model_above": 0.887
+  },
+  "H-S-k2-signed": {
+   "diff": -0.0057,
+   "ci95": [
+    -0.1777,
+    0.1706
+   ],
+   "share_model_above": 0.473
+  },
+  "H-S-k2-unsigned": {
+   "diff": 0.1354,
+   "ci95": [
+    0.0013,
+    0.2685
+   ],
+   "share_model_above": 0.976
+  },
+  "H-S-k3-signed": {
+   "diff": 0.1265,
+   "ci95": [
+    -0.0591,
+    0.306
+   ],
+   "share_model_above": 0.912
+  },
+  "H-S-k3-unsigned": {
+   "diff": 0.1565,
+   "ci95": [
+    0.0238,
+    0.2804
+   ],
+   "share_model_above": 0.99
+  },
+  "H-S-lin": {
+   "diff": 0.1715,
+   "ci95": [
+    0.0362,
+    0.2998
+   ],
+   "share_model_above": 0.993
+  }
+ },
+ "best_of_8_rechosen": {
+  "mean_diff": -0.0205,
+  "ci95": [
+   -0.1777,
+   0.1098
+  ],
+  "share_model_above": 0.417,
+  "how_often_each_is_best": {
+   "H-S-k0": 0,
+   "H-S-k1-signed": 1711,
+   "H-S-k1-unsigned": 909,
+   "H-S-k2-signed": 7142,
+   "H-S-k2-unsigned": 26,
+   "H-S-k3-signed": 175,
+   "H-S-k3-unsigned": 10,
+   "H-S-lin": 27
+  }
+ },
+ "selection_inflation_best_minus_k2signed_mean": 0.0151,
+ "n_baselines_model_beats_point": 7
+}
