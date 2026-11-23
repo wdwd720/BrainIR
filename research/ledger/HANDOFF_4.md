@@ -8,8 +8,8 @@ All three tags exist, were pushed to `origin` (branch `ledger/v1` only; `main` u
 - `ledger-reliability-v2` (commit d81668b): `LOCK_reliability_v2.json` sha256 02ca7209f948505b42a37e71f8a6657ca238fff58ecc2ece6fcdf243d84bb542 (202 files: Parts A0-D, gates, reviews, code); proof Bitcoin-attested.
 - `ledger-forward-v1` (commit c3ffcfa): `LOCK_forward_v1.json` sha256 f62da2732a3df5677e9566629eac8d3e5de05e3dd0cf9e81c4edbf963bae4917 (179 files); proof Bitcoin-attested (upgraded at 21:28).
 
-Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md`,
-`EVIDENCE_MAP.md`, this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
+Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md` with
+`reviews_v4/BRIEF_OVERCLAIM_REVIEW.md`, `EVIDENCE_MAP.md`, this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
 locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 failure.
 
 ## 2. Departures from the prompt, with reasons
@@ -29,9 +29,10 @@ locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 f
    Modal cap. Each was made before the analysis it touches had run on real data.
 5. **Operations not in the prompt:** chunks that hit GitHub's time limit were re-packed and re-run as partial attempts of the same
    campaign (same jobs and payloads; collection merges attempts by key); a dry-run harness ran every analysis on fake results first.
-6. **The brief has no overclaim review.** The fresh reviewer was stopped by the model provider's safeguards (an API error that flags
-   biology-adjacent research) before writing anything; I did not replace it with my own review (LOG L151). The adversarial review's
-   qualification was carried into the brief.
+6. **The brief's overclaim review ran on another model.** The first fresh reviewer was stopped by the model provider's safeguards (an
+   API error that flags biology-adjacent research) before writing anything; I did not do the review myself. A second fresh reviewer, run
+   on another model as the error message suggests, marked 15 items (no wrong number; overclaims and missing caveats); all were fixed in
+   the brief, two also in RESULTS_3 and the evidence map (LOG L151-L152).
 7. **Wall-clock** was about 23.5 hours (16:28 to about 16:00 the next day), at the top of the 12-24 h estimate.
 
 ## 3. The dose-arm check
@@ -58,7 +59,7 @@ Sanity checks passed on both flies before any Block 2 number was read: identity 
 the other side (2,094/2,096 and 1,960/1,960 outcomes; Spearman 0.9999 and 0.994). Closures (95 %):
 
 - **Procedure (Block 1):** best in-bounds score over the 19-current grid closes MANC 0.17 (-0.07 to 0.38), MaleCNS 0.36 (0.08 to
-  0.61); real gaps at every fixed current; current transplant 0.00 to -0.27.
+  0.61); real gaps at all 19 fixed currents in MANC and at the 12 conclusive ones in MaleCNS; current transplant 0.00 to -0.27.
 - **Location (Block 2):** own outputs 0.23 (-0.01 to 0.42) MANC, 0.17 MaleCNS; rest of network 0.34 (0.10 to 0.53) MANC, 0.21 MaleCNS.
 - **Class (Block 3, MANC):** alone / left out: weights 0.09 / 0.55; one-sided connections 0.29 / 0.37; partnerless neurons 0.25 /
   0.58; size 0.03 / 0.81; sign -0.05 / 0.88; classes interact.
@@ -105,9 +106,11 @@ the connections, variability on the scale of the real left-right differences.
 ## 11. The brief's opening paragraph
 
 > A model that simulates the fly's ventral nerve cord from its connectome (the published rate model behind the DNg100 walking result)
-> can be used to screen every descending-neuron type: stimulate the type, ask whether the front-leg motor neurons become rhythmic. We
-> asked a question with a known answer. A neuron's left copy and right copy are built by the same genome and do the same job, so a
-> correct screen must give them the same prediction, and the same in two different flies (the MANC and MaleCNS connectomes).
+> can screen every descending-neuron type: stimulate the type, ask whether the front-leg motor neurons become rhythmic. We used agreement
+> between a neuron's left and right copies, and between two flies (the MANC and MaleCNS connectomes), as a consistency check: if the
+> screen captures function shared by copies built by the same genome, the two should agree about as well as the screen agrees with
+> itself across random seeds. Real animals can differ between sides and individuals (DNg100 itself drives its legs asymmetrically, in
+> the authors' runs and ours), so a gap is a warning about the screen, not proof of an error.
 
 ## 12. Compute and wall-clock
 

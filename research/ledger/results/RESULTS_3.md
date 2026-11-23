@@ -1,4 +1,4 @@
-**Cause found in part: Poisson-scale noise in synapse counts moves the model's predictions almost as much as the real left-right differences do.** Two copies of one network that differ only by such noise agree almost as poorly as the fly's left and right sides (0.40 against 0.37 for the pre-registered pair; over all six pairings of the four stored noise copies, a post-hoc check by the adversarial review, noise reproduces about 86 % of the gap); the left-right difference sits mostly in connections that the 5-synapse floor leaves on one side only and in neurons without a partner; where the tuner lands explains at most a third; and none of the fixes tested restores reproducibility.
+**Cause found in part: Poisson-scale noise in synapse counts moves the model's predictions almost as much as the real left-right differences do.** Two copies of one network that differ only by such noise agree almost as poorly as the fly's left and right sides (0.40 against 0.37 for the pre-registered pair; over all six pairings of the four stored noise copies, a post-hoc check by the adversarial review, noise reproduces about 86 % of the gap); the left-right difference sits mostly in connections that the 5-synapse floor leaves on one side only and in neurons without a partner; where the tuner lands explains about a third in MaleCNS and an amount indistinguishable from zero in MANC; and none of the fixes tested restores reproducibility.
 
 # Results 3 (run 4): does the simulation agree with itself across the two sides of a fly and across two flies, and why not?
 
@@ -71,12 +71,13 @@ not come from one bad side, and it is not the same gap in both flies.
 | tuned screen, left vs right (before) | ratio 0.52 (rho_x 0.40, c 0.78) | 0.58 (0.49, 0.85) |
 | **best in-bounds score over the 19-current grid** (B1.4 primary) | ratio 0.55 (0.43-0.66); **closure 0.17 (-0.07 to 0.38)** | 0.65 (0.55-0.75); **closure 0.36 (0.08 to 0.61)** |
 | fraction of in-bounds currents rhythmic | closure 0.22 (-0.08 to 0.51) | -0.11 (-0.57 to 0.22) |
-| left vs right at each fixed current | a real gap at all 19 (ratio 0.38-0.81) | a real gap at every current with enough in-bounds runs (0.34-0.69) |
+| left vs right at each fixed current | a real gap at all 19 (ratio 0.38-0.81) | a real gap at 12 of 19 (0.34-0.69); 2 inconclusive (22.6 and 32), the 5 lowest not judged |
 | each side at the other side's tuned current | closure -0.16 / -0.27 (intervals include 0) | 0.00 / -0.12 (include 0) |
 | run at the own tuned current reproduces the tuned run | 3,049 of 3,049 | 2,640 of 2,640 |
 
-**Reading.** Where the tuner lands explains at most about a third of the gap in MaleCNS and an amount indistinguishable from zero in
-MANC. The two sides disagree at every fixed current, and giving both the same current does not bring them together. The difference is
+**Reading.** Where the tuner lands explains about a third of the gap in MaleCNS (interval 0.08-0.61) and an amount indistinguishable
+from zero in MANC. The two sides disagree at all 19 fixed currents in MANC and at every conclusive one in MaleCNS (12 of 19), and
+giving both the same current does not bring them together. The difference is
 mostly in the two networks.
 
 ### 3.2 Location (Block 2: the stimulated types' own output connections vs the rest of the network; paired draws)
@@ -201,7 +202,7 @@ Exam 2 is not re-scored: it was reserved for the robust model, and no fix passed
 | mismatched homologs or wrong side labels | G3 side checks, the uncorrected / side-concordant subsets, Block 2's full-transplant check (B2.3) | MaleCNS uncorrected-side types 0.61, MANC side-concordant types 0.58 (as all types); the mirrored network reproduces the other side (Spearman 0.994-0.9999) |
 | unequal member counts | types with equal member counts on both sides (G6b) | MANC 0.51 (285 types), MaleCNS 0.59 (198): unchanged |
 | one side worse everywhere | score distributions, driver counts, tuner outcomes (A3) | neither side (Wilcoxon p 0.86 and 0.31) |
-| where the tuner lands | Block 1 | at most about a third of the gap (MaleCNS 0.36, MANC 0.17 not distinguishable from 0); the sides disagree at every fixed current |
+| where the tuner lands | Block 1 | about a third in MaleCNS (0.36, 0.08-0.61), not distinguishable from 0 in MANC (0.17); the sides disagree at all 19 fixed currents in MANC and at the 12 conclusive ones in MaleCNS |
 | our implementation | the authors' own scores (A0) against ours; Block 2's mirror checks | the authors' published scores show the same gap (ratio 0.63); our identity and full transplants reproduce exactly |
 
 ## 8. Three biggest caveats
