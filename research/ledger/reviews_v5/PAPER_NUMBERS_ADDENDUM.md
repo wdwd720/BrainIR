@@ -16,7 +16,7 @@ were accepted and fixed in the revised draft and `CLAIMS.md`:
 | "our screens read out one side's motor neurons" | Only the one-sided (half-fly) screens; the motor-neuron sets of the two flies (144, 130) added. |
 | "96 published sources" for both exams | 96 is exam 1's registry; exam 2's labels came from three sources. |
 | Unsourced "three-neuron", "four connectome datasets" | Stated as the original paper's account and cited to it; `CLAIMS.md` row 38 (external). |
-| `CLAIMS.md` paths (rows 25, 28) and the unlocked addendum (row 16) | Field paths corrected (`result.` prefix; `census_39.atlas_only.all.n`); the addendum's six-pairing statement is now words only, marked "not locked" (row 19). |
+| `CLAIMS.md` paths (rows 25, 28) and the unlocked addendum (row 16) | Field paths corrected (`primary.result.` prefix; `census_39.atlas_only.n`; a later check of every path also fixed rows 8, 18, 20, 26 of the revised table); the addendum's six-pairing statement is now words only, marked "not locked" (row 19). |
 | 30 correct numbers missing from `CLAIMS.md` | The result numbers added (kappa, 128 replicates, 2 of 6, Part T, 10 of 11, transplants, the 1-4 synapses, DNp41, exam 2's details, the audit split, read-out sizes); design constants are left to the rulebooks. |
 | "Data and code" tags | `ledger-reliability-v2`, `ledger-scorecard-v1` and `ledger-scorecard-h1` added. |
 | Pending timestamp proofs | The replication and forward proofs are upgraded when Bitcoin confirms them (HANDOFF_5 section 1). |
