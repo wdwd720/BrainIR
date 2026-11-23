@@ -12,15 +12,17 @@ run 5's state is in git history (this file at ec770a8).
    Modal; the Mac runs no prediction. 9. At most 8 fresh agent sessions in the run; no label-reading sessions (quota resets
    2026-11-25 17:00 PST). 10. Nothing leaves the machine except pushes to the repo. 11. Fair to the authors.
 
-## Agent sessions used: 0 of 8
+## Agent sessions used: 1 of 8 (rulebook auditor, incl. its re-check)
 
 ## Checklist
 - [x] Stage 0 (10:19 PST): prompt saved; tree clean; start baseline 25/25 locks, ledger 285 passed, BrainIR 1 known failure (L5);
       caffeinate; trust gate `trust-run6` published (compare pending).
 - [x] Stage 1 build: `ledger/src/brainir_ledger/banc.py` (pinned sources, build, matching, confidence); three-animal set 182 (L177).
 - [x] Stage 1 gate PASSED (L178): DNg100 0.994 (64/64), E1 0.000, E2 0.028, I2 0.993; trust gate 100/100 identical.
-- [ ] Stage 2: PREREG_v6.md drafted (L178); builders + lock6 + tests written; audit (agent 1) + re-check pending; then freeze
-      (`lock6.py prereg`, commit, tag ledger-prereg-v6, push, OTS).
+- [x] Stage 2: PREREG_v6 audited (14 findings) and re-checked (N1-N6), all applied (L179-L180); analysis code, type sets
+      (`gates_v6/TYPE_SETS_v6.json`), planning numbers, references (23/23), hand-check kit and build pipeline done before the freeze.
+- [ ] Freeze: `lock6.py prereg`, commit, tag ledger-prereg-v6, push, OTS. Then campaigns via `gha6.py pack <prefix>-p<k>-banc-run6 --k k`
+      and `gha6.py feeder ...` (order X1: ms-mcns, pv-mcns, bt-p1/p2, bs-p1..p3, bh-p1/p2, bn-p1/p2; det6-1, det6-2).
 - [ ] Stage 3: Part H (+ MaleCNS sweep if needed), Part V, BANC tuned / sweep / one-sided / noise, tests; locks posthoc_v6, thirdfly_v1.
 - [ ] RESULTS_5.md; Stage 4 paper v1 + supplement + claims + figures + build.sh + PDF/DOCX; four reviews + addenda.
 - [ ] Stage 5 STUDY_GUIDE.md, HAND_CHECK.md; Stage 6 BRIEF_v3, outreach v2; HANDOFF_6.md.

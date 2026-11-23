@@ -148,15 +148,34 @@ def _banc_payload(extra: dict | None = None) -> dict:
     return {"W": W, "sizes": net.sizes, "readout": net.readout, **(extra or {})}
 
 
+PARTS = {"bt": 2, "bs": 3, "bh": 2, "bn": 2}   # operational: a campaign is split into parts (contiguous blocks of the sorted types) so that
+#                                              each fits the 20-job limit with chunks under an hour; `--k p` packs part p, k None packs all
+
+
+def _part(groups: dict, prefix: str, k) -> dict:
+    """The k-th of PARTS[prefix] contiguous blocks of the groups sorted by name (all groups if k is None)."""
+    if k is None:
+        return dict(groups)
+    names = sorted(groups)
+    n = PARTS[prefix]
+    if not 1 <= int(k) <= n:
+        raise SystemExit(f"{prefix}: part {k} not in 1..{n}")
+    size = -(-len(names) // n)
+    return {t: groups[t] for t in names[(int(k) - 1) * size:int(k) * size]}
+
+
 def build_bt(k=None):
     """PREREG v6 B1 (primary): the tuned whole-type screen on BANC, every group (excitatory DNs by MANC type), seeds 0..15, plus each
-    DNb08 and DNg100 member alone (C5, same procedure)."""
+    DNb08 and DNg100 member alone (C5, same procedure; packed with part 1)."""
     require_freeze6("BANC tuned screen")
     from brainir_ledger import banc as B  # noqa: PLC0415
 
     g = B.groups()
     singles = {f"{t}#{p}": [p] for t in ("DNb08", "DNg100") for p in g[t]}
-    return [(_banc_payload(), _tuned_jobs("BT", g, TUNED_SEEDS) + _tuned_jobs("BT1", singles, TUNED_SEEDS))], AREA
+    jobs = _tuned_jobs("BT", _part(g, "bt", k), TUNED_SEEDS)
+    if k is None or int(k) == 1:
+        jobs += _tuned_jobs("BT1", singles, TUNED_SEEDS)
+    return [(_banc_payload(), jobs)], AREA
 
 
 def build_bs(k=None):
@@ -164,7 +183,7 @@ def build_bs(k=None):
     require_freeze6("BANC sweep")
     from brainir_ledger import banc as B  # noqa: PLC0415
 
-    jobs = [_sweep_job(f"BS|{t}|s{s}", s, m) for t, m in B.groups().items() for s in SWEEP_SEEDS]
+    jobs = [_sweep_job(f"BS|{t}|s{s}", s, m) for t, m in _part(B.groups(), "bs", k).items() for s in SWEEP_SEEDS]
     return [(_banc_payload(), jobs)], AREA
 
 
@@ -178,7 +197,7 @@ def build_bh(k=None):
     sh = _banc_payload({"readout_L": B.readout_side("L"), "readout_R": B.readout_side("R")})
     jobs = []
     for side in ("L", "R"):
-        jobs += _tuned_jobs(f"BH-{side}", h[side], HALF_SEEDS, readout=f"readout_{side}")
+        jobs += _tuned_jobs(f"BH-{side}", _part(h[side], "bh", k), HALF_SEEDS, readout=f"readout_{side}")
     return [(sh, jobs)], AREA
 
 
@@ -214,7 +233,7 @@ def build_bn(k=None):
     out = []
     for i, cs in enumerate(COPY_SEEDS, start=1):
         sh = {"W": banc_copy(cs), "sizes": B.network().sizes, "readout_L": B.readout_side("L")}
-        out.append((sh, _tuned_jobs(f"BN-c{i}", h["L"], HALF_SEEDS, readout="readout_L")))
+        out.append((sh, _tuned_jobs(f"BN-c{i}", _part(h["L"], "bn", k), HALF_SEEDS, readout="readout_L")))
     return out, AREA
 
 
@@ -253,8 +272,12 @@ def build_pv(k=None):
     return [({"W": net2.W, "sizes": net2.sizes, "readout": net2.readout}, jobs)], "thirdfly_v1"
 
 
-DET6_STAGES: dict[int, list[str]] = {1: ["bg-banc-run6", "bt-banc-run6", "ms-mcns-run6", "pv-mcns-run6"],
-                                     2: ["bh-banc-run6", "bs-banc-run6", "bn-banc-run6"]}
+DET6_STAGES: dict[int, tuple[str, ...]] = {1: ("bg", "bt", "ms", "pv"), 2: ("bh", "bs", "bn")}   # prefixes; every packed part
+
+
+def det6_campaigns(stage: int) -> list[str]:
+    """The packed run 6 campaigns (every part) of a determinism stage, by prefix."""
+    return sorted(p.name for p in G.GHA.glob("*-run6") if p.name.split("-")[0] in DET6_STAGES[int(stage)] and (p / "manifest.json").exists())
 
 
 def build_det6(k=None):
@@ -266,9 +289,7 @@ def build_det6(k=None):
 
     require_freeze6("determinism re-run")
     groups = []
-    for c in DET6_STAGES[int(k)]:
-        if not (G.GHA / c / "manifest.json").exists():
-            continue
+    for c in det6_campaigns(int(k)):
         items = []
         for f in sorted((G.GHA / c).glob("chunk_*.pkl")):
             items += pickle.loads(f.read_bytes())
@@ -307,6 +328,22 @@ RUN6_BUILDERS = {"bg": build_bg, "bt": build_bt, "bs": build_bs, "bh": build_bh,
                  "det6": build_det6}
 G.BUILDERS.update(RUN6_BUILDERS)
 RUN6_PREFIXES = set(RUN6_BUILDERS)
+
+
+def feeder6(names: list[str], poll_s: int = 60) -> None:
+    """Run 4's feeder for run 6 campaigns: publish each, in order, only when active jobs + its chunks + its plan job <= 20."""
+    queue = list(names)
+    while queue:
+        name = queue[0]
+        need = json.loads((G.GHA / name / "manifest.json").read_text())["n_chunks"] + 1
+        act = G4.active_jobs()
+        if act + need <= MAX_JOBS:
+            publish6(name)
+            queue.pop(0)
+            time.sleep(45)  # let the run register before counting again
+        else:
+            print(time.strftime("%H:%M:%S"), f"active jobs {act}; waiting to publish {name} ({need} jobs)", flush=True)
+            time.sleep(poll_s)
 
 
 def publish6(name: str, attempt: int = 0) -> None:
@@ -384,6 +421,8 @@ def main() -> None:
         G5.runner_hours("run6")
     elif cmd == ["det-compare"]:
         det_compare(int(a[0]))
+    elif cmd == ["feeder"]:
+        feeder6(a)
     else:
         raise SystemExit(__doc__)
 

@@ -18,3 +18,16 @@ The audit (`PREREG_AUDIT_v6.md`) is unchanged. Each finding, what was changed, a
 | 12 | DNb08 in C8 | A secondary analysis without DNb08 (11 types); stated in C8's disclosure. |
 | 13 | Part V | The authors' configuration gets its own first sentence (`part_v`'s `authors_configuration_sentence`); the scoring rule stated; the read-out difference (130 vs 129) stated, no companion read-out (Part D row 10). |
 | 14 | Tests and guards | The one-sided test now asserts each job's read-out key and the 68 / 71 masks; `banc.require_unblind` also requires `LOCK_prereg_v6.json` to verify; `det6` includes the gate `bg` (X3). |
+
+## The re-check (`PREREG_AUDIT_RECHECK_v6.md`): partly resolved findings and new findings
+
+| Item | Change |
+|---|---|
+| 5 / N1 (major) | X4 split: builder and simulation code amended (bug fix only) only before its campaign is published; analysis code bug fixes allowed after collection with outputs before and after side by side; never a rule, criterion, seed, set, threshold, record, label or word; the limits stated as procedural (the row's reason names its kind). |
+| 8 | C8's critical value is now the smallest attainable lattice value with a permutation tail <= 0.05: 0.503 (12 types), 0.484 (13), 0.527 (11); power restated 0.22 / 0.48 / 0.82 (`prereg6_planning.c8_critical`). |
+| 10 / N6 | `screens6.sweep_manc` checks the log's SHA-256 against Part Q 6's value on every load. |
+| 11 / N5 | The same-name subset is computed for all three C4 lists; every block outside the word sets stores its words as `words_not_of_record` (C1-C3, C6 with DNg100). |
+| N2 | Part D row 15 (C5 judged even when neither screen is valid). |
+| N3 | The wiring check's caveat rests on a like-for-like 5-synapse-floor BANC companion (floorless values beside); 0.71 described as this statistic's own lowest run 4 value (0.713); the caveat is attached to C3's first line by `run()`. |
+| N4 | Part V fills a packed key without a result as score 0 (`screens6.partv_results`, `part_v`). |
+| Operational | Campaign parts and a feeder (X1, Part D row 16; `gha6.PARTS`, `feeder6`, `screens6.merged`), so each campaign fits the 20-job limit with chunks under an hour. |

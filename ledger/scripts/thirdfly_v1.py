@@ -82,6 +82,13 @@ def _boot_pairs(v: dict, pairs, idx) -> dict:
     return out
 
 
+def _not_record(d: dict) -> dict:
+    """Audit re-check N5: a block outside the word-bearing set keeps its words only under a marked name."""
+    if isinstance(d, dict) and "words" in d:
+        d["words_not_of_record"] = d.pop("words")
+    return d
+
+
 def _pct(a):
     a = np.asarray(a, float)
     a = a[~np.isnan(a)]
@@ -122,6 +129,9 @@ def c1(L, R) -> dict:
         out[k]["median_score"] = {"L": float(_ts(L, ts).median()), "R": float(_ts(R, ts).median())}
     w = out.get("label_consistent_noDNg100")
     out["words"] = w["words"] if isinstance(w, dict) else "not judged"
+    for k in s:
+        if k != "label_consistent_noDNg100":
+            _not_record(out[k])
     out["reference_locked"] = {"MANC_L_vs_R": 0.587, "MaleCNS_L_vs_R": 0.642, "source": "reliability_v2/A.json (rulebook v4 A2)"}
     return out
 
@@ -149,6 +159,14 @@ def c2(L, R, c1s, c2s) -> dict:
                   "reproduces": rep, "words": "count noise reproduces BANC's left-right agreement" if rep else "does not reproduce it"}
     w = out.get("label_consistent_noDNg100")
     out["words"] = w["words"] if isinstance(w, dict) else "not judged"
+    for k in c1_sets():
+        if k != "label_consistent_noDNg100" and isinstance(out.get(k), dict):
+            _not_record(out[k])
+            for sub in ("copy_vs_copy", "observed_left_right", "copy1_vs_L", "copy2_vs_L"):
+                _not_record(out[k][sub])
+    if isinstance(w, dict):
+        for sub in ("copy_vs_copy", "observed_left_right", "copy1_vs_L", "copy2_vs_L"):
+            _not_record(w[sub])
     return out
 
 
@@ -185,9 +203,19 @@ def c3(S: dict, primary: str) -> dict:
             sentence = "inconclusive"
         ratios = {lab: {"ratio": p[lab]["three_animal_noDNg100"]["primary"]["ratio"],
                         "interval": p[lab]["three_animal_noDNg100"]["bootstrap"]["interval"]["ratio"],
-                        "words": p[lab]["three_animal_noDNg100"]["words"]} for lab in p}
+                        ("words" if lab != "MANC-MaleCNS (reference, post hoc)" else "words_not_of_record"): p[lab]["three_animal_noDNg100"]["words"]}
+                  for lab in p}
     out["first_line_words"] = sentence
     out["first_line_ratios"] = ratios
+    for proc, blk in out.items():
+        if not isinstance(blk, dict) or proc in ("first_line_ratios",):
+            continue
+        for lab, sets_ in blk.items():
+            if not isinstance(sets_, dict):
+                continue
+            for k, d in sets_.items():
+                if not (proc == primary and k == "three_animal_noDNg100" and lab in ("MANC-BANC", "MaleCNS-BANC")):
+                    _not_record(d)
     return out
 
 
@@ -199,18 +227,25 @@ def c3_wiring() -> dict:
     from brainir_ledger import baselines as BL  # noqa: PLC0415
     from brainir_ledger import mirror as MR  # noqa: PLC0415
 
+    from brainir_ledger import fixes as FX  # noqa: PLC0415
+
     BN.require_unblind("BANC wiring check")
     ts = sets()["three_animal_noDNg100"]
     fm, fc = MR.fly("MANC"), MR.fly("MaleCNS")
     net = BN.network()
+    C0 = BN.raw_counts()
+    C5 = FX.at_floor(C0, 5)
     s2 = {"MANC": BL.compute(fm.C, sp.csr_matrix(fm.net.W, dtype=float), fm.readout, fm.groups, []),
           "MaleCNS": BL.compute(fc.C, sp.csr_matrix(fc.net.W, dtype=float), fc.readout, fc.groups, []),
-          "BANC": BL.compute(BN.raw_counts(), sp.csr_matrix(net.W, dtype=float), net.readout, BN.groups(), [])}
+          "BANC": BL.compute(C0, sp.csr_matrix(net.W, dtype=float), net.readout, BN.groups(), []),
+          "BANC_floor5": BL.compute(C5, FX.signed(C5, BN.row_sign()), net.readout, BN.groups(), [])}
     v = {k: d.set_index("manc_type")["S2_twohop_signed"].reindex(ts).to_numpy(float) for k, d in s2.items()}
     r = {"MANC-BANC": AG.spearman(v["MANC"], v["BANC"]), "MaleCNS-BANC": AG.spearman(v["MaleCNS"], v["BANC"]),
+         "MANC-BANC_floor5": AG.spearman(v["MANC"], v["BANC_floor5"]), "MaleCNS-BANC_floor5": AG.spearman(v["MaleCNS"], v["BANC_floor5"]),
          "MANC-MaleCNS": AG.spearman(v["MANC"], v["MaleCNS"])}
-    low = [k for k in ("MANC-BANC", "MaleCNS-BANC") if not (np.isfinite(r[k]) and r[k] >= WIRING_FLOOR)]
-    return {"spearman": r, "n_types": len(ts), "floor": WIRING_FLOOR, "below_floor": low,
+    low = [k for k in ("MANC-BANC_floor5", "MaleCNS-BANC_floor5") if not (np.isfinite(r[k]) and r[k] >= WIRING_FLOOR)]
+    return {"spearman": r, "n_types": len(ts), "floor": WIRING_FLOOR, "caveat_rests_on": "the 5-synapse-floor BANC companion (like for like)",
+            "floor_source": "0.71 = the lowest value of this statistic in run 4 (0.713, MANC-R vs MaleCNS-L, WIRING_A4.json)", "below_floor": low,
             "caveat": ("BANC's wiring of these types agrees with the other animals' less than the first two animals' wiring agreed, so part "
                        "of the gap may come from the build or the type match") if low else None}
 
@@ -368,10 +403,11 @@ def c8(banc: pd.DataFrame) -> dict:
 
 
 # ------------------------------------------------------------------------------------------------ Part V
-def part_v(res: dict | None) -> dict:
-    """Every seed counts; the screen bounds are ignored; a solver failure scores 0 (PREREG v6 V)."""
+def part_v(res: dict | None, keys: list[str] | None = None) -> dict:
+    """Every seed counts; the screen bounds are ignored; a solver failure, or a packed key without a result, scores 0 (PREREG v6 V, X3)."""
     if res is None:
         return {"status": "not run (pv-mcns-run6 not collected)"}
+    res = {**{k: {"solver_success": False, "score": None} for k in (keys or []) if k not in res}, **res}
 
     def sc(r):
         return float(r["score"]) if (r.get("solver_success") and r.get("score") is not None) else 0.0
@@ -449,18 +485,19 @@ def run(validity_only: bool = False) -> dict:
     S = {"tuned": (m_t, c_t, bt, H16) if bt is not None else None, "sweep": (m_s, c_s, bs, H8) if (bs is not None and c_s is not None) else None}
     res["C3"] = c3(S, prim or "not judged")
     res["C3_wiring"] = c3_wiring()
+    res["C3"]["first_line_caveat"] = res["C3_wiring"]["caveat"]     # audit re-check N3: the first line cannot be quoted without it
     judged = prim in ("tuned", "sweep")
     if judged:
         m, c, b, hv = S[prim]
         lists = {("B1r (our MANC list)" if prim == "tuned" else "MANC sweep list"): (m, hv, ("manc_banc_high_noDNg100", "manc_banc_high",
                                                                                           "manc_banc_all_noDNg100", "three_animal_same_name_noDNg100")),
                  "A1 (the authors' list; 16-replicate halves under either procedure)": (a1, H16, ("manc_banc_high_noDNg100", "manc_banc_high",
-                                                                                                  "manc_banc_all_noDNg100")),
+                                                                                                  "manc_banc_all_noDNg100", "three_animal_same_name_noDNg100")),
                  ("B2r (our MaleCNS list)" if prim == "tuned" else "MaleCNS sweep list"): (c, hv, ("mcns_banc_high_noDNg100", "mcns_banc_high",
-                                                                                                "mcns_banc_all_noDNg100"))}
+                                                                                                "mcns_banc_all_noDNg100", "three_animal_same_name_noDNg100"))}
         res["C4"] = c4(lists, b, hv)
         res["C6"] = c6(m, c, b)
-        res["C6_with_DNg100"] = c6(m, c, b, "three_animal")
+        res["C6_with_DNg100"] = _not_record(c6(m, c, b, "three_animal"))
         res["C7"] = c7(m, c, b, hv)
         res["C7_with_DNg100"] = c7(m, c, b, hv, "three_animal")
         res["C8"] = c8(b)
@@ -469,7 +506,8 @@ def run(validity_only: bool = False) -> dict:
     screens = {"B1r": m_t, "A1": a1, "B2r": c_t, "BANC_tuned": bt, "BANC_sweep": bs, "MANC_sweep": m_s, "MaleCNS_sweep": c_s,
                "MANC_K0": S6.k0_manc(), "MaleCNS_K0": S6.k0_mcns()}
     res["C5"] = c5(screens, bt, bs, _load(S6.banc_singles), authors_dnb08_banc()) if bt is not None else "not run"
-    res["V"] = part_v(_load(lambda: S6.results("thirdfly_v1", "pv-mcns-run6")))
+    pv = _load(S6.partv_results)
+    res["V"] = part_v(None if pv is None else pv[0], None if pv is None else pv[1])
     res["F"] = part_f(bt, bs)
     sides = BN.dn_sides()
     cs = c1_sets()
@@ -484,9 +522,7 @@ def build() -> None:
     (OUT / "C_tests.json").write_text(json.dumps(res, indent=1, default=str) + "\n")
     BN.dn_sides().to_csv(OUT / "banc_dn_sides.csv", index=False)
     pd.DataFrame(res["F"]).to_csv(OUT / "F_forward_banc.csv", index=False)
-    camps = [("thirdfly_v1", c) for c in ("bg-banc-run6", "bt-banc-run6", "bs-banc-run6", "bh-banc-run6", "bn-banc-run6", "pv-mcns-run6", "det6-1-run6",
-                                           "det6-2-run6")]
-    unt = [S6.results_path(a, c).relative_to(RESEARCH.parents[1]).as_posix() for a, c in camps if S6.results_path(a, c).exists()]
+    unt = sorted(p.relative_to(RESEARCH.parents[1]).as_posix() for p in (S6.data_dir() / "thirdfly_v1").glob("GHA_*-run6/results.pkl"))
     man = {"inputs_locked": ["pertype_v1 (LOCK_pertype_v1)", "predictions_v2, predictions (LOCK_predictions_v1/v2)", "replication_v1/S_tests.json (LOCK_replication_v1)",
                              "gates_v6/TYPE_SETS_v6.json (LOCK_prereg_v6)", "posthoc_v6 (LOCK_posthoc_v6)", "forward_v2/SHORTLIST.csv (LOCK_forward_v2)"],
            "untracked_inputs": unt, "code": ["ledger/scripts/thirdfly_v1.py", "ledger/src/brainir_ledger/banc.py", "ledger/src/brainir_ledger/screens6.py",

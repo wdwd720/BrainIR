@@ -119,6 +119,6 @@ def test_part_v_words():
 
 def test_missing_keys_count_as_unusable(tmp_path, monkeypatch):
     res = {"BT|DNx|s0": {"usable": True, "score": 0.7}}
-    monkeypatch.setattr(S6, "_manifest_keys", lambda c: ["BT|DNx|s0", "BT|DNx|s1"])
-    d = S6._tuned_rows(res, "BT", "bt-test")
+    assert callable(S6._manifest_keys)
+    d = S6._tuned_rows(res, "BT", ["BT|DNx|s0", "BT|DNx|s1"], "bt-test")
     assert len(d) == 2 and not bool(d.loc[d["seed"] == 1, "usable"].iloc[0]) and S6.missing_report()["bt-test:BT"] == ["BT|DNx|s1"]

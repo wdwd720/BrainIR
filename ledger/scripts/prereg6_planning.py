@@ -101,7 +101,11 @@ def c8_critical(n: int, n_perm: int = 400_000, seed: int = RNG) -> float:
     base = np.arange(n, dtype=float)
     P = np.argsort(rng.random((n_perm, n)), axis=1).astype(float)
     r = _rho_rows(np.broadcast_to(base, P.shape), P)
-    return float(np.quantile(r, 0.95))
+    # audit re-check (finding 8): the smallest attainable value whose permutation tail P(rho >= v) is <= 0.05 (a lattice point)
+    for v in np.unique(np.round(r, 10)):
+        if np.mean(r >= v - 1e-9) <= 0.05:
+            return float(v)
+    return float("nan")
 
 
 def c8_power(n: int, crit: float, rhos=(0.3, 0.5, 0.7), n_sim=4000, seed=RNG) -> dict:

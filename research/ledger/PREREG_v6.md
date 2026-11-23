@@ -1,7 +1,8 @@
 # PREREG v6: a third animal (BANC), the first two animals' post hoc numbers, and a check of our MaleCNS screen
 
 **Status.** The rulebook of run 6 (`RUN6_PROMPT.md`), revised after a fresh audit (`reviews_v6/PREREG_AUDIT_v6.md`, 14 findings, all
-applied: `reviews_v6/PREREG_AUDIT_RESOLUTION_v6.md`). Frozen by `LOCK_prereg_v6.json` and the tag `ledger-prereg-v6`, pushed and
+applied: `reviews_v6/PREREG_AUDIT_RESOLUTION_v6.md`) and after the same auditor's re-check (`reviews_v6/PREREG_AUDIT_RECHECK_v6.md`: no
+blocker left; its new findings N1-N6 and the C8 correction applied, listed in the resolution file). Frozen by `LOCK_prereg_v6.json` and the tag `ledger-prereg-v6`, pushed and
 timestamped before any BANC screen runs. Everything here is declared before the simulations it concerns (hard limit 1). Only the tests
 of Part C and the fixed words of Part V are called pre-registered; everything about the first two animals' hit lists is post hoc (hard
 limit 4). The exams stay closed (hard limit 5). Every existing lock and the forward ledger v2 stay as they are (hard limit 6).
@@ -190,12 +191,14 @@ ms vs BS, dx-1 vs ms; 8 seeds).
 - **The results' first line** gives both BANC ratios with their intervals beside the MANC-MaleCNS ratio, then one of these sentences:
   **"not judged"** if either BANC pair is "not judged" or B4 leaves BANC not judged; otherwise **"confirmed in the third animal"** if both
   BANC pairs are "a real gap"; **"not confirmed"** if either is "at the ceiling"; **"inconclusive"** otherwise.
-- **Wiring check (descriptive, after the freeze; audit finding 7):** the two-step signed count per type (run 3's S2 baseline: signed
-  two-step paths from a type's members to the front-leg motor neurons), BANC against MANC and against MaleCNS, Spearman on the
-  three-animal set without DNg100 (`thirdfly_v1.c3_wiring`; reference MANC-MaleCNS 0.823). If either BANC value is below **0.71** (the
-  lowest of run 4's seven wiring summaries across sides and animals), the first line carries this fixed caveat: "BANC's wiring of these
-  types agrees with the other animals' less than the first two animals' wiring agreed, so part of the gap may come from the build or the
-  type match."
+- **Wiring check (descriptive, after the freeze; audit finding 7, re-check N3):** the two-step signed count per type (run 3's S2
+  baseline: signed two-step paths from a type's members to the front-leg motor neurons), BANC against MANC and against MaleCNS, Spearman on
+  the three-animal set without DNg100 (`thirdfly_v1.c3_wiring`; reference MANC-MaleCNS 0.823). MANC and MaleCNS are at the 5-synapse floor,
+  so the caveat rests on a **like-for-like BANC companion at the 5-synapse floor**; the floorless BANC values are reported beside it (the
+  floor itself counts as part of "the build"). If either floor-5 BANC value is below **0.71** (the lowest value of this statistic in run 4:
+  0.713, MANC-R vs MaleCNS-L), the first line carries this fixed caveat, attached by the code so that the line cannot be quoted without
+  it: "BANC's wiring of these types agrees with the other animals' less than the first two animals' wiring agreed, so part of the gap may
+  come from the build or the type match."
 - *Power:* as C1; run 4's cross-animal ratio 0.38 (0.26-0.49) on 310 types would be a real gap with a wide margin. "Confirmed" alone says
   nothing about the size of the gap; the ratios do.
 
@@ -206,7 +209,8 @@ procedure). **Words on X's animal paired with BANC, high set without DNg100** (M
   words, always, the fixed sentence: "'At chance' means the overlap could not be told apart from chance by this test, whose power is low;
   it does not show that the hits fail to recur."
 - Beside it, without words: the curve at 0.3, 0.4, 0.5, 0.6 (G2), the graded version (G3), the OC ratio against the within-animal overlap
-  (G2), the with-DNg100, all-matched and same-name versions.
+  (G2), the with-DNg100, all-matched and same-name versions (for all three lists). Every block outside the word sets stores its words under
+  `words_not_of_record` (re-check N5).
 - *Power* (`PLANNING_v6.json`, words sets): B1r has 9 drivers among 202 types; with 15 / 25 / 35 BANC drivers, 3 / 4 / 5 shared drivers are
   needed; power 0.54 / 0.27 / 0.10 if 30 % of X's drivers truly recur and 0.91 / 0.75 / 0.50 if 50 % do. A1: 6 drivers, power 0.26 / 0.26 /
   0.07 and 0.66 / 0.66 / 0.34. B2r: 17 drivers among 182, power 0.80 / 0.40 / 0.23 and 0.99 / 0.93 / 0.83. The smallest attainable p is
@@ -259,14 +263,16 @@ differences between animals. It is an estimate, not a test: no words, no p.
   real-network MANC score).
 - **Disclosure:** this predictor was chosen because it was nominally positive in run 5 (p = 0.035), on another animal; DNb08 is one of the
   12, and the authors' single DNb08 scored 0.000 in BANC, so part of the outcome is foreseeable.
-- *Power* (`PLANNING_v6.json`, 400,000 permutations): with 12 types the one-sided 0.05 test needs rho >= 0.497; power 0.24, 0.51 and 0.83
-  if the true rho is 0.3, 0.5 and 0.7, lower with tied BANC zeros. A null result is weak evidence.
+- *Power* (`PLANNING_v6.json`, 400,000 permutations): with 12 types the one-sided 0.05 test needs rho >= 0.503 (the smallest attainable
+  value with a permutation tail <= 0.05); power 0.22, 0.48 and 0.82 if the true rho is 0.3, 0.5 and 0.7, lower with tied BANC zeros. A
+  null result is weak evidence.
 
 ---
 
 ## Part V. Is our MaleCNS screen the authors' model? (descriptive; fixed words)
 
-Scoring for V1 and V2: every seed counts; the screen's activity bounds are ignored; a solver failure scores 0; the read-out is B2r's 130
+Scoring for V1 and V2: every seed counts; the screen's activity bounds are ignored; a solver failure, or a packed key without a result
+(X3), scores 0; the read-out is B2r's 130
 front-leg motor neurons. The authors' notebooks scored their 129 module-labelled motor neurons; no companion read-out is run (the score
 uses active motor neurons only), and the difference is stated as a limitation.
 
@@ -298,6 +304,9 @@ sweep) and match confidence beside the locked readings, without changing any rea
 - **X1. Order** (RUN6_PROMPT section 7): publish `ms-mcns-run6` (Part H), `pv-mcns-run6` (Part V), `bt-banc-run6` (B1; its validity
   check as soon as it is collected), `bs-banc-run6`, `bh-banc-run6`, `bn-banc-run6`, then the determinism re-runs; the tests after the
   campaigns. Every builder except the gate refuses before the tag is on origin and this lock verifies (`gha6.require_freeze6`).
+  **Operational parts:** a campaign may be packed in parts (contiguous blocks of the types sorted by name, `gha6.PARTS`: `bt` 2, `bs` 3,
+  `bh` 2, `bn` 2; names `<prefix>-p<k>-banc-run6`) so that each fits the 20-job limit with chunks under an hour; the parts are one campaign
+  for every analysis (`screens6.merged`), and `gha6.feeder6` publishes them in order as capacity allows.
 - **X2. Compute.** GitHub Actions under the trust gate (passed, `gates_v6/TRUST_GATE_v6.json`), at most 20 jobs queued or running, at
   most 150 runner-hours (step time, run 3's rule), chunks sized from measured job times to finish in under an hour. No Modal; the Mac
   runs no prediction. **Checkpoint:** after `bt` and `ms` are collected, the projection = for each remaining campaign, its number of jobs
@@ -311,15 +320,19 @@ sweep) and match confidence beside the locked readings, without changing any rea
   compared key by key; if every digest of the re-run matches, the first run's results are used; otherwise the tests resting on it are
   reported without words ("not determinate").** A job that ends with an error leaves its key without a result; its chunk is re-published
   (same specification) at most twice; a key still without a result counts as a not-usable seed with score 0 and is listed (G4).
-- **X4. Code and amendments.** All analysis code is committed before this freeze and hashed by `LOCK_prereg_v6.json`:
+- **X4. Code and amendments.** All code is committed before this freeze and hashed by `LOCK_prereg_v6.json`:
   `ledger/scripts/thirdfly_v1.py`, `posthoc_v6.py`, `gha6.py`, `banc_gate.py`, `prereg6_planning.py`, `lock6.py`;
   `ledger/src/brainir_ledger/banc.py`, `screens6.py`, `overlap6.py` (and the reused `agree.py`), with their tests (`test_gha6.py`,
   `test_posthoc_v6.py`, `test_thirdfly_v1.py`, which also check the frozen type sets). They were tested on the first two animals' locked data
   (Part H reproduces run 5's overlap numbers and run 4's 0.380 exactly). **A later change** is an amendment row (`lock6.py amend`,
-  `AMENDMENTS_v6.jsonl`) for a bug fix only, recorded, committed and pushed **before the data it affects are collected**, with the
-  outputs before and after reported if the code had already run on real data; **never a rule, criterion, seed, type set, record or
-  label**; never a file hashed by a pre-run-6 lock; nothing hashed by `LOCK_posthoc_v6` after it, nothing at all after `LOCK_thirdfly_v1`.
-  A bug found after a lock gets a new version with a changelog; a locked file is never edited.
+  `AMENDMENTS_v6.jsonl`; the limits below are procedural, as in run 5: the row's reason names its kind), committed before the change:
+  - **builder and simulation code** (`gha6.py` builders, `banc.py`'s build, groups, sides and copies): a bug fix only, and only before the
+    campaign it affects is published;
+  - **analysis code** (`thirdfly_v1.py`, `posthoc_v6.py`, `screens6.py`, `overlap6.py`): a bug fix only, allowed after collection (as run 5's
+    X5), with the outputs before and after the fix reported side by side;
+  - **never** a rule, criterion, seed, type set, threshold, record, label or word; never a file hashed by a pre-run-6 lock; nothing hashed
+    by `LOCK_posthoc_v6` after it, nothing at all after `LOCK_thirdfly_v1`. A bug found after a lock gets a new version with a changelog;
+    a locked file is never edited.
 - **X5. Locks.** `LOCK_posthoc_v6.json` (Part H outputs; the MaleCNS sweep's result log by SHA-256), tag `ledger-posthoc-v6`;
   `LOCK_thirdfly_v1.json` (the BANC results, Parts C, V, F, gates_v6; the result logs by SHA-256), tag `ledger-thirdfly-v1`; each pushed
   and timestamped with OpenTimestamps; a pre-mortem in the LOG before each.
@@ -352,3 +365,5 @@ sweep) and match confidence beside the locked readings, without changing any rea
 | 12 | Part H: MANC sweep | `dx-1-run4`, stored but under no earlier lock, hashed by this lock | It is the only whole-type sweep of MANC; disclosed in Part Q 6 (audit finding 10). |
 | 13 | C3 | a descriptive wiring check with a fixed caveat added to the first line | "Confirmed" is also what a broken build or type match would give (audit finding 7). |
 | 14 | C4, C3 | a same-name subset beside the high sets, without words | BANC's "high" confidence adds little beyond the ID match (audit finding 11). |
+| 15 | B4: if neither BANC screen is valid, C3 to C8 are "not judged" | C5 (DNg100's prediction) is still judged on the tuned screen; C3, C4 and C6-C8 are not judged | A failed prediction must be reported; C5 is about DNg100 itself (re-check N2). |
+| 16 | Compute | campaigns may be packed in parts, published by a feeder | The 20-job limit and chunks under an hour (X1); the analysis treats the parts as one campaign. |

@@ -43,6 +43,7 @@ def results_path(area: str, campaign: str, source: str = "GHA") -> Path:
 
 
 MISSING: dict[str, list[str]] = {}
+DX1_SHA256 = "1db9b231d9eca92f7b3082e55aee51a78b0a8cfff8a3084af55ef785f832ab42"   # PREREG v6 Part Q 6 (hashed by LOCK_prereg_v6)
 
 
 def _manifest_keys(campaign: str | None) -> list[str]:
@@ -56,15 +57,33 @@ def _manifest_keys(campaign: str | None) -> list[str]:
     return json.loads(m.read_text())["keys"]
 
 
-def _fill(rows: list[dict], res: dict, prefix: str, campaign: str | None) -> list[dict]:
+def campaigns(area: str, prefix: str) -> list[str]:
+    """Every collected part of a run 6 campaign (`<prefix>-...-run6`) in an area (PREREG v6 X1: campaigns may be split into parts)."""
+    return sorted(p.name[len("GHA_"):] for p in (data_dir() / area).glob(f"GHA_{prefix}-*run6") if (p / "results.pkl").exists())
+
+
+def merged(area: str, prefix: str) -> tuple[dict[str, dict], list[str], list[str]]:
+    """Results of every part, the union of their packed keys, and the part names."""
+    names = campaigns(area, prefix)
+    if not names:
+        raise FileNotFoundError(f"{area}: no collected {prefix}-*-run6 campaign")
+    res: dict[str, dict] = {}
+    keys: list[str] = []
+    for n in names:
+        res.update(results(area, n))
+        keys += _manifest_keys(n)
+    return res, keys, names
+
+
+def _fill(rows: list[dict], res: dict, prefix: str, keys: list[str], label: str | None) -> list[dict]:
     """PREREG v6 X3 (as v5 S8): a packed key still without a result after at most two re-publications counts as a not-usable seed
     (score 0); it is listed in `MISSING`."""
-    miss = [k for k in _manifest_keys(campaign) if k.split("|")[0] == prefix and k not in res]
+    miss = [k for k in keys if k.split("|")[0] == prefix and k not in res]
     for k in miss:
         _, t, s = k.split("|")
         rows.append({"type": t, "seed": int(s[1:]), "usable": False, "score": 0.0})
-    if campaign is not None:
-        MISSING[f"{campaign}:{prefix}"] = sorted(miss)
+    if label is not None:
+        MISSING[f"{label}:{prefix}"] = sorted(miss)
     return rows
 
 
@@ -72,7 +91,7 @@ def missing_report() -> dict[str, list[str]]:
     return {k: v for k, v in MISSING.items() if v}
 
 
-def _tuned_rows(res: dict[str, dict], prefix: str, campaign: str | None = None) -> pd.DataFrame:
+def _tuned_rows(res: dict[str, dict], prefix: str, keys: list[str] | None = None, label: str | None = None) -> pd.DataFrame:
     rows = []
     for k, r in res.items():
         arm, t, s = k.split("|")
@@ -80,11 +99,11 @@ def _tuned_rows(res: dict[str, dict], prefix: str, campaign: str | None = None) 
             continue
         ok = ("error" not in r) and bool(r.get("usable")) and r.get("score") is not None  # run 2's group_v2 field, as B1r / B2r
         rows.append({"type": t, "seed": int(s[1:]), "usable": bool(ok), "score": float(r["score"]) if ok else 0.0})
-    rows = _fill(rows, res, prefix, campaign)
+    rows = _fill(rows, res, prefix, keys or [], label)
     return pd.DataFrame(rows, columns=COLS).sort_values(["type", "seed"]).reset_index(drop=True)
 
 
-def _sweep_rows(res: dict[str, dict], prefix: str, campaign: str | None = None) -> pd.DataFrame:
+def _sweep_rows(res: dict[str, dict], prefix: str, keys: list[str] | None = None, label: str | None = None) -> pd.DataFrame:
     rows = []
     for k, r in res.items():
         arm, t, s = k.split("|")
@@ -92,7 +111,7 @@ def _sweep_rows(res: dict[str, dict], prefix: str, campaign: str | None = None) 
             continue
         ib = [x["score"] for x in (r.get("runs") or []) if x.get("in_bounds") and x.get("score") is not None]
         rows.append({"type": t, "seed": int(s[1:]), "usable": True, "score": float(max(ib)) if ib else 0.0})
-    rows = _fill(rows, res, prefix, campaign)
+    rows = _fill(rows, res, prefix, keys or [], label)
     return pd.DataFrame(rows, columns=COLS).sort_values(["type", "seed"]).reset_index(drop=True)
 
 
@@ -120,28 +139,46 @@ def a1() -> pd.DataFrame:
 
 
 def sweep_manc() -> pd.DataFrame:
+    """MANC's whole-type sweep; its log must match the SHA-256 fixed before the freeze (audit re-check N6)."""
+    import hashlib  # noqa: PLC0415
+
+    p = results_path("reliability_v2", "dx-1-run4", "MODAL")
+    got = hashlib.sha256(p.read_bytes()).hexdigest()
+    if got != DX1_SHA256:
+        raise RuntimeError(f"dx-1-run4 results.pkl sha256 {got} != {DX1_SHA256} (PREREG v6 Part Q 6)")
     return _sweep_rows(results("reliability_v2", "dx-1-run4", "MODAL"), "DX-1")
 
 
+def _part_rows(area: str, prefix: str, arm: str, sweep: bool = False) -> pd.DataFrame:
+    res, keys, names = merged(area, prefix)
+    return (_sweep_rows if sweep else _tuned_rows)(res, arm, keys, "+".join(names))
+
+
 def sweep_mcns() -> pd.DataFrame:
-    return _sweep_rows(results("posthoc_v6", "ms-mcns-run6"), "MS", "ms-mcns-run6")
+    return _part_rows("posthoc_v6", "ms", "MS", sweep=True)
 
 
 def banc_tuned() -> pd.DataFrame:
-    return _tuned_rows(results("thirdfly_v1", "bt-banc-run6"), "BT", "bt-banc-run6")
+    return _part_rows("thirdfly_v1", "bt", "BT")
 
 
 def banc_singles() -> pd.DataFrame:
-    return _tuned_rows(results("thirdfly_v1", "bt-banc-run6"), "BT1", "bt-banc-run6")
+    return _part_rows("thirdfly_v1", "bt", "BT1")
 
 
 def banc_sweep() -> pd.DataFrame:
-    return _sweep_rows(results("thirdfly_v1", "bs-banc-run6"), "BS", "bs-banc-run6")
+    return _part_rows("thirdfly_v1", "bs", "BS", sweep=True)
 
 
 def banc_side(side: str) -> pd.DataFrame:
-    return _tuned_rows(results("thirdfly_v1", "bh-banc-run6"), f"BH-{side}", "bh-banc-run6")
+    return _part_rows("thirdfly_v1", "bh", f"BH-{side}")
 
 
 def banc_copy(i: int) -> pd.DataFrame:
-    return _tuned_rows(results("thirdfly_v1", "bn-banc-run6"), f"BN-c{i}", "bn-banc-run6")
+    return _part_rows("thirdfly_v1", "bn", f"BN-c{i}")
+
+
+def partv_results() -> tuple[dict[str, dict], list[str]]:
+    """Part V's results and packed keys (a missing key scores 0, audit re-check N4)."""
+    res, keys, _ = merged("thirdfly_v1", "pv")
+    return res, keys
