@@ -26,10 +26,11 @@ run 5's state is in git history (this file at ec770a8).
 - [x] B4: tuned BANC INVALID (DNg100 11/16 < 12); sweep VALID (8/8) -> sweep primary for C3, C4, C6-C8; C5 tuned (L183-L184).
 - [x] Part V: V1 reproduces (0.985); V2 reproduces at the authors' configuration 391 @ 250 (15/16, mean 0.86) (L183).
 - [x] Part H built and LOCKED: LOCK_posthoc_v6 4b680b1f...7c50, tag ledger-posthoc-v6 pushed, OTS pending (L185).
-- [ ] Running: bs-p3, bh-p1/p2, bn-p1/p2 -> collect6 each -> pack det6-2-run6 (--k 2) -> feeder -> det-compare 2.
-- [ ] Then: `thirdfly_v1.py` (build) -> RESULTS_5.md -> pre-mortem -> `lock6.py thirdfly` -> tag ledger-thirdfly-v1 -> push -> OTS.
-- [ ] Then the paper (draft started: paper/PREPRINT_v1.md, static parts), figures (`posthoc/paper_figures_v6.py`), supplement,
-      CLAIMS_v1, build draft, 4 reviews (agents 2-5), addenda; STUDY_GUIDE; BRIEF_v3; outreach v2; HANDOFF_6.
+- [x] All campaigns collected; det6-2 140/140; tests run; LOCK_thirdfly_v1 b8ef3e68...f395, tag ledger-thirdfly-v1 pushed, OTS pending
+      (L186). RESULTS_5.md written. First line: gap between animals confirmed in the third animal (sweep primary), wiring caveat.
+- [ ] Paper: PREPRINT_v1.md (draft started), SUPPLEMENT_v1.md, CLAIMS_v1.md, figures (`posthoc/paper_figures_v6.py` -> paper/figures_v1),
+      `paper/build.sh --draft`, check every PDF page; 4 reviews (agents 2-5), addenda, revise; STUDY_GUIDE; BRIEF_v3; outreach v2;
+      HANDOFF_6; final baseline (25 + 3 run-6 lock checks); OTS upgrades (prereg_v6, posthoc_v6, thirdfly_v1).
 - Extra post hoc (exploratory) file for the paper: thirdfly_v1/POSTHOC_exam2_pairs.json (model clearly above 4 of 8 baselines).
 
 ## Facts fixed so far (run 6)
