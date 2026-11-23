@@ -3,18 +3,14 @@
 ## In one paragraph
 
 A published rate model built from the fly's nerve-cord connectome (Pugliese et al., 2026) screens descending-neuron types for rhythmic
-leg activity. Run on a second animal's connectome, its hits mostly do not recur: of 11 hits with a confidently matched counterpart, 2 are
-hits again, and **those two are the paper's experimentally supported drivers, DNg100 and DNb08** (**post hoc**: the pattern was seen
-before the rule that describes it; DNg100 is the neuron the model was calibrated on, the authors chose DNb08, and two neurons are a tiny
-sample). A pre-registered test of whether a hit's stability under synapse-count noise predicts its replication was **not significant**
-(p = 0.11; with three replicated types this is not evidence against). We pre-registered 12 experiments with orderable driver lines, and a
+leg activity. Run on a second animal's connectome, its hits mostly do not recur: of our MANC screen's 11 confidently matched hits, 2 are hits again, and **those two are the paper's experimentally supported drivers, DNg100 and DNb08** (**post hoc**: the pattern was seen before its rule; the model was calibrated on DNg100, the authors chose DNb08, both were known in advance, and two is a tiny sample). A pre-registered test of whether a hit's stability under synapse-count noise predicts its replication was **not significant**
+(p = 0.11; with three replicated types this is not evidence against). We pre-registered 12 experiments with listed driver lines, and a
 rule for reading their results against wiring counts.
 
 ## What was tested
 
-Every analysis was frozen, hashed and timestamped before the data or simulations it concerned (rulebook v5, tag `ledger-prereg-v5`).
-Our screens reimplement the authors' model, which reproduces their published dynamics; MANC is the first animal, MaleCNS the second (the
-authors' network; the screen of it is ours). A driver scores at least 0.5 (the authors' rhythm score).
+Each analysis was frozen, hashed and timestamped before it ran (rulebooks v1-v5), some after data were seen; result 1 is post hoc.
+Both screens are ours, reimplementing the authors' model (our MANC hit list differs from theirs); MANC is the first animal, MaleCNS (their network) the second. A driver scores at least 0.5 (the authors' rhythm score).
 
 ## Results
 
@@ -27,26 +23,21 @@ authors' network; the screen of it is ours). A driver scores at least 0.5 (the a
 | MANC hits that recur in MaleCNS | 0.18 (95 % interval 0.00-0.44) | 0.20 (0.00-0.43) |
 | overlap across animals, as a share of overlap within one | 0.26 (0.00-0.55) | 0.27 (0.04-0.53) |
 
-*DNit013's cross-animal match is low confidence. In the authors' own single-neuron screen, DNg100 and DNb08 are also the only types with a
-driver copy whose every copy is a driver.
+*DNit013's match is low confidence. In the authors' single-neuron screen only DNg100 and DNb08 of two-sided types have every copy a driver; in our MaleCNS runs no DNb08 copy is.
 
 **2. Stability does not demonstrably predict replication (pre-registered).** In 16 copies of MANC with synapse counts redrawn at Poisson
 scale, DNg100 stayed a driver in 16, DNit013 in 12 and DNb08 in 7; three hits that do not replicate were as stable as DNit013. Exact rank
 test: **p = 0.11, "not shown"**. The rulebook said in advance that a null here is uninformative.
 
-**3. Why matched neurons disagree.** In the authors' published screen, a neuron's left and right copies agree at 0.63 of the screen's
-agreement with itself (0.53-0.72). Two copies of MANC differing only by Poisson noise in synapse counts agree at 0.48 of the ceiling,
-left against right 0.47 in the same design: noise of this size is enough to produce the gap. No pre-registered fix closed it.
+**3. Noise can mimic the side gap.** In the authors' published screen, which reads both legs, left and right copies agree at 0.63 of its self-agreement (0.53-0.72). Two copies of MANC differing only by Poisson noise in synapse counts agree at 0.48 of the ceiling,
+left against right 0.47 in the same design: noise of this size can produce such a gap. No fix that ran passed.
 
-**4. Blind exams.** The simulation ranked types that drive front-leg rhythm in flies no better than chance (AUROC 0.577, 0.417-0.724)
-and no better than counting two-step synaptic paths (0.669); it identified activated hemilineages better than chance (0.633) but no
-better than counting (0.638). A pre-registered audit by fresh blind readers upheld exam 1 (3 errors in 39 types, under the 10 % threshold)
-and corrected six types that were never in its headline, including **DNg100, whose label was wrong**: one co-activation record decided it.
+**4. Blind exams.** The simulation ranked types that drive front-leg rhythm in mostly intact flies no better than chance (AUROC 0.577, 0.417-0.724) or than two-step path counts (0.669); it ranked activated hemilineages above chance (percentile 0.633), no better than counting (0.638). A pre-registered audit by readers blind to exam 1 upheld it (3 errors in 39 types, under the 10 % threshold) with an erratum for six types never in its headline, including **DNg100, whose label was wrong**: one co-activation record decided it.
 
 ## What to test next
 
 Switch each type on, both sides, in decapitated flies, and score rhythmic front-leg stepping blind to genotype (protocol in
-`forward_v2/README.md`). R = replication reading, S = single-connectome reading, C = counting reading (yes / no).
+`forward_v2/README.md`). R, S, C = replication (post hoc groups), single-connectome, counting reading (yes / no).
 
 | Type | Group | R / S / C | Lines listed today (clean) |
 |---|---|---|---|
@@ -60,12 +51,10 @@ Switch each type on, both sides, in decapitated flies, and score rhythmic front-
 | DNp07, DNg39, DNp26 | controls: non-driver in both, high counting | no / no / yes | 5 (4); 2 (2); 7 (4) |
 
 **Decision rule (fixed now).** For two readings, a reading is supported if it is right on enough of the tested types on which they
-disagree to pass a one-sided binomial test at 0.05. Replication against counting can decide on up to 10 types (9 right needed);
-single-connectome against counting on up to 8 (7 right needed). Replication against the published single-animal list can only be
+disagree to pass a one-sided binomial test at 0.05. Replication against counting needs 9 right of up to 10 types, single-connectome 7 of 8 (power 0.38 and 0.50 if a reading is 80 % right). Replication against the published single-animal list can only be
 inconclusive here: they disagree on just four of these types.
 
 ## What this does not show
 
-That a real fly's sides behave differently; that the model is wrong about DNg100's own circuit or the authors' three-neuron rhythm
-generator, which they tested across four connectomes; anything about other behaviours or models. Labels come from papers read by
+That replicated hits are real; that a real fly's sides behave differently; that the model errs on DNg100's circuit or the authors' three-neuron rhythm generator, which they tested across connectomes; other behaviours or models. Labels come from papers read by
 language-model sessions. Full account: `paper/PREPRINT_v0.md`, `results/RESULTS_4.md`, `LABEL_AUDIT_v1.md`.
