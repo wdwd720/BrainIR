@@ -113,7 +113,7 @@ together with all other classes (left out):
 | 5. transmitter sign | -0.05 (-0.17 to 0.07) | 0.88 (0.73 to 1.01) |
 
 **Reading.** No single class closes the gap. Connections that exist on one side only and neurons without a partner carry the most
-(the only alone-closures above 0). By the pre-registered reading (B3.3) the homologous weights and neuron size also contribute, in
+(the only classes whose alone-closure intervals exclude 0). By the pre-registered reading (B3.3) the homologous weights and neuron size also contribute, in
 combination only: left out, they leave a part of the gap (0.55 and 0.81, both upper ends below 1), and their alone and left-out
 readings disagree; size's part is small. Sign does not contribute (left out 0.88, upper end 1.01). The alone-closures sum to 0.61, so
 the classes interact. The MaleCNS repeats were dropped under the pre-registered budget rule (X9), so this block is MANC only.

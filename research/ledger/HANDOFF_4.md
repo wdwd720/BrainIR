@@ -36,9 +36,12 @@ locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 f
    (the prompt names no model), a fresh reviewer on the default model then reviewed the revised brief and marked 13 more (overclaims,
    missing caveats, a mislabelled post-hoc figure, a fix count that mixed units); all are fixed, and its four corrections to its own
    report are in `BRIEF_OVERCLAIM_ADDENDUM_2.md` (LOG L154). The brief now uses only numbers from locked files, so the adversarial
-   reviewer's post-hoc figures appear in it in words only. Every review of this run was written by a newly started agent with none of
+   reviewer's post-hoc figures appear in it in words only. A final check of the brief against the first review's 15 items restored five
+   of its fixes that my length cuts had weakened (LOG L155). Every review of this run was written by a newly started agent with none of
    this session's context (LOG L153).
 7. **Wall-clock** was about 23.5 hours (16:28 to about 16:00 the next day), at the top of the 12-24 h estimate.
+8. **The brief is longer than the two pages asked for:** 1,514 words of prose plus the 15-row decisive table and one figure. I kept the
+   caveats the two overclaim reviews asked for rather than cut them.
 
 ## 3. The dose-arm check
 

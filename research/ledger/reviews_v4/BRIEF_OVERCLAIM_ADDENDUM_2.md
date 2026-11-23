@@ -46,3 +46,27 @@ least one of its kit records names another descending-neuron type) covers it eit
 Also found while answering:
 - **Amendments count.** `AMENDMENTS_v4.jsonl` is committed but hashed by no lock, so the brief no longer gives the number of departures (evidence row 7).
 - **Length.** The fixes added about 350 words, and about 270 were cut elsewhere. The brief's prose (without the table) grew from 1,335 to 1,426 words.
+
+## 3. Follow-up: check against the first overclaim review
+
+A final check of the brief against the 15 items of `BRIEF_OVERCLAIM_REVIEW.md` found five of its fixes weakened by the length cuts made
+in this round, and restored them:
+- item 1: the premise is again a conditional ("if the screen captures function shared by copies built by the same genome");
+- item 2: the kinds of departure are named again, without a count, since the amendments file is under no lock;
+- item 6: the ratios to the ceiling (0.48 and 0.47) stand beside 0.40 and 0.37 again, with a note that result 2's 0.59 comes from
+  another design;
+- item 12: "set on another regime";
+- item 13: "below chance" and "training on past results".
+
+Also restored or corrected:
+- the trust-gate sentence;
+- "not distinguishable from 0" for MANC's Block 1 closure;
+- "close less" instead of "close little" for the alone-closures (the first review's point that wide intervals are inconclusive, not
+  small).
+
+Result 3 now says that the negative-binomial model's dispersion was estimated from homologous connection pairs, so "no fitted
+parameter" applies to the Poisson copies only. The fix-9 sentence names the fix. The rewired-driver range in the handoff and the
+evidence map (2-20) was checked against `reliability_v2/C.json` (`rewired_drivers.n`). The earlier "4-20" left out fix 1, which
+reached 2. A sentence in RESULTS_3 section 3.3 was corrected to "the only classes whose alone-closure intervals exclude 0". The
+brief's prose is now 1,514 words, so it runs past the two pages asked for (handoff section 2).
+
