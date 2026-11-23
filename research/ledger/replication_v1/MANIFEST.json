@@ -1,5 +1,5 @@
 {
- "rule": "PREREG v5 X5 / lock5.lock_replication: untracked inputs of Parts S and T (collected campaign results and packed campaign manifests, which list every job key)",
+ "rule": "PREREG v5 X5 / lock5.lock_replication: untracked inputs of Parts S and T: the collected results of the nine campaigns (each holds every job's key and digest). The packed campaign manifests are not listed: the frozen checker reads keys ending in .json as repository paths (LOG L170).",
  "campaigns": [
   "s0-run5",
   "ps-b1-run5",
@@ -20,15 +20,6 @@
   "data/ledger/replication_v1/GHA_pt-manc-run5/results.pkl",
   "data/ledger/replication_v1/GHA_pt-mcns-run5/results.pkl",
   "data/ledger/replication_v1/GHA_det5-1-run5/results.pkl",
-  "data/ledger/replication_v1/GHA_det5-2-run5/results.pkl",
-  "data/ledger/gha/s0-run5/manifest.json",
-  "data/ledger/gha/ps-b1-run5/manifest.json",
-  "data/ledger/gha/ps-b2-run5/manifest.json",
-  "data/ledger/gha/ps-b3-run5/manifest.json",
-  "data/ledger/gha/ps-b4-run5/manifest.json",
-  "data/ledger/gha/pt-manc-run5/manifest.json",
-  "data/ledger/gha/pt-mcns-run5/manifest.json",
-  "data/ledger/gha/det5-1-run5/manifest.json",
-  "data/ledger/gha/det5-2-run5/manifest.json"
+  "data/ledger/replication_v1/GHA_det5-2-run5/results.pkl"
  ]
 }
