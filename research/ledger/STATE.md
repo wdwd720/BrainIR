@@ -12,7 +12,7 @@ run 5's state is in git history (this file at ec770a8).
    Modal; the Mac runs no prediction. 9. At most 8 fresh agent sessions in the run; no label-reading sessions (quota resets
    2026-11-25 17:00 PST). 10. Nothing leaves the machine except pushes to the repo. 11. Fair to the authors.
 
-## Agent sessions used: 1 of 8 (rulebook auditor, incl. its re-check)
+## Agent sessions used: 5 of 8 (1 rulebook auditor + re-check; 4 paper reviewers: referee 2, numbers/refs, naive reader, overclaim)
 
 ## Checklist
 - [x] Stage 0 (10:19 PST): prompt saved; tree clean; start baseline 25/25 locks, ledger 285 passed, BrainIR 1 known failure (L5);
@@ -28,9 +28,14 @@ run 5's state is in git history (this file at ec770a8).
 - [x] Part H built and LOCKED: LOCK_posthoc_v6 4b680b1f...7c50, tag ledger-posthoc-v6 pushed, OTS pending (L185).
 - [x] All campaigns collected; det6-2 140/140; tests run; LOCK_thirdfly_v1 b8ef3e68...f395, tag ledger-thirdfly-v1 pushed, OTS pending
       (L186). RESULTS_5.md written. First line: gap between animals confirmed in the third animal (sweep primary), wiring caveat.
-- [ ] Paper: PREPRINT_v1.md (draft started), SUPPLEMENT_v1.md, CLAIMS_v1.md, figures (`posthoc/paper_figures_v6.py` -> paper/figures_v1),
-      `paper/build.sh --draft`, check every PDF page; 4 reviews (agents 2-5), addenda, revise; STUDY_GUIDE; BRIEF_v3; outreach v2;
-      HANDOFF_6; final baseline (25 + 3 run-6 lock checks); OTS upgrades (prereg_v6, posthoc_v6, thirdfly_v1).
+- [x] Paper v1 written (abstract 220; main text about 3,650), SUPPLEMENT_v1 (generated), CLAIMS_v1 (39 rows), six figures
+      (`posthoc/paper_figures_v6.py`), draft PDF/DOCX built and checked page by page (poppler installed with Homebrew for page checks).
+- [x] STUDY_GUIDE (about 2,040 words), HAND_CHECK (20 items), BRIEF_v3 (2 pages), outreach v2 (192 / 126 / 120 words).
+- [x] OTS: prereg_v6 Bitcoin-attested (committed); posthoc_v6 and thirdfly_v1 pending (upgrade later).
+- [ ] Four reviews running (reviews_v6/PAPER_REFEREE2_REVIEW.md, PAPER_NUMBERS_REFS_REVIEW.md, PAPER_NAIVE_READER_REVIEW.md,
+      PAPER_OVERCLAIM_REVIEW_v1.md) -> four addenda -> revise paper (+ CLAIMS, supplement, figures if needed) -> rebuild draft -> check pages.
+- [ ] Final: OTS upgrades; final baseline (25 earlier + 3 run-6 lock checks, ledger suite, BrainIR suite); HANDOFF_6 (14 sections,
+      <= 2,500 words), printed as the final message.
 - Extra post hoc (exploratory) file for the paper: thirdfly_v1/POSTHOC_exam2_pairs.json (model clearly above 4 of 8 baselines).
 
 ## Facts fixed so far (run 6)
