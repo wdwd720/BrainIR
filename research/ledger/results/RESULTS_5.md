@@ -1,4 +1,4 @@
-**In a third animal (BANC), never looked at before the rules were frozen, the simulated screen again disagreed across animals: its cell-type scores agreed with MANC's at 0.35 and with MaleCNS's at 0.50 of the agreement each screen has with itself (95 % intervals 0.20-0.49 and 0.38-0.62; MANC with MaleCNS 0.31 on the same 181 types), so the gap between animals was confirmed in the third animal, with a pre-registered caveat: BANC's wiring of these types also agrees with the other animals' less than theirs does with each other, so part of the gap may come from the build or the type match.**
+**In a third animal (BANC), not screened before the rules were frozen [corrected 2026-11-23, see Corrections], the simulated screen again disagreed across animals: its cell-type scores agreed with MANC's at 0.35 and with MaleCNS's at 0.50 of the agreement each screen has with itself (95 % intervals 0.20-0.49 and 0.38-0.62; MANC with MaleCNS 0.31, post hoc, on the same 181 types), so the gap between animals was confirmed in the third animal, with a pre-registered caveat: BANC's wiring of these types also agrees with the other animals' less than theirs does with each other, so part of the gap may come from the build or the type match.**
 
 # BrainIR prediction ledger, results 5 (run 6: the third animal)
 
@@ -32,7 +32,11 @@ recur. "Confirmed" in C3 says nothing about size; the ratios do.
 
 ## Hits shared across animals (sweep, three-animal set; full table `thirdfly_v1/C_tables.md`)
 
-29 of the 182 types are hits (score >= 0.5) in at least one animal under the sweep; 12 in at least two; 3 in all three.
+~~29 of the 182 types are hits (score >= 0.5) in at least one animal under the sweep; 12 in at least two; 3 in all three.~~
+**Corrected 2026-11-23 (post hoc, `LOCK_paper_posthoc_v1`):** under the sweep, 71 of the 182 types are hits in at least one animal, 22 in
+at least two and 4 in all three: DNg100, DNxl092, DNa13 and DNxl134. The table below is C5's table as pre-registered: it lists only
+types that are hits under the current-setting procedure in MANC, MaleCNS or BANC, or in the authors' whole-type screen, so it misses
+hits found only by the sweep (DNxl134 among them). The full sweep table is `paper_posthoc_v1/THREE_ANIMAL_SCORES.csv`.
 
 | Type | MANC | MaleCNS | BANC | tuned: MANC / MaleCNS / BANC | authors' screen (MANC) |
 |---|---|---|---|---|---|
@@ -53,20 +57,37 @@ DNg100's recurrence is never evidence: the tuned procedure's one setting was cho
 
 ## Part V: is our MaleCNS screen the authors' model?
 
-- **DNg100** at the authors' MaleCNS configuration: **reproduces the authors' DNg100 result** (mean 0.98, 64 of 64 draws >= 0.5;
+- **DNg100** at the authors' MaleCNS configuration: **reproduces the authors' DNg100 result** (mean 0.985, 64 of 64 draws >= 0.5;
   theirs 0.985).
 - **DNb08**: at the authors' configuration (their neuron, position 391, current 250, 2-s runs) **it reproduces their result** (15 of 16
-  draws >= 0.5, mean 0.86; theirs 0.80). All four DNb08 copies reach the bar at some fixed current. So run 5's finding that no single
-  DNb08 copy drove rhythm in our MaleCNS screen came from our current-setting procedure, not from the network.
+  draws >= 0.5, mean 0.86; theirs 0.80). All four DNb08 copies reach the bar at some fixed current. So the network can produce their result,
+  and run 5's finding that no single DNb08 copy drove rhythm came from our current-setting procedure [corrected 2026-11-23: the check
+  changed the current, the run length and the activity bounds at once, so which of them mattered is not known].
 
 ## The three biggest caveats
 
 1. **The tuned procedure failed its own positive control in BANC** (DNg100 11 of 16 draws, bar 12), so the cross-animal tests rest on the
    current sweep, which calls far more hits (60 of 182 types in MaleCNS) and is not the procedure the first two animals' hit lists came
-   from. The authors' own list, from their procedure, recurred at chance (1 of 6).
+   from. Our 0.5 cut of the authors' whole-type screen, from their procedure, recurred at chance (1 of 6) [corrected 2026-11-23]: "at
+   chance" means the overlap could not be told apart from chance by this test, whose power is low; it does not show that the hits fail
+   to recur. The BANC left-right and count-noise tests (C1, C2) used the tuned procedure, as pre-registered.
 2. **BANC's wiring of the matched types agrees with the other two animals' less than theirs does with each other** (0.61-0.63 against
    0.82), so part of the gap may come from reconstruction, annotation or the type match; BANC's "high-confidence" matches are weaker
    evidence than MaleCNS's (no name conflicts at all), and BANC is the only female.
 3. **The one positive test of a single-connectome predictor (C8) is fragile**: 12 types, a predictor chosen because it was nominally
    positive in run 5, and 10 of the 12 BANC scores below 0.07, so the correlation rests largely on the order of near-zero scores and on
    one clear hit (DNxl102). And count noise, which reproduced MANC's left-right gap, did not reproduce BANC's (C2).
+
+## Corrections (2026-11-23, after the four reviews of the paper)
+
+Logged in LOG L190. The original sentences are kept above, struck through or marked.
+1. **Hits in all three animals.** The count came from C5's pre-registered table, which lists only current-setting hits. The correct sweep
+   counts (post hoc) are 71 / 22 / 4, with DNxl134 the fourth type in all three animals (`LOCK_paper_posthoc_v1`, tag
+   `ledger-paper-posthoc-v1`). This was found by the numbers review (P1).
+2. **Blinding.** BANC was not *screened* before the freeze, but it had been looked at: its annotations were read to match types, DNg100
+   was run for the build check, and the authors' BANC results were known (PREREG v6 Part Q).
+3. **Part V.** The network reproduces the authors' single-DNb08 result. Which part of our current-setting procedure missed it is not
+   known.
+4. **"At chance".** C4's fixed sentence now stands beside the authors' list in caveat 1, and that list is described as our 0.5 cut of
+   their whole-type screen.
+

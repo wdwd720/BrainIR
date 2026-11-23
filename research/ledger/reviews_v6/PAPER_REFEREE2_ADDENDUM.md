@@ -22,7 +22,7 @@ per-pair arithmetic of C7) go into one new post hoc lock, `LOCK_paper_posthoc_v1
 | 12 | no | **Accepted.** The Methods now say the model reproduced the authors' published results except one item of our own reproduction gate: coupling between legs in the full nerve-cord model, which the authors' own simulation output also fails (LOG L16, L18). |
 | 13 | partly | **Accepted** (objection 8). |
 | 17 | yes | **Accepted.** The Discussion flags that two of the ten shared hits rest on few usable draws (DNg63 1 of 16, DNxl121 6 of 16; `pertype_v1/B1r.csv`). |
-| 18 | partly | **Accepted in part.** The Methods say that a type with no usable draw has no score and is left out of any comparison that needs it. Supplement S1 gives how many types this affects in each current-setting screen (63 of 321 in MANC, 72 of 328 in MaleCNS; `pertype_v1`). We could not identify the referee's "three" types and do not name any. |
+| 18 | partly | **Accepted in part.** The Methods say that a type with no usable draw scores 0, the rule fixed in rulebook v2 (`agree.type_scores`). An earlier draft of this addendum said such types were left out; that was wrong, and is corrected here. Supplement S1 gives how many types this affects in each current-setting screen (63 of 321 in MANC, 72 of 328 in MaleCNS; `pertype_v1`). We could not identify the referee's "three" types and do not name any. |
 | 15 | partly | **Accepted in part.** The abstract now marks which results are post hoc, and the Limitations keep the label caveat. The abstract has no room to mention the label readers. The hand-check line stays open, because it is the author's to fill. |
 | 8, 11, 16 | yes | No change. |
 

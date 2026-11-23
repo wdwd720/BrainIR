@@ -61,15 +61,18 @@ and right did; in BANC, the two redrawn networks agreed much more than left and 
 
 **R3. Screens of different animals agree less than a screen agrees with itself.** Across animals, the agreement is 0.31 to 0.50 of the
 ceiling, and the pre-registered test confirmed the gap in BANC. *Remember:* MANC-BANC 0.35, MaleCNS-BANC 0.50, MANC-MaleCNS 0.31 (sweep,
-181 types); at the authors' threshold the first two animals' lists share 1 hit where 1.0 is expected (post hoc); in BANC our MANC hits
-recur 5 of 17 (1.7 expected), the authors' 1 of 6 (0.6 expected). *Measured:* `C_tests.json` C3, C4; `posthoc_v6/H_posthoc.json`.
+181 types); hit lists depend on the procedure: at the authors' threshold the first two animals' lists share 1 hit where 1.0 is
+expected under the current-setting procedure, but 14 of 18 MANC hits recur under the sweep (6 expected; both post hoc); in BANC our MANC
+hits recur 5 of 17 (1.7 expected), our 0.5 cut of the authors' whole-type screen 1 of 6 (0.6 expected; a test of low power). *Measured:* `C_tests.json` C3, C4; `posthoc_v6/H_posthoc.json`.
 *Weakest point:* BANC's wiring also agrees less with the others (0.61-0.63 vs 0.82), so part of the gap may be reconstruction or type
 matching, not the simulation; and the tests use the sweep, not the procedure the first two animals' lists came from.
 
-**R4. Which neurons recur.** DNg100 recurs everywhere but that is built into our calibration; DNb08 recurs between the two male animals
-under every procedure and fails in BANC, as the authors also found. *Remember:* original procedure: only DNb08 shared; sweep: 14 shared;
-in BANC DNg100 0.64 (11 of 16 draws, bar 12, so the sweep became primary), DNb08 0.00; our MaleCNS model reproduces the authors' single
-DNb08 result (15 of 16 draws at their configuration). *Measured:* `posthoc_v6`, `C_tests.json` C5 and V. *Weakest point:* two named
+**R4. Which neurons recur.** Under the current-setting procedure DNg100's recurrence is built into our calibration; under the sweep it
+is a hit in all three animals, as the authors found, but it is not counted because the build check and the validity rule used it. DNb08
+recurs between the two male animals under every procedure and is not a hit in BANC, as the authors also found. *Remember:* original
+procedure: only DNb08 shared; sweep: 14 besides DNg100; four types are sweep hits in all three animals (DNg100, DNxl134, DNa13, DNxl092;
+post hoc); in BANC DNg100 0.64 (11 of 16 draws, bar 12, so the sweep became primary), DNb08 0.00 (current-setting) and 0.25 (sweep);
+our MaleCNS model reproduces the authors' single-DNb08 result (15 of 16 draws at their configuration). *Measured:* `posthoc_v6`, `C_tests.json` C5 and V. *Weakest point:* two named
 neurons are a tiny sample, and the authors chose both.
 
 **R5. Can one connectome tell you which hits to trust?** A hit's stability under count noise in MANC predicted its BANC score; pooling two
@@ -77,8 +80,9 @@ animals did not beat MaleCNS alone; about 7 animals would be needed. *Remember:*
 (-0.03 to 0.07) over MaleCNS; 7 animals (4.3-9.7). *Measured:* `C_tests.json` C8, C6, C7. *Weakest point:* C8's predictor was chosen
 after a nominal positive, and 10 of its 12 BANC scores are near zero; C7 is an extrapolation.
 
-**R6. Against published experiments.** The simulation predicted which hemilineage moves the legs better than chance but no better than
-counting two-step synaptic paths. *Remember:* 0.633 vs 0.638 (difference -0.006, -0.172 to 0.166); 0 of 27 ranked first; the first
+**R6. Against published experiments.** In the one interpretable test, the authors' whole-nerve-cord model predicted which hemilineage
+moves the legs better than chance but added nothing beyond the best of eight wiring baselines (signed two-step paths, picked on the same
+labels). *Remember:* 0.633 vs 0.638 (difference -0.006, -0.172 to 0.166); 0 of 27 ranked first; the first
 test's AUROC 0.577 is not interpreted. *Measured:* `results/run3/primary.json`, `results/run2/P.json`. *Weakest point:* labels were read by
 language models; the two source labs disagree with each other (kappa 0.24).
 
@@ -88,7 +92,7 @@ the replication reading and the authors' list.
 
 ## 3. The ten hardest questions the original authors could ask
 
-1. **"Your MaleCNS and BANC screens are not our model."** Our MaleCNS model reproduces your DNg100 result (0.98 vs 0.985) and your single
+1. **"Your MaleCNS and BANC screens are not our model."** Our MaleCNS model reproduces your DNg100 result (0.985 vs 0.985) and your single
    DNb08 result at your own configuration (15 of 16 draws); our BANC build reproduces your DNg100 and silencing results (gate); our MANC
    screen shares 10 of your 11 hits. What differs is our current-setting procedure, and we say so. *Files:* `thirdfly_v1/C_tests.json`
    (V), `gates_v6/BANC_GATE.json`, `pertype_v1/`.
@@ -117,7 +121,11 @@ the replication reading and the authors' list.
 
 - **That the original paper is wrong.** We did not test their rhythm circuit, pruning or experiments; their DNg100 and DNb08 results hold
   up in our hands.
-- **That DNg100's recurrence supports anything.** It is built into our calibration.
+- **That DNg100's recurrence supports anything.** It is built into our calibration under the current-setting procedure, and DNg100 was
+  the build check and the validity control under the sweep.
+- **That BANC was never looked at before the freeze.** Its annotations were read to match types, DNg100 was run for the build check and
+  the authors' BANC results were known; only the screens were blind.
+- **That the authors' list fails to recur.** It is our 0.5 cut of their whole-type screen, and the test had about one chance in four.
 - **That hits "do not recur" when a test says "at chance".** The tests have little power (about 0.1 to 0.5); "at chance" means not
   distinguishable from chance.
 - **That the gap between animals is biological.** The wiring check says part may be reconstruction or matching.
@@ -126,4 +134,6 @@ the replication reading and the authors' list.
 - **That the third animal's tests used the same procedure as the first two.** They used the current sweep, by the pre-registered rule.
 - **That the first two animals' hit-list results were pre-registered.** They are post hoc.
 - **That the labels were checked by a person,** until you have done the hand check, and then only for the 20 items you checked.
-- **That the simulation predicts behaviour better than wiring counts.** It did not, in either test.
+- **That the simulation predicts behaviour better than wiring counts.** In the one interpretable test it added nothing beyond the best
+  of eight; the other test is not interpretable.
+- **That hit lists fail to replicate, full stop.** It depends on the procedure: under the sweep, hits recur above chance.
