@@ -32,8 +32,20 @@ run 5's state is in git history (this file at ec770a8).
       (`posthoc/paper_figures_v6.py`), draft PDF/DOCX built and checked page by page (poppler installed with Homebrew for page checks).
 - [x] STUDY_GUIDE (about 2,040 words), HAND_CHECK (20 items), BRIEF_v3 (2 pages), outreach v2 (192 / 126 / 120 words).
 - [x] OTS: prereg_v6 Bitcoin-attested (committed); posthoc_v6 and thirdfly_v1 pending (upgrade later).
-- [ ] Four reviews running (reviews_v6/PAPER_REFEREE2_REVIEW.md, PAPER_NUMBERS_REFS_REVIEW.md, PAPER_NAIVE_READER_REVIEW.md,
-      PAPER_OVERCLAIM_REVIEW_v1.md) -> four addenda -> revise paper (+ CLAIMS, supplement, figures if needed) -> rebuild draft -> check pages.
+- [x] Four reviews done and committed as written (7d85be3): referee 2 (14 objections), numbers/refs (P1-P16 + refs), naive reader
+      (36 items), overclaim (18 items). All within their caps.
+- [x] Lock check before revising: 25 earlier pass; posthoc_v6 and thirdfly_v1 FAILED on `posthoc/paper_figures_v6.py` (edited after
+      the locks); restored from 121a6a2; edits moved to the new `posthoc/paper_figures_preprint_v1.py`; all 28 pass (LOG L188).
+- [x] Four addenda written as the decision record BEFORE revising (reviews_v6/*_ADDENDUM*.md). Key decisions: lead hit lists with the
+      sweep (primary, no calibrated setting); drop the authors'-list contrast and C8 from the abstract; C4 fixed sentence beside every
+      "at chance"; same-name subset and with-DNg100 counts beside C3/C4; "confirmed" kept with the fixed caveat + "says nothing about
+      size"; four types in all three animals (DNg100, DNxl092, DNa13, DNxl134), Fig. 4 redrawn from the sweep; DNg63 flagged, not
+      replaced (forward list frozen); no unlocked referee numbers in the paper.
+- [ ] NEXT: new post hoc lock `LOCK_paper_posthoc_v1.json` (tag `ledger-paper-posthoc-v1`; script `posthoc/paper_posthoc_v1.py`:
+      per-type sweep (+tuned) table on the 182 three-animal types, all-three set asserted against locked C4/C5, per-pair C7
+      arithmetic) with a LOG pre-mortem; then figures (`paper_figures_preprint_v1.py`), paper revision, supplement (supplement_v1.py),
+      CLAIMS, refs_check_v2.py (the v1 checker is lock-hashed: do not edit), rebuild draft and view EVERY page (supplement S3 table!).
+- [ ] Propagate the same corrections to RESULTS_5.md (not locked; add a dated correction note), BRIEF_v3, STUDY_GUIDE, outreach v2.
 - [ ] Final: OTS upgrades; final baseline (25 earlier + 3 run-6 lock checks, ledger suite, BrainIR suite); HANDOFF_6 (14 sections,
       <= 2,500 words), printed as the final message.
 - Extra post hoc (exploratory) file for the paper: thirdfly_v1/POSTHOC_exam2_pairs.json (model clearly above 4 of 8 baselines).

@@ -1,0 +1,30 @@
+# Addendum to the overclaim review (PAPER_OVERCLAIM_REVIEW_v1.md)
+
+Written by the orchestrating session after the review was committed unchanged (7d85be3). Each decision was made before the revision and
+recorded here first. R1-R7 refer to the revised `paper/PREPRINT_v1.md`. All 18 items are accepted, in full or with a stated
+variation. A replacement sentence goes in only if every number in it is in a locked file. The abstract is rebuilt within 220 words by
+`wc -w`. Its first and last sentences change, and the stability result leaves it (item 8).
+
+| # | Decision | Change |
+|---|---|---|
+| 1 | Accepted | <ul><li>The contrast leaves the abstract and the Discussion.</li><li>R3 gives the three lists' recurrence rates (29 %, 20 %, 17 %), the pre-registered power and the fixed sentence verbatim.</li><li>It names DNb08 among the six, and describes the list as our 0.5 cut of the authors' whole-type screen (their Extended Data Fig. 1c).</li><li>S3 carries the fixed sentence beside every "at chance".</li></ul> |
+| 2 | Accepted | Abstract: "the first two animals' lists overlap at chance under our current-setting procedure but above chance under a current sweep (post hoc)". |
+| 3 | Accepted, with the reviewer's qualifier | <ul><li>Discussion: "For one model and one behaviour ...", "only partly reproducible".</li><li>"Disagrees more" is removed: no test compared the left-right gap with the cross-animal gap under one design. Fig. 2 no longer places them side by side without a label.</li></ul> |
+| 4 | Accepted | <ul><li>Everywhere "confirmed in the third animal" appears, it carries the fixed caveat with its consequence ("so part of the gap may come from the build or the type match").</li><li>0.31 is marked post hoc in the abstract, R3 and Fig. 2.</li><li>"Rather than from the simulation" is removed. The Discussion says that the wiring check cannot separate the causes.</li></ul> |
+| 5 | Accepted | R1, R2, the abstract and the Limitations say that the BANC left-right and count-noise tests used the current-setting procedure, whose whole-type positive control failed there (each DNg100 copy alone: 13 of 16 draws). Only the cross-animal tests used the sweep. |
+| 6 | Accepted | "Every pre-registered test ..." (Introduction, Methods). Table 1 gives every result's status. |
+| 7 | Accepted | <ul><li>The abstract and the Discussion speak of "the one interpretable literature test".</li><li>R6 says that test ran the authors' full nerve-cord model with a current-setting rule calibrated on DNg100 for that model, and gives the registered verdict: "the model predicts, but it adds nothing beyond wiring". It drops "level with".</li><li>"Blind" becomes "labels frozen before the predictions were scored".</li></ul> |
+| 8 | Accepted | <ul><li>The stability result leaves the abstract.</li><li>R5 gives the first attempt's four sensitivity p values, the rulebook's DNb08 disclosure, and "a type's" stability. The partial correlation is described as secondary, with no test or interval.</li></ul> |
+| 9 | Accepted | "Not screened until our rules were frozen". The Methods list what was known before the freeze: annotations read to match types, DNg100 stimulated, the authors' circuit neurons silenced, and the authors' BANC results. |
+| 10 | Accepted | <ul><li>R4: "So the network can produce their result; our current-setting procedure missed it. Part V changed the current, the run length and the activity bounds at once, so we cannot say which mattered."</li><li>Abstract: "In MaleCNS, our model reproduces the authors' DNg100 result and their single-DNb08 result, which our current-setting procedure had missed".</li></ul> |
+| 11 | Accepted | <ul><li>R4 gives DNb08 under both procedures (0.00 and 0.25), and says the single copies were run with the current-setting procedure, not at the authors' BANC configuration.</li><li>The Discussion uses the reviewer's sentence: we reproduce their single-DNb08 result in MaleCNS, which our screen had missed, and, like them, find no DNb08 hit in BANC.</li></ul> |
+| 12 | Accepted | Discussion: "the answer depends on the procedure (post hoc)", with the sweep's three-fold hit rate and the whole-ranking agreement (0.31 against 0.40 on the 181 three-animal types, both locked in C3). |
+| 13 | Accepted | Heading "Twelve experiments that could test the readings"; the real timing; the low power to separate the replication reading from the single-connectome reading (`forward_v2/DECISION_RULE.json`). |
+| 14 | Accepted | R1 heading "In the authors' published screen, left and right copies agree less than the screen agrees with itself"; "a cell type's left and right copies"; "a similar gap". |
+| 15 | Accepted | <ul><li>Introduction: "These results are the authors' ... and what we re-ran reproduces"; "generates the rhythm in the model"; "We read that sentence as being about ...".</li><li>Discussion: "our BANC gate re-ran their silencing of E1 and E2, which reproduced".</li></ul> |
+| 16 | Partly accepted | <ul><li>R2 says that MANC's verdict rests on the one pre-registered pair of resampled networks. A post hoc check in our earlier analysis found that pair to be a low draw: noise reproduced most but not demonstrably all of the gap.</li><li>The "about 86 %" is in `RESULTS_3.md` and in an adversarial reviewer's addendum, not in a locked file, so it is not quoted.</li><li>The two differences between the MANC and BANC tests are stated as post hoc.</li></ul> |
+| 17 | Accepted | <ul><li>R4: DNg100's BANC hit was expected from the gate and the authors' result.</li><li>Under the sweep, four types are hits in all three animals: DNg100, DNa13, DNxl092 and DNxl134 (post hoc; the numbers review's P1 corrects the reviewer's three). DNa13 and DNxl092 score 0.00 in BANC under the current-setting procedure.</li><li>DNg100's pass is what made the sweep primary.</li></ul> |
+| 18 | Accepted | R3 and S3 give the same-name subset (96 types, no verdict): 1 of 7 MANC hits, 7 of 30 MaleCNS hits and 0 of 3 of the authors' hits recur. |
+
+The brief, the study guide and the outreach drafts repeat several of these sentences, although no reviewer read them. They get the same
+corrections (logged).
