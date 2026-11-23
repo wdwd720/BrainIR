@@ -12,7 +12,7 @@ run 5's state is in git history (this file at ec770a8).
    Modal; the Mac runs no prediction. 9. At most 8 fresh agent sessions in the run; no label-reading sessions (quota resets
    2026-11-25 17:00 PST). 10. Nothing leaves the machine except pushes to the repo. 11. Fair to the authors.
 
-## Agent sessions used: 5 of 8 (1 rulebook auditor + re-check; 4 paper reviewers: referee 2, numbers/refs, naive reader, overclaim)
+## Agent sessions used: 5 of 8 (1 rulebook auditor + re-check; 4 paper reviewers: referee 2, numbers/refs, naive reader, overclaim) -- final
 
 ## Checklist
 - [x] Stage 0 (10:19 PST): prompt saved; tree clean; start baseline 25/25 locks, ledger 285 passed, BrainIR 1 known failure (L5);
@@ -32,22 +32,20 @@ run 5's state is in git history (this file at ec770a8).
       (`posthoc/paper_figures_v6.py`), draft PDF/DOCX built and checked page by page (poppler installed with Homebrew for page checks).
 - [x] STUDY_GUIDE (about 2,040 words), HAND_CHECK (20 items), BRIEF_v3 (2 pages), outreach v2 (192 / 126 / 120 words).
 - [x] OTS: prereg_v6 Bitcoin-attested (committed); posthoc_v6 and thirdfly_v1 pending (upgrade later).
-- [x] Four reviews done and committed as written (7d85be3): referee 2 (14 objections), numbers/refs (P1-P16 + refs), naive reader
-      (36 items), overclaim (18 items). All within their caps.
-- [x] Lock check before revising: 25 earlier pass; posthoc_v6 and thirdfly_v1 FAILED on `posthoc/paper_figures_v6.py` (edited after
-      the locks); restored from 121a6a2; edits moved to the new `posthoc/paper_figures_preprint_v1.py`; all 28 pass (LOG L188).
-- [x] Four addenda written as the decision record BEFORE revising (reviews_v6/*_ADDENDUM*.md). Key decisions: lead hit lists with the
-      sweep (primary, no calibrated setting); drop the authors'-list contrast and C8 from the abstract; C4 fixed sentence beside every
-      "at chance"; same-name subset and with-DNg100 counts beside C3/C4; "confirmed" kept with the fixed caveat + "says nothing about
-      size"; four types in all three animals (DNg100, DNxl092, DNa13, DNxl134), Fig. 4 redrawn from the sweep; DNg63 flagged, not
-      replaced (forward list frozen); no unlocked referee numbers in the paper.
-- [ ] NEXT: new post hoc lock `LOCK_paper_posthoc_v1.json` (tag `ledger-paper-posthoc-v1`; script `posthoc/paper_posthoc_v1.py`:
-      per-type sweep (+tuned) table on the 182 three-animal types, all-three set asserted against locked C4/C5, per-pair C7
-      arithmetic) with a LOG pre-mortem; then figures (`paper_figures_preprint_v1.py`), paper revision, supplement (supplement_v1.py),
-      CLAIMS, refs_check_v2.py (the v1 checker is lock-hashed: do not edit), rebuild draft and view EVERY page (supplement S3 table!).
-- [ ] Propagate the same corrections to RESULTS_5.md (not locked; add a dated correction note), BRIEF_v3, STUDY_GUIDE, outreach v2.
-- [ ] Final: OTS upgrades; final baseline (25 earlier + 3 run-6 lock checks, ledger suite, BrainIR suite); HANDOFF_6 (14 sections,
-      <= 2,500 words), printed as the final message.
+- [x] Four reviews done and committed as written (7d85be3); four addenda written first as the decision record (d0b67a8), verified
+      after the revision.
+- [x] Lock check before revising found `posthoc/paper_figures_v6.py` edited after two locks; restored; edits moved to
+      `paper_figures_preprint_v1.py` (LOG L188).
+- [x] New post hoc lock `LOCK_paper_posthoc_v1.json` (3dcb99d0...4b20), tag `ledger-paper-posthoc-v1` pushed, pre-mortem L189;
+      four types are sweep hits in all three animals (DNg100, DNxl092, DNa13, DNxl134); OTS pending (background retry running).
+- [x] Paper revised (32ffbf8, fd45dd3): abstract 218 words; Intro..Limitations 4,096, Intro..Use of AI 4,967; 18 references
+      (refs_check_v2 18/18, order of first citation); CLAIMS_v1 56 rows; claims_check_v1 81/81; draft PDF 14 p, supplement 9 p,
+      DOCX checked; every page viewed. RESULTS_5 corrected in place (marked), BRIEF_v3 (2 p), STUDY_GUIDE (2,262 w), outreach
+      (authors 197 w, one paragraph 119 w, lab 129 w) (LOG L190-L191).
+- [x] OTS: prereg_v6, posthoc_v6, thirdfly_v1 Bitcoin-attested and committed; paper_posthoc_v1 pending.
+- [x] Final baseline 15:26 PST: 25 earlier lock checks pass; run-6 checks 4/4 (prereg_v6, posthoc_v6, thirdfly_v1, paper_posthoc_v1);
+      ledger suite 302 passed; BrainIR fast suite 532 passed, 1 known failure (L5). Runner-hours 14.88 of 150 (82 jobs); no Modal.
+- [ ] HANDOFF_6.md (14 sections, <= 2,500 words), printed as the final message; commit the paper_posthoc_v1 OTS proof when complete.
 - Extra post hoc (exploratory) file for the paper: thirdfly_v1/POSTHOC_exam2_pairs.json (model clearly above 4 of 8 baselines).
 
 ## Facts fixed so far (run 6)
