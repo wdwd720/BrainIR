@@ -1,6 +1,6 @@
 # HANDOFF 6: run 6, a third animal (BANC)
 
-The run started at 10:19 PST on 23 November 2026 and ended about 15:50 PST. Decisions are in LOG L176-L191 and the current state in
+The run started at 10:19 PST on 23 November 2026 and ended about 15:50 PST. Decisions are in LOG L176-L192 and the current state in
 `STATE.md`.
 
 ## 1. What exists now
@@ -137,7 +137,7 @@ the sweep our lists recurred in BANC above chance. In the male CNS, our model re
 single-DNb08 result, which our current-setting procedure had missed. In the one interpretable literature test, the simulation added
 nothing beyond the best wiring count.
 
-**Length.** Introduction to Limitations: 4,096 words. Through Methods and Use of AI: 4,967.
+**Length.** Introduction to Limitations: 4,100 words. Through Methods and Use of AI: 4,972.
 
 **References and figures.** 18 references, all checked by full title and in order of first citation; 81 numeric claims checked against
 locked files; six figures; every page viewed.
@@ -233,4 +233,4 @@ locked files; six figures; every page viewed.
 6. **A locked script was edited** after its locks; the lock check caught it, and the file was restored.
 7. **The forward list has weak entries.** DNg21 and DNg39 had no usable MANC draw and DNg63 only one. The list is frozen, so this is
    disclosed, not fixed.
-8. **No room in the word count.** The strict count is 4,967 of 5,000.
+8. **No room in the word count.** The strict count is 4,972 of 5,000.
