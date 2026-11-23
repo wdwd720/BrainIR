@@ -1,0 +1,267 @@
+
+== locked C4 at 0.5 (word sets)
+[
+ {
+  "list": "MANC sweep list",
+  "N": 202,
+  "hits": 17,
+  "BANC hits": 20,
+  "recur": 5,
+  "rate": 0.294,
+  "BANC base rate": 0.099,
+  "chance": 1.68,
+  "p": 0.016,
+  "types_in_both": [
+   "DNa13",
+   "DNfl025",
+   "DNxl092",
+   "DNxl102",
+   "DNxl134"
+  ]
+ },
+ {
+  "list": "A1",
+  "N": 202,
+  "hits": 6,
+  "BANC hits": 20,
+  "recur": 1,
+  "rate": 0.167,
+  "BANC base rate": 0.099,
+  "chance": 0.59,
+  "p": 0.469,
+  "types_in_both": [
+   "DNxl102"
+  ]
+ },
+ {
+  "list": "MaleCNS sweep list",
+  "N": 182,
+  "hits": 60,
+  "BANC hits": 19,
+  "recur": 12,
+  "rate": 0.2,
+  "BANC base rate": 0.104,
+  "chance": 6.26,
+  "p": 0.004,
+  "types_in_both": [
+   "DNa13",
+   "DNb05",
+   "DNb06",
+   "DNfl015",
+   "DNg13",
+   "DNg75",
+   "DNg97",
+   "DNp56",
+   "DNxl092",
+   "DNxl134",
+   "DNxn151",
+   "DNxn161"
+  ]
+ }
+]
+
+== Fisher exact tests of recurrence rates
+{
+ "A1 vs MANC sweep list": {
+  "table": [
+   [
+    1,
+    5
+   ],
+   [
+    5,
+    12
+   ]
+  ],
+  "p_two_sided": 1.0
+ },
+ "A1 vs MaleCNS sweep list": {
+  "table": [
+   [
+    1,
+    5
+   ],
+   [
+    12,
+    48
+   ]
+  ],
+  "p_two_sided": 1.0
+ },
+ "MANC sweep list vs MaleCNS sweep list": {
+  "table": [
+   [
+    5,
+    12
+   ],
+   [
+    12,
+    48
+   ]
+  ],
+  "p_two_sided": 0.509
+ }
+}
+
+== A1 (6 hits): recurrences needed for p < 0.05, and the probability of reaching them
+{
+ "k_needed": 3,
+ "true share 0.1": 0.016,
+ "true share 0.2": 0.099,
+ "true share 0.294": 0.245,
+ "true share 0.5": 0.656
+}
+
+== the authors' six (A1 >= 0.5, word set) with their BANC sweep and tuned scores
+{
+ "DNa07": {
+  "A1": 0.84,
+  "BANC_sweep": 0.0,
+  "BANC_tuned": 0.0
+ },
+ "DNb08": {
+  "A1": 0.63,
+  "BANC_sweep": 0.25,
+  "BANC_tuned": 0.0
+ },
+ "DNg54": {
+  "A1": 0.59,
+  "BANC_sweep": 0.01,
+  "BANC_tuned": 0.0
+ },
+ "DNp41": {
+  "A1": 0.65,
+  "BANC_sweep": 0.0,
+  "BANC_tuned": 0.0
+ },
+ "DNxl102": {
+  "A1": 0.66,
+  "BANC_sweep": 0.98,
+  "BANC_tuned": 0.93
+ },
+ "DNxl110": {
+  "A1": 0.58,
+  "BANC_sweep": 0.01,
+  "BANC_tuned": 0.0
+ }
+}
+
+== without DNb08 (whose BANC failure the authors published)
+{
+ "recur": 1,
+ "of": 5,
+ "p": 0.411
+}
+
+== POST HOC: the authors' single-neuron list (A0) against the BANC sweep, manc_banc_high_noDNg100
+{
+ "any copy >= 0.5 (Supp. Table 1 types)": {
+  "n_hits_in_word_set": 13,
+  "hits": [
+   "DNa07",
+   "DNa13",
+   "DNb08",
+   "DNg15",
+   "DNg54",
+   "DNp41",
+   "DNp43",
+   "DNxl091",
+   "DNxl121",
+   "DNxl134",
+   "DNxn127",
+   "DNxn159",
+   "DNxn167"
+  ],
+  "recur_in_BANC_sweep": 3,
+  "recurring": [
+   "DNa13",
+   "DNxl134",
+   "DNxn127"
+  ],
+  "chance": 1.29,
+  "p": 0.125
+ },
+ "mean of copies >= 0.5": {
+  "n_hits_in_word_set": 5,
+  "hits": [
+   "DNa07",
+   "DNa13",
+   "DNb08",
+   "DNg54",
+   "DNxl091"
+  ],
+  "recur_in_BANC_sweep": 1,
+  "recurring": [
+   "DNa13"
+  ],
+  "chance": 0.5,
+  "p": 0.41
+ }
+}
+
+== COUNTERFACTUAL C4 on the tuned screens (not of record)
+{
+ "B1r (our MANC list)": {
+  "manc_banc_high_noDNg100": {
+   "0.3": {
+    "n_x": 27,
+    "n_y": 12,
+    "k": 4,
+    "chance_expectation": 1.603960396039604,
+    "hypergeom_p": 0.05920757045879953,
+    "OC_ratio": 0.31622023809523814
+   },
+   "0.5": {
+    "n_x": 9,
+    "n_y": 10,
+    "k": 1,
+    "chance_expectation": 0.44554455445544555,
+    "hypergeom_p": 0.3728121673721866,
+    "OC_ratio": 0.1402061855670103
+   },
+   "words_at_0.5": "at chance at the authors' cut"
+  }
+ },
+ "A1 (authors)": {
+  "manc_banc_high_noDNg100": {
+   "0.3": {
+    "n_x": 18,
+    "n_y": 12,
+    "k": 2,
+    "chance_expectation": 1.0693069306930694,
+    "hypergeom_p": 0.2903552184494302,
+    "OC_ratio": 0.20317460317460317
+   },
+   "0.5": {
+    "n_x": 6,
+    "n_y": 10,
+    "k": 1,
+    "chance_expectation": 0.297029702970297,
+    "hypergeom_p": 0.26550720233804714,
+    "OC_ratio": 0.16666666666666666
+   },
+   "words_at_0.5": "at chance at the authors' cut"
+  }
+ },
+ "B2r (our MaleCNS list)": {
+  "mcns_banc_high_noDNg100": {
+   "0.3": {
+    "n_x": 36,
+    "n_y": 11,
+    "k": 3,
+    "chance_expectation": 2.1758241758241756,
+    "hypergeom_p": 0.3750342571235727,
+    "OC_ratio": 0.3438407746100054
+   },
+   "0.5": {
+    "n_x": 17,
+    "n_y": 9,
+    "k": 3,
+    "chance_expectation": 0.8406593406593407,
+    "hypergeom_p": 0.04021240663958473,
+    "OC_ratio": 0.3130755064456722
+   },
+   "words_at_0.5": "above chance"
+  }
+ }
+}

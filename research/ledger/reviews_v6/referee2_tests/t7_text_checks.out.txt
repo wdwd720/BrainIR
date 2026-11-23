@@ -1,0 +1,178 @@
+
+== abstract length (limit 220)
+{
+ "whitespace tokens": 221,
+ "tokens starting with a letter or digit (drops '=')": 220
+}
+
+== main-text length (limit 3,500-5,000)
+{
+ "Introduction-Discussion": 2531,
+ "Introduction-Limitations": 2822,
+ "Introduction-Methods": 3509,
+ "figures": 6
+}
+
+== C4's fixed sentence ('... does not show that the hits fail to recur') required beside 'at chance' (PREREG v6 C4)
+{
+ "rule": [
+  "e\"; **\"not judged\"** if X or BANC has no driver in the set. Beside the   words, always, the fixed sentence: \"'At chance' means the overlap could n"
+ ],
+ "abstract: 'at chance' contexts": [
+  "ss closely. At the authors' threshold, the first two animals' hit lists overlap at chance (post hoc). In the third animal, our own lists recurred above chance, while the",
+  "d animal, our own lists recurred above chance, while the authors' list recurred at chance (1 of 6). Because our current-setting procedure failed its positive control the"
+ ],
+ "abstract contains 'does not show'": false,
+ "Discussion: 'at chance' contexts": [
+  "e cell type in different animals disagrees more. The authors' own six high-confidence hits recurred in the third animal at chance. Second, the size of the disagreement depends on the procedure: a current sweep recovers more shared hits than our curr"
+ ],
+ "Discussion contains 'does not show'": false
+}
+
+== same-name subset (G5: 'reported beside C3 and C4 without words')
+{
+ "rule": [
+  " from the same match, so     \"no conflict\" adds little. A **same-name subset** of the three-animal set (BANC label identical to the MANC"
+ ],
+ "in paper": false,
+ "in supplement (beyond the departures list)": [
+  "8 check; the MANC sweep's stored results; a wiring check with a fixed caveat; a same-name subset; the DNg100 prediction judged even when neither BANC screen is valid; ca"
+ ]
+}
+
+== 'left unexamined' / 'did not examine' versus Part Q 4 (what was read before the freeze)
+{
+ "paper": [
+  "ion shows a similar left-right gap in two male connectomes and, in a pre-registered test, in a third, female connectome left unexamined until our rules were frozen (0.58). Across animals, screens agree at 0.31 to 0.50 of this ceiling; the gap was confirme",
+  " motor neurons are read out: 0.59 of the ceiling in MANC (0.48-0.68) and 0.64 in MaleCNS (0.53-0.74). In BANC, which we did not examine before our rules were frozen, the pre-registered test gave 0.58 (0.38-0.77): again a real gap (Fig. 2).  ### 2. Count n"
+ ],
+ "Part Q 4 (first sentences)": [
+  "BANC**: DNg100 drives front-leg rhythm in all four of their datasets including BANC (their mean 0.984, 99.3 %    of replicates >= 0.5); silencing E1 or E2 abolishes it in BANC (0.014, 0.035) and silencing I2 does not (0.993); their pruning    circuits in BANC; **their single DNb08 neuron did not drive rhythm in BANC (mean 0.000)**. So nothing about DNb08 in BANC is a    prediction here (C5). 4. **BANC itself, before this freeze** (LOG L177-L179; `ledger/src/brainir_ledger/banc.py`): the released files (pinned by SHA-256) and    the authors' run configs and logs (Zenodo, by range requests); the table's annotations, read to build groups and type matches (allowed    by hard limit 2): 1,313 descending neurons, 922 excitatory, 860 mapped to 309 MANC-type groups (confidence high 206, medium 103, low    0); the three-animal se"
+ ],
+ "Part Q 3": [
+  "ee_tests/`): at the authors' cut 0.5 the two animals' hit lists overlap at chance;    at cuts 0.3 to 0.4 about half of the hits recur, above chance; DNg100's replication is built into our calibration of K; exam 1's    labels are confounded with their sources; other tests listed in that review. 3. **The authors' paper on BANC**: DNg100 drives front-leg rhythm in all four of their datasets including BANC (their mean 0.984, 99.3 %    of replicates >= 0.5); silencing E1 or E2 abolishes it in BANC (0.014, 0.035) and silencing I2 does not (0.993); their pruning    circuits in BANC; **their single DNb08 neuron did not drive r"
+ ]
+}
+
+== 'chosen, before any other neuron was run' versus the record
+{
+ "paper": [
+  "ist. Our current-setting procedure has one free setting, the number of front-leg motor neurons that must be active for a run to count. It was chosen, before any other neuron was run, as the smallest value that makes DNg100 drive rhythm in MANC and MaleCNS. DNg100's recurrence in those two animals is therefore built in, and we nev"
+ ],
+ "LOG L29 (run 1: MaleCNS screen B2 under the original procedure, locked)": [
+  "s (12 on AVX-512 hosts); per-job wall time rises ~20 %, container throughput ~3.3x. G4 re-runs stay unbatched (cpu 1), so each G4 check of a batched campaign also tests batched against unbatched execution. The control campaign was stopped and resumed (resumable runner; nothing recomputed); results up to the switch came from unbatched containers. | Wall-clock time before Stage 2; no change to any computed quantity. | | L29 | (stage 1) | **B2 and B4 are locked exactly as pre-registered, with their weaknesses on record before any label exists** (`gates/ARM_DIAGNOSTICS.md`, `ARM_DIAGNOSTICS.json`, `B2_DNG100_CHECK.json`, `B4_halts_split.csv`, `B2_mapping_split.csv`). B2: the DNg100 positive control scores 0.059 (B1 0.828, A1 0.896): the kept B1 tuning rule accepts the pair at 256, where MaleCNS has 0-1 active front-leg MNs; the network is "
+ ],
+ "LOG L55 (run 2: K chosen)": [
+  " **Freeze done; K = 1; regression passes; G3 v2 formal run as the preview.** Rulebook v2 frozen 22:41 UTC (tag `ledger-prereg-v2`, 604c15b; OTS). GitHub campaigns: `calibk` -> `gates_v2/CALIBK.json`: K = 1 (smallest K with DNg100 >= 0.5 in >= 12/16 seeds on both networks: MANC 16/16, MaleCNS 13/16; no other neuron run). `regress` -> `gates_v2/REGRESSION_v2.json`: K = 0 reproduces B1's locked digests 480/480. `g3v2"
+ ]
+}
+
+== Fig. 4 legend on DNg100 (the sweep has no K: see t2 (c))
+[
+ " the 29 types among the 182 matched with high confidence in all three animals that score at least 0.5 in at least one animal; colour = mean rhythm score over 8 draws, sorted by the mean of the three. DNg100's recurrence is built into our calibration.](figures_v1/fig4_hits_three_animals.png)  ![**Figure 5. Stability under synapse-count noise in MANC against the score in the third animal.** Each point is one of 12 MANC hits with a "
+]
+
+== C2's explanation (see t5 (d))
+[
+ "ll above BANC's left-right agreement (0.58); the difference in agreement was -0.21 (-0.37 to -0.05). One difference may matter: the authors' BANC network has no synapse threshold, so redrawing counts does not add or remove the many weak connections near a threshold, as it does in MANC. Whatever the reason, count noise alone does not explain BANC's left-right gap.  ### 3. Screens of different animals agree less than a s"
+]
+
+== does the paper say C1 and C2 ran on the tuned procedure that failed B4?
+{
+ "Results 1 BANC sentence": [
+  "are stimulated and that side's motor neurons are read out: 0.59 of the ceiling in MANC (0.48-0.68) and 0.64 in MaleCNS (0.53-0.74). In BANC, which we did not examine before our rules were frozen, the pre-registered test gave 0.58 (0.38-0.77): again a real gap (Fig. 2).  ### 2. Count noise reproduces the gap in one animal but not in the third  Why would copies of the same neuron disagree? Synapse counts in a connectome carry n"
+ ],
+ "mentions of 'one-sided' with 'current-setting' or 'tuned' nearby": []
+}
+
+== the authors' own statement on cross-dataset differences (notes 9) cited?
+{
+ "'fidelity' in paper": false,
+ "'synapse detection' in paper": [
+  "y measure). - Three animals that also differ in sex (two males, one female), reconstruction method, synapse detection and annotation. BANC's network   has no synapse threshold; MANC's and MaleCNS's have one. - The sec"
+ ],
+ "'surface area' or 'volume' (size measure differs between datasets)": false
+}
+
+== first-round requests: occurrences in the paper / supplement
+{
+ "tie-break": {
+  "paper": 0,
+  "supplement": 0
+ },
+ "takeoff/flight (exam 1 negatives)": {
+  "paper": 0,
+  "supplement": 2
+ },
+ "3 of 18 / 17 % (audit split)": {
+  "paper": 0,
+  "supplement": 0
+ },
+ "audit re-quoted the same sentences": {
+  "paper": 0,
+  "supplement": 0
+ },
+ "full-cord coupling (G3)": {
+  "paper": 0,
+  "supplement": 0
+ },
+ "best of eight 'picked on the same labels'": {
+  "paper": 0,
+  "supplement": 1
+ },
+ "DNg63 / DNxl121 flagged": {
+  "paper": 0,
+  "supplement": 1
+ },
+ "never-usable types": {
+  "paper": 0,
+  "supplement": 0
+ },
+ "confidence rule post hoc": {
+  "paper": 0,
+  "supplement": 0
+ }
+}
+
+== abstract and Discussion on counting
+{
+ "abstract": [
+  " third animal (12 types; p = 0.029; a second attempt). Against published experiments, the simulation did no better than counting two-step synaptic paths. We list 12 experiments to test them.  "
+ ],
+ "Discussion": [
+  "n our current-setting procedure, and that procedure even failed its positive control in the third animal. Third, simple wiring counts did as well as the simulation in published experiments. Fourth, a hit's stability under synapse-count noise in one conn"
+ ]
+}
+
+== Methods on reproducing the authors' dynamics
+[
+ "d and maximum rate drawn per neuron from their published distributions; synaptic weights = signed synapse counts times 0.03; neuron size scaling) and reproduced their published dynamical results. A screen stimulates the excitatory descending neurons of one cell type and scores the rhythm of the front-leg motor neurons with the authors' publis"
+]
+
+== forward list: the MANC-hit basis of the single-fly MANC hits
+{
+ "DNp41": {
+  "B1r score": 0.73,
+  "usable B1r replicates": 16,
+  "MANC sweep": 0.88,
+  "A1": 0.65
+ },
+ "DNp02": {
+  "B1r score": 0.66,
+  "usable B1r replicates": 16,
+  "MANC sweep": 0.49,
+  "A1": 0.4
+ },
+ "DNg63": {
+  "B1r score": 0.79,
+  "usable B1r replicates": 1,
+  "MANC sweep": 0.0,
+  "A1": 0.13
+ }
+}
+
+== placeholders left in the draft
+[
+ "eaders' launcher used Claude Sonnet with a neutral prompt.  [[AUTHOR TO COMPLETE AFTER THE HAND CHECK: one sentence giving the result of the",
+ " tested across three fly connectomes  **Title options.** (1) How reproducible is a simulated "
+]

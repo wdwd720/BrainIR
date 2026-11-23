@@ -1,0 +1,154 @@
+
+== (0) C1 reproduced from the locked side table
+{
+ "n_types": 180,
+ "ratio": 0.582,
+ "interval": [
+  0.383,
+  0.766
+ ],
+ "locked": 0.582
+}
+
+== (a) DNg100 in the one-sided and copy screens (tuned procedure, 8 seeds; B4's bar would be 6 of 8)
+{
+ "DNg100": {
+  "BHL": {
+   "seeds_ge_0_5": 6,
+   "of": 8,
+   "type_score": 0.71
+  },
+  "BHR": {
+   "seeds_ge_0_5": 8,
+   "of": 8,
+   "type_score": 0.941
+  },
+  "BN1": {
+   "seeds_ge_0_5": 8,
+   "of": 8,
+   "type_score": 0.927
+  },
+  "BN2": {
+   "seeds_ge_0_5": 6,
+   "of": 8,
+   "type_score": 0.752
+  }
+ },
+ "usable share of replicates": {
+  "BHL": 0.628,
+  "BHR": 0.643,
+  "BN1": 0.641,
+  "BN2": 0.651,
+  "BT": 0.692
+ }
+}
+
+== (a2) one-sided screens: usable share and share of exact zeros, BANC against MANC and MaleCNS (run 4)
+{
+ "MANC_L": {
+  "types": 307,
+  "usable share": 0.634,
+  "share of types scoring exactly 0": 0.456
+ },
+ "MANC_R": {
+  "types": 307,
+  "usable share": 0.67,
+  "share of types scoring exactly 0": 0.43
+ },
+ "MaleCNS_L": {
+  "types": 219,
+  "usable share": 0.797,
+  "share of types scoring exactly 0": 0.507
+ },
+ "MaleCNS_R": {
+  "types": 219,
+  "usable share": 0.741,
+  "share of types scoring exactly 0": 0.516
+ },
+ "BANC (C1 set)": {
+  "BHL": {
+   "usable share": 0.667,
+   "share of types scoring exactly 0": 0.733
+  },
+  "BHR": {
+   "usable share": 0.687,
+   "share of types scoring exactly 0": 0.761
+  }
+ }
+}
+
+== (b1) annotated side vs output side
+{
+ "members with both defined": 840,
+ "agree": 0.627,
+ "disagreeing members": 313,
+ "their output share on the output side (median, IQR)": [
+  0.74,
+  0.61,
+  0.85
+ ],
+ "disagreeing members with >= 80 % of output on one side": 124
+}
+
+== (b2) C1's ratio split by how lateralised the types' members are (2,000 resamples)
+{
+ "types": 180,
+ "median of the least lateralised member's output share": 0.737,
+ "members with < 60 % of output on their assigned side": 68,
+ "of members": 393,
+ "strongly lateralised half": {
+  "n": 90,
+  "ratio": 0.626,
+  "interval": [
+   0.338,
+   0.877
+  ],
+  "ceiling": 0.696,
+  "drivers L/R": [
+   4,
+   4
+  ]
+ },
+ "weakly lateralised half": {
+  "n": 90,
+  "ratio": 0.506,
+  "interval": [
+   0.184,
+   0.776
+  ],
+  "ceiling": 0.776,
+  "drivers L/R": [
+   5,
+   3
+  ]
+ }
+}
+
+== (b3) share of C1's 180 types scoring exactly 0
+{
+ "BHL": 0.733,
+ "BHR": 0.761
+}
+
+== (d1) BANC as released (no floor): connections and the Poisson copy (count c -> Poisson(c), zeros dropped)
+{
+ "connections": 496041,
+ "share with count 1 / 2 / <=4": [
+  0.507,
+  0.169,
+  0.807
+ ],
+ "expected share of connections removed per copy": 0.215,
+ "expected share of synapses (|weight|) in removed connections": 0.0555,
+ "connections added": 0
+}
+
+== (d2) MANC at the 5-synapse floor (raw counts from the ledger's build): one Poisson copy
+{
+ "connections kept at floor 5": 196536,
+ "sub-floor connections (1-4)": 577174,
+ "expected share of kept connections removed": 0.126,
+ "expected connections added, as a share of kept ones": 0.19,
+ "expected share of synapses (|weight|) in removed connections": 0.0379,
+ "expected synapses in added connections, as a share of kept synapses": 0.0568
+}

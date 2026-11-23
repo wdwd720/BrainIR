@@ -1,0 +1,116 @@
+
+== (1) C3 sweep ratios reproduced (181 types, halves 0-3 / 4-7)
+{
+ "reproduced": {
+  "MANC-BANC": 0.349,
+  "MaleCNS-BANC": 0.505,
+  "MANC-MaleCNS": 0.314
+ },
+ "locked": {
+  "MANC-BANC": 0.349,
+  "MaleCNS-BANC": 0.505,
+  "MANC-MaleCNS": 0.314
+ }
+}
+
+== (2) share of the 181 types per animal (sweep, all 8 seeds)
+{
+ "DX": {
+  "score == 0": 0.387,
+  "score < 0.05": 0.564,
+  "score >= 0.5": 0.083
+ },
+ "MS": {
+  "score == 0": 0.199,
+  "score < 0.05": 0.304,
+  "score >= 0.5": 0.331
+ },
+ "BS": {
+  "score == 0": 0.398,
+  "score < 0.05": 0.674,
+  "score >= 0.5": 0.105
+ }
+}
+
+== (3) does the gap live in the order of non-drivers?
+{
+ "MANC-BANC": {
+  "ratio as locked": 0.349,
+  "rho_x, ceiling": [
+   0.307,
+   0.878
+  ],
+  "ratio with scores < 0.05 set to 0": 0.368,
+  "rho_x, ceiling (censored)": [
+   0.306,
+   0.83
+  ]
+ },
+ "MaleCNS-BANC": {
+  "ratio as locked": 0.505,
+  "rho_x, ceiling": [
+   0.474,
+   0.939
+  ],
+  "ratio with scores < 0.05 set to 0": 0.382,
+  "rho_x, ceiling (censored)": [
+   0.34,
+   0.891
+  ]
+ },
+ "MANC-MaleCNS": {
+  "ratio as locked": 0.314,
+  "rho_x, ceiling": [
+   0.277,
+   0.882
+  ],
+  "ratio with scores < 0.05 set to 0": 0.312,
+  "rho_x, ceiling (censored)": [
+   0.275,
+   0.879
+  ]
+ }
+}
+
+== (4) C3 sweep ratio over all 35 splits of the 8 seeds into 4 + 4
+{
+ "per pair": {
+  "MANC-BANC": {
+   "n_splits": 35,
+   "min": 0.324,
+   "median": 0.334,
+   "max": 0.358
+  },
+  "MaleCNS-BANC": {
+   "n_splits": 35,
+   "min": 0.484,
+   "median": 0.499,
+   "max": 0.511
+  },
+  "MANC-MaleCNS": {
+   "n_splits": 35,
+   "min": 0.299,
+   "median": 0.312,
+   "max": 0.326
+  }
+ },
+ "splits in which each pair agrees best": {
+  "MaleCNS-BANC": 35
+ }
+}
+
+== (5) wiring agreement (two-step signed counts, 5-synapse floor) against simulated agreement (sweep ratio)
+{
+ "MANC-MaleCNS": {
+  "wiring": 0.823,
+  "simulation": 0.314
+ },
+ "MANC-BANC": {
+  "wiring": 0.611,
+  "simulation": 0.349
+ },
+ "MaleCNS-BANC": {
+  "wiring": 0.632,
+  "simulation": 0.505
+ }
+}
