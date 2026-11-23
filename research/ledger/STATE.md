@@ -21,15 +21,13 @@ unblinded and closed. Run 4's state is in git history (this file at 0b15e33).
       (lock checks 21/21; ledger 263 passed; BrainIR fast suite 1 known failure, LOG L5); trust gate 100/100 identical (L161).
 - [x] Per-type tables `pertype_v1/` (all reproduce their locked aggregates); LOCK_pertype_v1 (40a4c521...c044) + tag ledger-pertype-v1
       pushed (L162); OTS pending upgrade (`LOCK_pertype_v1.json.ots`, commit after upgrade).
-- [ ] PREREG_v5.md: drafted 01:10; fresh audit (23 findings, "freeze after these fixes", L163); revised + resolution file +
-      code reconciled (L164); same auditor re-checking (reviews_v5/PREREG_AUDIT_RECHECK_v5.md). Then: audit kit manifest
-      (`audit5_rooms.py kit-manifest`), amendment row for gha5.py (changed after the per-type lock), commit, pre-mortem (LOG),
-      `lock5.py prereg`, commit, tag ledger-prereg-v5, push, OTS.
-- [ ] Part R (from locked tables); Part S campaign (time first; chunks < 1 h; determinism sample); Part L (fresh readers);
-      Part T if budget; LOCK_replication_v1 + tag ledger-replication-v1; OTS.
-- [ ] Part F (readings, short list, availability lookups read-only, decision rule); LOCK_forward_v2 + tag ledger-forward-v2; OTS.
-- [ ] RESULTS_4.md; paper/PREPRINT_v0.md + figures + CLAIMS.md; three reviews + addenda; BRIEF_v2.md (two pages, measured);
-      outreach drafts (blank recipients); HANDOFF_5.md (<= 2,500 words, 13 sections); final baseline; print handoff.
+- [x] PREREG_v5 frozen (tag ledger-prereg-v5, lock 779b3b53...4ddc; two audit rounds, L163-L166).
+- [x] Part R (post hoc), Part S (S0 448/448 identical; S1 p = 0.114, not shown; determinism 100/100), Part T (determinism 40/40),
+      Part L (68 sessions; exam 1 stands; erratum for six exposed types incl. DNg100), LOCK_replication_v1 (bd858b3e...3dc1, tag
+      ledger-replication-v1), L167-L170.
+- [x] Part F: 12-type short list, availability, decision rule; LOCK_forward_v2 (760413aa...6fb9, tag ledger-forward-v2), L171.
+- [ ] RESULTS_4 (drafted), paper (drafted; reviews running: overclaim, hostile referee, numbers), BRIEF_v2 (two pages; overclaim
+      review running), outreach drafts (written), addenda, HANDOFF_5, final baseline, OTS upgrades (replication, forward pending).
 
 ## Facts fixed so far (run 5)
 - Whole-type drivers (>= 0.5): B1r 15 types, A1 11, B2r 30; in both B1r and B2r: DNg100, DNb08, DNit013 (seen before PREREG_v5).
