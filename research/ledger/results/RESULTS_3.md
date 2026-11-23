@@ -1,11 +1,14 @@
-**Cause found in part: Poisson-scale noise in synapse counts moves the model's predictions almost as much as the real left-right differences do.** Two copies of one network that differ only by such noise agree almost as poorly as the fly's left and right sides (0.40 against 0.37 for the pre-registered pair; over all six pairings of the four stored noise copies, a post-hoc check by the adversarial review, noise reproduces about 86 % of the gap); the left-right difference sits mostly in connections that the 5-synapse floor leaves on one side only and in neurons without a partner; where the tuner lands explains about a third in MaleCNS and an amount indistinguishable from zero in MANC; and none of the fixes tested restores reproducibility.
+**Cause found in part: Poisson-scale noise in synapse counts moves the model's predictions almost as much as the real left-right differences do.** Two copies of one network that differ only by such noise agree almost as poorly as the fly's left and right sides (0.40 against 0.37 for the pre-registered pair; over all six pairings of the four stored noise copies, a post-hoc check by the adversarial review, noise reproduces about 86 % of the gap); the left-right difference is carried most by connections that the 5-synapse floor leaves on one side only and by neurons without a partner; where the tuner lands explains about a third in MaleCNS (part of it through lower seed noise) and an amount indistinguishable from zero in MANC; and none of the fixes tested restores reproducibility.
 
 # Results 3 (run 4): does the simulation agree with itself across the two sides of a fly and across two flies, and why not?
 
 Pre-registered in `PREREG_v4.md` (tag `ledger-prereg-v4`, commit badc4d7; `LOCK_prereg_v4.json` sha256 fd34d9f7...19ad4; OpenTimestamps
 proofs complete). Every number below is read from a file under the reliability lock (`LOCK_reliability_v2.json`, tag
-`ledger-reliability-v2`) or, for Part E, the forward lock (`LOCK_forward_v1.json`, tag `ledger-forward-v1`); the Part D rows marked
-post-lock are exploratory and outside both (their hashes are in LOG L148). Model seeds: 16 in Part A, 8 (0..7) in Parts B and C, always the same seeds on the
+`ledger-reliability-v2`) or, for Part E, the forward lock (`LOCK_forward_v1.json`, tag `ledger-forward-v1`), except two kinds, marked
+where they appear: the Part D rows marked post-lock are exploratory and outside both (their hashes are in LOG L148), and the six-pair
+noise figures are the adversarial reviewer's post-hoc analysis (`reviews_v4/ADVERSARIAL_REVIEW_v4.md`, under no lock). Both gaps had
+been seen in run 3 before the freeze (left vs right on MANC seeds 0..3, which Part A reuses, and cross-fly; `PREREG_v4.md` Part Q
+lists every number seen); result 1 (A0) had not been computed. Model seeds: 16 in Part A, 8 (0..7) in Parts B and C, always the same seeds on the
 two sides of a comparison.
 
 **How agreement is measured (G5-G7).** For each type, the type score is its mean rhythm score over usable replicates. Agreement
@@ -68,15 +71,16 @@ not come from one bad side, and it is not the same gap in both flies.
 
 | | MANC (261 types) | MaleCNS (203 types) |
 |---|---|---|
-| tuned screen, left vs right (before) | ratio 0.52 (rho_x 0.40, c 0.78) | 0.58 (0.49, 0.85) |
-| **best in-bounds score over the 19-current grid** (B1.4 primary) | ratio 0.55 (0.43-0.66); **closure 0.17 (-0.07 to 0.38)** | 0.65 (0.55-0.75); **closure 0.36 (0.08 to 0.61)** |
+| tuned screen, left vs right (before) | ratio 0.52 (rho_x 0.40, c 0.77) | 0.58 (0.49, 0.85) |
+| **best in-bounds score over the 19-current grid** (B1.4 primary) | ratio 0.55 (0.43-0.66; c 0.84); **closure 0.17 (-0.07 to 0.38)** | 0.65 (0.55-0.75; c 0.95); **closure 0.36 (0.08 to 0.61)** |
 | fraction of in-bounds currents rhythmic | closure 0.22 (-0.08 to 0.51) | -0.11 (-0.57 to 0.22) |
 | left vs right at each fixed current | a real gap at all 19 (ratio 0.38-0.81) | a real gap at 12 of 19 (0.34-0.69); 2 inconclusive (22.6 and 32), the 5 lowest not judged |
 | each side at the other side's tuned current | closure -0.16 / -0.27 (intervals include 0) | 0.00 / -0.12 (include 0) |
 | run at the own tuned current reproduces the tuned run | 3,049 of 3,049 | 2,640 of 2,640 |
 
 **Reading.** Where the tuner lands explains about a third of the gap in MaleCNS (interval 0.08-0.61) and an amount indistinguishable
-from zero in MANC. The two sides disagree at all 19 fixed currents in MANC and at every conclusive one in MaleCNS (12 of 19), and
+from zero in MANC. Part of that closure is lower seed noise: the grid score's ceiling rises (MaleCNS 0.85 to 0.95, MANC 0.77 to 0.84),
+and against its own ceiling left-right agreement rises only from 0.58 to 0.65 (MaleCNS) and from 0.52 to 0.55 (MANC). The two sides disagree at all 19 fixed currents in MANC and at every conclusive one in MaleCNS (12 of 19), and
 giving both the same current does not bring them together. The difference is
 mostly in the two networks.
 
@@ -108,9 +112,11 @@ together with all other classes (left out):
 | 4. neuron size | 0.03 (-0.16 to 0.20) | 0.81 (0.66 to 0.95) |
 | 5. transmitter sign | -0.05 (-0.17 to 0.07) | 0.88 (0.73 to 1.01) |
 
-**Reading.** No single class closes the gap. Connections that exist on one side only and neurons without a partner carry the most;
-the homologous weights matter only in combination with them; size and sign barely matter. The alone-closures sum to 0.61, so the
-classes interact. The MaleCNS repeats were dropped under the pre-registered budget rule (X9), so this block is MANC only.
+**Reading.** No single class closes the gap. Connections that exist on one side only and neurons without a partner carry the most
+(the only alone-closures above 0). By the pre-registered reading (B3.3) the homologous weights and neuron size also contribute, in
+combination only: left out, they leave a part of the gap (0.55 and 0.81, both upper ends below 1), and their alone and left-out
+readings disagree; size's part is small. Sign does not contribute (left out 0.88, upper end 1.01). The alone-closures sum to 0.61, so
+the classes interact. The MaleCNS repeats were dropped under the pre-registered budget rule (X9), so this block is MANC only.
 
 ### 3.4 Count noise (MANC; paired draws)
 
@@ -190,7 +196,7 @@ Exam 2 is not re-scored: it was reserved for the robust model, and no fix passed
 
 ## 6. The forward ledger (Part E)
 
-63 descending-neuron types with a kit driver line and no clear exam 1 label, two sources (the authors' model and two-step signed counting; no fix passed, so there is no robust model: `forward/SOURCES_NOTE.md`). Each score becomes a probability of rhythmic front-leg stepping in a decapitated fly by a one-variable logistic fit to exam 1's 39 labelled types (training on past results to predict future ones; only 6 are headless-labelled, so all labelled types are the fit set). Leave-one-out calibration is weak: Brier 0.248 for the model and 0.239 for counting, against 0.242 for the base rate; AUROC 0.33 and 0.61; 21 of exam 1's 25 'yes' types rest on the intact-fly atlas alone. The 15 decisive experiments (`forward/DECISIVE.csv`) separate the sources by 0.05-0.28 in probability; 34 of their 59 lines are listed as available (`forward/AVAILABILITY.csv`). A fresh reviewer checked ten entries by hand: ten of ten agree. These predictions are made after both exams were unblinded; they are clean with respect to the experiments they predict, because those have not been done.
+63 descending-neuron types with a kit driver line and no clear exam 1 label, two sources (the authors' model and two-step signed counting; no fix passed, so there is no robust model: `forward/SOURCES_NOTE.md`). Each score becomes a probability of rhythmic front-leg stepping in a decapitated fly by a one-variable logistic fit to exam 1's 39 labelled types (training on past results to predict future ones; only 6 are headless-labelled, so all labelled types are the fit set). Leave-one-out calibration is weak: Brier 0.248 for the model and 0.239 for counting, against 0.242 for the base rate; AUROC 0.33 and 0.61; 21 of exam 1's 25 'yes' types rest on the intact-fly atlas alone. The 15 decisive experiments (`forward/DECISIVE.csv`) separate the sources by 0.05-0.28 in probability; 34 of their 59 lines are listed as available (`forward/AVAILABILITY.csv`). The authors' screen gives 9 of the 15 a score of 0 (none is a driver; highest 0.13), which the fit maps to 0.59, near the base rate (0.641), so for these types the comparison tests the calibration rather than the screen's own call; and 7 of the available lines have at least one kit record naming another descending-neuron type (`kit_v2/driver_lines.csv`), so a positive result from them may reflect joint activation. A fresh reviewer checked ten entries by hand: ten of ten agree. These predictions are made after both exams were unblinded; they are clean with respect to the experiments they predict, because those have not been done.
 
 ## 7. Alternative explanations of the left-right gap
 
