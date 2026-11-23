@@ -6,7 +6,7 @@ All three tags exist, were pushed to `origin` (branch `ledger/v1` only; `main` u
 
 - `ledger-prereg-v4` (commit badc4d7): `PREREG_v4.md`, `LOCK_prereg_v4.json` sha256 fd34d9f78d3acea47f611f914af95afc4580c0c1d6ddffdfea5a1a2e84219ad4; proofs Bitcoin-attested.
 - `ledger-reliability-v2` (commit d81668b): `LOCK_reliability_v2.json` sha256 02ca7209f948505b42a37e71f8a6657ca238fff58ecc2ece6fcdf243d84bb542 (202 files: Parts A0-D, gates, reviews, code); proof Bitcoin-attested.
-- `ledger-forward-v1` (commit c3ffcfa): `LOCK_forward_v1.json` sha256 f62da2732a3df5677e9566629eac8d3e5de05e3dd0cf9e81c4edbf963bae4917 (179 files); proof Bitcoin-attested (upgraded at 21:28).
+- `ledger-forward-v1` (commit c3ffcfa): `LOCK_forward_v1.json` sha256 f62da2732a3df5677e9566629eac8d3e5de05e3dd0cf9e81c4edbf963bae4917 (179 files, including the fresh reviewer's ten-entry check `reviews_v4/FORWARD_TEN_ENTRY_CHECK.md`, ten of ten agree); proof Bitcoin-attested (upgraded at 21:28).
 
 Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md` with
 `reviews_v4/BRIEF_OVERCLAIM_REVIEW.md`, `EVIDENCE_MAP.md`, this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
@@ -32,7 +32,8 @@ locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 f
 6. **The brief's overclaim review ran on another model.** The first fresh reviewer was stopped by the model provider's safeguards (an
    API error that flags biology-adjacent research) before writing anything; I did not do the review myself. A second fresh reviewer, run
    on another model as the error message suggests, marked 15 items (no wrong number; overclaims and missing caveats); all were fixed in
-   the brief, two also in RESULTS_3 and the evidence map (LOG L151-L152).
+   the brief, two also in RESULTS_3 and the evidence map (LOG L151-L152). The prompt asks for "a fresh reviewer" and names no model;
+   every review of this run was written by a newly started agent with none of this session's context (LOG L153).
 7. **Wall-clock** was about 23.5 hours (16:28 to about 16:00 the next day), at the top of the 12-24 h estimate.
 
 ## 3. The dose-arm check
