@@ -1,0 +1,140 @@
+{
+ "rule": "PREREG v5 F5",
+ "comparisons": {
+  "A_replication_vs_single_connectome": {
+   "types": [
+    "DNa03",
+    "DNa13",
+    "DNp41",
+    "DNp71"
+   ],
+   "max_n": 4,
+   "q": null,
+   "power_a0.8": 0.0,
+   "power_a0.9": 0.0
+  },
+  "B_replication_vs_counting": {
+   "types": [
+    "DNa03",
+    "DNa07",
+    "DNa13",
+    "DNg13",
+    "DNg21",
+    "DNg39",
+    "DNg63",
+    "DNp07",
+    "DNp26",
+    "DNp41"
+   ],
+   "max_n": 10,
+   "q": 9,
+   "power_a0.8": 0.376,
+   "power_a0.9": 0.736
+  },
+  "C_single_connectome_vs_counting": {
+   "types": [
+    "DNa07",
+    "DNg13",
+    "DNg21",
+    "DNg39",
+    "DNg63",
+    "DNp07",
+    "DNp26",
+    "DNp71"
+   ],
+   "max_n": 8,
+   "q": 7,
+   "power_a0.8": 0.503,
+   "power_a0.9": 0.813
+  }
+ },
+ "group_sizes": {
+  "1 replicated / near-replicated": 4,
+  "2 control (stable non-driver, top counting)": 3,
+  "3b single-fly hit, MANC": 2,
+  "3c single-fly hit, MaleCNS": 2,
+  "3a single-fly hit, MANC, A1 driver": 1
+ },
+ "power_table": [
+  {
+   "n_in_D": 1,
+   "q": null,
+   "power_a0.8": 0.0,
+   "power_a0.9": 0.0
+  },
+  {
+   "n_in_D": 2,
+   "q": null,
+   "power_a0.8": 0.0,
+   "power_a0.9": 0.0
+  },
+  {
+   "n_in_D": 3,
+   "q": null,
+   "power_a0.8": 0.0,
+   "power_a0.9": 0.0
+  },
+  {
+   "n_in_D": 4,
+   "q": null,
+   "power_a0.8": 0.0,
+   "power_a0.9": 0.0
+  },
+  {
+   "n_in_D": 5,
+   "q": 5,
+   "power_a0.8": 0.328,
+   "power_a0.9": 0.59
+  },
+  {
+   "n_in_D": 6,
+   "q": 6,
+   "power_a0.8": 0.262,
+   "power_a0.9": 0.531
+  },
+  {
+   "n_in_D": 7,
+   "q": 7,
+   "power_a0.8": 0.21,
+   "power_a0.9": 0.478
+  },
+  {
+   "n_in_D": 8,
+   "q": 7,
+   "power_a0.8": 0.503,
+   "power_a0.9": 0.813
+  },
+  {
+   "n_in_D": 9,
+   "q": 8,
+   "power_a0.8": 0.436,
+   "power_a0.9": 0.775
+  },
+  {
+   "n_in_D": 10,
+   "q": 9,
+   "power_a0.8": 0.376,
+   "power_a0.9": 0.736
+  },
+  {
+   "n_in_D": 11,
+   "q": 9,
+   "power_a0.8": 0.617,
+   "power_a0.9": 0.91
+  },
+  {
+   "n_in_D": 12,
+   "q": 10,
+   "power_a0.8": 0.558,
+   "power_a0.9": 0.889
+  }
+ ],
+ "protocol": [
+  "Cross the driver line to UAS-CsChrimson (LexAop-CsChrimson for a LexA line); raise adults on food with 0.4 mM all-trans-retinal for 3-5 days, in the dark.",
+  "Decapitate the fly under cold anaesthesia and let it recover for 5-10 min, tethered or free on a flat surface.",
+  "Deliver 1 s pulses of 617 nm light (several intensities), at least 10 pulses per fly, at least 8 flies per genotype.",
+  "Record the front legs at >= 100 frames/s; score each pulse for rhythmic front-leg stepping blind to genotype.",
+  "Controls: the empty split-GAL4 crossed to UAS-CsChrimson, and flies of the same cross raised without retinal."
+ ],
+ "honesty": "Made after both exams were unblinded and after the replication pattern was seen (post hoc categories, PREREG v5 Part R). Clean with respect to the experiments it predicts, which have not been done."
+}

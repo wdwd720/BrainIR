@@ -2,6 +2,7 @@
 
     uv run --project ledger --no-sync python ledger/scripts/forward_v2.py candidates   # F1-F2 -> forward_v2/CANDIDATES.csv
     uv run --project ledger --no-sync python ledger/scripts/forward_v2.py shortlist    # F3-F5 (needs forward_v2/AVAILABILITY.csv) -> SHORTLIST.csv
+    uv run --project ledger --no-sync python ledger/scripts/forward_v2.py lines-table  # F4 -> SHORTLIST_LINES.csv (per line: availability, other DN types)
 
 Made after both exams were unblinded and after the replication pattern was seen; clean with respect to the experiments it predicts.
 Inputs: the locked per-type tables (Part R categories), the audit's checked records (labels_audit_v1/) and exam 1's records (whether a
@@ -242,6 +243,21 @@ if __name__ == "__main__":
         with open(FWD2 / "README.md", "x", encoding="utf-8", newline="\n") as fh:
             fh.write("\n".join(readme) + "\n")
         print(s.to_string()); print(json.dumps(cmp_["comparisons"], indent=1))
+    elif cmd == ["lines-table"]:
+        # F4: one row per (short-listed type, kit line): collection, availability today, other DN types named by the line's kit rows
+        short = pd.read_csv(FWD2 / "SHORTLIST.csv", dtype={"manc_type": str}, keep_default_na=False)
+        av = {r["line"]: r for r in csv.DictReader(open(FWD2 / "AVAILABILITY.csv", encoding="utf-8"))}
+        dl, pats = kit_line_rows(), _dn_names()
+        out = []
+        for t in short["manc_type"]:
+            for x in lines_for(t, dl, pats):
+                a = av.get(x["line"], {})
+                out.append({"manc_type": t, "line": x["line"], "collection": x["collection"], "listed_available": a.get("listed_available", "not_checked"),
+                            "url": a.get("url", ""), "date_checked": a.get("date_checked", ""), "other_dn_types": ";".join(x["other_dn_types"]),
+                            "clean": x["clean"]})
+        with open(FWD2 / "SHORTLIST_LINES.csv", "x", encoding="utf-8", newline="\n") as fh:
+            fh.write(pd.DataFrame(out).to_csv(index=False, lineterminator="\n"))
+        print(pd.DataFrame(out)[["manc_type", "line", "listed_available", "clean", "other_dn_types"]].to_string())
     elif cmd == ["power"]:
         print(json.dumps(power_table(), indent=1))
     else:
