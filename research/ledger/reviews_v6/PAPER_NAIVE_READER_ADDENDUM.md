@@ -51,3 +51,5 @@ recorded here first. The reader's "most confusing" items (10, 11, 3, 7, 12) shap
 animals" was our error: it is four types, with DNxl134 (numbers review P1). The reader's question, whether the lesson concerns such
 screens in general or our procedure, is now answered in the Discussion. Part of the answer depends on the procedure, and we say which
 part.
+
+**Verified after the revision** (commits 32ffbf8 and the one after it). Every change above is in the revised `PREPRINT_v1.md`, `SUPPLEMENT_v1.md`, `CLAIMS_v1.md` or figures. `claims_check_v1.py` passes all 81 numeric checks and `refs_check_v2.py` passes all 18 references. Logged in LOG L190-L191.

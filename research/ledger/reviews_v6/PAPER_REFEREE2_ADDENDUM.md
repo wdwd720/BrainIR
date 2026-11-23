@@ -48,3 +48,5 @@ per-pair arithmetic of C7) go into one new post hoc lock, `LOCK_paper_posthoc_v1
 **"What survives" (section 3)** is reflected in the revised Discussion. That covers the left-right gap in all three animals, the
 cross-animal gap under both procedures, the gate and Part V, and pooling "not shown". The referee's credit to the reimplementation (Part
 V) is stated there.
+
+**Verified after the revision** (commits 32ffbf8 and the one after it). Every change above is in the revised `PREPRINT_v1.md`, `SUPPLEMENT_v1.md`, `CLAIMS_v1.md` or figures. `claims_check_v1.py` passes all 81 numeric checks and `refs_check_v2.py` passes all 18 references. Logged in LOG L190-L191.

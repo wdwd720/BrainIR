@@ -28,3 +28,5 @@ variation. A replacement sentence goes in only if every number in it is in a loc
 
 The brief, the study guide and the outreach drafts repeat several of these sentences, although no reviewer read them. They get the same
 corrections (logged).
+
+**Verified after the revision** (commits 32ffbf8 and the one after it). Every change above is in the revised `PREPRINT_v1.md`, `SUPPLEMENT_v1.md`, `CLAIMS_v1.md` or figures. `claims_check_v1.py` passes all 81 numeric checks and `refs_check_v2.py` passes all 18 references. Logged in LOG L190-L191.

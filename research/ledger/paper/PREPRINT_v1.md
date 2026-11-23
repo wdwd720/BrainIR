@@ -20,10 +20,11 @@ the best wiring count.
 
 ## Introduction
 
-Simulations of connectomes are now used to choose neurons for experiments[1-3]. A connectome is a map of every neuron and synapse in a
+Connectome simulations are now used to choose neurons for experiments[1-3]. A connectome is a map of every neuron and synapse in a
 nervous system. In the fruit fly *Drosophila melanogaster*, the nerve cord, which holds the circuits that move the legs, has been mapped
 in several animals: a male nerve cord (MANC)[4], a female nerve cord (FANC)[5], a male central nervous system (MaleCNS)[6] and a female
-brain and nerve cord (BANC)[7].
+brain and nerve cord (BANC)[7]. FANC's released network holds only the path from DNg100 to the motor neurons, so it cannot be
+screened; we use the other three.
 
 Pugliese and colleagues built rate models of the nerve cord's front-leg network from these connectomes[1,2]. In a rate model each
 neuron's activity is a firing rate driven by its synaptic inputs, with synapse counts as weights. In MANC they switched on, one at a
@@ -135,7 +136,7 @@ across the three pairs wiring agreement does not track screen agreement (post ho
 MaleCNS, has the least similar screens. The authors attribute
 some differences between their datasets to "variation in motor neuron reconstruction fidelity and synapse detection"[2].
 
-What matters most to an experimenter is whether the top of the list recurs. Under the sweep, 14 of MANC's 18 hits are hits in MaleCNS
+Experimenters care most whether the top of the list recurs. Under the sweep, 14 of MANC's 18 hits are hits in MaleCNS
 (post hoc; with DNg100, 15 of 19). In BANC (pre-registered), our MANC hits recurred above chance (5 of 17, p = 0.016; with DNg100, 6 of
 18), and so did our MaleCNS hits (12 of 60, p = 0.004; with DNg100, 13 of 61). Still, most do not: 29 % and 20 % recur. Keeping each
 draw's best of 19 currents, the sweep calls many hits: 61 of the 182 three-animal types in MaleCNS, against 18 under the current-setting
@@ -175,7 +176,7 @@ configuration.
 Under the sweep, four types are hits in all three animals (post hoc; Fig. 4): DNg100, DNxl134, DNa13 and DNxl092. Under the
 current-setting procedure only DNg100 is; DNa13 and DNxl092 score 0.00 in BANC.
 
-Is our model of MaleCNS faithful to the authors'? Our earlier analysis found no rhythm for any single DNb08 copy in our MaleCNS screen,
+Our earlier analysis found no rhythm for any single DNb08 copy in our MaleCNS screen,
 whereas the authors report it for a single DNb08 neuron. In a pre-registered check at their configuration (their neuron, current 250,
 2-s runs), our model reproduces their result: 15 of 16 draws reach 0.5 (mean 0.86; theirs 0.80; Fig. 6). Each of the four copies
 reaches 0.5 in at least half the draws at some fixed current, but only within a range of currents that differs between copies. The
@@ -322,8 +323,8 @@ model scores and fly outcomes we already knew. An audit found 3 errors among the
 atlas alone, 3 among the 18 others (17 %, above the pre-registered 10 % bar if taken alone); it also issued an erratum for six excluded
 types, DNg100 among them.
 
-**Compute.** This analysis's simulations ran on GitHub Actions after a re-run of 100 locked simulations matched exactly; every campaign
-passed a determinism re-run of 20 jobs (240 of 240 identical). MANC's one-sided screen (draws 4-15) and current sweep ran earlier
+**Compute.** This analysis's simulations ran on GitHub Actions after a re-run of 100 locked simulations matched exactly; every batch of
+simulations passed a determinism re-run of 20 of its jobs (240 of 240 identical). MANC's one-sided screen (draws 4-15) and current sweep ran earlier
 on Modal, under their own reproduction check.
 
 ## Use of AI
