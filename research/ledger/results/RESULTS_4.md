@@ -87,8 +87,7 @@ Details: `LABEL_AUDIT_v1.md`.
 
 ## 5. Three caveats
 
-1. **The replication pattern is post hoc and tiny.** Two (or three) replicated types, chosen after seeing the table; one is the neuron the
-   model was calibrated on, another the authors' own pick.
+1. **The replication pattern is post hoc and tiny, and half of it is built in.** Two (or three) replicated types, seen before the rule; DNg100's replication is guaranteed by our calibration (rulebook v2 chose the tuner's setting to make DNg100 a driver in both connectomes; under the original procedure it scored 0.059 in MaleCNS), so DNb08, the authors' own pick, is the informative case; DNit013 replicates only under the calibrated procedure and on a low-confidence match.
 2. **Part S's null says nothing either way.** Three replicated types cannot support a test at 0.05 unless they are strictly the most stable;
    DNb08 was not.
 3. **The labels are inferred from papers.** Both exam 1 and the audit read the literature with language-model sessions of one family; the

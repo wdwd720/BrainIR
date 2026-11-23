@@ -3,7 +3,7 @@
 ## In one paragraph
 
 A published rate model built from the fly's nerve-cord connectome (Pugliese et al., 2026) screens descending-neuron types for rhythmic
-leg activity. Run on a second animal's connectome, its hits mostly do not recur: of our MANC screen's 11 confidently matched hits, 2 are hits again, and **those two are the paper's experimentally supported drivers, DNg100 and DNb08** (**post hoc**: the pattern was seen before its rule; the model was calibrated on DNg100, the authors chose DNb08, both were known in advance, and two is a tiny sample). A pre-registered test of whether a hit's stability under synapse-count noise predicts its replication was **not significant**
+leg activity. Run on a second animal's connectome, its hits mostly do not recur: of our MANC screen's 11 confidently matched hits, 2 are hits again, and **those two are the paper's experimentally supported drivers, DNg100 and DNb08** (**post hoc**: the pattern was seen before its rule; our calibration guarantees DNg100's replication, so DNb08 is the real test; two is a tiny sample). A pre-registered test of whether a hit's stability under synapse-count noise predicts its replication was **not significant**
 (p = 0.11; with three replicated types this is not evidence against). We pre-registered 12 experiments with listed driver lines, and a
 rule for reading their results against wiring counts.
 
