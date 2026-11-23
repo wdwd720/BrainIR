@@ -20,10 +20,10 @@ unblinded and closed.
 - [x] Stages 2-5: A0, A, Blocks 1-3, count noise, Part C (no fix passes), Part D (fix 2 locked; 1, 4, 5a, 5b, 7 post-lock exploratory);
       `LOCK_reliability_v2` + tag `ledger-reliability-v2` (d81668b; proof Bitcoin-attested).
 - [x] Stage 6: forward ledger (63 types, two sources), ten-entry check 10/10, availability; `LOCK_forward_v1` + tag `ledger-forward-v1`
-      (c3ffcfa; proof pending at the end: run `ots upgrade research/ledger/LOCK_forward_v1.json.ots`).
+      (c3ffcfa; proof Bitcoin-attested at 21:28).
 - [x] Stage 7: RESULTS_3.md, adversarial review + addendum, BRIEF.md (overclaim review stopped by provider safeguards; L151),
       EVIDENCE_MAP.md, HANDOFF_4.md. Final baseline identical to the start.
-- Open: forward proof upgrade; the brief's overclaim review (needs another model or later retry).
+- Open: the brief's overclaim review (stopped by provider safeguards; needs another model or a later retry).
 
 ## Facts fixed so far (run 4)
 - Dose arm (H-D): all 1,376 job specs carry the key's current for every member; neurons above 100 Hz rise with the current; the

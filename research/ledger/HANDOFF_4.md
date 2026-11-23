@@ -6,8 +6,7 @@ All three tags exist, were pushed to `origin` (branch `ledger/v1` only; `main` u
 
 - `ledger-prereg-v4` (commit badc4d7): `PREREG_v4.md`, `LOCK_prereg_v4.json` sha256 fd34d9f78d3acea47f611f914af95afc4580c0c1d6ddffdfea5a1a2e84219ad4; proofs Bitcoin-attested.
 - `ledger-reliability-v2` (commit d81668b): `LOCK_reliability_v2.json` sha256 02ca7209f948505b42a37e71f8a6657ca238fff58ecc2ece6fcdf243d84bb542 (202 files: Parts A0-D, gates, reviews, code); proof Bitcoin-attested.
-- `ledger-forward-v1` (commit c3ffcfa): `LOCK_forward_v1.json` sha256 f62da2732a3df5677e9566629eac8d3e5de05e3dd0cf9e81c4edbf963bae4917 (179 files); proof submitted to four calendars, still pending Bitcoin attestation when this was written
-  (`ots upgrade research/ledger/LOCK_forward_v1.json.ots` completes it).
+- `ledger-forward-v1` (commit c3ffcfa): `LOCK_forward_v1.json` sha256 f62da2732a3df5677e9566629eac8d3e5de05e3dd0cf9e81c4edbf963bae4917 (179 files); proof Bitcoin-attested (upgraded at 21:28).
 
 Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md`,
 `EVIDENCE_MAP.md`, this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
