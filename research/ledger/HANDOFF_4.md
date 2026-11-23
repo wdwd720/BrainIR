@@ -8,9 +8,10 @@ All three tags exist, were pushed to `origin` (branch `ledger/v1` only; `main` u
 - `ledger-reliability-v2` (commit d81668b): `LOCK_reliability_v2.json` sha256 02ca7209f948505b42a37e71f8a6657ca238fff58ecc2ece6fcdf243d84bb542 (202 files: Parts A0-D, gates, reviews, code); proof Bitcoin-attested.
 - `ledger-forward-v1` (commit c3ffcfa): `LOCK_forward_v1.json` sha256 f62da2732a3df5677e9566629eac8d3e5de05e3dd0cf9e81c4edbf963bae4917 (179 files, including the fresh reviewer's ten-entry check `reviews_v4/FORWARD_TEN_ENTRY_CHECK.md`, ten of ten agree); proof Bitcoin-attested (upgraded at 21:28).
 
-Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md` with its two
-overclaim reviews (`reviews_v4/BRIEF_OVERCLAIM_REVIEW.md`; `BRIEF_OVERCLAIM_REVIEW_2.md` with `BRIEF_OVERCLAIM_ADDENDUM_2.md`),
-`EVIDENCE_MAP.md`, this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
+Documents: `results/RESULTS_3.md`, `reviews_v4/ADVERSARIAL_REVIEW_v4.md` with `ADVERSARIAL_ADDENDUM_v4.md`, `BRIEF.md` (two pages:
+US Letter, 1-inch margins, 11 pt, with the table and the figure; `ledger/scripts/posthoc/brief_pages_v4.py` prints "pages: 2") with its
+two overclaim reviews (`reviews_v4/BRIEF_OVERCLAIM_REVIEW.md`; `BRIEF_OVERCLAIM_REVIEW_2.md` with `BRIEF_OVERCLAIM_ADDENDUM_2.md`),
+`EVIDENCE_MAP.md` (one row per claim, 30 rows), this file. Baseline at the end, as at the start: 21 lock checks pass (15 ledger locks, 3 BrainIR locks, the three v4
 locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 failure.
 
 ## 2. Departures from the prompt, with reasons
@@ -36,12 +37,11 @@ locks), ledger suite 259 passed, BrainIR suite 532 passed with the known arm64 f
    (the prompt names no model), a fresh reviewer on the default model then reviewed the revised brief and marked 13 more (overclaims,
    missing caveats, a mislabelled post-hoc figure, a fix count that mixed units); all are fixed, and its four corrections to its own
    report are in `BRIEF_OVERCLAIM_ADDENDUM_2.md` (LOG L154). The brief now uses only numbers from locked files, so the adversarial
-   reviewer's post-hoc figures appear in it in words only. A final check of the brief against the first review's 15 items restored five
-   of its fixes that my length cuts had weakened (LOG L155). Every review of this run was written by a newly started agent with none of
-   this session's context (LOG L153).
+   reviewer's post-hoc figures appear in it in words only. The brief was then cut to the two pages the prompt asks for (it had printed
+   to 4) by removing whole claims, not caveats. Every item of both reviews is either kept in the final text or resolved by removing the
+   claim it qualified (`BRIEF_OVERCLAIM_ADDENDUM_2.md` section 4; LOG L155-L156). Every review of this run was written by a newly
+   started agent with none of this session's context (LOG L153).
 7. **Wall-clock** was about 23.5 hours (16:28 to about 16:00 the next day), at the top of the 12-24 h estimate.
-8. **The brief is longer than the two pages asked for:** 1,514 words of prose plus the 15-row decisive table and one figure. I kept the
-   caveats the two overclaim reviews asked for rather than cut them.
 
 ## 3. The dose-arm check
 
@@ -114,13 +114,11 @@ connections in one copy only (the review's post-hoc check), against half between
 
 ## 11. The brief's opening paragraph
 
-> A model that simulates the fly's ventral nerve cord from its connectome (the published rate model behind the DNg100 walking result) can
-> screen descending-neuron types: stimulate a type, ask whether the front-leg motor neurons become rhythmic. We used agreement between a
-> type's left and right copies, and between two flies (the MANC and MaleCNS connectomes), as a consistency check: if the screen captures
-> function shared by copies built by the same genome, they should agree about as well as the screen agrees with itself across random seeds
-> (the ceiling; agreement is a Spearman correlation of type scores). Real sides and individuals can differ, and the two connectomes differ
-> in reconstruction and annotation (MaleCNS's descending-neuron sides were reassigned from their outputs; its neurons carry MANC types by
-> matching), so a gap is a warning about the screen, not proof of an error.
+> A published rate model built from the fly's nerve-cord connectome screens descending-neuron types: stimulate a type, ask whether the
+> front-leg motor neurons become rhythmic. If the screen captures function shared by copies built by the same genome, a type's left and
+> right copies, and the same type in two flies (MANC and MaleCNS), should agree about as well as the screen agrees with itself across
+> seeds (the ceiling; agreement is the Spearman correlation of type scores). Sides, flies and the connectomes' reconstruction and
+> annotation can differ, so a gap is a warning about the screen, not proof of an error.
 
 ## 12. Compute and wall-clock
 

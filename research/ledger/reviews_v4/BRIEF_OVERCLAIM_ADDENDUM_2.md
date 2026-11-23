@@ -70,3 +70,54 @@ evidence map (2-20) was checked against `reliability_v2/C.json` (`rewired_driver
 reached 2. A sentence in RESULTS_3 section 3.3 was corrected to "the only classes whose alone-closure intervals exclude 0". The
 brief's prose is now 1,514 words, so it runs past the two pages asked for (handoff section 2).
 
+## 4. The two-page rewrite: every review item against the final text
+
+**Why the rewrite.** RUN4_PROMPT asks for a two-page brief, and the stop hook pointed out that nothing waived this. The page was then
+defined once, before the rewrite: US Letter, 1-inch margins, 11 pt serif body, 10 pt table and caption, the figure at the full text
+width. It is measured with `ledger/scripts/posthoc/brief_pages_v4.py` (headless Chrome).
+- **Before.** The brief as of f2526f5 printed to 4 pages; even the first, pre-review version (5219488) printed to 3.
+- **How it was cut.** The brief was brought to 2 pages by removing whole claims, not caveats, and by keeping each result to one
+  number, as the prompt asks.
+- **After.** The final version prints to 2 pages, with the figure embedded and about five lines to spare.
+
+Each item of both reviews either is kept (its fix stands in the final text) or no longer applies (the claim it qualified has left the
+brief):
+
+| item | status in the two-page brief |
+|---|---|
+| 1-1 premise stated as fact | kept: a conditional consistency check; sides, flies, reconstruction and annotation can differ |
+| 1-2 "frozen before the data existed" | kept: frozen before any simulation of this run; departures recorded; the budget rule; the post-hoc check and the re-scores marked. The kinds of departure are now listed only in the evidence map |
+| 1-3 labels | kept |
+| 1-4 one driver in seven or eight | claim removed |
+| 1-5 "the wiring agrees" | claim removed; the wiring appears only in the figure, whose caption gives the scale |
+| 1-6 mixed units in result 3 | kept: result 3 uses ratios only and says that result 2 used another design |
+| 1-7 "noise produces the gap"; the 86 % | kept: "almost as much"; the sufficiency caveat; the post-hoc check stated in words and marked as under no lock. The B4.5 difference itself is omitted, but the verdict is stated |
+| 1-8 "at most about a third" | kept: closures with intervals, partly from lower noise |
+| 1-9 "every fixed current" | claim removed |
+| 1-10 "together they close all of it" | claim removed |
+| 1-11 "mostly small one-sided connections" | kept: MANC; "no single class closes the gap". The weights claim is removed |
+| 1-12 the fix list | kept: all ten variants accounted for; the rewired-driver criterion is not mentioned |
+| 1-13 calibration | kept: Brier, AUROC (below chance), intact-fly labels, extrapolations. The counts are in the evidence map |
+| 1-14 the ask and availability | kept: none for four types; the FlyBank-only entries; listed on a date |
+| 1-15 the tag line | kept: no tag is said to cover everything, and what is under no lock is marked |
+| 2-1 premise | kept |
+| 2-2 frozen | kept |
+| 2-3 post-hoc figures | kept: no unlocked number in the brief |
+| 2-4 labels | kept |
+| 2-5 "the same gap" | kept |
+| 2-6 Block 1 ceiling | kept: MaleCNS's own-ceiling ratios (MANC's are in the evidence map) |
+| 2-7 Block 3 size verdict | claim removed |
+| 2-8 fix count | kept |
+| 2-9 scope | kept, with the subset used by the causes and fixes |
+| 2-10 model column | kept, using correction 1 |
+| 2-11 decisive gap range | kept |
+| 2-12 lines that also label another type | kept, using correction 3 (count and kit pointer; the names are in the evidence map) |
+| 2-13 evidence map | kept: rebuilt with one row per claim (30 rows) |
+| correction 1 (scoring bullet) | not used |
+| correction 2 (`C.json` keys) | evidence only |
+| correction 3 (kit wording) | used |
+| correction 4 (determinism) | claim removed: the determinism sentence is no longer in the brief |
+
+The length statements at the end of sections 2 and 3 (1,426 words; 1,514 words, "past the two pages asked for") are kept as written,
+as the record of those versions.
+
