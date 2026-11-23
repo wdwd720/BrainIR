@@ -142,7 +142,31 @@ def fig3() -> None:
     plt.close(fig)
 
 
-FIGS = {"fig1": fig1, "fig2": fig2, "fig3": fig3}
+def fig4() -> None:
+    """Result 5 (pre-registered, PREREG v5 Part S): stability of each B1r or A1 driver across 16 Poisson copies of MANC's counts."""
+    plt = _plt()
+    S = json.loads((RESEARCH / "replication_v1" / "S_tests.json").read_text(encoding="utf-8"))
+    rep = set(S["tests"]["b1r_drivers"]["replicated_from_locked_B2r"])
+    drv = set(S["tests"]["b1r_drivers"]["drivers"]) | set(S["tests"]["a1_drivers"]["drivers"])
+    rows = sorted([r for r in S["per_type"] if r["manc_type"] in drv], key=lambda r: (r["stability"], r["mean_copy_score"]))
+    fig, ax = plt.subplots(figsize=(5.2, 4.4))
+    for i, r in enumerate(rows):
+        col = S2 if r["manc_type"] in rep else S1
+        ax.barh(i, r["stability"], height=0.62, color=col, edgecolor=SURFACE, linewidth=1)
+        ax.text(r["stability"] + 0.015, i, f"{r['stability']:.2f}", va="center", fontsize=7, color=INK2)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels([r["manc_type"] + ("" if r["manc_type"] in S["tests"]["b1r_drivers"]["drivers"] else " (A1 only)") for r in rows], fontsize=8)
+    ax.set_xlim(0, 1.12)
+    ax.set_xlabel("stability: fraction of 16 noisy copies in which the type is a driver")
+    ax.grid(axis="y", visible=False)
+    p1 = S["tests"]["b1r_drivers"]["primary_stability"]["p"]
+    ax.set_title(f"Drivers replicated in MaleCNS (orange) or not (blue)\nexact one-sided rank test p = {p1:.2f} (pre-registered)", fontsize=9, color=INK, loc="left")
+    fig.tight_layout()
+    _save(fig, "fig4_stability")
+    plt.close(fig)
+
+
+FIGS = {"fig1": fig1, "fig2": fig2, "fig3": fig3, "fig4": fig4}
 
 
 if __name__ == "__main__":
