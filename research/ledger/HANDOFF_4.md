@@ -116,11 +116,11 @@ connections in one copy only (the review's post-hoc check), against half between
 
 > A model that simulates the fly's ventral nerve cord from its connectome (the published rate model behind the DNg100 walking result) can
 > screen descending-neuron types: stimulate a type, ask whether the front-leg motor neurons become rhythmic. We used agreement between a
-> type's left and right copies, and between two flies (the MANC and MaleCNS connectomes), as a consistency check: copies built by the same
-> genome should agree about as well as the screen agrees with itself across random seeds (the ceiling; agreement is a Spearman correlation
-> of type scores). Real sides and individuals can differ, and the two connectomes differ in reconstruction and annotation (MaleCNS's
-> descending-neuron sides were reassigned from their outputs; its neurons carry MANC types by matching), so a gap is a warning about the
-> screen, not proof of an error.
+> type's left and right copies, and between two flies (the MANC and MaleCNS connectomes), as a consistency check: if the screen captures
+> function shared by copies built by the same genome, they should agree about as well as the screen agrees with itself across random seeds
+> (the ceiling; agreement is a Spearman correlation of type scores). Real sides and individuals can differ, and the two connectomes differ
+> in reconstruction and annotation (MaleCNS's descending-neuron sides were reassigned from their outputs; its neurons carry MANC types by
+> matching), so a gap is a warning about the screen, not proof of an error.
 
 ## 12. Compute and wall-clock
 
@@ -132,7 +132,8 @@ that hit the 340-minute limit, a lost runner, cancelled attempts). Modal: $36.17
 1. The headline rests on one MANC comparison: counting noise suffices for a gap this size, which does not prove the real left-right
    differences are counting noise.
 2. Criterion 4's "few rewired drivers" (2) came from whole-type controls; the one-sided rewired controls give 2-20 (only the dose sweep
-   reached 2, and it failed on agreement and on driver count), so that criterion was close to unattainable. It was pre-registered, but it shaped the verdict.
+   reached 2, and it failed on agreement and on driver count), so that criterion was close to unattainable. It was pre-registered, but
+   it shaped the verdict.
 3. The forward probabilities are barely calibrated, and the authors' model gives 0.59 to every zero-score type, so the decisive list is
    mostly about counting.
 4. About a quarter of the GitHub budget gave no result, and the partial-attempt machinery that recovered from it is new code
