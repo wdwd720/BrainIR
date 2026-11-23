@@ -72,7 +72,77 @@ def fig1() -> None:
     return a0
 
 
-FIGS = {"fig1": fig1}
+def fig2() -> None:
+    """Result 2-3 (POST HOC): each type's whole-type score in MANC (B1r) against MaleCNS (B2r), high-confidence matches; categories of
+    `replication_v1/R_replication.json`."""
+    plt = _plt()
+    R = json.loads((RESEARCH / "replication_v1" / "R_replication.json").read_text(encoding="utf-8"))
+    rows = pd.DataFrame(R["B1r_x_B2r"]["high"]["table"])
+    fig, ax = plt.subplots(figsize=(4.4, 4.2))
+    ax.axvline(0.5, color=AXIS, lw=0.8, ls="--", zorder=1)
+    ax.axhline(0.5, color=AXIS, lw=0.8, ls="--", zorder=1)
+    groups = (("replicated", S2, "replicated: driver in both"), ("single_fly_manc", S1, "single-fly hit, MANC (< 0.3 in MaleCNS)"),
+              ("single_fly_malecns", S3, "single-fly hit, MaleCNS (< 0.3 in MANC)"))
+    other = rows[~rows["category"].isin([g[0] for g in groups])]
+    ax.scatter(other["B1r"], other["B2r"], s=10, color=MUTED, alpha=0.45, edgecolor="none", zorder=2, label="other types (incl. near-replicated)")
+    for cat, col, lab in groups:
+        d = rows[rows["category"] == cat]
+        ax.scatter(d["B1r"], d["B2r"], s=22, color=col, edgecolor=SURFACE, linewidth=0.6, zorder=3, label=f"{lab} ({len(d)})")
+    for t, dx, dy in (("DNg100", 0.0, -0.14), ("DNb08", 0.06, 0.12)):
+        r = rows[rows["manc_type"] == t]
+        if len(r):
+            _label(ax, float(r["B1r"].iloc[0]), float(r["B2r"].iloc[0]), t, dx=dx, dy=dy)
+    ax.set_xlim(-0.03, 1.03)
+    ax.set_ylim(-0.03, 1.03)
+    ax.set_xlabel("MANC (B1r): mean rhythm score")
+    ax.set_ylabel("MaleCNS (B2r): mean rhythm score")
+    ax.set_title(f"Post hoc: {len(rows)} types with a high-confidence\ncross-fly match", fontsize=9, color=INK, loc="left")
+    ax.legend(fontsize=7, frameon=False, loc="upper center", bbox_to_anchor=(0.5, -0.14), ncol=2)
+    fig.tight_layout()
+    _save(fig, "fig2_two_flies_posthoc")
+    plt.close(fig)
+
+
+def _ratio_ci(d: dict) -> tuple[float, float, float]:
+    iv = (d.get("bootstrap") or {}).get("interval", {}).get("ratio")
+    lo, hi = (iv[0], iv[1]) if isinstance(iv, (list, tuple)) else ((iv or {}).get("lo"), (iv or {}).get("hi"))
+    return float(d["primary"]["ratio"]), float(lo), float(hi)
+
+
+def fig3() -> None:
+    """Results 1, 2 and 4: agreement as a fraction of the split-seed ceiling (95 % bootstrap intervals), from the locked run 4 files."""
+    plt = _plt()
+    A0 = json.loads((RESEARCH / "reliability_v2" / "A0.json").read_text(encoding="utf-8"))["A0"]["primary_one_member_each_side"]
+    A = json.loads((RESEARCH / "reliability_v2" / "A.json").read_text(encoding="utf-8"))
+    six = A["six_agreements_primary_homolog_consistent"]
+    N = json.loads((RESEARCH / "reliability_v2" / "NOISE.json").read_text(encoding="utf-8"))["primary_homolog_consistent"]
+    rows = [("Authors' screen: left vs right copy", _ratio_ci(A0), S1),
+            ("MANC: left vs right", _ratio_ci(six["MANC-L vs MANC-R"]), S1),
+            ("MaleCNS: left vs right", _ratio_ci(six["MaleCNS-L vs MaleCNS-R"]), S1),
+            ("MANC vs MaleCNS, same side (L)", _ratio_ci(six["MANC-L vs MaleCNS-L"]), S2),
+            ("MANC vs MaleCNS, same side (R)", _ratio_ci(six["MANC-R vs MaleCNS-R"]), S2),
+            ("MANC vs MaleCNS, whole types", _ratio_ci(A["reference_R1_whole_type_cross_fly"]), S2),
+            ("MANC: left vs right, paired design", _ratio_ci(N["observed_left_right_paired_design"]), S1),
+            ("MANC: two Poisson copies of the counts", _ratio_ci(N["poisson"]["copy_vs_copy"]), S3)]
+    fig, ax = plt.subplots(figsize=(6.2, 3.4))
+    for i, (lab, (v, lo, hi), col) in enumerate(rows):
+        y = len(rows) - 1 - i
+        ax.plot([lo, hi], [y, y], color=col, lw=2, solid_capstyle="round", zorder=2)
+        ax.scatter([v], [y], s=34, color=col, edgecolor=SURFACE, linewidth=0.8, zorder=3)
+        ax.text(1.02, y, f"{v:.2f}", va="center", fontsize=8, color=INK2)
+    ax.set_yticks(range(len(rows)))
+    ax.set_yticklabels([r[0] for r in rows][::-1], fontsize=8)
+    ax.axvline(1.0, color=AXIS, lw=1)
+    ax.set_xlim(0, 1.1)
+    ax.set_xlabel("agreement / ceiling  (1 = as good as the screen with itself)")
+    ax.grid(axis="y", visible=False)
+    ax.set_title("How well screens of matched neurons agree", fontsize=9, color=INK, loc="left")
+    fig.tight_layout()
+    _save(fig, "fig3_agreement")
+    plt.close(fig)
+
+
+FIGS = {"fig1": fig1, "fig2": fig2, "fig3": fig3}
 
 
 if __name__ == "__main__":
