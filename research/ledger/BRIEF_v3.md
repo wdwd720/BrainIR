@@ -24,9 +24,9 @@ is post hoc. DNg100 is never counted as evidence of replication: our procedure's
 | Left vs right copies in BANC | a real gap | 0.58 of the ceiling (0.38-0.77); MANC 0.59, MaleCNS 0.64 |
 | Count noise in BANC | does not reproduce it | redrawn-count copies agree at 0.78; left vs right 0.58 |
 | Agreement across animals | confirmed in the third animal (wiring caveat) | MANC-BANC 0.35 (0.20-0.49), MaleCNS-BANC 0.50 (0.38-0.62) |
-| Our MANC hits in BANC | above chance | 5 of 17 recur (1.7 expected, p = 0.016) |
-| The authors' whole-type hits in BANC (our 0.5 cut) | at chance (see below) | 1 of 6 (0.6 expected, p = 0.47) |
-| Our MaleCNS hits in BANC | above chance | 12 of 60 recur (6.3 expected, p = 0.004) |
+| Our MANC hits in BANC | above chance | 5 of 17 recur (1.7 expected, p = 0.016); with DNg100, 6 of 18 |
+| The authors' whole-type hits in BANC (our 0.5 cut) | at chance (see below) | 1 of 6 (0.6 expected, p = 0.47); with DNg100, 2 of 7 |
+| Our MaleCNS hits in BANC | above chance | 12 of 60 recur (6.3 expected, p = 0.004); with DNg100, 13 of 61 |
 | DNg100 in BANC (our procedure) | pass | 0.64; but 11 of 16 draws, short of the 12 needed to keep the procedure |
 | Pooling two animals | not shown | beats MANC alone (+0.20), not MaleCNS alone (+0.02) |
 | Animals needed (extrapolation) | (estimate) | about 7 (4.3 to 9.7) |
@@ -41,8 +41,9 @@ to recur. The left-right and count-noise tests used the current-setting procedur
 **DNb08 is not a hit in BANC**, as the authors report for their single neuron: whole type 0.00 (current-setting) and 0.25 (sweep); each
 copy 0 of 16. **Under the sweep, four types are hits in all three animals** (post hoc): DNg100, DNxl134, DNa13 and DNxl092.
 
-**Post hoc, first two animals:** at the authors' threshold the hit lists share 1 hit where 1.0 is expected; at 0.3, 14 where 6 are
-expected; under the sweep, 14 of 18 MANC hits recur in MaleCNS. In the one interpretable literature test, the simulation added nothing
+**Post hoc, first two animals:** at the authors' threshold the hit lists share 1 hit where 1.0 is expected (with DNg100,
+2 of 11); at 0.3, 14 where 6 are expected (with DNg100, 15); under the sweep, 14 of 18 MANC hits recur in MaleCNS (with DNg100, 15 of
+19). In the one interpretable literature test, the simulation added nothing
 beyond the best of eight wiring counts.
 
 ## What holds up in the original work

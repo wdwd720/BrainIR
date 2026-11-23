@@ -45,7 +45,7 @@ run 5's state is in git history (this file at ec770a8).
 - [x] OTS: prereg_v6, posthoc_v6, thirdfly_v1 Bitcoin-attested and committed; paper_posthoc_v1 pending.
 - [x] Final baseline 15:26 PST: 25 earlier lock checks pass; run-6 checks 4/4 (prereg_v6, posthoc_v6, thirdfly_v1, paper_posthoc_v1);
       ledger suite 302 passed; BrainIR fast suite 532 passed, 1 known failure (L5). Runner-hours 14.88 of 150 (82 jobs); no Modal.
-- [x] HANDOFF_6.md (14 sections, 2,297 words) committed and printed as the final message.
+- [x] Final review fixes (L192): Part V back in the Limitations; claims paths resolved; with-DNg100 counts in RESULTS_5 and the brief; study guide questions updated. HANDOFF_6.md (14 sections, 2,486 words) committed and printed as the final message.
 - [ ] Commit the LOCK_paper_posthoc_v1 OTS proof when `ots upgrade` reports it complete (background retry running at hand-off).
 - Extra post hoc (exploratory) file for the paper: thirdfly_v1/POSTHOC_exam2_pairs.json (model clearly above 4 of 8 baselines).
 

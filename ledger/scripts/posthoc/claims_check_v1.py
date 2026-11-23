@@ -212,14 +212,30 @@ tg, d1, d2 = J("gates_v6/TRUST_GATE_v6.json"), J("gates_v6/DETERMINISM_v6_stage1
 add("52", "re-run of 100 locked simulations matched exactly", f"re-run of {tg['identical']} locked simulations matched exactly" if tg["identical"] == tg["n"] else "TRUST MISMATCH")
 add("52", "(240 of 240 identical)", f"({d1['identical'] + d2['identical']} of {d1['n'] + d2['n']} identical)")
 
+# The table's own File column: every cited path must exist (repository-relative, or relative to research/ledger/).
+missing_paths = []
+for line in (R / "paper" / "CLAIMS_v1.md").read_text(encoding="utf-8").splitlines():
+    cells = [c.strip() for c in line.split("|")]
+    if len(cells) < 8 or not cells[1].isdigit():
+        continue
+    for tok in re.findall(r"`([^`]+)`", cells[4]):
+        tok = tok.strip()
+        if "/" not in tok and not re.search(r"\.(json|csv|md|py|parquet)$", tok):
+            continue
+        cands = [R / tok, ROOT / tok, R / "paper" / tok, R / "forward_v2" / tok, R / "gates_v6" / tok, R / "labels_audit_v1" / tok]
+        if not any(c.exists() for c in cands):
+            missing_paths.append({"row": cells[1], "path": tok})
+
 res = []
 for row, printed, computed in checks:
     in_paper = (re.sub(r"\s+", " ", printed[4:]) in SUPP_FLAT) if printed.startswith("S2: ") else (re.sub(r"\s+", " ", printed) in PAPER_FLAT)
     res.append({"row": row, "printed": printed, "computed": computed, "matches_locked": printed == computed, "found_in_paper": in_paper})
 bad = [r for r in res if not (r["matches_locked"] and r["found_in_paper"])]
-out = {"n_checks": len(res), "n_failed": len(bad), "failed": bad, "checks": res}
+out = {"n_checks": len(res), "n_failed": len(bad), "failed": bad, "claims_paths_missing": missing_paths, "checks": res}
 (R / "paper" / "CLAIMS_CHECK_v1.json").write_text(json.dumps(out, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
-print(f"{len(res)} checks, {len(bad)} failed")
+print(f"{len(res)} checks, {len(bad)} failed; cited paths missing: {len(missing_paths)}")
+for m in missing_paths:
+    print("  MISSING PATH row", m["row"], m["path"])
 for b in bad:
     print(" FAIL row", b["row"], "| printed:", b["printed"][:110], "| computed:", b["computed"][:110], "| in paper:", b["found_in_paper"])
-sys.exit(1 if bad else 0)
+sys.exit(1 if bad or missing_paths else 0)

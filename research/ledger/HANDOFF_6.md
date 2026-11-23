@@ -1,6 +1,6 @@
 # HANDOFF 6: run 6, a third animal (BANC)
 
-The run started at 10:19 PST on 23 November 2026 and ended about 15:45. Decisions are in LOG L176-L191 and the current state in
+The run started at 10:19 PST on 23 November 2026 and ended about 15:50 PST. Decisions are in LOG L176-L191 and the current state in
 `STATE.md`.
 
 ## 1. What exists now
@@ -24,11 +24,22 @@ Nothing was sent or posted.
 
 ## 2. Departures from the prompt
 
-1. **The rulebook's 16 departures** (`PREREG_v6.md` Part D), all fixed before any BANC screen. The ones that matter most:
-   - verdicts rest on the sets without DNg100;
-   - C6's verdict uses BANC as the only target, because the prompt's average is positive by construction;
-   - C8 has 12 types, because 3 of the 16 have no BANC group;
-   - C2 uses a cross-half statistic, because BANC has no bilateral annotation.
+1. **The rulebook's 16 departures** (`PREREG_v6.md` Part D), all fixed before any BANC screen:
+   - (1) the BANC table that the authors' configuration names;
+   - (2) 139 motor neurons, with the neck motor neurons left out;
+   - (3) C1 on label-consistent types;
+   - (4) C2 by the cross-half statistic, without a mirror network, because BANC has no bilateral annotation;
+   - (5) exact intervals;
+   - (6) verdicts on the sets without DNg100;
+   - (7) C6's verdict with BANC as the only target, because the prompt's average is positive by construction;
+   - (8) C8 with 12 types, because 3 of the 16 have no BANC group;
+   - (9) 2-s runs for the DNb08 check, and (10) its 130 motor neurons;
+   - (11) the locked original-procedure screens;
+   - (12) MANC's stored sweep, which no earlier lock covered;
+   - (13) a wiring check with a fixed caveat;
+   - (14) a same-name subset;
+   - (15) DNg100 judged even if no BANC screen is valid;
+   - (16) campaigns split into parts.
 2. **A fourth lock and tag, `ledger-paper-posthoc-v1`.** It holds post hoc numbers the revised paper needed: the corrected three-animal
    counts and C7's estimate for each pair alone (L189).
 3. **A locked script was edited after its locks.** `posthoc/paper_figures_v6.py` got label edits. The pre-revision lock check caught it;
@@ -40,6 +51,8 @@ Nothing was sent or posted.
    procedure for C3, C4 and C6-C8.
 8. **FANC was not screened.** No network with all its descending neurons exists on Zenodo.
 9. **Time.** The run took about 5.5 hours, not 12 to 20.
+10. **Final review fixes (L192):** Part V back in the Limitations; claims paths resolved (row 37 fixed); counts with DNg100 in RESULTS_5
+    and the brief; the study guide's questions now include the referee's.
 
 ## 3. The BANC build
 
@@ -68,6 +81,13 @@ Nothing was sent or posted.
 | C6 pooling | not shown | +0.20 over MANC; +0.02 (-0.03 to 0.07) over MaleCNS |
 | C7 animals needed | (estimate) | about 7 (4.3-9.7) |
 | C8 stability | stability under count noise predicts the third animal | Spearman 0.57, p = 0.029; fragile |
+
+Two sentences fixed in advance go with these words.
+
+- **C3's caveat:** "BANC's wiring of these types agrees with the other animals' less than the first two animals' wiring agreed, so
+  part of the gap may come from the build or the type match."
+- **C4's "at chance":** "'At chance' means the overlap could not be told apart from chance by this test, whose power is low; it does
+  not show that the hits fail to recur."
 
 ## 5. Hits across animals, DNg100 and DNb08
 
@@ -126,11 +146,11 @@ locked files; six figures; every page viewed.
 
 **Referee.**
 - *Strongest point:* the answer depends on the procedure. Hit lists overlap at chance under ours, but 14 of 18 recur under the sweep.
-- *Answer:* accepted. Hit lists now lead with the sweep, Table 2 shows both procedures, and the abstract says it.
+- *Answer:* accepted: hit lists lead with the sweep, and Table 2 shows both procedures.
 
 **Numbers and references.**
 - *Strongest point:* four types, not three, are hits in all three animals; Fig. 4 had read the wrong table.
-- *Answer:* accepted. A new post hoc lock was added, Fig. 4 redrawn, and two titles fixed.
+- *Answer:* accepted: a new post hoc lock, Fig. 4 redrawn, two titles fixed.
 
 **Naive reader.**
 - *Strongest point:* the paper never said how the current is set, or which procedure each number used.
@@ -166,9 +186,9 @@ locked files; six figures; every page viewed.
 1. Fill `paper/author.yaml`.
 2. Do the hand check in `paper/HAND_CHECK.md` and fill the marked line in Use of AI. Then run `paper/build.sh` without `--draft`.
 3. Read the paper once and pick the title.
-4. Check the quotes against the Nature version [1]; we checked them against preprint versions 1 and 2 only.
+4. Check the quotes against the Nature version [1] (we used preprint versions 1 and 2).
 5. Decide on the three outreach drafts, fill their recipients and links, and send them yourself.
-6. Commit `LOCK_paper_posthoc_v1.json.ots` once `ots upgrade` reports it complete (the background retry may have written it already).
+6. Commit `LOCK_paper_posthoc_v1.json.ots` once `ots upgrade` reports it complete (the retry may have written it).
 7. Make sure readers can reach the cited branch and tags before posting.
 
 ## 12. The email to the authors
@@ -199,18 +219,18 @@ locked files; six figures; every page viewed.
 
 - **Compute.** 14.88 of 150 GitHub Actions runner-hours (82 jobs). No Modal; the Mac ran no prediction.
 - **Agent sessions.** 5 of 8: the rulebook auditor and four paper reviewers.
-- **Time.** About 5.5 hours.
+- **Time.** About 5.5 hours, from 10:19 to about 15:50 PST.
 
 ## 14. What worries me
 
 1. **"Confirmed" could hardly fail.** Only agreement at the ceiling would have refuted it; the sizes and the wiring caveat are what
    inform.
-2. **Both procedures have problems.** The current-setting procedure failed its control in BANC, yet it produced the first two animals'
-   lists, the forward list's readings and BANC's left-right and noise tests. The sweep calls about three times as many hits.
+2. **Both procedures have problems.** The current-setting procedure, which failed its control in BANC, produced the first two
+   animals' lists and the forward list's readings; the sweep calls about three times as many hits.
 3. **C8 is fragile.** A reviewer's unlocked check removes it by tying BANC scores below 0.10.
 4. **Biology and reconstruction cannot be separated** in BANC.
 5. **The labels were read by language models**, and the hand check is pending.
-6. **A locked script was edited** and stayed that way until the next lock check. Run the lock checks after every script edit.
+6. **A locked script was edited** after its locks; the lock check caught it, and the file was restored.
 7. **The forward list has weak entries.** DNg21 and DNg39 had no usable MANC draw and DNg63 only one. The list is frozen, so this is
    disclosed, not fixed.
 8. **No room in the word count.** The strict count is 4,967 of 5,000.

@@ -18,9 +18,9 @@ primary for the cross-animal tests C3, C4 and C6-C8, for all three animals. The 
 | **C1** left vs right copies in BANC (180 types) | a real gap | 0.58 of the ceiling (0.38-0.77); MANC 0.59, MaleCNS 0.64 (run 4) |
 | **C2** count noise in BANC | does not reproduce it | two copies with resampled synapse counts agree at 0.78 (0.64-0.89); left vs right 0.58; difference in agreement -0.21 (-0.37 to -0.05) |
 | **C3** across animals (sweep, 181 types) | confirmed in the third animal (wiring caveat) | MANC-BANC 0.35 (0.20-0.49), MaleCNS-BANC 0.50 (0.38-0.62); MANC-MaleCNS 0.31 (0.17-0.45, post hoc). Tuned, beside: 0.32, 0.44, 0.40. Wiring (two-step signed counts, 5-synapse floor): BANC vs MANC 0.61, vs MaleCNS 0.63, below the 0.71 floor; MANC vs MaleCNS 0.82 |
-| **C4** our MANC list in BANC (202 types) | above chance | 5 of 17 hits recur (0.10-0.56); 20 BANC hits; 1.7 expected by chance; p = 0.016 |
-| **C4** the authors' list in BANC (202 types) | at chance at the authors' cut | 1 of 6 recurs (0.00-0.64); 0.6 expected; p = 0.47 |
-| **C4** our MaleCNS list in BANC (182 types) | above chance | 12 of 60 recur (0.11-0.32); 6.3 expected; p = 0.004 |
+| **C4** our MANC list in BANC (202 types) | above chance | 5 of 17 hits recur (0.10-0.56); 20 BANC hits; 1.7 expected by chance; p = 0.016 [with DNg100, added 2026-11-23: 6 of 18] |
+| **C4** the authors' list in BANC (202 types) | at chance at the authors' cut | 1 of 6 recurs (0.00-0.64); 0.6 expected; p = 0.47 [with DNg100: 2 of 7] |
+| **C4** our MaleCNS list in BANC (182 types) | above chance | 12 of 60 recur (0.11-0.32); 6.3 expected; p = 0.004 [with DNg100: 13 of 61] |
 | **C5** DNg100 (tuned) | pass | type score 0.64 (11 of 16 draws >= 0.5); each copy alone 13 of 16; sweep 0.92 |
 | **C5** DNb08 (no prediction) | (none) | whole type tuned 0.00, sweep 0.25; each of its four copies alone 0 of 16 (the authors' copy, position 2446, included); the authors report 0.000 |
 | **C6** does pooling two animals predict the third? (181 types) | not shown | pooled vs MANC alone +0.20 (0.08 to 0.32); pooled vs MaleCNS alone +0.02 (-0.03 to 0.07) |
@@ -90,4 +90,6 @@ Logged in LOG L190. The original sentences are kept above, struck through or mar
    known.
 4. **"At chance".** C4's fixed sentence now stands beside the authors' list in caveat 1, and that list is described as our 0.5 cut of
    their whole-type screen.
+5. **Counts with DNg100.** The rulebook's reporting rule (X7) asks for every count with and without DNg100 in this file, the paper and
+   the brief; the C4 rows now carry the with-DNg100 counts (`C4[*].{manc_banc_high,mcns_banc_high}`).
 

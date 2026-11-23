@@ -48,8 +48,9 @@ conversation about it. Every file named is under `research/ledger/` unless state
 
 ## 2. The results, one by one
 
-**R1. Left and right copies disagree in the authors' own screen.** In the authors' published single-neuron screen, a type's left and
-right copies agree at only 0.63 of the ceiling; our screens show the same in all three animals. *Remember:* 0.63 (0.53-0.72); ours 0.59,
+**R1. Left and right copies agree less than a screen agrees with itself.** In the authors' published single-neuron screen, a type's left
+and right copies agree at 0.63 of the ceiling; our one-sided screens show a similar gap in all three animals (BANC's ran on the
+current-setting procedure, which failed its control there). *Remember:* 0.63 (0.53-0.72); ours 0.59,
 0.64 and, pre-registered in BANC, 0.58 (0.38-0.77). *Measured:* Spearman of left-copy against right-copy scores across types, from halves of
 the random draws, divided by the ceiling (`reliability_v2/A0.json`, `A.json`, `thirdfly_v1/C_tests.json` C1). *Weakest point:* left and
 right copies are two different neurons; nothing says a real fly's copies behave differently.
@@ -64,8 +65,8 @@ ceiling, and the pre-registered test confirmed the gap in BANC. *Remember:* MANC
 181 types); hit lists depend on the procedure: at the authors' threshold the first two animals' lists share 1 hit where 1.0 is
 expected under the current-setting procedure, but 14 of 18 MANC hits recur under the sweep (6 expected; both post hoc); in BANC our MANC
 hits recur 5 of 17 (1.7 expected), our 0.5 cut of the authors' whole-type screen 1 of 6 (0.6 expected; a test of low power). *Measured:* `C_tests.json` C3, C4; `posthoc_v6/H_posthoc.json`.
-*Weakest point:* BANC's wiring also agrees less with the others (0.61-0.63 vs 0.82), so part of the gap may be reconstruction or type
-matching, not the simulation; and the tests use the sweep, not the procedure the first two animals' lists came from.
+*Weakest point:* BANC's wiring also agrees less with the others (0.61-0.63 vs 0.82), so part of the gap may come from the build or the type
+match; and the tests use the sweep, not the procedure the first two animals' lists came from.
 
 **R4. Which neurons recur.** Under the current-setting procedure DNg100's recurrence is built into our calibration; under the sweep it
 is a hit in all three animals, as the authors found, but it is not counted because the build check and the validity rule used it. DNb08
@@ -87,35 +88,48 @@ test's AUROC 0.577 is not interpreted. *Measured:* `results/run3/primary.json`, 
 language models; the two source labs disagree with each other (kappa 0.24).
 
 **R7. Twelve experiments.** A pre-registered list of twelve descending-neuron types to switch on in headless flies, with a decision rule.
-*Remember:* 12 types, three readings each. *Measured:* `forward_v2/`. *Weakest point:* with the available lines, it cannot decide between
-the replication reading and the authors' list.
+*Remember:* 12 types, three readings each. *Measured:* `forward_v2/`. *Weakest point:* it cannot separate the replication reading from the
+single-connectome reading (power near zero); the list was made after the replication pattern was seen; DNg63 rests on one usable MANC
+draw, and DNg21 and DNg39 had none.
 
 ## 3. The ten hardest questions the original authors could ask
 
-1. **"Your MaleCNS and BANC screens are not our model."** Our MaleCNS model reproduces your DNg100 result (0.985 vs 0.985) and your single
-   DNb08 result at your own configuration (15 of 16 draws); our BANC build reproduces your DNg100 and silencing results (gate); our MANC
-   screen shares 10 of your 11 hits. What differs is our current-setting procedure, and we say so. *Files:* `thirdfly_v1/C_tests.json`
-   (V), `gates_v6/BANC_GATE.json`, `pertype_v1/`.
-2. **"DNg100's recurrence is circular."** Yes. Our procedure's one setting was chosen on DNg100; we never count it, and every
-   pre-registered word rests on sets without DNg100. Under the original procedure DNg100 is not even a hit in MaleCNS (0.059). *Files:*
-   `PREREG_v2.md` P1, `PREREG_v6.md` G5, `predictions/B2/types.csv`.
-3. **"0.5 is an arbitrary threshold; lower it and the lists overlap."** Correct for the first two animals: at 0.3, 14 shared hits where 6
-   are expected (post hoc). We show the whole curve and say so. *Files:* `posthoc_v6/H_tables.md`, `paper/figures_v1/fig3_*`.
-4. **"Left and right copies are different neurons."** Yes; the ceiling asks how much of the screen's reproducible variation the copies
-   share. We do not claim real flies' copies differ. *Files:* `PREREG_v4.md` G6-G7, `reliability_v2/A0.json`.
-5. **"Your procedure failed its own control in BANC, so ignore BANC."** The rule fixed beforehand made the sweep primary (DNg100 8 of 8);
-   the procedure's own numbers, reported beside, show the same gaps (0.32 and 0.44 vs 0.40). *Files:* `C_tests.json` B4_validity, C3.tuned.
-6. **"BANC differs in sex, reconstruction and synapse detection."** Agreed, and our wiring check shows it (0.61-0.63 vs 0.82). We cannot
-   separate biology from reconstruction; we say part of the gap may come from either. *Files:* `C_tests.json` C3_wiring.
-7. **"Language models read your labels."** True; the first test is reported and not interpreted; an audit found 3 errors in 39 types; the
-   hand check of 20 labels is yours to do before posting. *Files:* `LABEL_AUDIT_v1.md`, `paper/HAND_CHECK.md`.
-8. **"So the gap is just counting noise?"** No. Noise reproduced it in MANC and not in BANC. Noise of this size can produce such a gap in
-   one network; that does not identify the cause. *Files:* `reliability_v2/NOISE.json`, `C_tests.json` C2.
-9. **"Your stability result contradicts your earlier null."** The earlier test had three recurring types and could not be informative;
-   this one is a second, pre-registered try on a new animal, positive but fragile. *Files:* `replication_v1/S_tests.json`, `C_tests.json` C8.
-10. **"We called the screen a discovery tool; you test a use we never claimed."** We quote that framing and say we test something beyond
-    it; your choice to follow up only types whose every copy scored high is the kind of check our results support. *Files:*
-    `paper/PREPRINT_v1.md` Introduction and Discussion; `research/literature/pugliese_walking_cpg_detailed_notes.md` sections 4.2, 13.
+1. **"Your MaleCNS and BANC screens are not our model."** Our MaleCNS model reproduces your DNg100 result (0.985 vs 0.985) and your
+   single-DNb08 result at your configuration (15 of 16 draws); the BANC build reproduces your DNg100 and silencing results; our MANC screen
+   shares 10 of your 11 whole-type hits. What differs is our current-setting procedure, and the paper says so. *Files:*
+   `thirdfly_v1/C_tests.json` (V), `gates_v6/BANC_GATE.json`, `pertype_v1/`.
+2. **"DNg100's recurrence is circular."** Under the current-setting procedure, yes: its one setting was chosen on DNg100, after a first
+   screen in which DNg100 scored 0.059 in MaleCNS. Under the sweep nothing was calibrated, but DNg100 was the build check and the validity
+   control, so it is never counted. *Files:* `PREREG_v2.md` P1, `predictions/B2/types.csv`, `PREREG_v6.md` G5.
+3. **"Your headline depends on the procedure."** Correct, and the paper now leads with it. At 0.5, the first two animals' hit lists overlap
+   at chance under the current-setting procedure but 14 of 18 recur under the sweep (6 expected; post hoc). But the sweep calls about three
+   times as many hits, and over all types it agrees no better (0.31 against 0.40). Lower thresholds also raise the overlap (Fig. 3).
+   *Files:* `posthoc_v6/H_tables.md`, `thirdfly_v1/C_tests.json` C3, `paper_posthoc_v1/`.
+4. **"'Confirmed in the third animal' could not fail."** Nearly so: only agreement at the ceiling would have refuted it, and no pair of
+   animals has come close. The rulebook itself says "confirmed" says nothing about size. What informs is the size: BANC's agreements, 0.35
+   and 0.50, are no lower than the first two animals' 0.31. *Files:* `PREREG_v6.md` C3, `C_tests.json` C3.
+5. **"Your procedure failed its own control in BANC, yet your BANC left-right and noise tests used it."** As pre-registered: the validity
+   rule moved only the cross-animal tests to the sweep. Each DNg100 copy alone still reached 0.5 in 13 of 16 draws, and the paper states
+   which procedure each test used. The one-sided screens rest on the minority of types that respond (median score 0). *Files:*
+   `C_tests.json` B4_validity, C1, C5.
+6. **"Left and right copies are different neurons."** Yes; the ceiling asks how much of the screen's reproducible variation the copies
+   share. We do not claim that real flies' copies differ. *Files:* `PREREG_v4.md` G6-G7, `reliability_v2/A0.json`.
+7. **"BANC differs in sex, reconstruction and synapse detection, and your wiring check does not even track the screen agreement."**
+   Agreed on both. BANC's wiring agrees less with the others (0.61-0.63 vs 0.82), yet the most similarly wired pair (MANC and MaleCNS) has
+   the least similar screens. We cannot separate biology from the build, and the paper says so. You attribute some of your own
+   cross-dataset differences to reconstruction and synapse detection, and we cite that. *Files:* `C_tests.json` C3_wiring.
+8. **"Our list recurred at chance because it is short."** Yes. With six matched hits, the test had about one chance in four of detecting
+   recurrence even if 30 % recur; the rates are similar (17 %, against 29 % and 20 % for our lists). The list is our 0.5 cut of your
+   whole-type screen, not a list you published, and the contrast is gone from the abstract and the Discussion. *Files:* `PREREG_v6.md` C4
+   (power), `C_tests.json` C4.
+9. **"We called the screen a discovery tool; you test a use we never claimed."** We quote that framing and say we test something beyond
+   it. Your choice to follow up only types whose every copy scored high is the kind of check our results support. *Files:*
+   `paper/PREPRINT_v1.md` (Introduction, Discussion); the notes on your paper.
+10. **"Your positive evidence is thin: language models read the labels, the stability result is fragile, and '7 animals' assumes
+    exchangeable animals."** All true. The first literature test is not interpreted, and an audit found 3 errors in 39 labels. The
+    stability correlation rests on 12 types, 10 of them near zero, with a predictor chosen after a nominal positive. The '7 animals'
+    interval resamples types, not animals, and the pairs differ (each pair alone gives 4 to 9). The hand check of 20 labels is yours to do.
+    *Files:* `LABEL_AUDIT_v1.md`, `C_tests.json` C7 and C8, `paper_posthoc_v1/PAPER_POSTHOC.json`.
 
 ## 4. What you must never claim, and why
 

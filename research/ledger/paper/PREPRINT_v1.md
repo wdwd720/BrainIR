@@ -156,7 +156,7 @@ more hits and agrees no better over all types (0.31 against 0.40).
 
 ### 4. Which neurons recur
 
-One caveat comes before any list. Our current-setting procedure has one free setting, the number of front-leg motor neurons that must be
+First, a caveat. Our current-setting procedure has one free setting, the number of front-leg motor neurons that must be
 active. Both animals had first been screened with the original procedure (DNg100 0.06 in MaleCNS); the setting was then chosen by running
 DNg100 alone, as the smallest value that made it a hit in at least 12 of 16 draws in both. DNg100's recurrence under this procedure is
 built in, and we never count it as evidence.
@@ -193,7 +193,7 @@ which the type stays a hit), were nominally positive (p = 0.035 and 0.033; the o
 The test used the 12 hits of our MANC screen or the authors' whole-type screen that have a BANC match, DNg100 left out. Each type's mean
 score across 16 MANC networks with resampled counts predicted its BANC score under the sweep: Spearman 0.57, one-sided p = 0.029 (Fig.
 5). The verdict fixed in advance is "stability under count noise predicts the third animal". Secondary, without a verdict: 0.64 with
-DNg100, 0.54 without DNb08, 0.53 with the earlier count of networks in which the type stays a hit, and a partial correlation of 0.56 given the type's score
+DNg100, 0.54 without DNb08, 0.53 with the earlier count-based measure, and a partial correlation of 0.56 given the type's score
 in the real network (no test or interval). The result is fragile: the predictor was chosen after a nominal positive; ten of the 12 BANC
 scores are below 0.07, so the correlation rests largely on the order of near-zero scores and on one clear hit; DNb08's failure in BANC
 was foreseeable from the authors' report; and two MANC hits rest on 1 and 6 usable draws of 16.
@@ -267,7 +267,8 @@ own cross-dataset differences to reconstruction and synapse detection[2].
 - Three animals that also differ in sex (two males, one female), reconstruction, synapse detection and annotation. The networks, as the
   authors built them, differ too: BANC's has no synapse threshold, MANC's and MaleCNS's keep connections of at least 5 synapses; neuron
   sizes come from surface area in BANC and volume in MANC and MaleCNS; MANC's descending neurons are cut at the neck.
-- The second and third animals' screens are ours, on the authors' networks; the authors published no screen of either.
+- The second and third animals' screens are ours, on the authors' networks; the authors published no screen of either. Our
+  MaleCNS model reproduces their DNg100 and single-DNb08 results, which our current-setting procedure had missed.
 - Our current-setting procedure was calibrated once on DNg100, after a first screen, and failed its positive control in BANC. The
   cross-animal tests rest on the current sweep, which calls many more hits; the BANC left-right and count-noise tests used the
   current-setting procedure.
@@ -290,7 +291,7 @@ which the authors' own simulation output also fails. A screen gives the excitato
 current (the authors' arbitrary units) and scores the front-leg motor neurons. A neuron is active if its rate exceeds 0.01 Hz at any
 time (the authors' definition). Our current-setting procedure starts at 128 and halves, doubles or bisects (at most 10 runs) until
 activity lies within fixed bounds (10 to 1,500 active neurons, at most 200 above 100 Hz) and at least one front-leg motor neuron is
-active; the bounds, start and run limit follow the authors' screen, and the required number of active motor neurons (1) is the one free
+active; the bounds, start and run limit follow the authors' whole-type screen, and the required number of active motor neurons (1) is the one free
 setting. Runs last 1 s. A type's score is its mean over the draws with an accepted run (16 draws), or 0 if none; at least 0.5 is a hit.
 The original procedure omits the motor-neuron requirement. The sweep runs 19 fixed currents from 4 to 2,048 and keeps each draw's best
 in-bounds score (8 draws). One-sided screens stimulate one side's copies and read that side's motor neurons; a BANC copy's side is the
