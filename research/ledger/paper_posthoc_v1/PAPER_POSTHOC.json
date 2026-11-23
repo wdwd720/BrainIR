@@ -1,0 +1,173 @@
+{
+ "marking": "POST HOC (paper revision after the four reviews; not pre-registered; computed from locked screens)",
+ "cut": 0.5,
+ "set": "three_animal (gates_v6/TYPE_SETS_v6.json; 182 types incl. DNg100)",
+ "reproduces_C5_driver_table": {
+  "values_compared": 186,
+  "max_abs_difference": 0.0
+ },
+ "sweep": {
+  "with_DNg100": {
+   "n_types": 182,
+   "hits_per_animal": {
+    "MANC": 16,
+    "MaleCNS": 61,
+    "BANC": 20
+   },
+   "hit_in_at_least_one": 71,
+   "hit_in_at_least_two": 22,
+   "hit_in_all_three": 4,
+   "all_three_types": [
+    "DNa13",
+    "DNg100",
+    "DNxl092",
+    "DNxl134"
+   ],
+   "at_least_two_types": [
+    "DNa07",
+    "DNa13",
+    "DNb05",
+    "DNb06",
+    "DNb08",
+    "DNfl015",
+    "DNfl025",
+    "DNg100",
+    "DNg13",
+    "DNg75",
+    "DNg97",
+    "DNp56",
+    "DNp63",
+    "DNp71",
+    "DNxl091",
+    "DNxl092",
+    "DNxl134",
+    "DNxn101",
+    "DNxn118",
+    "DNxn122",
+    "DNxn151",
+    "DNxn161"
+   ]
+  },
+  "without_DNg100": {
+   "n_types": 181,
+   "hits_per_animal": {
+    "MANC": 15,
+    "MaleCNS": 60,
+    "BANC": 19
+   },
+   "hit_in_at_least_one": 70,
+   "hit_in_at_least_two": 21,
+   "hit_in_all_three": 3,
+   "all_three_types": [
+    "DNa13",
+    "DNxl092",
+    "DNxl134"
+   ],
+   "at_least_two_types": [
+    "DNa07",
+    "DNa13",
+    "DNb05",
+    "DNb06",
+    "DNb08",
+    "DNfl015",
+    "DNfl025",
+    "DNg13",
+    "DNg75",
+    "DNg97",
+    "DNp56",
+    "DNp63",
+    "DNp71",
+    "DNxl091",
+    "DNxl092",
+    "DNxl134",
+    "DNxn101",
+    "DNxn118",
+    "DNxn122",
+    "DNxn151",
+    "DNxn161"
+   ]
+  },
+  "all_three_from_locked_C4_intersection": [
+   "DNa13",
+   "DNg100",
+   "DNxl092",
+   "DNxl134"
+  ]
+ },
+ "current_setting": {
+  "with_DNg100": {
+   "n_types": 182,
+   "hits_per_animal": {
+    "MANC": 9,
+    "MaleCNS": 18,
+    "BANC": 10
+   },
+   "hit_in_at_least_one": 31,
+   "hit_in_at_least_two": 5,
+   "hit_in_all_three": 1,
+   "all_three_types": [
+    "DNg100"
+   ],
+   "at_least_two_types": [
+    "DNb08",
+    "DNfl015",
+    "DNg100",
+    "DNg13",
+    "DNxn151"
+   ]
+  },
+  "without_DNg100": {
+   "n_types": 181,
+   "hits_per_animal": {
+    "MANC": 8,
+    "MaleCNS": 17,
+    "BANC": 9
+   },
+   "hit_in_at_least_one": 30,
+   "hit_in_at_least_two": 4,
+   "hit_in_all_three": 0,
+   "all_three_types": [],
+   "at_least_two_types": [
+    "DNb08",
+    "DNfl015",
+    "DNg13",
+    "DNxn151"
+   ]
+  }
+ },
+ "C7_per_pair": {
+  "formula": "n* = (0.8 / 0.2) (1 - r) / r (Spearman-Brown; reproduces C7's locked n* from its rbar)",
+  "ratios": {
+   "MB": 0.34949768547733834,
+   "CB": 0.5049552063968599,
+   "MC": 0.31368018176715917
+  },
+  "n_star": {
+   "MB": 7.444997109313797,
+   "CB": 3.9214947174072243,
+   "MC": 8.75184162883822
+  },
+  "range": [
+   3.9214947174072243,
+   8.75184162883822
+  ],
+  "pairs": {
+   "MB": "MANC-BANC",
+   "CB": "MaleCNS-BANC",
+   "MC": "MANC-MaleCNS (post hoc reference)"
+  }
+ },
+ "inputs_sha256": {
+  "$DATA/ledger/posthoc_v6/GHA_ms-mcns-run6/results.pkl": "4a6a34efdc04a64266416bfd96352920c8d11b97e414f7a769f71a24b1622453",
+  "$DATA/ledger/reliability_v2/MODAL_dx-1-run4/results.pkl": "1db9b231d9eca92f7b3082e55aee51a78b0a8cfff8a3084af55ef785f832ab42",
+  "$DATA/ledger/thirdfly_v1/GHA_bs-p1-banc-run6/results.pkl": "4b7195fe3576b6bf8a7262716720f72993d380d160e43957392f3afa4804f741",
+  "$DATA/ledger/thirdfly_v1/GHA_bs-p2-banc-run6/results.pkl": "25399bdfef4dbd8495e1a0f06c8dc9ccef7938a5e23cf4401757d711e579cce5",
+  "$DATA/ledger/thirdfly_v1/GHA_bs-p3-banc-run6/results.pkl": "43b353bff39d56f09e9fae170ff0284b02dc4f3cf5a1c435d6743316795528f3",
+  "$DATA/ledger/thirdfly_v1/GHA_bt-p1-banc-run6/results.pkl": "7189fc3fe826864f71160ff8b1597bfe95a1401e05fe805219639c166b9cfa59",
+  "$DATA/ledger/thirdfly_v1/GHA_bt-p2-banc-run6/results.pkl": "9b6062a3c3ed6ef0bc09bea69f5d2b86167adb97248118cca4cc15e1c65e4987",
+  "research/ledger/gates_v6/TYPE_SETS_v6.json": "1c2ec1f19a3b054d8c894f071f0414921f3a68925987601b5df9ec3a5c41fc24",
+  "research/ledger/predictions_v2/B1r/replicates.parquet": "f6182da92c547a4e7ba47043381399a043e1cb06783534028a3797962712d24e",
+  "research/ledger/predictions_v2/B2r/replicates.parquet": "46214f7515ef52531ca1c39249773e8868890ce063d9779355ad4d233b1199c0",
+  "research/ledger/thirdfly_v1/C_tests.json": "d55c7c8d1f7cc971b0180aeb40daa629fbf2a5c13adf74456f3942380c083eba"
+ }
+}
