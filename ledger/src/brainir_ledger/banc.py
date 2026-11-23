@@ -195,6 +195,13 @@ def require_unblind(what: str) -> None:
     r = subprocess.run(["git", "ls-remote", "--tags", "origin", "refs/tags/ledger-prereg-v6"], cwd=repo, capture_output=True, text=True)
     if "ledger-prereg-v6" not in (r.stdout or ""):
         raise SystemExit(f"{what}: ledger-prereg-v6 is not on origin; BANC stays blind (refused)")
+    import sys  # noqa: PLC0415
+
+    sys.path.insert(0, str(repo / "ledger" / "scripts"))
+    import lock6  # noqa: PLC0415
+
+    if lock6.check(repo / "research" / "ledger" / "LOCK_prereg_v6.json") != 0:
+        raise SystemExit(f"{what}: LOCK_prereg_v6.json does not verify; BANC stays blind (refused)")
 
 
 def row_sign() -> np.ndarray:

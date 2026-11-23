@@ -253,11 +253,12 @@ def build_pv(k=None):
     return [({"W": net2.W, "sizes": net2.sizes, "readout": net2.readout}, jobs)], "thirdfly_v1"
 
 
-DET6_STAGES: dict[int, list[str]] = {1: ["bt-banc-run6", "ms-mcns-run6", "pv-mcns-run6"], 2: ["bh-banc-run6", "bs-banc-run6", "bn-banc-run6"]}
+DET6_STAGES: dict[int, list[str]] = {1: ["bg-banc-run6", "bt-banc-run6", "ms-mcns-run6", "pv-mcns-run6"],
+                                     2: ["bh-banc-run6", "bs-banc-run6", "bn-banc-run6"]}
 
 
 def build_det6(k=None):
-    """PREREG v6 X4: 20 jobs of every campaign of determinism stage k that exists when packed, drawn with default_rng(20261629) from
+    """PREREG v6 X3: 20 jobs of every campaign of determinism stage k that exists when packed (the gate `bg` included), drawn with default_rng(20261629) from
     its packed jobs, re-run with the same specification and payload; keys `D6~<campaign>~<key>` (as `gha5.build_det5`)."""
     import zlib  # noqa: PLC0415
 

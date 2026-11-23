@@ -168,6 +168,8 @@ def lock_prereg() -> None:
     rec["reviews_v6_at_freeze"] = L4._section(_gather("reviews_v6"))
     rec["gates_v6_at_freeze"] = L4._section(_gather("gates_v6"))
     rec["earlier_locks"] = L4._chain(*EARLIER6)
+    # PREREG v6 Part Q 6 / audit finding 10: MANC's whole-type sweep, under no earlier lock, fixed before any BANC result
+    rec["untracked_inputs_sha256"] = L5._untracked([REPO / "data" / "ledger" / "reliability_v2" / "MODAL_dx-1-run4" / "results.pkl"])
     rec["code"] = L4._code()
     rec["code_scope"] = ("every git-tracked file matching lock2.CODE_GLOBS plus ledger/scripts/posthoc/*.py at the freeze; binding "
                          "(changes only by v6 amendment rows)")

@@ -84,7 +84,14 @@ def test_one_sided_jobs_with_stand_in_sides(unfrozen, monkeypatch):
     fake = {"L": {t: m[:1] for t, m in g.items() if len(m) >= 2}, "R": {t: m[1:2] for t, m in g.items() if len(m) >= 2}}
     monkeypatch.setattr(B, "halves", lambda: fake)
     (sh, jobs), = G6.build_bh()[0]
-    assert {j["readout"].key if hasattr(j["readout"], "key") else str(j["readout"]) for j in jobs} >= set() and len(jobs) == 2 * 8 * len(fake["L"])
+    assert len(jobs) == 2 * 8 * len(fake["L"])
+    from brainir.compute.backend import Shared  # noqa: PLC0415
+
+    assert {j["key"].split("|")[0] for j in jobs} == {"BH-L", "BH-R"}
+    for j in jobs:
+        side = j["key"].split("|")[0][-1]
+        assert isinstance(j["readout"], Shared) and j["readout"].key == f"readout_{side}"
     assert set(sh) == {"W", "sizes", "readout", "readout_L", "readout_R"}
+    assert int(sh["readout_L"].sum()) == 68 and int(sh["readout_R"].sum()) == 71
     out, area = G6.build_bn()
     assert len(out) == 2 and all(len(j) == 8 * len(fake["L"]) for _, j in out)

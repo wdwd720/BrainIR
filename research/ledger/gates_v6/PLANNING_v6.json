@@ -1,69 +1,141 @@
 {
- "three_animal_set_n": 182,
+ "type_set_sizes": {
+  "three_animal": 182,
+  "three_animal_noDNg100": 181,
+  "manc_banc_high": 203,
+  "manc_banc_high_noDNg100": 202,
+  "manc_banc_all": 293,
+  "manc_banc_all_noDNg100": 292,
+  "mcns_banc_high": 183,
+  "mcns_banc_high_noDNg100": 182,
+  "mcns_banc_all": 298,
+  "mcns_banc_all_noDNg100": 297,
+  "manc_mcns_high": 215,
+  "manc_mcns_high_noDNg100": 214,
+  "manc_mcns_all": 310,
+  "manc_mcns_all_noDNg100": 309,
+  "three_animal_same_name": 97,
+  "three_animal_same_name_noDNg100": 96
+ },
+ "C4": {
+  "B1r": {
+   "set": "manc_banc_high_noDNg100",
+   "N": 202,
+   "n_x_drivers": 9,
+   "n_banc_drivers_15": {
+    "chance": 0.67,
+    "k_needed": 3,
+    "power_if_share_0.3": 0.537,
+    "power_if_share_0.5": 0.91
+   },
+   "n_banc_drivers_25": {
+    "chance": 1.11,
+    "k_needed": 4,
+    "power_if_share_0.3": 0.27,
+    "power_if_share_0.5": 0.746
+   },
+   "n_banc_drivers_35": {
+    "chance": 1.56,
+    "k_needed": 5,
+    "power_if_share_0.3": 0.099,
+    "power_if_share_0.5": 0.5
+   }
+  },
+  "A1": {
+   "set": "manc_banc_high_noDNg100",
+   "N": 202,
+   "n_x_drivers": 6,
+   "n_banc_drivers_15": {
+    "chance": 0.45,
+    "k_needed": 3,
+    "power_if_share_0.3": 0.256,
+    "power_if_share_0.5": 0.656
+   },
+   "n_banc_drivers_25": {
+    "chance": 0.74,
+    "k_needed": 3,
+    "power_if_share_0.3": 0.256,
+    "power_if_share_0.5": 0.656
+   },
+   "n_banc_drivers_35": {
+    "chance": 1.04,
+    "k_needed": 4,
+    "power_if_share_0.3": 0.07,
+    "power_if_share_0.5": 0.344
+   }
+  },
+  "B2r": {
+   "set": "mcns_banc_high_noDNg100",
+   "N": 182,
+   "n_x_drivers": 17,
+   "n_banc_drivers_15": {
+    "chance": 1.4,
+    "k_needed": 4,
+    "power_if_share_0.3": 0.798,
+    "power_if_share_0.5": 0.994
+   },
+   "n_banc_drivers_25": {
+    "chance": 2.34,
+    "k_needed": 6,
+    "power_if_share_0.3": 0.403,
+    "power_if_share_0.5": 0.928
+   },
+   "n_banc_drivers_35": {
+    "chance": 3.27,
+    "k_needed": 7,
+    "power_if_share_0.3": 0.225,
+    "power_if_share_0.5": 0.834
+   }
+  }
+ },
  "C6": {
-  "rule": "Spearman-Brown under exchangeable animals: corr(mean of two, third) = r sqrt(2 / (1 + r)); expected gain over one animal = r (sqrt(2 / (1 + r)) - 1)",
-  "r_planning": 0.37,
-  "r_source": "full-seed Spearman of B1r and B2r type scores on the three-animal set (post hoc)",
-  "expected_gain": 0.077,
-  "expected_gain_if_r": {
-   "0.2": 0.058,
-   "0.3": 0.072,
-   "0.4": 0.078,
-   "0.5": 0.077,
-   "0.6": 0.071
+  "statistic": "d_M = rho(mean(MANC, MaleCNS), BANC) - rho(MANC, BANC); d_C likewise with MaleCNS; 'pooling helps' iff both 95 % lower ends > 0 (same type resamples)",
+  "n_types": 181,
+  "r_manc_mcns": 0.361,
+  "expected_gain_if_r_to_banc": {
+   "0.25": 0.053,
+   "0.37": 0.079,
+   "0.5": 0.106
+  },
+  "null_check": {
+   "what": "BANC replaced by B2r shuffled over types (no information), 40 shuffles, 1,000 resamples each",
+   "share_pooling_helps": 0.0
+  },
+  "power_simulated": {
+   "what": "trivariate normal, r(MANC, MaleCNS) as observed, equal r to BANC, 150 data sets x 1,000 resamples; ignores the ties of real scores (optimistic)",
+   "r_to_banc_0.25": 0.0,
+   "r_to_banc_0.37": 0.147,
+   "r_to_banc_0.5": 0.54
   }
  },
  "C8": {
-  "n": 12,
-  "critical_rho_one_sided_0.05": 0.483,
-  "power_at_rho_0.3": 0.238,
-  "power_at_rho_0.5": 0.511,
-  "power_at_rho_0.7": 0.825
- },
- "C8_with_DNg100": {
-  "n": 13,
-  "critical_rho_one_sided_0.05": 0.456,
-  "power_at_rho_0.3": 0.271,
-  "power_at_rho_0.5": 0.549,
-  "power_at_rho_0.7": 0.868
- },
- "C4": {
-  "B1r_high": {
-   "N": 182,
-   "n_x": 11,
-   "n_banc_drivers_assumed": 20,
-   "chance_expectation": 1.21,
-   "k_needed": 4,
-   "smallest_attainable_p": 1.2572403231143665e-12,
-   "power_if_share_0.2": 0.161,
-   "power_if_share_0.3": 0.43,
-   "power_if_share_0.5": 0.887
+  "primary": {
+   "n": 12,
+   "critical_rho_one_sided_0.05": 0.497,
+   "power_at_rho_0.3": 0.243,
+   "power_at_rho_0.5": 0.506,
+   "power_at_rho_0.7": 0.828,
+   "note": "no ties assumed; BANC scores of 0 tie and lower the power further"
   },
-  "B1r_high_nb30": {
-   "N": 182,
-   "n_x": 11,
-   "n_banc_drivers_assumed": 30,
-   "chance_expectation": 1.81,
-   "k_needed": 5,
-   "smallest_attainable_p": 4.0890476484201857e-10,
-   "power_if_share_0.2": 0.05,
-   "power_if_share_0.3": 0.21,
-   "power_if_share_0.5": 0.726
+  "with_DNg100": {
+   "n": 13,
+   "critical_rho_one_sided_0.05": 0.478,
+   "power_at_rho_0.3": 0.246,
+   "power_at_rho_0.5": 0.542,
+   "power_at_rho_0.7": 0.855,
+   "note": "no ties assumed; BANC scores of 0 tie and lower the power further"
   },
-  "B2r_high": {
-   "N": 182,
-   "n_x": 23,
-   "n_banc_drivers_assumed": 20,
-   "chance_expectation": 2.53,
-   "k_needed": 6,
-   "smallest_attainable_p": 8.006061496019548e-24,
-   "power_if_share_0.2": 0.305,
-   "power_if_share_0.3": 0.731,
-   "power_if_share_0.5": 0.995
+  "without_DNb08": {
+   "n": 11,
+   "critical_rho_one_sided_0.05": 0.518,
+   "power_at_rho_0.3": 0.23,
+   "power_at_rho_0.5": 0.471,
+   "power_at_rho_0.7": 0.799,
+   "note": "no ties assumed; BANC scores of 0 tie and lower the power further"
   }
  },
  "C7": {
-  "rule": "n* = 4 (1 - rbar) / rbar (Spearman-Brown: pooled agreement of n animals = n rbar / (1 + (n - 1) rbar) >= 0.8)",
+  "rule": "n* = 4 (1 - rbar) / rbar; n* = 1 if rbar >= 0.8; infinity if rbar <= 0",
   "n_star_if_rbar": {
    "0.20": 16.0,
    "0.30": 9.3,
@@ -72,5 +144,11 @@
    "0.60": 2.7,
    "0.80": 1.0
   }
+ },
+ "wiring_reference": {
+  "S2_twohop_signed_spearman_MANC_MaleCNS": 0.823,
+  "n_types": 181,
+  "caveat_floor": 0.71,
+  "caveat_floor_source": "the lowest of run 4's seven wiring summaries across sides and animals (WIRING_A4.json)"
  }
 }
