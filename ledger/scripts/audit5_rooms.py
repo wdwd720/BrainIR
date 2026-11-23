@@ -610,7 +610,13 @@ def canary_check(sess: str) -> dict:
     leaked = any(token in p.read_text(encoding="utf-8", errors="replace") for p in (ROOMS / sess / "out").rglob("*") if p.is_file())
     leaked |= any(token in p.read_text(encoding="utf-8", errors="replace") for p in ROOMS.glob(f"{sess}.*.stream.jsonl"))
     ran = bool(a["transcripts"]) and a["n_tool_calls"] > 0
-    out = {"session": sess, "mode": man["mode"], "ran": ran, "successful_outside_accesses": a["issues"], "blocked_attempts": a["blocked_attempts"],
+    def clean(x):  # no absolute path in a committed file (CLAUDE.md rule 4)
+        t = json.dumps(x)
+        if L2R.SCRATCH_HINT:
+            t = t.replace(str(L2R.SCRATCH_HINT), "$LEDGER_SCRATCH")
+        return json.loads(t.replace(str(HOME), "~"))
+
+    out = {"session": sess, "mode": man["mode"], "ran": ran, "successful_outside_accesses": clean(a["issues"]), "blocked_attempts": clean(a["blocked_attempts"]),
            "token_leaked": leaked, "verdict": "pass" if ran and not a["issues"] and not leaked else ("did_not_run" if not ran else "fail"),
            "utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
     p = OUT / f"CANARY_{man['mode']}.json"
