@@ -1,0 +1,76 @@
+{
+ "three_animal_set_n": 182,
+ "C6": {
+  "rule": "Spearman-Brown under exchangeable animals: corr(mean of two, third) = r sqrt(2 / (1 + r)); expected gain over one animal = r (sqrt(2 / (1 + r)) - 1)",
+  "r_planning": 0.37,
+  "r_source": "full-seed Spearman of B1r and B2r type scores on the three-animal set (post hoc)",
+  "expected_gain": 0.077,
+  "expected_gain_if_r": {
+   "0.2": 0.058,
+   "0.3": 0.072,
+   "0.4": 0.078,
+   "0.5": 0.077,
+   "0.6": 0.071
+  }
+ },
+ "C8": {
+  "n": 12,
+  "critical_rho_one_sided_0.05": 0.483,
+  "power_at_rho_0.3": 0.238,
+  "power_at_rho_0.5": 0.511,
+  "power_at_rho_0.7": 0.825
+ },
+ "C8_with_DNg100": {
+  "n": 13,
+  "critical_rho_one_sided_0.05": 0.456,
+  "power_at_rho_0.3": 0.271,
+  "power_at_rho_0.5": 0.549,
+  "power_at_rho_0.7": 0.868
+ },
+ "C4": {
+  "B1r_high": {
+   "N": 182,
+   "n_x": 11,
+   "n_banc_drivers_assumed": 20,
+   "chance_expectation": 1.21,
+   "k_needed": 4,
+   "smallest_attainable_p": 1.2572403231143665e-12,
+   "power_if_share_0.2": 0.161,
+   "power_if_share_0.3": 0.43,
+   "power_if_share_0.5": 0.887
+  },
+  "B1r_high_nb30": {
+   "N": 182,
+   "n_x": 11,
+   "n_banc_drivers_assumed": 30,
+   "chance_expectation": 1.81,
+   "k_needed": 5,
+   "smallest_attainable_p": 4.0890476484201857e-10,
+   "power_if_share_0.2": 0.05,
+   "power_if_share_0.3": 0.21,
+   "power_if_share_0.5": 0.726
+  },
+  "B2r_high": {
+   "N": 182,
+   "n_x": 23,
+   "n_banc_drivers_assumed": 20,
+   "chance_expectation": 2.53,
+   "k_needed": 6,
+   "smallest_attainable_p": 8.006061496019548e-24,
+   "power_if_share_0.2": 0.305,
+   "power_if_share_0.3": 0.731,
+   "power_if_share_0.5": 0.995
+  }
+ },
+ "C7": {
+  "rule": "n* = 4 (1 - rbar) / rbar (Spearman-Brown: pooled agreement of n animals = n rbar / (1 + (n - 1) rbar) >= 0.8)",
+  "n_star_if_rbar": {
+   "0.20": 16.0,
+   "0.30": 9.3,
+   "0.38": 6.5,
+   "0.50": 4.0,
+   "0.60": 2.7,
+   "0.80": 1.0
+  }
+ }
+}

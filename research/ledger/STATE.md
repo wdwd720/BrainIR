@@ -18,8 +18,9 @@ run 5's state is in git history (this file at ec770a8).
 - [x] Stage 0 (10:19 PST): prompt saved; tree clean; start baseline 25/25 locks, ledger 285 passed, BrainIR 1 known failure (L5);
       caffeinate; trust gate `trust-run6` published (compare pending).
 - [x] Stage 1 build: `ledger/src/brainir_ledger/banc.py` (pinned sources, build, matching, confidence); three-animal set 182 (L177).
-- [ ] Stage 1 gate: `gates_v6/BANC_GATE_SPEC.md`; campaign `bg-banc-run6` (gha6.py) -> evaluate -> gates_v6/BANC_GATE.json.
-- [ ] Stage 2: PREREG_v6.md (Q, H, BANC procedures, validity, C1-C8, V, forward, X, D); audit (1 agent) + re-check; freeze.
+- [x] Stage 1 gate PASSED (L178): DNg100 0.994 (64/64), E1 0.000, E2 0.028, I2 0.993; trust gate 100/100 identical.
+- [ ] Stage 2: PREREG_v6.md drafted (L178); builders + lock6 + tests written; audit (agent 1) + re-check pending; then freeze
+      (`lock6.py prereg`, commit, tag ledger-prereg-v6, push, OTS).
 - [ ] Stage 3: Part H (+ MaleCNS sweep if needed), Part V, BANC tuned / sweep / one-sided / noise, tests; locks posthoc_v6, thirdfly_v1.
 - [ ] RESULTS_5.md; Stage 4 paper v1 + supplement + claims + figures + build.sh + PDF/DOCX; four reviews + addenda.
 - [ ] Stage 5 STUDY_GUIDE.md, HAND_CHECK.md; Stage 6 BRIEF_v3, outreach v2; HANDOFF_6.md.

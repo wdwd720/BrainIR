@@ -187,6 +187,69 @@ def match_confidence() -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def require_unblind(what: str) -> None:
+    """RUN6_PROMPT hard limit 2: no wiring summary of BANC descending neurons before `ledger-prereg-v6` is tagged and pushed."""
+    import subprocess  # noqa: PLC0415
+
+    repo = Path(__file__).resolve().parents[3]
+    r = subprocess.run(["git", "ls-remote", "--tags", "origin", "refs/tags/ledger-prereg-v6"], cwd=repo, capture_output=True, text=True)
+    if "ledger-prereg-v6" not in (r.stdout or ""):
+        raise SystemExit(f"{what}: ledger-prereg-v6 is not on origin; BANC stays blind (refused)")
+
+
+def row_sign() -> np.ndarray:
+    """Sign of each presynaptic neuron in the released matrix (+1 / -1; 0 for a neuron without outputs)."""
+    Wf = np.load(fetch()["W_20260217.npz"])["arr_0"]
+    pos, neg = (Wf > 0).any(1), (Wf < 0).any(1)
+    return np.where(pos, 1.0, np.where(neg, -1.0, 0.0))
+
+
+def raw_counts() -> sp.csr_matrix:
+    """Unsigned released counts, post x pre (no floor: the authors' BANC network has none)."""
+    C = abs(network().W).tocsr()
+    C.sort_indices()
+    return C
+
+
+@lru_cache(maxsize=1)
+def dn_sides() -> pd.DataFrame:
+    """PREREG v6 B2 (run 4's G3 applied to BANC): for every excitatory DN member of a group, the annotated side (`side`) and the output
+    side (the side holding the majority of its output synapse counts onto neurons annotated left or right; undefined if none or exactly
+    half). The annotation is reliable if it agrees with the output side for >= 90 % of the members whose output side is defined; if
+    reliable every member keeps its annotation (midline members are left out of the half-fly groups), otherwise every member's side is
+    its output side (undefined -> left out). Computed only after the freeze."""
+    require_unblind("BANC DN output sides")
+    t = table()
+    C = raw_counts().tocsc()
+    lr = t["side_lr"].to_numpy()
+    rows = []
+    for mt, idx in groups().items():
+        for i in idx:
+            col = C.getcol(i)
+            post, w = col.indices, col.data
+            sl, sr = float(w[lr[post] == "L"].sum()), float(w[lr[post] == "R"].sum())
+            out = "L" if sl > sr else ("R" if sr > sl else None)
+            rows.append({"manc_type": mt, "pos": int(i), "annotated": lr[i], "output_side": out, "out_L": sl, "out_R": sr})
+    d = pd.DataFrame(rows)
+    defined = d["output_side"].notna() & d["annotated"].isin(["L", "R"])
+    agree = float((d.loc[defined, "annotated"] == d.loc[defined, "output_side"]).mean()) if defined.any() else float("nan")
+    reliable = bool(agree >= 0.90)
+    d["side"] = d["annotated"].where(d["annotated"].isin(["L", "R"])) if reliable else d["output_side"]
+    d.attrs.update({"agreement": agree, "n_defined": int(defined.sum()), "reliable": reliable})
+    return d
+
+
+def halves() -> dict[str, dict[str, list[int]]]:
+    """Half-fly groups (PREREG v6 B2): per side, each group's members on that side, for the types with >= 1 member on each side."""
+    d = dn_sides()
+    out: dict[str, dict[str, list[int]]] = {"L": {}, "R": {}}
+    for mt, g in d.groupby("manc_type"):
+        L, R = sorted(g.loc[g["side"] == "L", "pos"]), sorted(g.loc[g["side"] == "R", "pos"])
+        if L and R:
+            out["L"][str(mt)], out["R"][str(mt)] = [int(x) for x in L], [int(x) for x in R]
+    return out
+
+
 def sign_check() -> dict:
     """Rows of the released matrix: single-signed, and their sign against the transmitter rule (reported, never changed)."""
     t = table()
