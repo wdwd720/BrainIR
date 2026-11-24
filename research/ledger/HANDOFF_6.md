@@ -1,6 +1,6 @@
 # HANDOFF 6: run 6, a third animal (BANC)
 
-The run started at 10:19 PST on 23 November 2026 and ended about 15:50 PST. Decisions are in LOG L176-L192 and the current state in
+The run started at 10:19 PST on 23 November 2026 and ended about 15:50 PST. Decisions are in LOG L176-L193 and the current state in
 `STATE.md`.
 
 ## 1. What exists now
@@ -12,7 +12,7 @@ Everything is pushed to `ledger/v1`; `main` is untouched. All four tags are on t
 | `ledger-prereg-v6` | `LOCK_prereg_v6.json`, 08f1ad754ac2d53cbc28d6288d4be43a293f9162c7e3d256f2a9755c7c51bd20 | Bitcoin-attested |
 | `ledger-posthoc-v6` | `LOCK_posthoc_v6.json`, 4b680b1f960f368adf1e9d73d402efd0cfea23eba39f5af6d075252b088f7c50 | attested |
 | `ledger-thirdfly-v1` | `LOCK_thirdfly_v1.json`, b8ef3e6810fa6ff6efa26425c3499a8cb04291621fc1865c0c2a791634bcf395 | attested |
-| `ledger-paper-posthoc-v1` | `LOCK_paper_posthoc_v1.json`, 3dcb99d0a3143db1d98a7925e0ca30c9950b033c27eb332d4fc52d66f1fb4b20 | pending; a retry is running |
+| `ledger-paper-posthoc-v1` | `LOCK_paper_posthoc_v1.json`, 3dcb99d0a3143db1d98a7925e0ca30c9950b033c27eb332d4fc52d66f1fb4b20 | attested |
 
 **Final baseline:** all 25 earlier lock checks and all 4 run-6 checks pass. The ledger suite passes 302 tests; the BrainIR suite passes
 532, with the one known failure (L5).
@@ -188,8 +188,7 @@ locked files; six figures; every page viewed.
 3. Read the paper once and pick the title.
 4. Check the quotes against the Nature version [1] (we used preprint versions 1 and 2).
 5. Decide on the three outreach drafts, fill their recipients and links, and send them yourself.
-6. Commit `LOCK_paper_posthoc_v1.json.ots` once `ots upgrade` reports it complete (the retry may have written it).
-7. Make sure readers can reach the cited branch and tags before posting.
+6. Make sure readers can reach the cited branch and tags before posting.
 
 ## 12. The email to the authors
 
